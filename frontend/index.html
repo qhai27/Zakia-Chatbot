@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ms">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ZAKIA Chatbot - LZNK</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="chatbox" role="region" aria-label="ZAKIA Chatbot">
+    <div class="header">
+      <div class="header-left">
+        <img src="zakia-avatar.png" class="avatar" alt="ZAKIA">
+        <div class="header-text">
+          <h3>ZAKIA</h3>
+          <p>LZNK • Sokongan Zakat</p>
+        </div>
+      </div>
+      <button id="endChat" class="btn-tertiary" title="Tamatkan sesi">Tamat</button>
+    </div>
+
+    <div id="messages" class="messages" aria-live="polite" aria-relevant="additions">
+      <div class="msg bot">
+        <div class="bubble">Assalamualaikum dan salam sejahtera👋 Saya ZAKIA, pembantu maya dari Lembaga Zakat Negeri Kedah (LZNK). Bagaimana saya boleh membantu anda hari ini?</div>
+      </div>
+    </div>
+
+    <div id="typing" class="typing hidden">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="typing-text">ZAKIA sedang menaip…</span>
+    </div>
+
+    <div id="quickReplies" class="quick-replies">
+      <button class="chip" data-text="Apa itu zakat?">Apa itu zakat?</button>
+      <button class="chip" data-text="Siapa yang wajib membayar zakat?">Siapa wajib?</button>
+      <button class="chip" data-text="Cara pembayaran zakat?">Cara bayar</button>
+      <button class="chip" data-text="Apakah waktu sesuai untuk bayar zakat?">Waktu bayar</button>
+    </div>
+
+    <div class="input-area">
+      <input type="text" id="userInput" placeholder="Tulis mesej anda…" autocomplete="off" />
+      <button id="sendBtn" class="btn-primary" aria-label="Hantar" title="Hantar">➤</button>
+    </div>
+  </div>
+
+  <script>
+    const messagesEl = document.getElementById("messages");
+    const inputEl = document.getElementById("userInput");
+    const typingEl = document.getElementById("typing");
+    const sendBtn = document.getElementById("sendBtn");
+    const endBtn = document.getElementById("endChat");
+    const quickRepliesEl = document.getElementById("quickReplies");
+
+    let sessionId = null;
+
+    function appendMessage(text, sender) {
+      const msg = document.createElement('div');
+      msg.className = `msg ${sender}`;
+      msg.innerHTML = `<div class="bubble">${escapeHtml(text)}</div>`;
+      messagesEl.appendChild(msg);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function setTyping(isTyping) {
+      typingEl.classList.toggle('hidden', !isTyping);
+    }
+
+    function escapeHtml(str) {
+      return str
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;');
+    }
+
+    function hideQuickReplies() {
+      quickRepliesEl.style.display = 'none';
+    }
+
+    function showQuickReplies() {
+      quickRepliesEl.style.display = 'flex';
+    }
+
+    async function sendMessage(messageOverride) {
+      const text = (messageOverride ?? inputEl.value).trim();
+      if (!text) return;
+
+      appendMessage(text, 'user');
+      inputEl.value = '';
+      sendBtn.disabled = true;
+      setTyping(true);
+      hideQuickReplies();
+
+      try {
+        const requestBody = { message: text };
+        if (sessionId) {
+          requestBody.session_id = sessionId;
+        }
+
+        const res = await fetch("http://127.0.0.1:5000/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(requestBody)
+        });
+
+        const data = await res.json();
+
+        if (data.session_id) {
+          sessionId = data.session_id;
+        }
+
+        appendMessage(data.reply || 'Maaf, ralat pelayan. Cuba lagi. 🙏', 'bot');
+
+        // Show quick replies after bot response
+        setTimeout(() => showQuickReplies(), 1000);
+
+      } catch (e) {
+        appendMessage('Maaf, tidak dapat capai pelayan sekarang. Sila cuba lagi.', 'bot');
+        showQuickReplies();
+      } finally {
+        setTyping(false);
+        sendBtn.disabled = false;
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+      }
+    }
+
+    // Events
+    sendBtn.addEventListener('click', () => sendMessage());
+    inputEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    quickRepliesEl.addEventListener('click', (e) => {
+      const target = e.target;
+      if (target.classList.contains('chip')) {
+        sendMessage(target.getAttribute('data-text'));
+      }
+    });
+
+    endBtn.addEventListener('click', () => {
+      messagesEl.innerHTML = '';
+      sessionId = null;
+      appendMessage('Sesi ditamatkan. Anda boleh mula semula bila-bila masa.', 'bot');
+      showQuickReplies();
+    });
+
+    // Load FAQs for quick replies
+    async function loadFAQs() {
+      try {
+        const res = await fetch("http://127.0.0.1:5000/faqs");
+        const data = await res.json();
+
+        if (data.faqs && data.faqs.length > 0) {
+          const quickReplies = data.faqs.slice(0, 4); // Show first 4 FAQs
+          quickRepliesEl.innerHTML = quickReplies.map(faq =>
+            `<button class="chip" data-text="${escapeHtml(faq.question)}">${escapeHtml(faq.question)}</button>`
+          ).join('');
+        }
+      } catch (e) {
+        console.log('Could not load FAQs:', e);
+      }
+    }
+
+    // Initialize
+    loadFAQs();
+  </script>
+</body>
+
+</html>
