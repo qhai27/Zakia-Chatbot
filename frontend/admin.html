@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ms">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin - FAQ Manager</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+        /* Minimal styles scoped for admin */
+        .admin-container {
+            max-width: 960px;
+            margin: 24px auto;
+            padding: 16px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        .admin-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .admin-header h2 {
+            margin: 0;
+        }
+
+        .admin-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .admin-card {
+            border: 1px solid #e7e7e7;
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        .admin-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .admin-input,
+        .admin-textarea,
+        .admin-select {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .admin-textarea {
+            min-height: 80px;
+        }
+
+        .btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .btn.primary {
+            background: #2563eb;
+            color: #fff;
+        }
+
+        .btn.warn {
+            background: #ef4444;
+            color: #fff;
+        }
+
+        .btn.ghost {
+            background: #f3f4f6;
+        }
+
+        .muted {
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th,
+        .table td {
+            border-bottom: 1px solid #eee;
+            padding: 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .search {
+            flex: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h2>FAQ Manager</h2>
+            <div class="toolbar">
+                <input id="search" class="admin-input search" placeholder="Cari soalan atau kategori..." />
+                <button id="refresh" class="btn ghost">Refresh</button>
+                <button id="newFaqBtn" class="btn primary">+ Soalan Baharu</button>
+            </div>
+        </div>
+
+        <div id="formSection" class="admin-card" style="display:none;">
+            <h3 id="formTitle" style="margin-top:0;">Tambah FAQ</h3>
+            <div class="admin-grid">
+                <div class="admin-row">
+                    <div>
+                        <label>Soalan</label>
+                        <input id="question" class="admin-input" />
+                    </div>
+                    <div>
+                        <label>Kategori</label>
+                        <input id="category" class="admin-input" placeholder="Contoh: Umum, Pembayaran, Nisab" />
+                    </div>
+                </div>
+                <div>
+                    <label>Jawapan</label>
+                    <textarea id="answer" class="admin-textarea"></textarea>
+                </div>
+                <div class="admin-actions">
+                    <button id="cancelForm" class="btn ghost">Batal</button>
+                    <button id="saveFaq" class="btn primary">Simpan</button>
+                </div>
+                <div id="formHint" class="muted"></div>
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th style="width:56px;">ID</th>
+                        <th>Soalan</th>
+                        <th>Kategori</th>
+                        <th style="width:160px;">Tindakan</th>
+                    </tr>
+                </thead>
+                <tbody id="faqTableBody">
+                </tbody>
+            </table>
+            <div id="emptyState" class="muted" style="display:none; padding:8px;">Tiada rekod ditemui.</div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:5000/admin/faqs';
+        const tbody = document.getElementById('faqTableBody');
+        const emptyState = document.getElementById('emptyState');
+        const searchInput = document.getElementById('search');
+        const refreshBtn = document.getElementById('refresh');
+        const newFaqBtn = document.getElementById('newFaqBtn');
+        const formSection = document.getElementById('formSection');
+        const formTitle = document.getElementById('formTitle');
+        const questionInput = document.getElementById('question');
+        const answerInput = document.getElementById('answer');
+        const categoryInput = document.getElementById('category');
+        const saveFaqBtn = document.getElementById('saveFaq');
+        const cancelFormBtn = document.getElementById('cancelForm');
+        const formHint = document.getElementById('formHint');
+
+        let faqs = [];
+        let editingId = null;
+
+        function resetForm() {
+            editingId = null;
+            questionInput.value = '';
+            answerInput.value = '';
+            categoryInput.value = '';
+            formHint.textContent = '';
+        }
+
+        function showForm(isEdit = false, existing = null) {
+            formTitle.textContent = isEdit ? 'Kemaskini FAQ' : 'Tambah FAQ';
+            if (isEdit && existing) {
+                questionInput.value = existing.question || '';
+                answerInput.value = existing.answer || '';
+                categoryInput.value = existing.category || '';
+                editingId = existing.id;
+            }
+            formSection.style.display = 'block';
+        }
+
+        function hideForm() {
+            formSection.style.display = 'none';
+            resetForm();
+        }
+
+        function renderRows(items) {
+            tbody.innerHTML = items.map(f => `
+        <tr>
+          <td>${f.id}</td>
+          <td>${escapeHtml(f.question)}</td>
+          <td>${escapeHtml(f.category || '')}</td>
+          <td>
+            <div class="admin-actions">
+              <button class="btn ghost" data-action="edit" data-id="${f.id}">Edit</button>
+              <button class="btn warn" data-action="delete" data-id="${f.id}">Padam</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+            emptyState.style.display = items.length ? 'none' : 'block';
+        }
+
+        function applySearch() {
+            const q = searchInput.value.toLowerCase().trim();
+            if (!q) return renderRows(faqs);
+            const filtered = faqs.filter(f =>
+                (f.question && f.question.toLowerCase().includes(q)) ||
+                (f.answer && f.answer.toLowerCase().includes(q)) ||
+                (f.category && f.category.toLowerCase().includes(q))
+            );
+            renderRows(filtered);
+        }
+
+        function escapeHtml(str) {
+            return (str || '')
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;');
+        }
+
+        async function loadFaqs() {
+            const res = await fetch(API_BASE);
+            const data = await res.json();
+            faqs = data.faqs || [];
+            applySearch();
+        }
+
+        async function createFaq(payload) {
+            const res = await fetch(API_BASE, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            return await res.json();
+        }
+
+        async function updateFaq(id, payload) {
+            const res = await fetch(`${API_BASE}/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            return await res.json();
+        }
+
+        async function deleteFaq(id) {
+            const res = await fetch(`${API_BASE}/${id}`, { method: 'DELETE' });
+            return await res.json();
+        }
+
+        // Event bindings
+        newFaqBtn.addEventListener('click', () => {
+            showForm(false);
+        });
+
+        cancelFormBtn.addEventListener('click', () => hideForm());
+
+        saveFaqBtn.addEventListener('click', async () => {
+            const question = questionInput.value.trim();
+            const answer = answerInput.value.trim();
+            const category = categoryInput.value.trim() || null;
+            if (!question || !answer) {
+                formHint.textContent = "Sila isi 'Soalan' dan 'Jawapan'.";
+                return;
+            }
+            try {
+                if (editingId) {
+                    const res = await updateFaq(editingId, { question, answer, category });
+                    if (res.error) throw new Error(res.error);
+                } else {
+                    const res = await createFaq({ question, answer, category });
+                    if (res.error) throw new Error(res.error);
+                }
+                await loadFaqs();
+                hideForm();
+            } catch (e) {
+                formHint.textContent = e.message || 'Gagal menyimpan.';
+            }
+        });
+
+        tbody.addEventListener('click', async (e) => {
+            const btn = e.target.closest('button');
+            if (!btn) return;
+            const id = btn.getAttribute('data-id');
+            const action = btn.getAttribute('data-action');
+            const row = faqs.find(x => String(x.id) === String(id));
+            if (action === 'edit') {
+                showForm(true, row);
+            } else if (action === 'delete') {
+                if (confirm('Padam rekod ini?')) {
+                    const res = await deleteFaq(id);
+                    if (res.deleted) {
+                        await loadFaqs();
+                    }
+                }
+            }
+        });
+
+        searchInput.addEventListener('input', applySearch);
+        refreshBtn.addEventListener('click', loadFaqs);
+
+        // init
+        loadFaqs();
+    </script>
+
+</body>
+
+</html>

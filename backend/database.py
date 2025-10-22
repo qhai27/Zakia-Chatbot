@@ -121,7 +121,16 @@ class DatabaseManager:
                 ("Berapakah nisab zakat emas?", "Nisab zakat emas ialah 85 gram atau nilai setara dengan 85 gram emas semasa.", "Nisab"),
                 ("Berapakah kadar zakat emas?", "Kadar zakat emas ialah 2.5% daripada nilai emas yang mencukupi nisab.", "Kadar"),
                 ("Bagaimana mengira zakat perniagaan?", "Zakat perniagaan dikira 2.5% daripada modal kerja dan keuntungan bersih selepas tolak hutang dan perbelanjaan operasi.", "Perniagaan"),
-                ("Bilakah haul zakat bermula?", "Haul zakat bermula dari tarikh harta mencapai nisab dan berterusan selama 12 bulan hijrah.", "Haul")
+                ("Bilakah haul zakat bermula?", "Haul zakat bermula dari tarikh harta mencapai nisab dan berterusan selama 12 bulan hijrah.", "Haul"),
+                # LZNK Company FAQs
+                ("Apa itu LZNK?", "LZNK (Lembaga Zakat Negeri Kedah) ialah badan berkanun yang bertanggungjawab menguruskan zakat di Negeri Kedah Darul Aman.", "LZNK"),
+                ("Di mana lokasi pejabat LZNK?", "Pejabat utama LZNK terletak di Alor Setar, Kedah. LZNK juga mempunyai cawangan di seluruh negeri Kedah.", "LZNK"),
+                ("Apakah perkhidmatan yang ditawarkan LZNK?", "LZNK menawarkan perkhidmatan pengutipan zakat, pengagihan zakat kepada asnaf, pendidikan zakat, dan khidmat nasihat zakat.", "LZNK"),
+                ("Bagaimana cara menghubungi LZNK?", "Anda boleh menghubungi LZNK melalui telefon, email, atau melawat pejabat LZNK yang terdekat.", "LZNK"),
+                ("Apakah program bantuan LZNK?", "LZNK menjalankan pelbagai program bantuan untuk asnaf termasuk bantuan pendidikan, perubatan, dan keperluan asas.", "LZNK"),
+                ("Bilakah LZNK ditubuhkan?", "LZNK ditubuhkan sebagai badan berkanun untuk menguruskan zakat di Negeri Kedah secara sistematik dan profesional.", "LZNK"),
+                ("Siapa yang layak menerima bantuan LZNK?", "Bantuan LZNK diberikan kepada 8 golongan asnaf yang layak menerima zakat mengikut syariat Islam.", "LZNK"),
+                ("Bagaimana LZNK memastikan ketelusan?", "LZNK mengamalkan prinsip ketelusan dalam pengurusan zakat dengan laporan kewangan yang boleh diakses oleh orang ramai.", "LZNK")
             ]
             
             cursor.executemany("""
@@ -152,6 +161,78 @@ class DatabaseManager:
         except Error as e:
             print(f"Error fetching FAQs: {e}")
             return []
+
+    def get_faq_by_id(self, faq_id):
+        """Get a single FAQ by id"""
+        if not self.connection:
+            return None
+        try:
+            cursor = self.connection.cursor(dictionary=True)
+            cursor.execute("SELECT * FROM faqs WHERE id = %s", (faq_id,))
+            faq = cursor.fetchone()
+            cursor.close()
+            return faq
+        except Error as e:
+            print(f"Error fetching FAQ by id: {e}")
+            return None
+
+    def create_faq(self, question, answer, category=None):
+        """Create a new FAQ"""
+        if not self.connection:
+            return None
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute(
+                """
+                INSERT INTO faqs (question, answer, category)
+                VALUES (%s, %s, %s)
+                """,
+                (question, answer, category)
+            )
+            self.connection.commit()
+            new_id = cursor.lastrowid
+            cursor.close()
+            return new_id
+        except Error as e:
+            print(f"Error creating FAQ: {e}")
+            return None
+
+    def update_faq(self, faq_id, question, answer, category=None):
+        """Update an existing FAQ"""
+        if not self.connection:
+            return False
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute(
+                """
+                UPDATE faqs
+                SET question = %s, answer = %s, category = %s
+                WHERE id = %s
+                """,
+                (question, answer, category, faq_id)
+            )
+            self.connection.commit()
+            affected = cursor.rowcount
+            cursor.close()
+            return affected > 0
+        except Error as e:
+            print(f"Error updating FAQ: {e}")
+            return False
+
+    def delete_faq(self, faq_id):
+        """Delete an FAQ by id"""
+        if not self.connection:
+            return False
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute("DELETE FROM faqs WHERE id = %s", (faq_id,))
+            self.connection.commit()
+            affected = cursor.rowcount
+            cursor.close()
+            return affected > 0
+        except Error as e:
+            print(f"Error deleting FAQ: {e}")
+            return False
     
     def log_chat(self, user_message, bot_response, session_id=None):
         """Log chat interaction"""

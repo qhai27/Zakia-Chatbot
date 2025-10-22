@@ -15,33 +15,49 @@
         <img src="zakia-avatar.png" class="avatar" alt="ZAKIA">
         <div class="header-text">
           <h3>ZAKIA</h3>
-          <p>LZNK • Sokongan Zakat</p>
+          <p>LZNK Chat Support</p>
         </div>
       </div>
-      <button id="endChat" class="btn-tertiary" title="Tamatkan sesi">Tamat</button>
+      <button class="minimize-btn" title="Minimize">−</button>
     </div>
 
-    <div id="messages" class="messages" aria-live="polite" aria-relevant="additions">
-      <div class="msg bot">
-        <div class="bubble">Assalamualaikum dan salam sejahtera👋 Saya ZAKIA, pembantu maya dari Lembaga Zakat Negeri Kedah (LZNK). Bagaimana saya boleh membantu anda hari ini?</div>
+    <div class="end-chat-section">
+      <button id="endChat" class="btn-end" title="End Chat">End Chat</button>
+    </div>
+
+    <div class="chat-container">
+      <div class="date-indicator">
+        <span class="date-chip">Today</span>
       </div>
-    </div>
 
-    <div id="typing" class="typing hidden">
-      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-      <span class="typing-text">ZAKIA sedang menaip…</span>
-    </div>
+      <div id="messages" class="messages" aria-live="polite" aria-relevant="additions">
+        <div class="msg bot">
+          <img src="zakia-avatar.png" class="msg-avatar" alt="ZAKIA">
+          <div class="bubble bot-bubble">
+            Assalamualaikum dan salam sejahtera! 👋 Saya Zakia, pembantu maya dari Lembaga Zakat Negeri Kedah (LZNK).
+            Bagaimana saya boleh membantu anda hari ini? 😊
+          </div>
+        </div>
+      </div>
 
-    <div id="quickReplies" class="quick-replies">
-      <button class="chip" data-text="Apa itu zakat?">Apa itu zakat?</button>
-      <button class="chip" data-text="Siapa yang wajib membayar zakat?">Siapa wajib?</button>
-      <button class="chip" data-text="Cara pembayaran zakat?">Cara bayar</button>
-      <button class="chip" data-text="Apakah waktu sesuai untuk bayar zakat?">Waktu bayar</button>
+      <div id="typing" class="typing hidden">
+        <img src="zakia-avatar.png" class="msg-avatar" alt="ZAKIA">
+        <div class="typing-bubble">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        </div>
+      </div>
+
+      <div id="quickReplies" class="quick-replies">
+        <button class="quick-reply" data-text="Apa itu zakat?">Apa itu zakat?</button>
+        <button class="quick-reply" data-text="Siapa yang wajib bayar zakat?">Siapa yang wajib bayar zakat?</button>
+        <button class="quick-reply" data-text="Cara pembayaran zakat">Cara pembayaran zakat</button>
+        <button class="quick-reply" data-text="Jenis zakat ada berapa?">Jenis zakat ada berapa?</button>
+      </div>
     </div>
 
     <div class="input-area">
       <input type="text" id="userInput" placeholder="Tulis mesej anda…" autocomplete="off" />
-      <button id="sendBtn" class="btn-primary" aria-label="Hantar" title="Hantar">➤</button>
+      <button id="sendBtn" class="btn-send" aria-label="Hantar" title="Hantar">✈</button>
     </div>
   </div>
 
@@ -54,11 +70,36 @@
     const quickRepliesEl = document.getElementById("quickReplies");
 
     let sessionId = null;
+    let hasUserSentMessage = false;
 
     function appendMessage(text, sender) {
       const msg = document.createElement('div');
       msg.className = `msg ${sender}`;
-      msg.innerHTML = `<div class="bubble">${escapeHtml(text)}</div>`;
+
+      const now = new Date();
+      const timeString = now.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+
+      if (sender === 'bot') {
+        msg.innerHTML = `
+        <img src="zakia-avatar.png" class="msg-avatar" alt="ZAKIA">
+        <div class="bubble-container">
+          <div class="bubble bot-bubble">${escapeHtml(text)}</div>
+          <div class="msg-time">${timeString}</div>
+        </div>
+      `;
+      } else {
+        msg.innerHTML = `
+        <div class="bubble-container">
+          <div class="bubble user-bubble">${escapeHtml(text)}</div>
+          <div class="msg-time">${timeString}</div>
+        </div>
+      `;
+      }
+
       messagesEl.appendChild(msg);
       messagesEl.scrollTop = messagesEl.scrollHeight;
     }
@@ -92,6 +133,9 @@
       setTyping(true);
       hideQuickReplies();
 
+      // Mark that user has sent their first message
+      hasUserSentMessage = true;
+
       try {
         const requestBody = { message: text };
         if (sessionId) {
@@ -112,12 +156,17 @@
 
         appendMessage(data.reply || 'Maaf, ralat pelayan. Cuba lagi. 🙏', 'bot');
 
-        // Show quick replies after bot response
-        setTimeout(() => showQuickReplies(), 1000);
+        // Only show quick replies if user hasn't sent a message yet
+        if (!hasUserSentMessage) {
+          setTimeout(() => showQuickReplies(), 1000);
+        }
 
       } catch (e) {
         appendMessage('Maaf, tidak dapat capai pelayan sekarang. Sila cuba lagi.', 'bot');
-        showQuickReplies();
+        // Only show quick replies if user hasn't sent a message yet
+        if (!hasUserSentMessage) {
+          showQuickReplies();
+        }
       } finally {
         setTyping(false);
         sendBtn.disabled = false;
@@ -133,7 +182,20 @@
 
     quickRepliesEl.addEventListener('click', (e) => {
       const target = e.target;
-      if (target.classList.contains('chip')) {
+      if (target.classList.contains('quick-reply')) {
+        // Remove selected class from all quick replies
+        document.querySelectorAll('.quick-reply').forEach(btn => {
+          btn.classList.remove('selected');
+        });
+
+        // Add selected class to clicked button
+        target.classList.add('selected');
+
+        // Remove selected class after a short delay
+        setTimeout(() => {
+          target.classList.remove('selected');
+        }, 2000);
+
         sendMessage(target.getAttribute('data-text'));
       }
     });
@@ -141,6 +203,7 @@
     endBtn.addEventListener('click', () => {
       messagesEl.innerHTML = '';
       sessionId = null;
+      hasUserSentMessage = false; // Reset the flag when ending chat
       appendMessage('Sesi ditamatkan. Anda boleh mula semula bila-bila masa.', 'bot');
       showQuickReplies();
     });
@@ -154,7 +217,7 @@
         if (data.faqs && data.faqs.length > 0) {
           const quickReplies = data.faqs.slice(0, 4); // Show first 4 FAQs
           quickRepliesEl.innerHTML = quickReplies.map(faq =>
-            `<button class="chip" data-text="${escapeHtml(faq.question)}">${escapeHtml(faq.question)}</button>`
+            `<button class="quick-reply" data-text="${escapeHtml(faq.question)}">${escapeHtml(faq.question)}</button>`
           ).join('');
         }
       } catch (e) {
