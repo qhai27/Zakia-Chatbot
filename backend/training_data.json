@@ -1,0 +1,232 @@
+{
+  "training_pairs": [
+    {
+      "question": "Bilakah haul zakat bermula?",
+      "answer": "Haul zakat bermula dari tarikh harta mencapai nisab dan berterusan selama 12 bulan hijrah.",
+      "category": "Haul",
+      "keywords": [
+        "haul",
+        "zakat",
+        "bermula?"
+      ]
+    },
+    {
+      "question": "Berapakah kadar zakat emas?",
+      "answer": "Kadar zakat emas ialah 2.5% daripada nilai emas yang mencukupi nisab.",
+      "category": "Kadar",
+      "keywords": [
+        "emas?",
+        "zakat",
+        "kadar",
+        "berapa"
+      ]
+    },
+    {
+      "question": "Berapakah nisab zakat emas?",
+      "answer": "Nisab zakat emas ialah 85 gram atau nilai setara dengan 85 gram emas semasa.",
+      "category": "Nisab",
+      "keywords": [
+        "emas?",
+        "nisab",
+        "zakat",
+        "berapa"
+      ]
+    },
+    {
+      "question": "Apakah waktu sesuai untuk bayar zakat?",
+      "answer": "Zakat boleh dibayar bila-bila masa, namun paling digalakkan pada akhir tahun haul atau bulan Ramadan.",
+      "category": "Pembayaran",
+      "keywords": [
+        "bila",
+        "waktu",
+        "sesuai",
+        "masa",
+        "selesai",
+        "zakat?",
+        "apa",
+        "pembayaran",
+        "tempoh",
+        "bayar",
+        "membayar"
+      ]
+    },
+    {
+      "question": "Bagaimana cara membayar zakat?",
+      "answer": "Anda boleh membayar zakat melalui portal rasmi LZNK, kaunter zakat, atau wakil amil yang dilantik.",
+      "category": "Pembayaran",
+      "keywords": [
+        "bagaimana",
+        "selesai",
+        "zakat?",
+        "pembayaran",
+        "method",
+        "kaedah",
+        "bayar",
+        "membayar",
+        "cara"
+      ]
+    },
+    {
+      "question": "Bagaimana mengira zakat perniagaan?",
+      "answer": "Zakat perniagaan dikira 2.5% daripada modal kerja dan keuntungan bersih selepas tolak hutang dan perbelanjaan operasi.",
+      "category": "Perniagaan",
+      "keywords": [
+        "perniagaan?",
+        "zakat",
+        "bagaimana",
+        "mengira"
+      ]
+    },
+    {
+      "question": "Apa itu zakat?",
+      "answer": "Zakat ialah kewajipan agama yang dikenakan ke atas umat Islam untuk menunaikan sebahagian harta kepada golongan yang layak menerimanya.",
+      "category": "Umum",
+      "keywords": [
+        "zakat?",
+        "apa"
+      ]
+    },
+    {
+      "question": "Masa operasi LZNK",
+      "answer": "📅 Ahad hingga Rabu: 8.00 pagi - 4.30 petang \n\n📅 Khamis: 8.00 pagi - 3.30 petang",
+      "category": "Umum",
+      "keywords": [
+        "lznk",
+        "operasi",
+        "masa"
+      ]
+    },
+    {
+      "question": "Siapa yang wajib membayar zakat?",
+      "answer": "Setiap Muslim yang cukup syarat seperti cukup haul, nisab, dan memiliki harta yang mencukupi.",
+      "category": "Umum",
+      "keywords": [
+        "wajib",
+        "selesai",
+        "zakat?",
+        "siapa",
+        "perlu",
+        "pembayaran",
+        "kena",
+        "bayar",
+        "mesti",
+        "membayar"
+      ]
+    }
+  ],
+  "keyword_index": {
+    "haul": [
+      0
+    ],
+    "zakat": [
+      0,
+      1,
+      2,
+      5
+    ],
+    "bermula?": [
+      0
+    ],
+    "emas?": [
+      1,
+      2
+    ],
+    "kadar": [
+      1
+    ],
+    "berapa": [
+      1,
+      2
+    ],
+    "nisab": [
+      2
+    ],
+    "bila": [
+      3
+    ],
+    "waktu": [
+      3
+    ],
+    "sesuai": [
+      3
+    ],
+    "masa": [
+      3,
+      7
+    ],
+    "selesai": [
+      3,
+      4,
+      8
+    ],
+    "zakat?": [
+      3,
+      4,
+      6,
+      8
+    ],
+    "apa": [
+      3,
+      6
+    ],
+    "pembayaran": [
+      3,
+      4,
+      8
+    ],
+    "tempoh": [
+      3
+    ],
+    "bayar": [
+      3,
+      4,
+      8
+    ],
+    "membayar": [
+      3,
+      4,
+      8
+    ],
+    "bagaimana": [
+      4,
+      5
+    ],
+    "method": [
+      4
+    ],
+    "kaedah": [
+      4
+    ],
+    "cara": [
+      4
+    ],
+    "perniagaan?": [
+      5
+    ],
+    "mengira": [
+      5
+    ],
+    "lznk": [
+      7
+    ],
+    "operasi": [
+      7
+    ],
+    "wajib": [
+      8
+    ],
+    "siapa": [
+      8
+    ],
+    "perlu": [
+      8
+    ],
+    "kena": [
+      8
+    ],
+    "mesti": [
+      8
+    ]
+  },
+  "timestamp": "2025-10-22T12:38:51.868309"
+}

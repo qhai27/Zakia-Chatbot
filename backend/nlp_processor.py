@@ -1,60 +1,67 @@
 import re
 import difflib
 from typing import List, Tuple, Dict
-import string
-import re
+import json
+from datetime import datetime
 
 class NLPProcessor:
     def __init__(self):
-        # Common Malay typos and variations
+        # Malay stopwords for better filtering
+        self.stopwords = {
+            'yang', 'dan', 'atau', 'dengan', 'untuk', 'dari', 'ke', 'di', 'pada',
+            'adalah', 'ialah', 'ini', 'itu', 'saya', 'anda', 'kami', 'mereka',
+            'akan', 'telah', 'sudah', 'boleh', 'dapat', 'ada', 'mana', 'bila'
+        }
+        
+        # Enhanced typo corrections
         self.typo_corrections = {
-            'zakat': ['zakat', 'zakah', 'zakat', 'zakat', 'zakat'],
-            'bayar': ['bayar', 'bayar', 'bayr', 'byr', 'bayar'],
-            'bagaimana': ['bagaimana', 'bgaimana', 'bgmn', 'bagaimana', 'bagaimana'],
-            'apa': ['apa', 'ap', 'apa', 'apa', 'apa'],
-            'siapa': ['siapa', 'sipa', 'siapa', 'siapa', 'siapa'],
-            'berapa': ['berapa', 'brp', 'brpa', 'berapa', 'berapa'],
-            'bila': ['bila', 'bl', 'bila', 'bila', 'bila'],
-            'mana': ['mana', 'mn', 'mana', 'mana', 'mana'],
-            'kenapa': ['kenapa', 'knp', 'kenapa', 'kenapa', 'kenapa'],
-            'mengapa': ['mengapa', 'mngp', 'mengapa', 'mengapa', 'mengapa'],
-            'lznk': ['lznk', 'lznk', 'lznk', 'lznk', 'lznk'],
-            'lembaga': ['lembaga', 'lembaga', 'lembaga', 'lembaga', 'lembaga'],
-            'kedah': ['kedah', 'kedah', 'kedah', 'kedah', 'kedah'],
-            'emas': ['emas', 'emas', 'emas', 'emas', 'emas'],
-            'perniagaan': ['perniagaan', 'perniagaan', 'perniagaan', 'perniagaan', 'perniagaan'],
-            'pendapatan': ['pendapatan', 'pendapatan', 'pendapatan', 'pendapatan', 'pendapatan'],
-            'fitrah': ['fitrah', 'fitrah', 'fitrah', 'fitrah', 'fitrah'],
-            'haul': ['haul', 'haul', 'haul', 'haul', 'haul'],
-            'nisab': ['nisab', 'nisab', 'nisab', 'nisab', 'nisab'],
-            'asnaf': ['asnaf', 'asnaf', 'asnaf', 'asnaf', 'asnaf']
+            'zakat': ['zakat', 'zakah', 'zakt', 'zkat'],
+            'bayar': ['bayar', 'bayr', 'byr', 'membayar', 'pembayaran'],
+            'bagaimana': ['bagaimana', 'bgaimana', 'bgmn', 'bagaimanakah', 'mcm mana', 'macam mana'],
+            'apa': ['apa', 'ap', 'apakah', 'pe'],
+            'siapa': ['siapa', 'sipa', 'siapakah', 'sape'],
+            'berapa': ['berapa', 'brp', 'brpa', 'berapakah', 'brape'],
+            'bila': ['bila', 'bl', 'bilakah', 'bile'],
+            'mana': ['mana', 'mn', 'manakah', 'mne'],
+            'kenapa': ['kenapa', 'knp', 'kenapakah', 'nape'],
+            'mengapa': ['mengapa', 'mngp', 'mengapakah', 'ngape'],
+            'lznk': ['lznk', 'lznk', 'lembaga zakat'],
+            'nisab': ['nisab', 'nisab', 'nisab'],
+            'haul': ['haul', 'haul', 'haul'],
+            'fitrah': ['fitrah', 'fitrah', 'fitrah'],
+            'emas': ['emas', 'emas', 'gold'],
+            'wang': ['wang', 'duit', 'money']
         }
         
-        # Question patterns for better matching
-        self.question_patterns = {
-            'what': ['apa', 'apakah', 'ap', 'ap'],
-            'who': ['siapa', 'sipa', 'siapa', 'siapa'],
-            'how': ['bagaimana', 'bgaimana', 'bgmn', 'bagaimana'],
-            'when': ['bila', 'bila', 'bl', 'bila'],
-            'where': ['mana', 'mn', 'mana', 'mana'],
-            'why': ['kenapa', 'mengapa', 'knp', 'mngp'],
-            'how_much': ['berapa', 'brp', 'brpa', 'berapa']
-        }
-        
-        # Synonyms for better matching
+        # Synonym expansion for better matching
         self.synonyms = {
-            'zakat': ['zakat', 'zakah', 'zakat', 'zakat'],
-            'bayar': ['bayar', 'membayar', 'bayar', 'bayar'],
-            'cara': ['cara', 'kaedah', 'metod', 'cara'],
-            'waktu': ['waktu', 'masa', 'tempoh', 'waktu'],
-            'lokasi': ['lokasi', 'tempat', 'alamat', 'lokasi'],
-            'perkhidmatan': ['perkhidmatan', 'khidmat', 'servis', 'perkhidmatan'],
-            'bantuan': ['bantuan', 'bantuan', 'bantuan', 'bantuan'],
-            'program': ['program', 'program', 'program', 'program']
+            'cara': ['cara', 'kaedah', 'method', 'bagaimana'],
+            'lokasi': ['lokasi', 'tempat', 'alamat', 'mana'],
+            'waktu': ['waktu', 'masa', 'tempoh', 'bila'],
+            'jumlah': ['jumlah', 'berapa', 'nilai', 'kadar'],
+            'wajib': ['wajib', 'mesti', 'perlu', 'kena'],
+            'bayar': ['bayar', 'membayar', 'pembayaran', 'selesai'],
+            'bantuan': ['bantuan', 'help', 'tolong', 'assist'],
+            'pejabat': ['pejabat', 'office', 'kaunter', 'cawangan']
         }
-
+        
+        # Question word mappings
+        self.question_words = {
+            'what': ['apa', 'apakah'],
+            'who': ['siapa', 'siapakah'],
+            'how': ['bagaimana', 'bgmn', 'macam mana'],
+            'when': ['bila', 'bilakah'],
+            'where': ['mana', 'di mana', 'manakah'],
+            'why': ['kenapa', 'mengapa'],
+            'how_much': ['berapa', 'berapakah']
+        }
+        
+        # Training data storage
+        self.training_pairs = []
+        self.keyword_index = {}
+        
     def preprocess_text(self, text: str) -> str:
-        """Clean and normalize text"""
+        """Enhanced text preprocessing"""
         if not text:
             return ""
         
@@ -68,233 +75,282 @@ class NLPProcessor:
         text = re.sub(r'[^\w\s?]', '', text)
         
         # Fix common typos
-        for correct_word, variations in self.typo_corrections.items():
-            for variation in variations:
-                if variation in text:
-                    text = text.replace(variation, correct_word)
+        words = text.split()
+        corrected_words = []
         
-        return text
-
+        for word in words:
+            corrected = word
+            for correct, variants in self.typo_corrections.items():
+                if word in variants:
+                    corrected = correct
+                    break
+            corrected_words.append(corrected)
+        
+        return ' '.join(corrected_words)
+    
     def extract_keywords(self, text: str) -> List[str]:
-        """Extract important keywords from text"""
+        """Extract meaningful keywords"""
         text = self.preprocess_text(text)
-        
-        # Split into words
         words = text.split()
         
-        # Filter out common stop words
-        stop_words = {'yang', 'dan', 'atau', 'dengan', 'untuk', 'dari', 'ke', 'di', 'pada', 'adalah', 'ialah', 'ini', 'itu', 'saya', 'anda', 'kami', 'mereka'}
-        keywords = [word for word in words if word not in stop_words and len(word) > 2]
+        # Remove stopwords and short words
+        keywords = [
+            word for word in words 
+            if word not in self.stopwords and len(word) > 2
+        ]
         
-        return keywords
-
+        # Add synonym variations
+        expanded_keywords = set(keywords)
+        for keyword in keywords:
+            if keyword in self.synonyms:
+                expanded_keywords.update(self.synonyms[keyword])
+        
+        return list(expanded_keywords)
+    
     def calculate_similarity(self, text1: str, text2: str) -> float:
-        """Calculate similarity between two texts"""
-        # Preprocess both texts
-        text1 = self.preprocess_text(text1)
-        text2 = self.preprocess_text(text2)
+        """Calculate similarity with multiple methods"""
+        # Method 1: Sequence matching
+        t1 = self.preprocess_text(text1)
+        t2 = self.preprocess_text(text2)
+        sequence_sim = difflib.SequenceMatcher(None, t1, t2).ratio()
         
-        # Use difflib for sequence matching
-        similarity = difflib.SequenceMatcher(None, text1, text2).ratio()
-        
-        # Boost similarity for keyword matches
+        # Method 2: Keyword overlap
         keywords1 = set(self.extract_keywords(text1))
         keywords2 = set(self.extract_keywords(text2))
         
         if keywords1 and keywords2:
-            keyword_similarity = len(keywords1.intersection(keywords2)) / len(keywords1.union(keywords2))
-            similarity = max(similarity, keyword_similarity * 0.8)
+            intersection = len(keywords1.intersection(keywords2))
+            union = len(keywords1.union(keywords2))
+            keyword_sim = intersection / union if union > 0 else 0
+        else:
+            keyword_sim = 0
         
-        return similarity
-
-    def find_best_match(self, user_input: str, faqs: List[Dict]) -> Tuple[Dict, float]:
-        """Find the best matching FAQ"""
-        if not faqs:
-            return None, 0.0
+        # Method 3: Word-level similarity
+        words1 = set(t1.split())
+        words2 = set(t2.split())
         
-        best_match = None
-        best_score = 0.0
+        if words1 and words2:
+            word_intersection = len(words1.intersection(words2))
+            word_union = len(words1.union(words2))
+            word_sim = word_intersection / word_union if word_union > 0 else 0
+        else:
+            word_sim = 0
+        
+        # Weighted combination
+        final_score = (
+            sequence_sim * 0.3 +
+            keyword_sim * 0.5 +
+            word_sim * 0.2
+        )
+        
+        return final_score
+    
+    def train_from_faqs(self, faqs: List[Dict]):
+        """Train the model from FAQ data"""
+        print(f"Training with {len(faqs)} FAQs...")
+        
+        self.training_pairs = []
+        self.keyword_index = {}
         
         for faq in faqs:
             question = faq.get('question', '')
             answer = faq.get('answer', '')
+            category = faq.get('category', 'Umum')
             
-            # Calculate similarity with question
-            question_similarity = self.calculate_similarity(user_input, question)
+            if not question or not answer:
+                continue
             
-            # Calculate similarity with answer (for cases where user asks about content)
-            answer_similarity = self.calculate_similarity(user_input, answer)
+            # Store training pair
+            self.training_pairs.append({
+                'question': question,
+                'answer': answer,
+                'category': category,
+                'keywords': self.extract_keywords(question)
+            })
             
-            # Take the higher similarity
-            similarity = max(question_similarity, answer_similarity)
+            # Build keyword index
+            for keyword in self.extract_keywords(question):
+                if keyword not in self.keyword_index:
+                    self.keyword_index[keyword] = []
+                self.keyword_index[keyword].append(len(self.training_pairs) - 1)
+        
+        print(f"✅ Training complete! Indexed {len(self.keyword_index)} unique keywords")
+    
+    def find_best_match(self, user_input: str, faqs: List[Dict]) -> Tuple[Dict, float]:
+        """Find best match using trained data and multiple strategies"""
+        if not faqs:
+            return None, 0.0
+        
+        user_keywords = set(self.extract_keywords(user_input))
+        candidates = []
+        
+        # Strategy 1: Keyword-based filtering
+        for keyword in user_keywords:
+            if keyword in self.keyword_index:
+                for idx in self.keyword_index[keyword]:
+                    if idx < len(self.training_pairs):
+                        candidates.append(idx)
+        
+        # If no candidates from keywords, use all FAQs
+        if not candidates:
+            candidates = list(range(len(faqs)))
+        else:
+            # Remove duplicates and sort by frequency
+            candidates = sorted(set(candidates), 
+                              key=lambda x: candidates.count(x), 
+                              reverse=True)
+        
+        # Strategy 2: Calculate similarity for candidates
+        best_match = None
+        best_score = 0.0
+        
+        for idx in candidates[:20]:  # Check top 20 candidates
+            if idx >= len(faqs):
+                continue
+                
+            faq = faqs[idx]
+            question = faq.get('question', '')
+            answer = faq.get('answer', '')
             
-            # Boost score for exact keyword matches
-            user_keywords = set(self.extract_keywords(user_input))
-            question_keywords = set(self.extract_keywords(question))
+            # Calculate similarities
+            q_sim = self.calculate_similarity(user_input, question)
+            a_sim = self.calculate_similarity(user_input, answer) * 0.3
             
-            if user_keywords and question_keywords:
-                keyword_match = len(user_keywords.intersection(question_keywords)) / len(user_keywords)
-                similarity = max(similarity, similarity + (keyword_match * 0.3))
+            # Boost for exact keyword matches
+            faq_keywords = set(self.extract_keywords(question))
+            exact_matches = len(user_keywords.intersection(faq_keywords))
+            keyword_boost = min(exact_matches * 0.15, 0.3)
             
-            if similarity > best_score:
-                best_score = similarity
+            total_score = q_sim + a_sim + keyword_boost
+            
+            if total_score > best_score:
+                best_score = total_score
                 best_match = faq
         
         return best_match, best_score
-
-    def generate_response(self, user_input: str, faqs: List[Dict], threshold: float = 0.3) -> Dict:
-        """Generate appropriate response based on user input"""
+    
+    def generate_response(self, user_input: str, faqs: List[Dict], threshold: float = 0.35) -> Dict:
+        """Generate response with confidence scoring"""
         best_match, score = self.find_best_match(user_input, faqs)
         
         if best_match and score >= threshold:
+            confidence_level = "high" if score >= 0.7 else "medium" if score >= 0.5 else "low"
+            
             return {
                 'reply': best_match['answer'],
                 'matched_question': best_match['question'],
                 'confidence': score,
+                'confidence_level': confidence_level,
                 'category': best_match.get('category', 'Umum')
             }
         else:
-            # Generate contextual fallback responses based on user intent
+            # Generate contextual fallback
             intent = self.analyze_user_intent(user_input)
-            fallback_response = self.get_contextual_fallback(user_input, intent, faqs)
+            fallback = self.get_contextual_fallback(user_input, intent, faqs)
             
             return {
-                'reply': fallback_response,
+                'reply': fallback,
                 'matched_question': None,
-                'confidence': 0.0,
+                'confidence': score,
+                'confidence_level': 'none',
                 'category': intent.get('category', 'Unknown')
             }
-
+    
     def analyze_user_intent(self, user_input: str) -> Dict:
-        """Analyze user intent from input"""
+        """Analyze user intent"""
         text = self.preprocess_text(user_input)
         
-        intent = {
-            'is_question': '?' in user_input or any(word in text for word in ['apa', 'siapa', 'bagaimana', 'bila', 'mana', 'kenapa', 'berapa', 'mengapa', 'apakah', 'bagaimanakah']),
-            'is_greeting': any(word in text for word in ['assalamualaikum', 'salam', 'hello', 'hi', 'hai', 'selamat pagi', 'selamat petang', 'selamat malam']),
-            'is_thanks': any(word in text for word in ['terima kasih', 'thanks', 'thank you', 'tq', 'terima kasih banyak', 'thanks banyak']),
-            'is_goodbye': any(word in text for word in ['bye', 'selamat tinggal', 'goodbye', 'jumpa lagi', 'selamat jalan', 'see you']),
-            'is_help_request': any(word in text for word in ['bantuan', 'help', 'tolong', 'boleh tolong', 'boleh bantu']),
-            'is_complaint': any(word in text for word in ['masalah', 'problem', 'error', 'error', 'tidak berfungsi', 'rosak']),
-            'is_praise': any(word in text for word in ['bagus', 'baik', 'terbaik', 'excellent', 'good', 'nice']),
-            'is_confused': any(word in text for word in ['confused', 'keliru', 'tidak faham', 'tidak tahu', 'boleh jelaskan']),
+        return {
+            'is_question': '?' in user_input or any(
+                word in text for qwords in self.question_words.values() 
+                for word in qwords
+            ),
+            'is_greeting': any(word in text for word in [
+                'assalamualaikum', 'salam', 'hello', 'hi', 'hai'
+            ]),
+            'is_thanks': any(word in text for word in [
+                'terima kasih', 'thanks', 'tq'
+            ]),
+            'is_goodbye': any(word in text for word in [
+                'bye', 'selamat tinggal', 'jumpa lagi'
+            ]),
             'keywords': self.extract_keywords(user_input),
-            'category': self.detect_category(text),
-            'sentiment': self.analyze_sentiment(text),
-            'urgency': self.detect_urgency(text)
+            'category': self.detect_category(text)
+        }
+    
+    def get_contextual_fallback(self, user_input: str, intent: Dict, faqs: List[Dict]) -> str:
+        """Generate helpful fallback responses"""
+        category = intent.get('category', 'Unknown')
+        
+        fallback_templates = {
+            'LZNK': "Maaf, saya tidak pasti tentang soalan LZNK tersebut. 😔 Anda boleh bertanya tentang perkhidmatan LZNK, lokasi pejabat, atau program bantuan.",
+            'Pembayaran': "Maaf, saya tidak dapat membantu dengan soalan pembayaran tersebut. 💳 Anda boleh bertanya tentang cara membayar zakat atau kaedah pembayaran.",
+            'Nisab': "Maaf, saya tidak pasti tentang soalan nisab tersebut. 📊 Anda boleh bertanya tentang nisab emas, perak, atau kadar zakat.",
         }
         
-        return intent
-
-    def get_contextual_fallback(self, user_input: str, intent: Dict, faqs: List[Dict]) -> str:
-        """Generate contextual fallback responses based on user intent"""
-        text = self.preprocess_text(user_input)
+        if category in fallback_templates:
+            return fallback_templates[category]
         
-        # Help request responses
-        if intent['is_help_request']:
-            return "Saya di sini untuk membantu! 😊 Anda boleh bertanya tentang zakat, LZNK, atau cara pembayaran. Apa yang ingin anda tahu?"
-        
-        # Complaint responses
-        if intent['is_complaint']:
-            return "Maaf atas masalah yang anda hadapi. 🙏 Saya akan cuba membantu. Bolehkah anda jelaskan masalah anda dengan lebih terperinci?"
-        
-        # Praise responses
-        if intent['is_praise']:
-            return "Terima kasih! 😊 Saya gembira dapat membantu. Adakah ada lagi yang ingin anda tanya tentang zakat atau LZNK?"
-        
-        # Confused responses
-        if intent['is_confused']:
-            return "Tidak mengapa, saya di sini untuk membantu! 😊 Bolehkah anda cuba bertanya dengan cara yang berbeza? Atau anda boleh bertanya tentang topik zakat yang lain."
-        
-        # Category-specific suggestions
-        category = intent.get('category', 'Unknown')
-        if category == 'LZNK':
-            return "Maaf, saya tidak pasti tentang soalan LZNK tersebut. 😔 Anda boleh bertanya tentang perkhidmatan LZNK, lokasi pejabat, atau program bantuan yang ditawarkan."
-        elif category == 'Pembayaran':
-            return "Maaf, saya tidak dapat membantu dengan soalan pembayaran tersebut. 💳 Anda boleh bertanya tentang cara membayar zakat, kaedah pembayaran, atau waktu pembayaran."
-        elif category == 'Nisab':
-            return "Maaf, saya tidak pasti tentang soalan nisab tersebut. 📊 Anda boleh bertanya tentang nisab emas, perak, atau kadar zakat yang berbeza."
-        elif category == 'Perniagaan':
-            return "Maaf, saya tidak dapat membantu dengan soalan perniagaan tersebut. 🏢 Anda boleh bertanya tentang zakat perniagaan, cara mengira, atau syarat-syaratnya."
-        elif category == 'Haul':
-            return "Maaf, saya tidak pasti tentang soalan haul tersebut. ⏰ Anda boleh bertanya tentang tempoh haul, syarat haul, atau bila haul bermula."
-        
-        # General fallback with suggestions
+        # Get suggested questions
         suggestions = self.get_suggested_questions(faqs, intent['keywords'])
         if suggestions:
-            return f"Maaf, saya tidak pasti tentang soalan tersebut. 🤔 Bolehkah anda cuba soalan lain? Atau anda boleh bertanya tentang: {', '.join(suggestions[:3])}?"
+            return f"Maaf, saya tidak pasti tentang soalan tersebut. 🤔 Cuba tanya: {suggestions[0]}"
         
-        # Default fallback
-        return "Maaf, saya tidak dapat memahami soalan anda. 😔 Saya hanya boleh membantu dengan soalan berkaitan zakat dan LZNK. Bolehkah anda cuba soalan lain?"
-    
-    def analyze_sentiment(self, text: str) -> str:
-        """Analyze sentiment of user input"""
-        positive_words = ['bagus', 'baik', 'terbaik', 'excellent', 'good', 'nice', 'terima kasih', 'thanks']
-        negative_words = ['buruk', 'tidak baik', 'masalah', 'problem', 'error', 'rosak', 'tidak berfungsi']
-        
-        text_lower = text.lower()
-        positive_count = sum(1 for word in positive_words if word in text_lower)
-        negative_count = sum(1 for word in negative_words if word in text_lower)
-        
-        if positive_count > negative_count:
-            return 'positive'
-        elif negative_count > positive_count:
-            return 'negative'
-        else:
-            return 'neutral'
-    
-    def detect_urgency(self, text: str) -> str:
-        """Detect urgency level of user input"""
-        urgent_words = ['segera', 'urgent', 'cepat', 'sekarang', 'bantuan', 'tolong', 'help']
-        text_lower = text.lower()
-        
-        if any(word in text_lower for word in urgent_words):
-            return 'high'
-        elif '?' in text:
-            return 'medium'
-        else:
-            return 'low'
+        return "Maaf, saya tidak dapat memahami soalan anda. 😔 Bolehkah anda cuba soalan lain tentang zakat atau LZNK?"
     
     def get_suggested_questions(self, faqs: List[Dict], keywords: List[str]) -> List[str]:
-        """Get suggested questions based on keywords"""
+        """Get relevant question suggestions"""
         suggestions = []
         
-        if not keywords:
-            return ["Apa itu zakat?", "Bagaimana cara membayar zakat?", "Apakah perkhidmatan LZNK?"]
-        
-        # Find FAQs that contain similar keywords
         for faq in faqs:
             question = faq.get('question', '')
-            answer = faq.get('answer', '')
-            
-            # Check if any keyword appears in question or answer
             for keyword in keywords:
-                if keyword.lower() in question.lower() or keyword.lower() in answer.lower():
-                    if question not in suggestions:
-                        suggestions.append(question)
-                        break
+                if keyword in question.lower():
+                    suggestions.append(question)
+                    break
         
-        # If no suggestions found, return default ones
-        if not suggestions:
-            suggestions = ["Apa itu zakat?", "Bagaimana cara membayar zakat?", "Apakah perkhidmatan LZNK?"]
-        
-        return suggestions[:5]  # Return top 5 suggestions
-
+        return suggestions[:3]
+    
     def detect_category(self, text: str) -> str:
-        """Detect the category of the question"""
-        text = text.lower()
+        """Detect question category"""
+        category_keywords = {
+            'LZNK': ['lznk', 'lembaga', 'kedah', 'pejabat', 'lokasi'],
+            'Pembayaran': ['bayar', 'pembayaran', 'cara', 'kaedah'],
+            'Nisab': ['nisab', 'nilai', 'kadar', 'jumlah'],
+            'Perniagaan': ['perniagaan', 'niaga', 'bisnes'],
+            'Haul': ['haul', 'tahun', 'tempoh']
+        }
         
-        if any(word in text for word in ['lznk', 'lembaga', 'kedah', 'pejabat', 'lokasi', 'alamat', 'cawangan']):
-            return 'LZNK'
-        elif any(word in text for word in ['bayar', 'pembayaran', 'cara bayar', 'kaedah', 'metod', 'bayar']):
-            return 'Pembayaran'
-        elif any(word in text for word in ['nisab', 'nilai', 'kadar', 'peratus', 'jumlah', 'nilai']):
-            return 'Nisab'
-        elif any(word in text for word in ['perniagaan', 'niaga', 'perdagangan', 'bisnes', 'business']):
-            return 'Perniagaan'
-        elif any(word in text for word in ['haul', 'tahun', 'tempoh', 'masa', 'waktu']):
-            return 'Haul'
-        elif any(word in text for word in ['emas', 'perak', 'simpanan', 'pendapatan', 'fitrah']):
-            return 'Jenis Zakat'
-        else:
-            return 'Umum'
+        for category, keywords in category_keywords.items():
+            if any(kw in text for kw in keywords):
+                return category
+        
+        return 'Umum'
+    
+    def save_training_data(self, filename: str = 'training_data.json'):
+        """Save trained data to file"""
+        data = {
+            'training_pairs': self.training_pairs,
+            'keyword_index': self.keyword_index,
+            'timestamp': datetime.now().isoformat()
+        }
+        
+        with open(filename, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        
+        print(f"✅ Training data saved to {filename}")
+    
+    def load_training_data(self, filename: str = 'training_data.json'):
+        """Load trained data from file"""
+        try:
+            with open(filename, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            
+            self.training_pairs = data.get('training_pairs', [])
+            self.keyword_index = data.get('keyword_index', {})
+            
+            print(f"✅ Training data loaded from {filename}")
+            return True
+        except FileNotFoundError:
+            print(f"⚠️ Training file not found: {filename}")
+            return False
