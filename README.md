@@ -1,22 +1,48 @@
-# LZNK Zakat Chatbot
+# ZAKIA Chatbot - LZNK
 
 A modern, responsive chatbot for LZNK (Lembaga Zakat Negeri Kedah) built with Python Flask, MySQL, HTML, and CSS.
 
 ## Features
 
-- 🤖 **Smart FAQ System**: AI-powered question matching using fuzzy string matching
+- 🤖 **Smart FAQ System**: AI-powered question matching with context awareness
 - 💬 **Real-time Chat**: Interactive chat interface with typing indicators
 - 🗄️ **MySQL Database**: Persistent storage for FAQs and chat logs
 - 📱 **Responsive Design**: Works on desktop and mobile devices
 - 🎯 **Quick Replies**: Pre-defined question buttons for easy interaction
 - 📊 **Session Management**: Track user conversations
 - 🔍 **Health Monitoring**: API health check endpoints
+- 🏗️ **Modular Architecture**: Clean separation of concerns
+
+## Project Structure
+
+```
+Zakia Chatbot/
+├── backend/
+│   ├── routes/           # API route modules
+│   │   ├── chat_routes.py
+│   │   └── admin_routes.py
+│   ├── services/         # Business logic services
+│   │   ├── database_service.py
+│   │   └── nlp_service.py
+│   ├── app.py           # Main Flask application
+│   ├── config.py        # Configuration management
+│   ├── database.py      # Database operations
+│   ├── nlp_processor.py # NLP processing logic
+│   └── init_db.py       # Database initialization
+├── frontend/
+│   ├── js/              # JavaScript modules
+│   │   ├── chatbot.js   # Main chatbot logic
+│   │   └── config.js    # Configuration
+│   ├── index.html       # Main interface
+│   └── style.css        # Styling
+└── README.md
+```
 
 ## Tech Stack
 
-- **Backend**: Python Flask
-- **Database**: MySQL
-- **Frontend**: HTML5, CSS3, JavaScript
+- **Backend**: Python Flask with modular architecture
+- **Database**: MySQL with proper configuration management
+- **Frontend**: HTML5, CSS3, JavaScript with class-based structure
 - **Styling**: Modern CSS with gradients and animations
 
 ## Prerequisites
@@ -86,9 +112,17 @@ Then visit `http://localhost:8000`
 
 ## API Endpoints
 
+### Chat Endpoints
 - `POST /chat` - Send a message to the chatbot
 - `GET /faqs` - Get all FAQ questions and answers
 - `GET /health` - Health check endpoint
+
+### Admin Endpoints
+- `GET /admin/faqs` - List FAQs
+- `POST /admin/faqs` - Create FAQ
+- `PUT /admin/faqs/<id>` - Update FAQ
+- `DELETE /admin/faqs/<id>` - Delete FAQ
+- `POST /retrain` - Retrain NLP model
 
 ## Database Schema
 
@@ -109,12 +143,31 @@ DB_NAME=lznk_chatbot
 FLASK_DEBUG=True
 ```
 
+## Architecture Improvements
+
+### Frontend Modularization
+- **Separated JavaScript**: Extracted all JavaScript logic into `js/chatbot.js`
+- **Configuration Management**: Created `js/config.js` for centralized configuration
+- **Class-based Structure**: Organized code into a `ZakiaChatbot` class
+
+### Backend Modularization
+- **Route Separation**: Split routes into `chat_routes.py` and `admin_routes.py`
+- **Service Layer**: Created `database_service.py` and `nlp_service.py`
+- **Blueprint Architecture**: Used Flask blueprints for better organization
+- **Configuration Management**: Centralized configuration in `config.py`
+
+### Code Cleanup
+- **Removed Redundant Files**: Deleted unused `faq_data.json` and `train_nlp.py`
+- **Dependency Management**: Updated `requirement.txt` with specific versions
+- **Package Structure**: Added proper `__init__.py` files for packages
+
 ## Features in Detail
 
 ### Smart FAQ Matching
 - Uses fuzzy string matching to find the best answer
-- Configurable similarity threshold (default: 40%)
+- Configurable similarity threshold (default: 35%)
 - Fallback responses for unmatched questions
+- Context-aware responses
 
 ### Session Management
 - Unique session IDs for each conversation

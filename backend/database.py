@@ -2,13 +2,15 @@ import mysql.connector
 from mysql.connector import Error
 import json
 from datetime import datetime
+from config import Config
 
 class DatabaseManager:
-    def __init__(self, host='localhost', user='root', password='', database='lznk_chatbot'):
-        self.host = host
-        self.user = user
-        self.password = password
-        self.database = database
+    def __init__(self, host=None, user=None, password=None, database=None):
+        # Default MySQL connection settings
+        self.host = host or 'localhost'
+        self.user = user or 'root'
+        self.password = password or ''  # Change this to your MySQL password
+        self.database = database or 'lznk_chatbot'
         self.connection = None
         
     def connect(self):
