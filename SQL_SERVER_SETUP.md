@@ -320,3 +320,4 @@ connection_string = f"DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={self.serv
 ```
 
 This uses your Windows login credentials instead of SQL Server username/password.
+

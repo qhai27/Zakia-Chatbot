@@ -86,3 +86,4 @@ if __name__ == "__main__":
         print("4. Check your SQL Server user permissions")
         print("5. Install Microsoft ODBC Driver 17 for SQL Server")
         sys.exit(1)
+

@@ -1,7 +1,3 @@
-/**
- * ZAKIA Chatbot JavaScript Module
- * Handles all chatbot functionality
- */
 
 class ZakiaChatbot {
     constructor() {
@@ -11,10 +7,13 @@ class ZakiaChatbot {
         this.sendBtn = document.getElementById("sendBtn");
         this.endBtn = document.getElementById("endChat");
         this.quickRepliesEl = document.getElementById("quickReplies");
+        this.minimizeBtn = document.querySelector('.minimize-btn'); // Add this line
+        this.chatbox = document.querySelector('.chatbox'); // Add this line
 
         this.sessionId = null;
         this.hasUserSentMessage = false;
         this.apiBaseUrl = window.CONFIG.API_BASE_URL;
+        this.isMinimized = false; // Add this line
 
         this.init();
     }
@@ -38,6 +37,56 @@ class ZakiaChatbot {
         });
 
         this.endBtn.addEventListener('click', () => this.endChat());
+        
+        // Add minimize button event listener
+        this.minimizeBtn.addEventListener('click', () => this.toggleMinimize());
+    }
+
+    // Add this new method
+    toggleMinimize() {
+        this.isMinimized = !this.isMinimized;
+        
+        if (this.isMinimized) {
+            // Hide the chatbox
+            this.chatbox.style.display = 'none';
+            
+            // Create minimized widget if it doesn't exist
+            if (!document.getElementById('chatWidget')) {
+                this.createMinimizedWidget();
+            }
+        } else {
+            // Show the chatbox
+            this.chatbox.style.display = 'flex';
+            
+            // Remove minimized widget
+            const widget = document.getElementById('chatWidget');
+            if (widget) {
+                widget.remove();
+            }
+        }
+    }
+
+    // Add this new method to create the minimized widget
+    createMinimizedWidget() {
+        const widget = document.createElement('div');
+        widget.id = 'chatWidget';
+        widget.innerHTML = `
+            <img src="zakia-avatar.png" alt="ZAKIA" class="widget-avatar">
+            <div class="widget-content">
+                <div class="widget-title">ZAKIA</div>
+                <div class="widget-subtitle">Chat dengan kami</div>
+            </div>
+        `;
+        
+        // Add click event to restore chatbox
+        const self = this;
+        widget.addEventListener('click', function() {
+            self.isMinimized = false;
+            self.chatbox.style.display = 'flex';
+            widget.remove();
+        });
+        
+        document.body.appendChild(widget);
     }
 
     appendMessage(text, sender) {
@@ -140,15 +189,12 @@ class ZakiaChatbot {
     }
 
     handleQuickReplyClick(target) {
-        // Remove selected class from all quick replies
         document.querySelectorAll('.quick-reply').forEach(btn => {
             btn.classList.remove('selected');
         });
 
-        // Add selected class to clicked button
         target.classList.add('selected');
 
-        // Remove selected class after a short delay
         setTimeout(() => {
             target.classList.remove('selected');
         }, window.CONFIG.UI.QUICK_REPLY_SELECTION_DURATION);

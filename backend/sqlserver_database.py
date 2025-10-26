@@ -265,3 +265,4 @@ class SQLServerDatabaseManager:
         if self.engine:
             self.engine.dispose()
             print("SQL Server connection closed")
+

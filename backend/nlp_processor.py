@@ -25,7 +25,7 @@ class NLPProcessor:
             'berapa': ['berapa', 'brp', 'brpa', 'berapakah', 'brape', 'how much', 'how many'],
             'bila': ['bila', 'bl', 'bilakah', 'bile', 'when'],
             'mana': ['mana', 'mn', 'manakah', 'mne', 'where'],
-            'kenapa': ['kenapa', 'knp', 'kenapakah', 'nape', 'why'],
+            'kenapa': ['kenapa', 'knp', 'kenapakah', 'nape', 'why','mengapa'],
             'lznk': ['lznk', 'lembaga zakat', 'lembaga zakat negeri kedah'],
             'nisab': ['nisab', 'nisab', 'threshold'],
             'fitrah': ['fitrah', 'fitrah', 'fitr'],
