@@ -89,37 +89,84 @@ class ZakiaChatbot {
         document.body.appendChild(widget);
     }
 
-    appendMessage(text, sender) {
-        const msg = document.createElement('div');
-        msg.className = `msg ${sender}`;
+    // Replace the appendMessage method in frontend/js/chatbot.js
 
-        const now = new Date();
-        const timeString = now.toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true
-        });
+appendMessage(text, sender) {
+    const msg = document.createElement('div');
+    msg.className = `msg ${sender}`;
 
-        if (sender === 'bot') {
-            msg.innerHTML = `
-                <img src="zakia-avatar.png" class="msg-avatar" alt="ZAKIA">
-                <div class="bubble-container">
-                    <div class="bubble bot-bubble">${this.escapeHtml(text)}</div>
-                    <div class="msg-time">${timeString}</div>
-                </div>
-            `;
-        } else {
-            msg.innerHTML = `
-                <div class="bubble-container">
-                    <div class="bubble user-bubble">${this.escapeHtml(text)}</div>
-                    <div class="msg-time">${timeString}</div>
-                </div>
-            `;
-        }
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+    });
 
-        this.messagesEl.appendChild(msg);
-        this.messagesEl.scrollTop = this.messagesEl.scrollHeight;
+    // Process text to make links clickable
+    const processedText = this.processLinks(text);
+
+    if (sender === 'bot') {
+        msg.innerHTML = `
+            <img src="zakia-avatar.png" class="msg-avatar" alt="ZAKIA">
+            <div class="bubble-container">
+                <div class="bubble bot-bubble">${processedText}</div>
+                <div class="msg-time">${timeString}</div>
+            </div>
+        `;
+    } else {
+        msg.innerHTML = `
+            <div class="bubble-container">
+                <div class="bubble user-bubble">${processedText}</div>
+                <div class="msg-time">${timeString}</div>
+            </div>
+        `;
     }
+
+    this.messagesEl.appendChild(msg);
+    this.messagesEl.scrollTop = this.messagesEl.scrollHeight;
+}
+
+// Add this new method to the ZakiaChatbot class
+processLinks(text) {
+    // First, escape HTML to prevent XSS attacks
+    let processed = this.escapeHtml(text);
+    
+    // Pattern 1: Match HTML anchor tags that are already in the text
+    // (from admin panel where users can insert <a> tags)
+    const htmlLinkPattern = /&lt;a\s+href=&quot;([^&]+)&quot;[^&]*&gt;([^&]+)&lt;\/a&gt;/gi;
+    processed = processed.replace(htmlLinkPattern, (match, url, label) => {
+        // Unescape the URL and label
+        const cleanUrl = url.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"');
+        const cleanLabel = label.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+        return `<a href="${cleanUrl}" target="_blank" rel="noopener noreferrer" class="chat-link">${cleanLabel}</a>`;
+    });
+    
+    // Pattern 2: Auto-detect URLs in plain text and make them clickable
+    const urlPattern = /(https?:\/\/[^\s<>"]+[^\s<>".,;:!?)])/gi;
+    processed = processed.replace(urlPattern, (url) => {
+        // Extract domain for display (optional - you can show full URL)
+        const displayUrl = url.length > 50 ? url.substring(0, 47) + '...' : url;
+        return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="chat-link">${displayUrl}</a>`;
+    });
+    
+    // Pattern 3: Detect phone numbers and make them callable
+    const phonePattern = /(\+?[\d\s\-()]{10,})/g;
+    processed = processed.replace(phonePattern, (phone) => {
+        const cleanPhone = phone.replace(/[\s\-()]/g, '');
+        if (cleanPhone.length >= 10) {
+            return `<a href="tel:${cleanPhone}" class="chat-link">${phone}</a>`;
+        }
+        return phone;
+    });
+    
+    // Pattern 4: Detect email addresses
+    const emailPattern = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g;
+    processed = processed.replace(emailPattern, (email) => {
+        return `<a href="mailto:${email}" class="chat-link">${email}</a>`;
+    });
+    
+    return processed;
+}
 
     setTyping(isTyping) {
         this.typingEl.classList.toggle('hidden', !isTyping);

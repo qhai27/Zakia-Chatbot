@@ -39,7 +39,7 @@ class NLPProcessor:
         
         # Expanded synonyms
         self.synonyms = {
-            'cara': ['cara', 'kaedah', 'method', 'bagaimana', 'how', 'steps'],
+            'cara': ['cara', 'kaedah', 'method', 'bagaimana', 'how', 'steps','cara-cara'],
             'lokasi': ['lokasi', 'tempat', 'alamat', 'mana', 'location', 'address', 'where'],
             'waktu': ['waktu', 'masa', 'tempoh', 'bila', 'time', 'when', 'period'],
             'jumlah': ['jumlah', 'berapa', 'nilai', 'kadar', 'amount', 'rate'],
@@ -52,7 +52,8 @@ class NLPProcessor:
             'menerima': ['menerima', 'terima', 'dapat', 'receive', 'get', 'obtain'],
             'sehingga': ['sehingga', 'sampai', 'hingga', 'until', 'up to', 'till'],
             'segera' :['cepat', 'pantas', 'laju', 'urgent', 'immediately', 'asap'],
-            'informasi': ['info', 'maklumat', 'information', 'details', 'data']
+            'informasi': ['info', 'maklumat', 'information', 'details', 'data'],
+            'muallaf':['mualaf','new convert','new muslim','convert', 'convert to islam', 'newly converted','baru convert']
         }
         
         # Enhanced conversation context storage

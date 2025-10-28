@@ -497,4 +497,32 @@ body{
 }
 
 
-/* End of file */
+/* ================================================
+   CHAT LINK STYLING
+   ================================================ */
+
+.chat-link {
+    color: #fff01e;
+    text-decoration: underline;
+    font-weight: 500;
+    transition: color 0.2s ease, opacity 0.2s ease, transform 0.1s ease;
+    display: inline-block;
+}
+
+.chat-link:hover {
+    color: #8fcc00;
+    opacity: 0.8;
+    transform: translateY(-1px);
+}
+
+.chat-link:active {
+    transform: translateY(0);
+}
+
+.chat-link:visited {
+    color: #181375;
+}
+
+
+
+/* End of consolidated CSS */
