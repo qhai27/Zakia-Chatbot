@@ -17,11 +17,15 @@
                     <h2>FAQ Manager</h2>
                     <div id="statusIndicator">Memuat FAQ...</div>
                 </div>
-                <button id="newFaqBtn" class="btn primary">✨ Soalan Baharu</button>
+                <button id="newFaqBtn" class="btn primary">
+                     Soalan Baharu</button>
             </div>
             <div class="toolbar">
                 <input id="search" class="admin-input search" placeholder="🔍 Cari soalan atau kategori..." />
                 <button id="refresh" class="btn ghost">🔄 Refresh</button>
+                <!-- New buttons for category management -->
+                <button id="addCategoryBtn" class="btn">➕ Kategori</button>
+                <button id="editCategoriesBtn" class="btn ghost">✏️ Edit Kategori</button>
             </div>
         </div>
 
@@ -37,7 +41,14 @@
                     </div>
                     <div class="form-group">
                         <label>Kategori</label>
-                        <input id="category" class="admin-input" placeholder="Contoh: Umum, Pembayaran, Nisab" />
+
+                        <!-- Radio group for kategori -->
+                        <div id="categoryRadios" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px;">
+                            <!-- dynamically rendered radios -->
+                        </div>
+
+                        <!-- Fallback / custom category input (shown if user selects "Lain-lain") -->
+                        <input id="category" class="admin-input" placeholder="Masukkan kategori baru..." style="display:none;" />
                     </div>
                 </div>
                 <div class="form-group">
@@ -74,11 +85,7 @@
 
     <script>
         // ============================================
-        // ADMIN FAQ MANAGER - JAVASCRIPT
-        // ============================================
-
-        // ============================================
-        // CONFIGURATION
+        // ADMIN FAQ MANAGER - JAVASCRIPT (updated)
         // ============================================
         const CONFIG = {
             API_BASE: 'http://127.0.0.1:5000/admin/faqs',
@@ -87,9 +94,6 @@
             ANSWER_PREVIEW_LENGTH: 120
         };
 
-        // ============================================
-        // DOM ELEMENTS
-        // ============================================
         const DOM = {
             tbody: document.getElementById('faqTableBody'),
             emptyState: document.getElementById('emptyState'),
@@ -101,24 +105,176 @@
             questionInput: document.getElementById('question'),
             answerInput: document.getElementById('answer'),
             categoryInput: document.getElementById('category'),
+            categoryRadios: document.getElementById('categoryRadios'),
             saveFaqBtn: document.getElementById('saveFaq'),
             cancelFormBtn: document.getElementById('cancelForm'),
             formHint: document.getElementById('formHint'),
-            statusIndicator: document.getElementById('statusIndicator')
+            statusIndicator: document.getElementById('statusIndicator'),
+            addCategoryBtn: document.getElementById('addCategoryBtn'),
+            editCategoriesBtn: document.getElementById('editCategoriesBtn')
         };
 
-        // ============================================
-        // STATE MANAGEMENT
-        // ============================================
         let STATE = {
             faqs: [],
             editingId: null,
-            isLoading: false
+            isLoading: false,
+            categories: [] // maintained list of categories
         };
 
-        // ============================================
-        // FORM MANAGEMENT
-        // ============================================
+        // -------------------------
+        // Category manager
+        // -------------------------
+        const CategoryManager = {
+            updateFromFaqs() {
+                const set = new Set();
+                for (const f of STATE.faqs) {
+                    if (f.category) set.add(f.category);
+                }
+                STATE.categories = Array.from(set).sort((a,b) => a.localeCompare(b));
+                // always include an explicit "Umum" default if empty
+                if (!STATE.categories.includes('Umum')) STATE.categories.unshift('Umum');
+            },
+
+            renderRadios(selected = null) {
+                if (!DOM.categoryRadios) return;
+                const radios = STATE.categories.map((c, idx) => {
+                    const id = `cat_${idx}`;
+                    return `
+                        <label style="display:flex;align-items:center;gap:8px;">
+                          <input type="radio" name="kategoriRadio" value="${this.escape(c)}" id="${id}" ${selected===c ? 'checked' : ''}/>
+                          <span>${this.escape(c)}</span>
+                        </label>
+                    `;
+                }).join('');
+                // add "Lain-lain" option
+                const otherChecked = (selected && !STATE.categories.includes(selected)) ? 'checked' : '';
+                const otherHtml = `
+                    <label style="display:flex;align-items:center;gap:8px;">
+                      <input type="radio" name="kategoriRadio" value="__other__" id="cat_other" ${otherChecked}/>
+                      <span>Lain-lain</span>
+                    </label>
+                `;
+                DOM.categoryRadios.innerHTML = radios + otherHtml;
+                // attach change listeners
+                const nodes = DOM.categoryRadios.querySelectorAll('input[name="kategoriRadio"]');
+                nodes.forEach(n => n.addEventListener('change', (e) => {
+                    if (e.target.value === '__other__') {
+                        DOM.categoryInput.style.display = 'block';
+                        DOM.categoryInput.focus();
+                        // if previously selected other, keep value
+                    } else {
+                        DOM.categoryInput.style.display = 'none';
+                        DOM.categoryInput.value = '';
+                    }
+                }));
+                // if selected is a custom category, show input with value
+                if (selected && !STATE.categories.includes(selected)) {
+                    DOM.categoryInput.style.display = 'block';
+                    DOM.categoryInput.value = selected;
+                } else {
+                    if (DOM.categoryInput) DOM.categoryInput.style.display = 'none';
+                }
+            },
+
+            addCategory(name) {
+                name = (name || '').trim();
+                if (!name) return;
+                if (!STATE.categories.includes(name)) {
+                    STATE.categories.push(name);
+                    STATE.categories.sort((a,b)=>a.localeCompare(b));
+                }
+                this.renderRadios(name);
+            },
+
+            // show modal to edit categories (rename/delete/add)
+            showEditModal() {
+                // remove existing
+                const existing = document.getElementById('categoryModal');
+                if (existing) existing.remove();
+
+                const modal = document.createElement('div');
+                modal.id = 'categoryModal';
+                modal.style = 'position:fixed;inset:0;background:rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;z-index:9999;';
+                modal.innerHTML = `
+                    <div style="width:420px;background:#fff;border-radius:10px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,0.18);">
+                        <h3 style="margin:0 0 8px 0;">Urus Kategori</h3>
+                        <div id="catList" style="max-height:260px;overflow:auto;padding:6px;display:flex;flex-direction:column;gap:8px;"></div>
+                        <div style="display:flex;gap:8px;margin-top:12px;align-items:center;">
+                            <input id="newCatInput" placeholder="Kategori baru..." style="flex:1;padding:8px;border:1px solid #e6eef9;border-radius:8px;" />
+                            <button id="addNewCatBtn" class="btn primary">Tambah</button>
+                        </div>
+                        <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px;">
+                            <button id="closeCatModal" class="btn ghost">Tutup</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+
+                const catList = modal.querySelector('#catList');
+                const newCatInput = modal.querySelector('#newCatInput');
+                const addNewCatBtn = modal.querySelector('#addNewCatBtn');
+                const closeBtn = modal.querySelector('#closeCatModal');
+
+                function renderList() {
+                    catList.innerHTML = STATE.categories.map((c, idx) => `
+                        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px;border:1px solid #f3f6fb;border-radius:8px;">
+                            <div style="flex:1;">
+                                <input data-idx="${idx}" class="renameInput" value="${c}" style="width:100%;padding:6px;border:0;background:transparent;font-weight:600" />
+                            </div>
+                            <div style="display:flex;gap:6px;">
+                                <button data-idx="${idx}" class="btn ghost saveRename">Simpan</button>
+                                <button data-idx="${idx}" class="btn warn deleteCat">Padam</button>
+                            </div>
+                        </div>
+                    `).join('');
+                    // attach listeners
+                    const saveBtns = modal.querySelectorAll('.saveRename');
+                    saveBtns.forEach(b => b.addEventListener('click', (e)=>{
+                        const idx = Number(b.getAttribute('data-idx'));
+                        const input = modal.querySelector(`.renameInput[data-idx="${idx}"]`);
+                        const newName = (input.value || '').trim();
+                        if (!newName) { alert('Nama kategori tidak boleh kosong'); return; }
+                        STATE.categories[idx] = newName;
+                        STATE.categories = Array.from(new Set(STATE.categories)).sort((a,b)=>a.localeCompare(b));
+                        renderList();
+                        CategoryManager.renderRadios();
+                    }));
+                    const delBtns = modal.querySelectorAll('.deleteCat');
+                    delBtns.forEach(b => b.addEventListener('click', (e)=>{
+                        const idx = Number(b.getAttribute('data-idx'));
+                        const c = STATE.categories[idx];
+                        if (!confirm(`Padam kategori "${c}"? Semua FAQ yang menggunakan kategori ini akan menjadi kosong.`)) return;
+                        STATE.categories.splice(idx,1);
+                        renderList();
+                        CategoryManager.renderRadios();
+                    }));
+                }
+
+                addNewCatBtn.addEventListener('click', () => {
+                    const val = (newCatInput.value || '').trim();
+                    if (!val) return;
+                    if (!STATE.categories.includes(val)) STATE.categories.push(val);
+                    STATE.categories.sort((a,b)=>a.localeCompare(b));
+                    newCatInput.value = '';
+                    renderList();
+                    CategoryManager.renderRadios();
+                });
+
+                closeBtn.addEventListener('click', () => modal.remove());
+
+                renderList();
+            },
+
+            escape(s) {
+                return String(s || '').replaceAll('"','&quot;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+            },
+
+            escape: function(s){ return (s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+        };
+
+        // -------------------------
+        // Form manager adjustments
+        // -------------------------
         const FormManager = {
             reset() {
                 STATE.editingId = null;
@@ -127,6 +283,8 @@
                 DOM.categoryInput.value = '';
                 DOM.formHint.textContent = '';
                 DOM.formHint.className = '';
+                // reset radios to default
+                CategoryManager.renderRadios(null);
             },
 
             show(isEdit = false, existing = null) {
@@ -134,8 +292,20 @@
                 if (isEdit && existing) {
                     DOM.questionInput.value = existing.question || '';
                     DOM.answerInput.value = existing.answer || '';
-                    DOM.categoryInput.value = existing.category || '';
+                    // if category exists and in list select, else show other
+                    CategoryManager.renderRadios(existing.category || null);
+                    if (existing.category && !STATE.categories.includes(existing.category)) {
+                        DOM.categoryInput.style.display = 'block';
+                        DOM.categoryInput.value = existing.category;
+                    } else {
+                        DOM.categoryInput.style.display = 'none';
+                        DOM.categoryInput.value = '';
+                    }
                     STATE.editingId = existing.id;
+                } else {
+                    CategoryManager.renderRadios(null);
+                    DOM.categoryInput.style.display = 'none';
+                    DOM.categoryInput.value = '';
                 }
                 DOM.formSection.style.display = 'block';
                 DOM.formHint.style.display = 'none';
@@ -179,17 +349,31 @@
             },
 
             getFormData() {
+                // determine selected category
+                const checked = DOM.formSection.querySelector('input[name="kategoriRadio"]:checked');
+                let category = null;
+                if (checked) {
+                    if (checked.value === '__other__') {
+                        category = DOM.categoryInput.value.trim() || null;
+                    } else {
+                        category = checked.value || null;
+                    }
+                } else {
+                    // fallback to category input
+                    category = DOM.categoryInput.value.trim() || null;
+                }
+
                 return {
                     question: DOM.questionInput.value.trim(),
                     answer: DOM.answerInput.value.trim(),
-                    category: DOM.categoryInput.value.trim() || null
+                    category: category
                 };
             }
         };
 
-        // ============================================
-        // UI MANAGEMENT
-        // ============================================
+        // -------------------------
+        // UI Manager (unchanged)
+        // -------------------------
         const UIManager = {
             showLoading(show = true) {
                 STATE.isLoading = show;
@@ -250,29 +434,9 @@
             }
         };
 
-        // ============================================
-        // SEARCH FUNCTIONALITY
-        // ============================================
-        const SearchManager = {
-            apply() {
-                const query = DOM.searchInput.value.toLowerCase().trim();
-                if (!query) {
-                    UIManager.renderRows(STATE.faqs);
-                    return;
-                }
-
-                const filtered = STATE.faqs.filter(f =>
-                    (f.question && f.question.toLowerCase().includes(query)) ||
-                    (f.answer && f.answer.toLowerCase().includes(query)) ||
-                    (f.category && f.category.toLowerCase().includes(query))
-                );
-                UIManager.renderRows(filtered);
-            }
-        };
-
-        // ============================================
-        // API SERVICE
-        // ============================================
+        // -------------------------
+        // API Service (unchanged)
+        // -------------------------
         const APIService = {
             async fetchFaqs() {
                 const res = await fetch(CONFIG.API_BASE);
@@ -282,55 +446,46 @@
                 const data = await res.json();
                 return data.faqs || [];
             },
-
             async createFaq(payload) {
                 const res = await fetch(CONFIG.API_BASE, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-
                 if (!res.ok) {
                     const errorData = await res.json();
                     throw new Error(errorData.error || `HTTP ${res.status}: ${res.statusText}`);
                 }
-
                 return await res.json();
             },
-
             async updateFaq(id, payload) {
                 const res = await fetch(`${CONFIG.API_BASE}/${id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-
                 if (!res.ok) {
                     const errorData = await res.json();
                     throw new Error(errorData.error || `HTTP ${res.status}: ${res.statusText}`);
                 }
-
                 return await res.json();
             },
-
             async deleteFaq(id) {
                 const res = await fetch(`${CONFIG.API_BASE}/${id}`, {
                     method: 'DELETE',
                     headers: { 'Content-Type': 'application/json' }
                 });
-
                 if (!res.ok) {
                     const errorData = await res.json();
                     throw new Error(errorData.error || `HTTP ${res.status}: ${res.statusText}`);
                 }
-
                 return await res.json();
             }
         };
 
-        // ============================================
-        // FAQ OPERATIONS
-        // ============================================
+        // -------------------------
+        // FAQ Operations (updated to keep categories in sync)
+        // -------------------------
         const FAQOperations = {
             async load() {
                 try {
@@ -338,6 +493,11 @@
                     UIManager.updateStatus('⏳ Memuat FAQ...');
 
                     STATE.faqs = await APIService.fetchFaqs();
+                    // update categories from loaded faqs and render radios
+                    CategoryManager.updateFromFaqs();
+                    CategoryManager.renderRadios();
+
+                    // render table rows
                     SearchManager.apply();
 
                     if (STATE.faqs.length === 0) {
@@ -374,6 +534,7 @@
                         UIManager.showMessage('✅ FAQ berjaya ditambah!', false);
                     }
 
+                    // after save, reload FAQs (which will refresh categories)
                     await this.load();
                     setTimeout(() => FormManager.hide(), 1500);
 
@@ -412,9 +573,29 @@
             }
         };
 
-        // ============================================
-        // EVENT HANDLERS
-        // ============================================
+        // -------------------------
+        // Search manager (unchanged)
+        // -------------------------
+        const SearchManager = {
+            apply() {
+                const query = DOM.searchInput.value.toLowerCase().trim();
+                if (!query) {
+                    UIManager.renderRows(STATE.faqs);
+                    return;
+                }
+
+                const filtered = STATE.faqs.filter(f =>
+                    (f.question && f.question.toLowerCase().includes(query)) ||
+                    (f.answer && f.answer.toLowerCase().includes(query)) ||
+                    (f.category && f.category.toLowerCase().includes(query))
+                );
+                UIManager.renderRows(filtered);
+            }
+        };
+
+        // -------------------------
+        // Event handlers wiring
+        // -------------------------
         const EventHandlers = {
             init() {
                 // New FAQ button
@@ -431,6 +612,22 @@
                 DOM.saveFaqBtn.addEventListener('click', () => {
                     FAQOperations.save();
                 });
+
+                // Add category (toolbar)
+                if (DOM.addCategoryBtn) {
+                    DOM.addCategoryBtn.addEventListener('click', () => {
+                        const name = prompt('Nama kategori baharu:');
+                        if (!name) return;
+                        CategoryManager.addCategory(name.trim());
+                    });
+                }
+
+                // Edit categories (open modal)
+                if (DOM.editCategoriesBtn) {
+                    DOM.editCategoriesBtn.addEventListener('click', () => {
+                        CategoryManager.showEditModal();
+                    });
+                }
 
                 // Table actions (Edit/Delete)
                 DOM.tbody.addEventListener('click', async (e) => {
@@ -461,15 +658,16 @@
             }
         };
 
-        // ============================================
-        // APPLICATION INITIALIZATION
-        // ============================================
+        // -------------------------
+        // Init
+        // -------------------------
         function init() {
             EventHandlers.init();
+            CategoryManager.updateFromFaqs(); // initial empty/default
+            CategoryManager.renderRadios();
             FAQOperations.load();
         }
 
-        // Start the application
         init();
     </script>
 </body>

@@ -1,10 +1,24 @@
 /* ============================================
-   ADMIN FAQ MANAGER - STYLESHEET
+   LZNK ADMIN FAQ MANAGER - STYLE (Green/Yellow/White/Red)
    ============================================ */
 
-/* ============================================
+/* -----------------------
+   ROOT COLOR VARIABLES
+------------------------ */
+:root {
+    --lznk-green: #006a4e;
+    --lznk-yellow: #f9c80e;
+    --lznk-red: #c62828;
+    --lznk-white: #ffffff;
+    --text-dark: #1f2937;
+    --text-muted: #6b7280;
+    --border-color: #e5e7eb;
+    --bg-light: #f9fafb;
+}
+
+/* -----------------------
    BASE STYLES
-   ============================================ */
+------------------------ */
 * {
     box-sizing: border-box;
 }
@@ -12,334 +26,318 @@
 body {
     margin: 0;
     padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
+    background-color: var(--bg-light);
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    color: var(--text-dark);
 }
 
-/* ============================================
-   LAYOUT CONTAINERS
-   ============================================ */
+/* -----------------------
+   ADMIN CONTAINER
+------------------------ */
 .admin-container {
-    max-width: 1200px;
-    margin: 32px auto;
-    padding: 24px;
+    max-width: 1100px;
+    margin: 30px auto;
+    background-color: var(--lznk-white);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    border-top: 5px solid var(--lznk-green);
+    padding: 25px 30px;
 }
 
-.admin-card {
-    background: white;
-    padding: 24px;
-    border-radius: 16px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
-}
-
-/* ============================================
+/* -----------------------
    HEADER SECTION
-   ============================================ */
+------------------------ */
 .admin-header {
-    background: white;
-    padding: 24px;
-    border-radius: 16px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
-    margin-bottom: 24px;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 15px;
+    margin-bottom: 25px;
 }
 
 .header-top {
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    margin-bottom: 20px;
+    align-items: center;
 }
 
 .header-top h2 {
+    color: var(--lznk-green);
+    font-size: 1.6rem;
     margin: 0;
-    font-size: 28px;
-    font-weight: 700;
-    color: #1a202c;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.header-top h2::before {
-    content: '📋';
-    font-size: 32px;
 }
 
 #statusIndicator {
-    font-size: 13px;
-    color: #718096;
-    margin-top: 8px;
-    font-weight: 500;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-top: 4px;
 }
 
-/* ============================================
+/* -----------------------
    TOOLBAR
-   ============================================ */
+------------------------ */
 .toolbar {
     display: flex;
-    gap: 12px;
     align-items: center;
-    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
 }
 
-.search {
+.admin-input.search {
     flex: 1;
-    min-width: 250px;
-}
-
-/* ============================================
-   FORM STYLES
-   ============================================ */
-#formSection {
-    background: white;
-    padding: 28px;
-    border-radius: 16px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
-    margin-bottom: 24px;
-}
-
-#formTitle {
-    margin: 0 0 24px 0;
-    font-size: 22px;
-    font-weight: 700;
-    color: #1a202c;
-}
-
-.admin-grid {
-    display: grid;
-    gap: 20px;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.form-group label {
-    font-weight: 600;
-    color: #2d3748;
-    font-size: 14px;
-}
-
-.form-row {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 20px;
-}
-
-/* ============================================
-   INPUT ELEMENTS
-   ============================================ */
-.admin-input,
-.admin-textarea,
-.admin-select {
-    width: 100%;
-    padding: 12px 16px;
-    border: 2px solid #e2e8f0;
-    border-radius: 10px;
-    font-size: 14px;
-    transition: all 0.2s;
-    font-family: inherit;
-}
-
-.admin-input:focus,
-.admin-textarea:focus {
+    padding: 10px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    font-size: 0.95rem;
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    transition: border-color 0.2s;
 }
 
-.admin-textarea {
-    min-height: 120px;
-    resize: vertical;
-    line-height: 1.6;
+.admin-input.search:focus {
+    border-color: var(--lznk-green);
 }
 
-/* ============================================
+/* -----------------------
    BUTTONS
-   ============================================ */
+------------------------ */
 .btn {
-    padding: 12px 20px;
-    border: none;
-    border-radius: 10px;
     cursor: pointer;
-    font-weight: 600;
-    font-size: 14px;
-    transition: all 0.2s;
-    font-family: inherit;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
+    border: none;
+    border-radius: 6px;
+    padding: 9px 16px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: background-color 0.2s, color 0.2s, transform 0.1s;
 }
 
 .btn:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.btn:active {
-    transform: translateY(0);
-}
-
-.btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-}
-
+/* Primary button - Green */
 .btn.primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: #fff;
+    background-color: var(--lznk-green);
+    color: var(--lznk-white);
 }
 
 .btn.primary:hover {
-    background: linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%);
+    background-color: #008b62;
 }
 
+/* Warning button - Red */
 .btn.warn {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    color: #fff;
+    background-color: var(--lznk-red);
+    color: var(--lznk-white);
 }
 
+.btn.warn:hover {
+    background-color: #e53935;
+}
+
+/* Ghost button - Yellow outline */
 .btn.ghost {
-    background: #f7fafc;
-    color: #4a5568;
-    border: 2px solid #e2e8f0;
+    background-color: transparent;
+    color: var(--lznk-green);
+    border: 1px solid var(--lznk-yellow);
 }
 
 .btn.ghost:hover {
-    background: #edf2f7;
-    border-color: #cbd5e0;
+    background-color: var(--lznk-yellow);
+    color: var(--text-dark);
 }
 
-/* ============================================
-   ACTIONS
-   ============================================ */
-.admin-actions {
-    display: flex;
-    gap: 12px;
-    justify-content: flex-end;
-    margin-top: 8px;
-}
-
-/* ============================================
-   MESSAGES & HINTS
-   ============================================ */
-#formHint {
-    padding: 12px 16px;
+/* -----------------------
+   FORM SECTION
+------------------------ */
+#formSection {
+    background-color: #fafafa;
+    border: 1px solid var(--border-color);
     border-radius: 8px;
-    font-size: 13px;
-    font-weight: 500;
-    margin-top: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
 }
 
-#formHint.success {
-    background: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
+#formTitle {
+    margin-bottom: 15px;
+    color: var(--lznk-green);
 }
 
-#formHint.error {
-    background: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
+.admin-input,
+.admin-textarea {
+    width: 100%;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 10px;
+    font-size: 0.95rem;
+    transition: border-color 0.2s;
 }
 
-/* ============================================
-   TABLE STYLES
-   ============================================ */
+.admin-input:focus,
+.admin-textarea:focus {
+    border-color: var(--lznk-green);
+    outline: none;
+}
+
+/* -----------------------
+   TABLE STYLING
+------------------------ */
 .table {
     width: 100%;
     border-collapse: collapse;
-}
-
-.table thead {
-    background: #f7fafc;
+    background-color: var(--lznk-white);
 }
 
 .table th {
-    padding: 14px 16px;
+    background-color: var(--lznk-green);
+    color: var(--lznk-white);
     text-align: left;
-    font-weight: 700;
-    color: #2d3748;
-    font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border-bottom: 2px solid #e2e8f0;
+    padding: 12px 10px;
+    font-weight: 600;
 }
 
 .table td {
-    padding: 16px;
-    border-bottom: 1px solid #f0f0f0;
+    padding: 10px 10px;
+    border-bottom: 1px solid var(--border-color);
     vertical-align: top;
 }
 
 .table tr:hover {
-    background: #f7fafc;
+    background-color: #f2f8f4;
 }
 
-.table tr:last-child td {
-    border-bottom: none;
-}
-
-/* ============================================
+/* -----------------------
    BADGES
-   ============================================ */
-.category-badge {
-    background: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 100%);
-    color: #5b21b6;
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    display: inline-block;
-}
-
+------------------------ */
 .id-badge {
-    background: #edf2f7;
-    color: #4a5568;
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-weight: 700;
-    font-size: 12px;
-}
-
-/* ============================================
-   TEXT STYLES
-   ============================================ */
-.question-text {
+    display: inline-block;
+    background-color: var(--lznk-yellow);
+    color: var(--text-dark);
     font-weight: 600;
-    margin-bottom: 6px;
-    color: #1a202c;
-    font-size: 15px;
+    padding: 3px 8px;
+    border-radius: 6px;
 }
 
-.answer-preview {
-    font-size: 13px;
-    color: #718096;
-    line-height: 1.5;
-    max-height: 40px;
-    overflow: hidden;
+.category-badge {
+    display: inline-block;
+    background-color: #e6f4ea;
+    color: var(--lznk-green);
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
 }
 
-/* ============================================
+/* -----------------------
+   MESSAGE + STATUS
+------------------------ */
+#formHint {
+    margin-top: 8px;
+    font-weight: 500;
+}
+
+#formHint.success {
+    color: var(--lznk-green);
+}
+
+#formHint.error {
+    color: var(--lznk-red);
+}
+
+/* -----------------------
    EMPTY STATE
-   ============================================ */
+------------------------ */
 #emptyState {
     text-align: center;
-    padding: 48px 24px;
-    color: #a0aec0;
-    font-size: 15px;
+    padding: 25px;
+    color: var(--text-muted);
+    font-style: italic;
 }
 
-/* ============================================
+
+#categoryRadios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Hide native radio but keep it accessible */
+#categoryRadios input[type="radio"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  clip: rect(0 0 0 0);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Label wrapper (visual pill) */
+#categoryRadios label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  transition: transform .08s ease, box-shadow .12s ease, background .12s ease;
+}
+
+/* Pill appearance */
+#categoryRadios label span {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #f3f6fb;
+  color: #1f2937;
+  font-weight: 600;
+  font-size: 13px;
+  border: 1px solid transparent;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.6) inset;
+}
+
+/* Checked state */
+#categoryRadios input[type="radio"]:checked + span {
+  background: #2563eb; /* primary */
+  color: #ffffff;
+  border-color: rgba(37,99,235,0.15);
+  box-shadow: 0 6px 18px rgba(37,99,235,0.08);
+  transform: translateY(-1px);
+}
+
+/* Focus-visible / keyboard navigation */
+#categoryRadios label:focus-within span {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+}
+
+/* Small check indicator before text when selected */
+#categoryRadios input[type="radio"]:checked + span::before {
+  content: '✓';
+  display: inline-block;
+  margin-right: 8px;
+  font-size: 12px;
+  line-height: 1;
+  vertical-align: middle;
+  opacity: 0.95;
+}
+
+/* "Lain-lain" spacing - if category input shown, align nicely */
+#categoryRadios + #category {
+  margin-top: 6px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  #categoryRadios label span { padding: 6px 10px; font-size: 13px; }
+}
+
+/* -----------------------
    RESPONSIVE DESIGN
-   ============================================ */
+------------------------ */
 @media (max-width: 768px) {
-    .form-row {
-        grid-template-columns: 1fr;
+    .admin-container {
+        padding: 15px;
     }
 
     .toolbar {
@@ -347,33 +345,7 @@ body {
         align-items: stretch;
     }
 
-    .search {
-        width: 100%;
-    }
-
-    .header-top {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 16px;
-    }
-
-    .admin-container {
-        padding: 16px;
-        margin: 16px auto;
-    }
-
-    .table th,
-    .table td {
-        padding: 12px 8px;
-        font-size: 13px;
-    }
-
-    .admin-actions {
-        flex-direction: column;
-    }
-
     .btn {
         width: 100%;
-        justify-content: center;
     }
 }

@@ -4,6 +4,7 @@ from typing import List, Tuple, Dict
 import json
 from datetime import datetime
 from collections import defaultdict
+import unicodedata
 
 class NLPProcessor:
     def __init__(self):
@@ -12,7 +13,7 @@ class NLPProcessor:
             'yang', 'dan', 'atau', 'dengan', 'untuk', 'dari', 'ke', 'di', 'pada',
             'adalah', 'ialah', 'ini', 'itu', 'saya', 'anda', 'kami', 'mereka',
             'akan', 'telah', 'sudah', 'boleh', 'dapat', 'ada', 'mana', 'bila',
-            'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for'
+            'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'bolehkah', 'boleh'
         }
         
         # Enhanced typo corrections for both languages
@@ -26,9 +27,9 @@ class NLPProcessor:
             'bila': ['bila', 'bl', 'bilakah', 'bile', 'when'],
             'mana': ['mana', 'mn', 'manakah', 'mne', 'where'],
             'kenapa': ['kenapa', 'knp', 'kenapakah', 'nape', 'why','mengapa'],
-            'lznk': ['lznk', 'lembaga zakat', 'lembaga zakat negeri kedah'],
-            'nisab': ['nisab', 'nisab', 'threshold'],
-            'fitrah': ['fitrah', 'fitrah', 'fitr'],
+            'lznk': ['lznk', 'lembaga zakat', 'lembaga zakat negeri kedah', 'lembaga'],
+            'nisab': ['nisab', 'threshold'],
+            'fitrah': ['fitrah', 'fitr'],
             'emas': ['emas', 'gold'],
             'wang': ['wang', 'duit', 'money', 'cash'],
             'pejabat': ['pejabat', 'office', 'kaunter', 'cawangan', 'branch'],
@@ -46,7 +47,12 @@ class NLPProcessor:
             'bayar': ['bayar', 'membayar', 'pembayaran', 'selesai', 'pay', 'payment'],
             'bantuan': ['bantuan', 'help', 'tolong', 'assist', 'aid', 'support'],
             'pejabat': ['pejabat', 'office', 'kaunter', 'cawangan', 'branch'],
-            'mohon': ['mohon', 'apply', 'permohonan', 'application', 'request']
+            'mohon': ['mohon', 'apply', 'permohonan', 'application', 'request'],
+            'kena': ['kena', 'perlu', 'wajib', 'mesti', 'need to', 'must'],
+            'menerima': ['menerima', 'terima', 'dapat', 'receive', 'get', 'obtain'],
+            'sehingga': ['sehingga', 'sampai', 'hingga', 'until', 'up to', 'till'],
+            'segera' :['cepat', 'pantas', 'laju', 'urgent', 'immediately', 'asap'],
+            'informasi': ['info', 'maklumat', 'information', 'details', 'data']
         }
         
         # Enhanced conversation context storage
@@ -59,47 +65,88 @@ class NLPProcessor:
         # Training data
         self.training_pairs = []
         self.keyword_index = {}
+
+        # build small vocabulary for typo matching
+        self._build_lookup_vocab()
         
+    def _build_lookup_vocab(self):
+        """Build a flat list of known token variants for fuzzy correction"""
+        variants = set()
+        for k, vals in self.typo_corrections.items():
+            variants.update(vals)
+            variants.add(k)
+        for vals in self.synonyms.values():
+            variants.update(vals)
+        variants.update(self.stopwords)
+        self.lookup_vocab = sorted(list(variants))
+    
+    def _normalize_unicode(self, text: str) -> str:
+        """Normalize unicode and remove diacritics for robust matching"""
+        nfkd = unicodedata.normalize('NFKD', text)
+        return ''.join([c for c in nfkd if not unicodedata.combining(c)])
+    
     def preprocess_text(self, text: str) -> str:
-        """Enhanced text preprocessing"""
+        """Enhanced text preprocessing with fuzzy typo correction"""
         if not text:
             return ""
         
+        text = self._normalize_unicode(text)
         text = text.lower().strip()
-        text = re.sub(r'\s+', ' ', text)
-        text = re.sub(r'[^\w\s?]', '', text)
+        # keep question mark to help intent detection
+        text = re.sub(r'[^\w\s\?]', ' ', text)
+        text = re.sub(r'\s+', ' ', text).strip()
         
-        # Fix typos
         words = text.split()
         corrected_words = []
         
         for word in words:
-            corrected = word
+            # direct mapping
+            corrected = None
             for correct, variants in self.typo_corrections.items():
                 if word in variants:
                     corrected = correct
                     break
+            # fuzzy match against known variants/vocab
+            if not corrected:
+                close = difflib.get_close_matches(word, self.lookup_vocab, n=1, cutoff=0.82)
+                if close:
+                    # map close match back to canonical if possible
+                    candidate = close[0]
+                    # find canonical key for candidate
+                    for k, vals in self.typo_corrections.items():
+                        if candidate in vals or candidate == k:
+                            corrected = k
+                            break
+                    if not corrected:
+                        corrected = candidate
+            if not corrected:
+                corrected = word
             corrected_words.append(corrected)
         
         return ' '.join(corrected_words)
     
     def extract_keywords(self, text: str) -> List[str]:
-        """Extract meaningful keywords"""
+        """Extract meaningful single and n-gram keywords (bigrams)"""
         text = self.preprocess_text(text)
-        words = text.split()
+        words = [w for w in text.split() if w and w not in self.stopwords]
         
-        keywords = [
-            word for word in words 
-            if word not in self.stopwords and len(word) > 2
-        ]
+        # single keywords
+        keywords = set(words)
         
-        # Add synonym variations
-        expanded_keywords = set(keywords)
-        for keyword in keywords:
-            if keyword in self.synonyms:
-                expanded_keywords.update(self.synonyms[keyword])
+        # add bigrams for phrases like "cara bayar"
+        for i in range(len(words)-1):
+            bigram = f"{words[i]} {words[i+1]}"
+            keywords.add(bigram)
         
-        return list(expanded_keywords)
+        # add synonym expansions
+        expanded = set(keywords)
+        for kw in list(keywords):
+            if kw in self.synonyms:
+                expanded.update(self.synonyms[kw])
+        
+        # filter short tokens
+        filtered = [k for k in expanded if len(k) > 1]
+        return filtered
     
     def add_to_context(self, session_id: str, message: str, role: str):
         """Enhanced context management with better memory"""
@@ -261,43 +308,36 @@ class NLPProcessor:
         return any(topic in conversation_topics for topic in current_topics)
     
     def calculate_similarity(self, text1: str, text2: str, context_boost: float = 0.0) -> float:
-        """Calculate similarity with context boost"""
+        """Calculate similarity with context boost - improved by token & ngram overlap"""
         t1 = self.preprocess_text(text1)
         t2 = self.preprocess_text(text2)
         
-        # Sequence matching
-        sequence_sim = difflib.SequenceMatcher(None, t1, t2).ratio()
+        # Sequence matching (string-level)
+        sequence_sim = difflib.SequenceMatcher(None, t1, t2).ratio() * 0.45
         
-        # Keyword overlap
+        # Keyword overlap (including bigrams)
         keywords1 = set(self.extract_keywords(text1))
         keywords2 = set(self.extract_keywords(text2))
         
         if keywords1 and keywords2:
             intersection = len(keywords1.intersection(keywords2))
             union = len(keywords1.union(keywords2))
-            keyword_sim = intersection / union if union > 0 else 0
+            keyword_sim = (intersection / union) * 0.4 if union > 0 else 0
         else:
             keyword_sim = 0
         
-        # Word-level similarity
+        # Word/token-level Jaccard
         words1 = set(t1.split())
         words2 = set(t2.split())
         
         if words1 and words2:
             word_intersection = len(words1.intersection(words2))
             word_union = len(words1.union(words2))
-            word_sim = word_intersection / word_union if word_union > 0 else 0
+            word_sim = (word_intersection / word_union) * 0.15 if word_union > 0 else 0
         else:
             word_sim = 0
         
-        # Weighted combination with context boost
-        final_score = (
-            sequence_sim * 0.3 +
-            keyword_sim * 0.5 +
-            word_sim * 0.2 +
-            context_boost
-        )
-        
+        final_score = sequence_sim + keyword_sim + word_sim + context_boost
         return min(final_score, 1.0)
     
     def train_from_faqs(self, faqs: List[Dict]):
@@ -348,28 +388,34 @@ class NLPProcessor:
                 faq_keywords = set(pair['keywords'])
                 context_overlap = len(faq_keywords.intersection(context_keywords))
                 if context_overlap > 0:
-                    context_boost_map[idx] = min(context_overlap * 0.1, 0.2)
+                    context_boost_map[idx] = min(context_overlap * 0.08, 0.25)
         
-        # Strategy 1: Keyword-based filtering
+        # Strategy 1: Keyword-based filtering (including bigrams)
         for keyword in user_keywords:
             if keyword in self.keyword_index:
                 for idx in self.keyword_index[keyword]:
                     if idx < len(self.training_pairs):
                         candidates.append(idx)
         
-        # If no candidates, use all FAQs
+        # If no candidates, broaden search using fuzzy match on questions
+        if not candidates:
+            # try fuzzy matching on questions
+            for idx, pair in enumerate(self.training_pairs):
+                q = self.preprocess_text(pair['question'])
+                if any(difflib.SequenceMatcher(None, k, q).ratio() > 0.75 for k in user_keywords):
+                    candidates.append(idx)
+        
+        # If still no candidates, use all FAQs
         if not candidates:
             candidates = list(range(len(faqs)))
         else:
-            candidates = sorted(set(candidates), 
-                              key=lambda x: candidates.count(x), 
-                              reverse=True)
+            candidates = sorted(set(candidates), key=lambda x: candidates.count(x), reverse=True)
         
         # Strategy 2: Calculate similarity with context boost
         best_match = None
         best_score = 0.0
         
-        for idx in candidates[:20]:
+        for idx in candidates[:60]:
             if idx >= len(faqs):
                 continue
                 
@@ -382,12 +428,12 @@ class NLPProcessor:
             
             # Calculate similarities
             q_sim = self.calculate_similarity(user_input, question, context_boost)
-            a_sim = self.calculate_similarity(user_input, answer, context_boost * 0.5) * 0.3
+            a_sim = self.calculate_similarity(user_input, answer, context_boost * 0.5) * 0.35
             
-            # Boost for exact keyword matches
+            # Boost for exact keyword matches (single tokens and bigrams)
             faq_keywords = set(self.extract_keywords(question))
             exact_matches = len(user_keywords.intersection(faq_keywords))
-            keyword_boost = min(exact_matches * 0.15, 0.3)
+            keyword_boost = min(exact_matches * 0.12, 0.3)
             
             total_score = q_sim + a_sim + keyword_boost
             
@@ -397,9 +443,43 @@ class NLPProcessor:
         
         return best_match, best_score
     
+    def suggest_clarifying_question(self, intent: Dict, keywords: List[str], faqs: List[Dict]) -> str:
+        """Produce a short clarifying question when confidence is low"""
+        top_kw = keywords[:3]
+        intent_category = intent.get('category') or ''
+        if intent.get('is_question'):
+            if top_kw:
+                return f"Boleh jelaskan sedikit? Adakah anda bertanya tentang '{top_kw[0]}' atau maksud lain?"
+            if intent_category and intent_category != 'Umum':
+                return f"Adakah soalan anda mengenai {intent_category}?"
+            return "Boleh terangkan lagi supaya saya dapat bantu dengan lebih tepat?"
+        else:
+            return "Boleh beritahu lebih lanjut supaya saya faham apa yang anda perlukan?"
+    
     def generate_response(self, user_input: str, faqs: List[Dict], 
                          session_id: str = None, threshold: float = 0.35) -> Dict:
-        """Generate response with enhanced context awareness"""
+        """Generate response with enhanced context awareness and clarifying prompts"""
+        # Quick local reply when user directly addresses "zakia"
+        try:
+            cleaned = self.preprocess_text(user_input).strip()
+        except Exception:
+            cleaned = (user_input or '').lower().strip()
+        if cleaned in ('zakia', 'hai zakia', 'hi zakia', 'hey zakia', 'zakia,'):
+            bot_reply = "Ya, saya Zakia."
+            # add to context
+            if session_id:
+                self.add_to_context(session_id, user_input, 'user')
+                self.add_to_context(session_id, bot_reply, 'bot')
+            return {
+                'reply': bot_reply,
+                'matched_question': None,
+                'confidence': 1.0,
+                'confidence_level': 'high',
+                'category': 'Umum',
+                'context_aware': True,
+                'conversation_summary': self.get_conversation_summary(session_id) if session_id else {}
+            }
+
         # Add user message to context
         if session_id:
             self.add_to_context(session_id, user_input, 'user')
@@ -410,17 +490,19 @@ class NLPProcessor:
         # Find best match with enhanced context
         best_match, score = self.find_best_match(user_input, faqs, session_id)
         
-        if best_match and score >= threshold:
-            confidence_level = "high" if score >= 0.7 else "medium" if score >= 0.5 else "low"
-            
-            # Enhance response with context
+        # analyze intent for fallback/clarification
+        intent = self.analyze_user_intent(user_input)
+        keywords = intent.get('keywords', []) or self.extract_keywords(user_input)
+        
+        # If we have a strong match
+        if best_match and score >= max(threshold, 0.45):
+            confidence_level = "high" if score >= 0.7 else "medium"
             enhanced_reply = self._enhance_response_with_context(
                 best_match['answer'], 
                 user_input, 
                 session_id, 
                 conversation_context
             )
-            
             response = {
                 'reply': enhanced_reply,
                 'matched_question': best_match['question'],
@@ -430,39 +512,47 @@ class NLPProcessor:
                 'context_aware': True,
                 'conversation_summary': conversation_context
             }
-            
-            # Add response to context
             if session_id:
                 self.add_to_context(session_id, enhanced_reply, 'bot')
-            
             return response
-        else:
-            # Generate contextual fallback with conversation awareness
-            intent = self.analyze_user_intent(user_input)
-            fallback = self.get_contextual_fallback(user_input, intent, faqs, session_id)
-            
-            # Enhance fallback with conversation context
-            enhanced_fallback = self._enhance_fallback_with_context(
-                fallback, 
-                user_input, 
-                session_id, 
-                conversation_context
-            )
-            
+        
+        # If low but some signal, offer suggestion and a clarifying question
+        if best_match and 0.25 <= score < max(threshold, 0.45):
+            suggestion = f"Mungkin maksud anda: \"{best_match['question']}\"? Saya boleh jelaskan: {best_match['answer'][:200]}..."
+            clarifier = self.suggest_clarifying_question(intent, keywords, faqs)
+            reply = f"{suggestion}\n\n{clarifier}"
             response = {
-                'reply': enhanced_fallback,
-                'matched_question': None,
+                'reply': reply,
+                'matched_question': best_match['question'],
                 'confidence': score,
-                'confidence_level': 'none',
-                'category': intent.get('category', 'Unknown'),
+                'confidence_level': 'low',
+                'category': best_match.get('category', 'Umum'),
                 'context_aware': True,
                 'conversation_summary': conversation_context
             }
-            
             if session_id:
-                self.add_to_context(session_id, enhanced_fallback, 'bot')
-            
+                self.add_to_context(session_id, reply, 'bot')
             return response
+        
+        # Otherwise fallback: ask clarifying question tailored to detected intent
+        fallback = self.get_contextual_fallback(user_input, intent, faqs, session_id)
+        clarifier = self.suggest_clarifying_question(intent, keywords, faqs)
+        enhanced_fallback = f"{fallback}\n\n{clarifier}"
+        
+        response = {
+            'reply': enhanced_fallback,
+            'matched_question': None,
+            'confidence': score,
+            'confidence_level': 'none',
+            'category': intent.get('category', 'Umum'),
+            'context_aware': True,
+            'conversation_summary': conversation_context
+        }
+        
+        if session_id:
+            self.add_to_context(session_id, enhanced_fallback, 'bot')
+        
+        return response
     
     def _enhance_response_with_context(self, base_response: str, user_input: str, 
                                      session_id: str, context: Dict) -> str:
@@ -474,45 +564,25 @@ class NLPProcessor:
         is_followup = self.detect_followup_question(user_input, session_id)
         
         if is_followup:
-            # Add context-aware introduction
-            topics = context.get('topics', [])
-            if topics:
-                topic_intro = f"Berdasarkan perbincangan tentang {', '.join(topics[-2:])}, "
-                return topic_intro + base_response
+            # Do not mention prior topics or details — return base response unchanged
+            return base_response
         
         # Check conversation duration
         duration = context.get('conversation_duration', '')
         if 'minutes' in duration or 'hours' in duration:
-            # Add acknowledgment for longer conversations
+            # Acknowledge long conversation without disclosing topics
             return f"Terima kasih kerana terus bertanya. {base_response}"
         
         return base_response
     
     def _enhance_fallback_with_context(self, base_fallback: str, user_input: str, 
                                      session_id: str, context: Dict) -> str:
-        """Enhance fallback response with conversation context"""
+        """Enhance fallback response with conversation context (no topic disclosure)"""
         if not session_id or not context:
             return base_fallback
-        
-        # Get conversation topics
-        topics = context.get('topics', [])
-        if topics:
-            # Suggest related topics from conversation
-            topic_suggestions = []
-            for topic in topics[-2:]:  # Last 2 topics
-                if topic == 'zakat':
-                    topic_suggestions.append("soalan tentang zakat")
-                elif topic == 'nisab':
-                    topic_suggestions.append("soalan tentang nisab")
-                elif topic == 'pembayaran':
-                    topic_suggestions.append("soalan tentang pembayaran")
-                elif topic == 'lznk':
-                    topic_suggestions.append("soalan tentang LZNK")
-            
-            if topic_suggestions:
-                return f"{base_fallback}\n\nBerdasarkan perbincangan kita, anda juga boleh bertanya tentang {', '.join(topic_suggestions)}."
-        
-        return base_fallback
+
+        # Provide a generic, non-disclosing suggestion or acknowledgement
+        return f"{base_fallback}\n\nSekiranya anda mahu, anda boleh bertanya soalan lain atau minta penjelasan lanjut."
     
     def analyze_user_intent(self, user_input: str) -> Dict:
         """Enhanced user intent analysis with better context understanding"""
@@ -551,6 +621,18 @@ class NLPProcessor:
             'urgent', 'segera', 'cepat', 'now', 'immediately', 'asap', 'terdesak'
         ]
         
+        # detect numbers / amounts
+        amount_match = re.search(r'(\d{1,3}(?:[.,]\d{3})*(?:[.,]\d+)?|\d+)\s*(rm|ringgit|sgd|usd|dollar|ringgit malaysia)?', user_input, re.I)
+        amount = amount_match.group(0) if amount_match else None
+        
+        # detect yes/no
+        yes_no = None
+        if re.search(r'\b(ya|ya\b|yes|tidak|no|tak|not)\b', text):
+            if re.search(r'\b(ya|yes)\b', text):
+                yes_no = 'yes'
+            elif re.search(r'\b(tidak|no|tak|not)\b', text):
+                yes_no = 'no'
+        
         return {
             'is_question': '?' in user_input or any(word in text for word in question_words),
             'is_greeting': any(word in text for word in greeting_patterns),
@@ -561,13 +643,15 @@ class NLPProcessor:
             'keywords': self.extract_keywords(user_input),
             'category': self.detect_category(text),
             'language': self.detect_language(user_input),
-            'sentiment': self.analyze_sentiment(user_input)
+            'sentiment': self.analyze_sentiment(user_input),
+            'amount': amount,
+            'yes_no': yes_no
         }
     
     def get_contextual_fallback(self, user_input: str, intent: Dict, 
                                faqs: List[Dict], session_id: str = None) -> str:
         """Generate helpful fallback with enhanced context awareness"""
-        category = intent.get('category', 'Unknown')
+        category = intent.get('category', 'Umum')
         language = intent.get('language', 'malay')
         sentiment = intent.get('sentiment', 'neutral')
         is_followup = intent.get('is_followup', False)
