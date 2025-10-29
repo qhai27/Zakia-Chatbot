@@ -498,29 +498,153 @@ body{
 
 
 /* ================================================
-   CHAT LINK STYLING
+   CHAT LINK STYLING - Button Style
    ================================================ */
 
 .chat-link {
-    color: #fff01e;
-    text-decoration: underline;
-    font-weight: 500;
-    transition: color 0.2s ease, opacity 0.2s ease, transform 0.1s ease;
-    display: inline-block;
+    /* Button-like appearance */
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    margin: 4px 2px;
+    
+    /* Colors and styling */
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    color: #157347;
+    border: 2px solid #5DB996;
+    border-radius: 20px;
+    
+    /* Typography */
+    font-weight: 600;
+    font-size: 13px;
+    text-decoration: none;
+    line-height: 1.4;
+    
+    /* Effects */
+    box-shadow: 0 2px 8px rgba(93, 185, 150, 0.15);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    
+    /* Ensure it doesn't break layout */
+    max-width: 100%;
+    word-break: break-word;
+    white-space: normal;
 }
 
-.chat-link:hover {
-    color: #8fcc00;
+/* Icon before link (arrow or external link icon) */
+.chat-link::before {
+    content: '🔗';
+    font-size: 14px;
     opacity: 0.8;
-    transform: translateY(-1px);
+    flex-shrink: 0;
 }
 
+/* For external links, use different icon */
+.chat-link[target="_blank"]::before {
+    content: '↗';
+    font-weight: bold;
+}
+
+/* For phone links */
+.chat-link[href^="tel:"]::before {
+    content: '📞';
+}
+
+/* For email links */
+.chat-link[href^="mailto:"]::before {
+    content: '✉️';
+}
+
+/* Hover state - lift and brighten */
+.chat-link:hover {
+    background: linear-gradient(135deg, #5DB996 0%, #4a9d7f 100%);
+    color: #ffffff;
+    border-color: #157347;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(93, 185, 150, 0.3);
+}
+
+/* Active state - press down */
 .chat-link:active {
     transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(93, 185, 150, 0.2);
 }
 
+/* Visited state - slightly muted but still visible */
 .chat-link:visited {
-    color: #181375;
+    border-color: #7ec4a8;
+    opacity: 0.9;
+}
+
+.chat-link:visited:hover {
+    opacity: 1;
+    background: linear-gradient(135deg, #5DB996 0%, #4a9d7f 100%);
+    color: #ffffff;
+}
+
+/* Focus state for accessibility */
+.chat-link:focus {
+    outline: 3px solid rgba(93, 185, 150, 0.4);
+    outline-offset: 2px;
+}
+
+/* Special styling for links in bot messages */
+.msg.bot .chat-link {
+    background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+    border-color: rgba(255, 255, 255, 0.6);
+    color: #1e38bb;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.msg.bot .chat-link:hover {
+    background: linear-gradient(135deg, #ffffff 0%, #ffffff 100%);
+    color: #157347;
+    border-color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Special styling for links in user messages */
+.msg.user .chat-link {
+    background: linear-gradient(135deg, #157347 0%, #0f5a38 100%);
+    color: #ffffff;
+    border-color: rgba(21, 115, 71, 0.6);
+}
+
+.msg.user .chat-link:hover {
+    background: linear-gradient(135deg, #0f5a38 0%, #0a4428 100%);
+    border-color: #157347;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .chat-link {
+        padding: 10px 14px;
+        font-size: 14px;
+        margin: 6px 2px;
+        /* Make links easier to tap on mobile */
+        min-height: 44px;
+    }
+    
+    .chat-link::before {
+        font-size: 16px;
+    }
+}
+
+/* Animation for new links */
+@keyframes linkAppear {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.chat-link {
+    animation: linkAppear 0.3s ease-out;
 }
 
 

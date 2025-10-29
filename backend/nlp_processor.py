@@ -53,7 +53,14 @@ class NLPProcessor:
             'sehingga': ['sehingga', 'sampai', 'hingga', 'until', 'up to', 'till'],
             'segera' :['cepat', 'pantas', 'laju', 'urgent', 'immediately', 'asap'],
             'informasi': ['info', 'maklumat', 'information', 'details', 'data'],
-            'muallaf':['mualaf','new convert','new muslim','convert', 'convert to islam', 'newly converted','baru convert']
+            'muallaf':['mualaf','new convert','new muslim','convert', 'convert to islam', 'newly converted','baru convert'],
+            'pembelajaran':['belajar','study','learning','education','pendidikan'],
+            'polisi':['policy','peraturan','rules','guidelines','garis panduan'],
+            'insurans':['insurance','takaful','coverage','protection','insurans', 'insurans takaful','insuran'],
+            'isteri': ['isteri', 'wife', 'spouse', 'pasangan', 'ibu'],
+            'pinjam': ['pinjaman', 'loan', 'borrow', 'hutang', 'debt'],
+            'menampung' : ['tampung','support','sokong','cover','sara'],
+            'Fixed Deposit' : ['fixed deposit','fd','deposit tetap','simpanan tetap','fixed deposit account']
         }
         
         # Enhanced conversation context storage
