@@ -10,83 +10,159 @@
 </head>
 
 <body>
-    <div class="admin-container">
-        <!-- Header Section -->
-        <div class="admin-header">
-            <div class="header-top">
-                <div>
-                    <h2>FAQ Manager</h2>
-                    <div id="statusIndicator">Memuat FAQ...</div>
-                </div>
-                <button id="newFaqBtn" class="btn primary">
-                     Soalan Baharu</button>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="zakia-avatar.png" alt="ZAKIA" class="sidebar-logo" />
+                <h2>ZAKIA Admin</h2>
+                <p>FAQ Management</p>
             </div>
+            
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-section="faqs">
+                    <span class="nav-icon">📋</span>
+                    <span>FAQ List</span>
+                </a>
+                <a href="#" class="nav-item" data-section="categories">
+                    <span class="nav-icon">🏷️</span>
+                    <span>Categories</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="stats-box">
+                    <div class="stat-item">
+                        <span class="stat-label">Total FAQs</span>
+                        <span id="totalFaqs" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Categories</span>
+                        <span id="totalCategories" class="stat-value">0</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <div class="header-left">
+                    <h1>FAQ Manager</h1>
+                    <div id="statusIndicator" class="status-badge">Memuat FAQ...</div>
+                </div>
+                <div class="header-actions">
+                    <button id="newFaqBtn" class="btn primary">
+                        ➕ Soalan Baharu
+                    </button>
+                </div>
+            </header>
+
+            <!-- Toolbar -->
             <div class="toolbar">
                 <input id="search" class="admin-input search" placeholder="🔍 Cari soalan atau kategori..." />
                 <button id="refresh" class="btn ghost">🔄 Refresh</button>
-                <!-- New buttons for category management -->
                 <button id="editCategoriesBtn" class="btn ghost">✏️ Edit Kategori</button>
-             </div>
-        </div>
+            </div>
 
-        <!-- Form Section -->
-        <div id="formSection" style="display:none;">
-            <h3 id="formTitle">Tambah FAQ</h3>
-            <div class="admin-grid">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Soalan *</label>
-                        <textarea id="question" class="admin-textarea" placeholder="Masukkan soalan di sini..."
-                            style="min-height: 100px;"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Kategori</label>
-
-                        <!-- Radio group for kategori -->
-                        <div id="categoryRadios" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px;">
-                            <!-- dynamically rendered radios -->
+            <!-- Form Section -->
+            <div id="formSection" class="form-section" style="display:none;">
+                <div class="form-header">
+                    <h3 id="formTitle">Tambah FAQ</h3>
+                    <button id="cancelForm" class="btn-close" title="Tutup">✖</button>
+                </div>
+                
+                <div class="form-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Soalan <span class="required">*</span></label>
+                            <textarea id="question" class="admin-textarea" placeholder="Masukkan soalan di sini..." rows="3"></textarea>
                         </div>
-
-                        <!-- Fallback / custom category input (shown if user selects "Lain-lain") -->
-                        <input id="category" class="admin-input" placeholder="Masukkan kategori baru..." style="display:none;" />
                     </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Kategori</label>
+                            <div id="categoryRadios" class="category-pills">
+                                <!-- dynamically rendered radio pills -->
+                            </div>
+                            <input id="category" class="admin-input" placeholder="Masukkan kategori baru..." style="display:none;margin-top:8px;" />
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>
+                                Jawapan <span class="required">*</span>
+                                <button id="addLinkBtn" type="button" class="btn-link-tool" title="Tambah pautan">
+                                    🔗 Tambah Pautan
+                                </button>
+                            </label>
+                            <textarea id="answer" class="admin-textarea" placeholder="Masukkan jawapan yang lengkap dan jelas..." rows="6"></textarea>
+                            <small class="form-hint">Tip: Gunakan butang "Tambah Pautan" untuk memasukkan URL ke dalam jawapan.</small>
+                        </div>
+                    </div>
+
+                    <div id="formHint" class="form-message"></div>
                 </div>
-                <div class="form-group">
-                    <label style="display:flex;align-items:center;gap:8px">
-                        <span>Jawapan *</span>
-                        <button id="addLinkBtn" type="button" class="btn small" title="Tambah pautan">🔗 Tambah Pautan</button>
-                    </label>
-                    <textarea id="answer" class="admin-textarea" placeholder="Masukkan jawapan yang lengkap dan jelas..."
-                        style="min-height: 150px;"></textarea>
-                </div>
-                <div id="formHint"></div>
-                <div class="admin-actions">
-                    <button id="cancelForm" class="btn ghost">✖️ Batal</button>
+
+                <div class="form-footer">
+                    <button id="cancelFormBtn" class="btn ghost">✖️ Batal</button>
                     <button id="saveFaq" class="btn primary">💾 Simpan</button>
                 </div>
             </div>
-        </div>
 
-        <!-- Table Section -->
-        <div class="admin-card">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th style="width:80px;">ID</th>
-                        <th>Soalan & Jawapan</th>
-                        <th style="width:140px;">Kategori</th>
-                        <th style="width:200px;">Tindakan</th>
-                    </tr>
-                </thead>
-                <tbody id="faqTableBody"></tbody>
-            </table>
-            <div id="emptyState" style="display:none;">
-                📭 Tiada rekod ditemui.
+            <!-- Table Section -->
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th style="width:80px;">ID</th>
+                            <th>Soalan & Jawapan</th>
+                            <th style="width:140px;">Kategori</th>
+                            <th style="width:200px;">Tindakan</th>
+                        </tr>
+                    </thead>
+                    <tbody id="faqTableBody"></tbody>
+                </table>
+                <div id="emptyState" class="empty-state" style="display:none;">
+                    <div class="empty-icon">📭</div>
+                    <p>Tiada rekod ditemui</p>
+                    <button class="btn primary" onclick="document.getElementById('newFaqBtn').click()">
+                        Tambah FAQ Pertama
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Link Modal -->
+    <div id="linkModal" class="modal" style="display:none;">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Tambah Pautan</h3>
+                <button class="btn-close" onclick="document.getElementById('linkModal').style.display='none'">✖</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>URL <span class="required">*</span></label>
+                    <input id="linkUrl" type="text" class="admin-input" placeholder="https://example.com" />
+                    <small class="form-hint">Masukkan URL lengkap (contoh: https://lznk.gov.my)</small>
+                </div>
+                <div class="form-group">
+                    <label>Teks Pautan</label>
+                    <input id="linkText" type="text" class="admin-input" placeholder="Klik di sini" />
+                    <small class="form-hint">Kosongkan untuk gunakan domain sebagai teks</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn ghost" onclick="document.getElementById('linkModal').style.display='none'">Batal</button>
+                <button id="insertLinkBtn" class="btn primary">Masukkan Pautan</button>
             </div>
         </div>
     </div>
-
-
 </body>
 
 </html>

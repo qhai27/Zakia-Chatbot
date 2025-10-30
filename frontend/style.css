@@ -134,14 +134,13 @@ body{
   border-color:transparent var(--bot-bg) transparent transparent;
 }
 
-/* user bubble - improved sizing so short messages aren't tiny */
+/* user bubble */
 .msg.user .bubble{
   background:var(--user-bg);
   color:var(--user-text);
   border-bottom-right-radius:4px;
   text-align:left;
-                  /* ensures one/two-word messages look balanced */
-  max-width:auto;    /* allow user bubble to be wider */
+  max-width:auto;  
   word-break:break-word;
   animation: bubbleIn .25s ease both, sendPulse 1.2s ease-out;
 }

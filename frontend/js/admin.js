@@ -1,53 +1,6 @@
 // =========================
-// ZAKIA CHATBOT SCRIPT
+// ZAKIA ADMIN PANEL SCRIPT
 // =========================
-
-document.addEventListener("DOMContentLoaded", () => {
-  const minimizeBtn = document.querySelector(".minimize-btn");
-  const chatbox = document.querySelector(".chatbox");
-  const dateChip = document.getElementById("dateChip");
-
-  // Minimize toggle
-  minimizeBtn.addEventListener("click", () => {
-    const minimized = chatbox.classList.toggle("minimized");
-    minimizeBtn.textContent = minimized ? "+" : "−";
-  });
-
-  // Display localized Malay date
-  if (dateChip) {
-    const now = new Date();
-    const options = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
-    const dateText = now.toLocaleDateString("ms-MY", options);
-    dateChip.textContent = dateText.charAt(0).toUpperCase() + dateText.slice(1);
-  }
-
-  // Chat functionality
-  const textarea = document.getElementById("userInput");
-  const sendBtn = document.getElementById("sendBtn");
-  const messages = document.getElementById("messages");
-
-  function sendMessage() {
-    const text = textarea.value.trim();
-    if (!text) return;
-
-    const userMsg = document.createElement("div");
-    userMsg.className = "msg user";
-    userMsg.innerHTML = `<div class="bubble user-bubble">${text}</div>`;
-    messages.appendChild(userMsg);
-
-    textarea.value = "";
-    textarea.style.height = "38px";
-    messages.scrollTop = messages.scrollHeight;
-  }
-
-  sendBtn.addEventListener("click", sendMessage);
-  textarea.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  });
-});
 
 (function () {
   document.addEventListener('DOMContentLoaded', () => {
@@ -73,6 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
       categoryRadios: document.getElementById('categoryRadios'),
       saveFaqBtn: document.getElementById('saveFaq'),
       cancelFormBtn: document.getElementById('cancelForm'),
+      cancelForm: document.getElementById('cancelForm'),
       addLinkBtn: document.getElementById('addLinkBtn'),
       formHint: document.getElementById('formHint'),
       statusIndicator: document.getElementById('statusIndicator'),
@@ -101,7 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const radios = STATE.categories.map((c, idx) => {
           const id = `cat_${idx}`;
           return `
-            <label style="display:flex;align-items:center;gap:8px;">
+            <label>
               <input type="radio" name="kategoriRadio" value="${this.escape(c)}" id="${id}" ${selected===c ? 'checked' : ''}/>
               <span>${this.escape(c)}</span>
             </label>
@@ -109,7 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }).join('');
         const otherChecked = (selected && !STATE.categories.includes(selected)) ? 'checked' : '';
         const otherHtml = `
-          <label style="display:flex;align-items:center;gap:8px;">
+          <label>
             <input type="radio" name="kategoriRadio" value="__other__" id="cat_other" ${otherChecked}/>
             <span>Lain-lain</span>
           </label>
@@ -192,6 +146,7 @@ document.addEventListener("DOMContentLoaded", () => {
             STATE.categories = Array.from(new Set(STATE.categories)).sort((a,b)=>a.localeCompare(b));
             renderList();
             CategoryManager.renderRadios();
+            updateSidebarStats();
           }));
           const delBtns = modal.querySelectorAll('.deleteCat');
           delBtns.forEach(b => b.addEventListener('click', (e)=>{
@@ -201,6 +156,7 @@ document.addEventListener("DOMContentLoaded", () => {
             STATE.categories.splice(idx,1);
             renderList();
             CategoryManager.renderRadios();
+            updateSidebarStats();
           }));
         }
 
@@ -212,6 +168,7 @@ document.addEventListener("DOMContentLoaded", () => {
           newCatInput.value = '';
           renderList();
           CategoryManager.renderRadios();
+          updateSidebarStats();
         });
 
         closeBtn.addEventListener('click', () => modal.remove());
@@ -219,11 +176,9 @@ document.addEventListener("DOMContentLoaded", () => {
         renderList();
       },
 
-      escape(s) {
-        return String(s || '').replaceAll('"','&quot;').replaceAll('<','&lt;').replaceAll('>','&gt;');
-      },
-
-      escape: function(s){ return (s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+      escape: function(s){ 
+        return (s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
+      }
     };
 
     const FormManager = {
@@ -233,7 +188,8 @@ document.addEventListener("DOMContentLoaded", () => {
         DOM.answerInput.value = '';
         DOM.categoryInput.value = '';
         DOM.formHint.textContent = '';
-        DOM.formHint.className = '';
+        DOM.formHint.className = 'form-message';
+        DOM.formHint.style.display = 'none';
         CategoryManager.renderRadios(null);
       },
 
@@ -337,7 +293,7 @@ document.addEventListener("DOMContentLoaded", () => {
       showMessage(message, isError = false) {
         if (DOM.formHint) {
           DOM.formHint.textContent = message;
-          DOM.formHint.className = isError ? 'error' : 'success';
+          DOM.formHint.className = 'form-message ' + (isError ? 'error' : 'success');
           DOM.formHint.style.display = 'block';
         }
       },
@@ -432,6 +388,10 @@ document.addEventListener("DOMContentLoaded", () => {
           CategoryManager.updateFromFaqs();
           CategoryManager.renderRadios();
           SearchManager.apply();
+          
+          // Update sidebar stats
+          updateSidebarStats();
+          
           if (STATE.faqs.length === 0) {
             UIManager.updateStatus('📝 Tiada FAQ ditemui. Klik "Soalan Baharu" untuk menambah FAQ pertama.');
           } else {
@@ -510,6 +470,72 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     };
 
+    // Update sidebar statistics with comprehensive data
+    function updateSidebarStats() {
+      const totalFaqsEl = document.getElementById('totalFaqs');
+      const totalCategoriesEl = document.getElementById('totalCategories');
+      const lastUpdatedEl = document.getElementById('lastUpdated');
+      const avgAnswerLengthEl = document.getElementById('avgAnswerLength');
+      const mostUsedCategoryEl = document.getElementById('mostUsedCategory');
+      
+      // Basic counts
+      if (totalFaqsEl) {
+        totalFaqsEl.textContent = STATE.faqs.length;
+      }
+      
+      if (totalCategoriesEl) {
+        totalCategoriesEl.textContent = STATE.categories.length;
+      }
+      
+      // Last updated time
+      if (lastUpdatedEl) {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
+        lastUpdatedEl.textContent = timeStr;
+      }
+      
+      // Average answer length
+      if (avgAnswerLengthEl && STATE.faqs.length > 0) {
+        const totalLength = STATE.faqs.reduce((sum, faq) => sum + (faq.answer?.length || 0), 0);
+        const avgLength = Math.round(totalLength / STATE.faqs.length);
+        avgAnswerLengthEl.textContent = `Avg: ${avgLength} chars`;
+      } else if (avgAnswerLengthEl) {
+        avgAnswerLengthEl.textContent = 'No data';
+      }
+      
+      // Most used category
+      if (mostUsedCategoryEl && STATE.faqs.length > 0) {
+        const categoryCounts = {};
+        STATE.faqs.forEach(faq => {
+          const cat = faq.category || 'Uncategorized';
+          categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
+        });
+        
+        let maxCategory = '';
+        let maxCount = 0;
+        Object.entries(categoryCounts).forEach(([cat, count]) => {
+          if (count > maxCount) {
+            maxCount = count;
+            maxCategory = cat;
+          }
+        });
+        
+        mostUsedCategoryEl.textContent = `${maxCategory} (${maxCount})`;
+      } else if (mostUsedCategoryEl) {
+        mostUsedCategoryEl.textContent = 'No data';
+      }
+      
+      // Add animation effect
+      [totalFaqsEl, totalCategoriesEl].forEach(el => {
+        if (el) {
+          el.style.transform = 'scale(1.15)';
+          setTimeout(() => {
+            el.style.transform = 'scale(1)';
+          }, 200);
+        }
+      });
+    }
+
     // Utility: insert text (HTML) at cursor position in a textarea
     function insertAtCursor(textarea, text) {
       textarea.focus();
@@ -538,26 +564,86 @@ document.addEventListener("DOMContentLoaded", () => {
       return url;
     }
 
-    // EventHandlers extended
+    // Helper function for escaping HTML in links
+    function escapeHtmlForLink(str) {
+      return (str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // EventHandlers
     const EventHandlers = {
       init() {
         if (DOM.newFaqBtn) DOM.newFaqBtn.addEventListener('click', () => FormManager.show(false));
         if (DOM.cancelFormBtn) DOM.cancelFormBtn.addEventListener('click', () => FormManager.hide());
+        if (DOM.cancelForm) DOM.cancelForm.addEventListener('click', () => FormManager.hide());
         if (DOM.saveFaqBtn) DOM.saveFaqBtn.addEventListener('click', () => FAQOperations.save());
         if (DOM.editCategoriesBtn) DOM.editCategoriesBtn.addEventListener('click', () => CategoryManager.showEditModal());
+        
+        // Enhanced Add Link Button with Modal
         if (DOM.addLinkBtn && DOM.answerInput) {
           DOM.addLinkBtn.addEventListener('click', () => {
-            const url = prompt('Masukkan URL penuh (contoh: https://example.com):');
-            if (!url) return;
-            const normalized = normalizeUrl(url);
-            if (!normalized) { alert('URL tidak sah. Sila cuba lagi.'); return; }
-            const label = prompt('Teks pautan (kosongkan untuk guna domain):') || '';
-            const display = label.trim() || (normalized.replace(/^https?:\/\/(www\.)?/i,'').split('/')[0]);
-            // insert anchor tag (HTML) into textarea
-            const anchor = `<a href="${normalized}" target="_blank" rel="noopener noreferrer">${DOM.escapeHtml ? DOM.escapeHtml(display) : display}</a>`;
-            insertAtCursor(DOM.answerInput, anchor);
+            const modal = document.getElementById('linkModal');
+            const linkUrlInput = document.getElementById('linkUrl');
+            const linkTextInput = document.getElementById('linkText');
+            
+            if (modal) {
+              modal.style.display = 'flex';
+              linkUrlInput.value = '';
+              linkTextInput.value = '';
+              linkUrlInput.focus();
+            }
           });
         }
+
+        // Handle insert link button in modal
+        const insertLinkBtn = document.getElementById('insertLinkBtn');
+        if (insertLinkBtn) {
+          insertLinkBtn.addEventListener('click', () => {
+            const linkUrlInput = document.getElementById('linkUrl');
+            const linkTextInput = document.getElementById('linkText');
+            const url = linkUrlInput.value.trim();
+            
+            if (!url) {
+              alert('Sila masukkan URL');
+              return;
+            }
+
+            const normalized = normalizeUrl(url);
+            if (!normalized) {
+              alert('URL tidak sah. Pastikan URL bermula dengan http:// atau https://');
+              return;
+            }
+
+            const label = linkTextInput.value.trim();
+            const display = label || normalized.replace(/^https?:\/\/(www\.)?/i, '').split('/')[0];
+            
+            // Create HTML anchor tag
+            const anchor = `<a href="${normalized}" target="_blank" rel="noopener noreferrer">${escapeHtmlForLink(display)}</a>`;
+            
+            // Insert into textarea
+            insertAtCursor(DOM.answerInput, anchor);
+            
+            // Close modal
+            document.getElementById('linkModal').style.display = 'none';
+          });
+        }
+
+        // Close modal when clicking overlay
+        const linkModal = document.getElementById('linkModal');
+        if (linkModal) {
+          const overlay = linkModal.querySelector('.modal-overlay');
+          if (overlay) {
+            overlay.addEventListener('click', () => {
+              linkModal.style.display = 'none';
+            });
+          }
+        }
+
+        // Table action handlers
         if (DOM.tbody) {
           DOM.tbody.addEventListener('click', async (e) => {
             const btn = e.target.closest('button');
@@ -573,6 +659,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
           });
         }
+        
         if (DOM.searchInput) DOM.searchInput.addEventListener('input', () => SearchManager.apply());
         if (DOM.refreshBtn) DOM.refreshBtn.addEventListener('click', () => FAQOperations.load());
       }
