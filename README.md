@@ -10,8 +10,7 @@ A modern, responsive chatbot for LZNK (Lembaga Zakat Negeri Kedah) built with Py
 - 📱 **Responsive Design**: Works on desktop and mobile devices
 - 🎯 **Quick Replies**: Pre-defined question buttons for easy interaction
 - 📊 **Session Management**: Track user conversations
-- 🔍 **Health Monitoring**: API health check endpoints
-- 🏗️ **Modular Architecture**: Clean separation of concerns
+
 
 ## Project Structure
 
