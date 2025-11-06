@@ -1,0 +1,333 @@
+/* ================================================
+   ZAKAT CALCULATOR STYLES
+   ================================================ */
+
+/* Zakat Menu Buttons */
+.zakat-menu {
+    padding: 8px 0;
+}
+
+.zakat-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.zakat-type-btn {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border: 2px solid #5DB996;
+    color: #157347;
+    padding: 14px 20px;
+    border-radius: 16px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 2px 8px rgba(93, 185, 150, 0.1);
+}
+
+.zakat-type-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #5DB996 0%, #4a9d7f 100%);
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(93, 185, 150, 0.25);
+}
+
+.zakat-type-btn:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(93, 185, 150, 0.2);
+}
+
+.zakat-type-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.zakat-type-btn.selected {
+    background: linear-gradient(135deg, #157347 0%, #0f5a38 100%);
+    color: #ffffff;
+    border-color: #157347;
+    animation: selectedPulse 0.6s ease;
+}
+
+@keyframes selectedPulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Zakat Result Display */
+.zakat-result {
+    padding: 16px;
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border-left: 4px solid #5DB996;
+    border-radius: 12px;
+    margin: 8px 0;
+    box-shadow: 0 4px 12px rgba(93, 185, 150, 0.15);
+}
+
+.zakat-result p {
+    margin: 8px 0;
+    line-height: 1.6;
+    color: #1f2937;
+}
+
+.zakat-result p:first-child {
+    margin-top: 0;
+}
+
+.zakat-result p:last-child {
+    margin-bottom: 0;
+}
+
+.zakat-result strong {
+    color: #157347;
+    font-weight: 700;
+    font-size: 1.05em;
+}
+
+/* Zakat Action Buttons */
+.zakat-action {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+}
+
+.btn-pay-zakat,
+.btn-recalculate {
+    flex: 1;
+    min-width: 140px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-pay-zakat {
+    background: linear-gradient(135deg, #157347 0%, #0f5a38 100%);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(21, 115, 71, 0.3);
+}
+
+.btn-pay-zakat:hover {
+    background: linear-gradient(135deg, #0f5a38 0%, #0a4428 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(21, 115, 71, 0.4);
+}
+
+.btn-pay-zakat:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(21, 115, 71, 0.3);
+}
+
+.btn-recalculate {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    color: #157347;
+    border: 2px solid #5DB996;
+    box-shadow: 0 2px 8px rgba(93, 185, 150, 0.15);
+}
+
+.btn-recalculate:hover {
+    background: linear-gradient(135deg, #FFD95F 0%, #ffd95f 100%);
+    color: #8B4513;
+    border-color: #FFD95F;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(255, 217, 95, 0.3);
+}
+
+.btn-recalculate:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(255, 217, 95, 0.2);
+}
+
+/* Zakat Information Cards */
+.zakat-info-card {
+    background: #ffffff;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 12px 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.zakat-info-card h4 {
+    color: #157347;
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.zakat-info-card ul {
+    margin: 0;
+    padding-left: 24px;
+    list-style-type: none;
+}
+
+.zakat-info-card li {
+    margin: 8px 0;
+    position: relative;
+    padding-left: 20px;
+}
+
+.zakat-info-card li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: #5DB996;
+    font-weight: bold;
+}
+
+/* Loading State for Zakat Calculation */
+.zakat-calculating {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border-radius: 12px;
+    margin: 8px 0;
+}
+
+.zakat-calculating .spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid #e5e7eb;
+    border-top-color: #5DB996;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Highlight Important Numbers */
+.zakat-result .amount-highlight {
+    background: linear-gradient(135deg, #FFD95F 0%, #ffd95f 100%);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-weight: 700;
+    color: #8B4513;
+}
+
+/* Nisab Status Badge */
+.nisab-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    margin: 8px 0;
+}
+
+.nisab-badge.reached {
+    background: #dcfce7;
+    color: #157347;
+}
+
+.nisab-badge.not-reached {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+    .zakat-buttons {
+        gap: 8px;
+    }
+    
+    .zakat-type-btn {
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+    
+    .zakat-result {
+        padding: 12px;
+        font-size: 14px;
+    }
+    
+    .zakat-action {
+        flex-direction: column;
+    }
+    
+    .btn-pay-zakat,
+    .btn-recalculate {
+        width: 100%;
+        min-width: auto;
+    }
+}
+
+/* Animation for Result Appearance */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.zakat-result {
+    animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Icon Styles in Results */
+.zakat-result p:first-child {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* Emoji Spacing */
+.zakat-result p {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+/* Make lists in zakat results */
+.zakat-result ul {
+    list-style-type: none;
+    padding-left: 20px;
+    margin: 12px 0;
+}
+
+.zakat-result li {
+    margin: 6px 0;
+    padding-left: 24px;
+    position: relative;
+}
+
+.zakat-result li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: #5DB996;
+    font-weight: bold;
+    font-size: 20px;
+    line-height: 1;
+}

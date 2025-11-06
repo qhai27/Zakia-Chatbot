@@ -7,8 +7,8 @@
 
     const CONFIG = {
       API_BASE: 'http://127.0.0.1:5000/admin/faqs',
-      MIN_QUESTION_LENGTH: 10,
-      MIN_ANSWER_LENGTH: 20,
+      MIN_QUESTION_LENGTH: 0,
+      MIN_ANSWER_LENGTH:0,
       ANSWER_PREVIEW_LENGTH: 120
     };
 
@@ -194,7 +194,7 @@
       },
 
       show(isEdit = false, existing = null) {
-        DOM.formTitle.textContent = isEdit ? '✏️ Kemaskini FAQ' : '✨ Tambah FAQ';
+        DOM.formTitle.textContent = isEdit ? '✏️ Kemaskini FAQ' :  'Tambah FAQ';
         if (isEdit && existing) {
           DOM.questionInput.value = existing.question || '';
           DOM.answerInput.value = existing.answer || '';

@@ -6,10 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>ZAKIA Chatbot - LZNK</title>
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="css/zakat-style.css" />
   <script src="js/config.js"></script>
-
-  
- 
 </head>
 
 <body>
@@ -38,7 +36,12 @@
         <div class="msg bot">
           <img src="zakia-avatar.png" class="msg-avatar" alt="ZAKIA">
           <div class="bubble bot-bubble">
-            <p>Assalamualaikum dan salam sejahtera! 👋 Saya Zakia, pembantu maya dari Lembaga Zakat Negeri Kedah (LZNK). Bagaimana saya boleh membantu anda hari ini? 😊
+            <p>Assalamualaikum dan salam sejahtera! 👋 Saya Zakia, pembantu maya dari Lembaga Zakat Negeri Kedah (LZNK).</p>
+            <p>Saya boleh membantu anda dengan:</p>
+            <p>- Soalan tentang zakat
+            <br>-  Kalkulator zakat
+            <br>-  Maklumat tentang zakat dan nisab</p>
+            <p>Bagaimana saya boleh membantu anda hari ini?😊 </p>
           </div>
         </div>
       </div>
@@ -53,23 +56,24 @@
       <div id="quickReplies" class="quick-replies">
         <button class="quick-reply" data-text="Apa itu zakat?">Apa itu zakat?</button>
         <button class="quick-reply" data-text="Siapa yang wajib bayar zakat?">Siapa yang wajib bayar zakat?</button>
-        <button class="quick-reply" data-text="Cara pembayaran zakat">Cara pembayaran zakat</button>
-        <button class="quick-reply" data-text="Jenis zakat ada berapa?">Jenis zakat ada berapa?</button>
+        <button class="quick-reply" data-text="Kira zakat">💰 Kira Zakat</button>
+        <button class="quick-reply" data-text="Nisab">📊 Maklumat Nisab</button>
       </div>
     </div>
 
     <div class="input-area">
-      <!-- Use a textarea so it grows with content -->
-      <textarea id="userInput" rows="1" placeholder="Tulis mesej anda…" autocomplete="off"></textarea>
+      <textarea id="userInput" rows="1" placeholder="Tulis mesej anda… (Contoh: 'kira zakat pendapatan')" autocomplete="off"></textarea>
       <button id="sendBtn" class="btn-send" aria-label="Hantar" title="Hantar">
         <img src="buttonsend.png" alt="Hantar" class="send-icon">
       </button>
     </div>
   </div>
 
+  <!-- Load scripts in order -->
+  <script src="js/zakat-handler.js"></script>
   <script src="js/chatbot.js"></script>
 
-  <!-- Improved auto-resize behaviour: keeps messages scrolled and prevents jumping -->
+  <!-- Auto-resize textarea -->
   <script>
     (function(){
       const ta = document.getElementById('userInput');
@@ -79,35 +83,27 @@
       if (!ta) return;
 
       function resize() {
-        // temporarily reset height to measure scrollHeight correctly
         ta.style.height = 'auto';
-        const target = Math.min(ta.scrollHeight, 220); // same limit as CSS
+        const target = Math.min(ta.scrollHeight, 220);
         ta.style.height = target + 'px';
 
-        // keep messages scrolled to bottom while typing
         if (messagesEl) {
           messagesEl.scrollTop = messagesEl.scrollHeight;
         }
       }
 
-      // Initial resize
       resize();
 
-      // Resize on input and on paste
       ta.addEventListener('input', resize);
       ta.addEventListener('paste', () => setTimeout(resize, 50));
       ta.addEventListener('change', resize);
 
-      // Press Enter to send (Shift+Enter for newline)
       ta.addEventListener('keydown', function(e){
         if (e.key === 'Enter' && !e.shiftKey) {
           e.preventDefault();
-          // Trigger existing send handler (chatbot.js should read #userInput value)
           sendBtn.click();
 
-          // Clear textarea after a short delay to allow send logic to read value
           setTimeout(() => {
-            // Only clear if value hasn't changed (avoid clearing if chatbot.js didn't send)
             if (ta.value.trim() === '') {
               ta.style.height = '40px';
             } else {
@@ -120,32 +116,27 @@
         }
       });
 
-      // When send button used (mouse), clear + resize after send
       sendBtn.addEventListener('click', () => {
         setTimeout(() => {
           if (ta.value.trim() === '') {
             ta.style.height = '40px';
           } else {
-            // keep current height if user still has text (chatbot.js may not clear)
             resize();
           }
           if (messagesEl) messagesEl.scrollTop = messagesEl.scrollHeight;
         }, 150);
       });
 
-      // ensure resize on window resize (keeps layout stable)
       window.addEventListener('resize', resize);
     })();
 
-    // ...added code: populate real date in the date chip...
+    // Populate date chip
     (function(){
       const el = document.getElementById('dateChip');
       if (!el) return;
       const now = new Date();
       const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-      // Use Malay locale to get localized month names (e.g. "26 Oktober 2025")
       let text = now.toLocaleDateString('ms-MY', opts);
-      // Capitalize first letter for consistency
       text = text.charAt(0).toUpperCase() + text.slice(1);
       el.textContent = text;
     })();

@@ -60,7 +60,13 @@ class NLPProcessor:
             'isteri': ['isteri', 'wife', 'spouse', 'pasangan', 'ibu'],
             'pinjam': ['pinjaman', 'loan', 'borrow', 'hutang', 'debt'],
             'menampung' : ['tampung','support','sokong','cover','sara'],
-            'Fixed Deposit' : ['fixed deposit','fd','deposit tetap','simpanan tetap','fixed deposit account']
+            'Fixed Deposit' : ['fixed deposit','fd','deposit tetap','simpanan tetap','fixed deposit account'],
+            'pinjaman' : ['loan','pinjam','hutang','debt','borrow'],
+            'setahun' : ['setahun','1 tahun','one year','1 year','setahun sekali','once a year' ,'annually', 'satu tahun'],
+            'lewat' : ['lewat','terlewat','late','overdue','delay','terlambat','melewatkan', 'menunda', 'melewatkan'],
+            'faqir': ['fakir', 'poor', 'needy', 'destitute'],
+            'bapa': ['bapa', 'ayah', 'father', 'dad', 'parent'],
+            
         }
         
         # Enhanced conversation context storage
