@@ -65,7 +65,6 @@ class ZakatCalculator:
 
         # search nearby text for keywords to decide pendapatan/simpanan
         lowered = text.lower()
-        # try to find explicit labels
         # nisab pendapatan
         m = re.search(r'(nisab pendapatan)[\s\:\-]*RM\.?\s*([\d,]+(?:\.\d+)?)', lowered, flags=re.I)
         if m:

@@ -174,7 +174,12 @@ class ZakatHandler {
      */
     attachYearTypeListeners() {
         const buttons = document.querySelectorAll('.zakat-year-type-btn');
-        const cancelBtn = document.querySelector('.zakat-cancel-btn');
+        const cancelBtns = document.querySelectorAll('.zakat-cancel-btn');
+        const attachCancelOnce = (el) => {
+            if (!el || el.dataset.zakatCancelAttached) return;
+            el.addEventListener('click', () => this.cancel());
+            el.dataset.zakatCancelAttached = '1';
+        };
         
         buttons.forEach(btn => {
             btn.addEventListener('click', async (e) => {
@@ -182,7 +187,7 @@ class ZakatHandler {
                 
                 // Disable all buttons
                 buttons.forEach(b => b.disabled = true);
-                if (cancelBtn) cancelBtn.disabled = true;
+                cancelBtns.forEach(cb => cb.disabled = true);
                 e.target.classList.add('selected');
                 
                 this.state.yearType = yearType;
@@ -192,13 +197,10 @@ class ZakatHandler {
             });
         });
         
-        if (cancelBtn) {
-            cancelBtn.addEventListener('click', () => {
-                this.cancel();
-            });
-        }
+        // attach to any cancel buttons in the current message(s)
+        cancelBtns.forEach(attachCancelOnce);
     }
-
+    
     /**
      * Fetch and show available years
      */
@@ -282,7 +284,12 @@ class ZakatHandler {
      */
     attachYearListeners() {
         const buttons = document.querySelectorAll('.zakat-year-btn');
-        const cancelBtn = document.querySelector('.zakat-cancel-btn');
+        const cancelBtns = document.querySelectorAll('.zakat-cancel-btn');
+        const attachCancelOnce = (el) => {
+            if (!el || el.dataset.zakatCancelAttached) return;
+            el.addEventListener('click', () => this.cancel());
+            el.dataset.zakatCancelAttached = '1';
+        };
         
         buttons.forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -290,7 +297,7 @@ class ZakatHandler {
                 
                 // Disable all buttons
                 buttons.forEach(b => b.disabled = true);
-                if (cancelBtn) cancelBtn.disabled = true;
+                cancelBtns.forEach(cb => cb.disabled = true);
                 e.target.classList.add('selected');
                 
                 this.state.year = year;
@@ -311,11 +318,8 @@ class ZakatHandler {
             });
         });
         
-        if (cancelBtn) {
-            cancelBtn.addEventListener('click', () => {
-                this.cancel();
-            });
-        }
+        // attach to any cancel buttons in the current message(s)
+        cancelBtns.forEach(attachCancelOnce);
     }
 
     /**
@@ -463,7 +467,7 @@ class ZakatHandler {
         } catch (error) {
             console.error('Zakat calculation error:', error);
             this.chatbot.appendMessage(
-                '❌ Maaf, ralat sistem. Sila cuba lagi.',
+                '❌ Maaf, sistem ralat. Sila cuba lagi.',
                 'bot'
             );
         } finally {
