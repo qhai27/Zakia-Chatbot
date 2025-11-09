@@ -1,5 +1,4 @@
 /**
- * Enhanced Zakat Calculator Handler for ZAKIA Chatbot
  * Manages interactive zakat calculation flow with year selection
  */
 
