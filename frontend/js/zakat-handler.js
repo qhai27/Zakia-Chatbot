@@ -1,6 +1,6 @@
 /**
- * Zakat Calculator Handler for ZAKIA Chatbot
- * Manages interactive zakat calculation flow
+ * Enhanced Zakat Calculator Handler for ZAKIA Chatbot
+ * Manages interactive zakat calculation flow with year selection
  */
 
 class ZakatHandler {
@@ -10,31 +10,32 @@ class ZakatHandler {
             active: false,
             type: null,
             step: 0,
-            data: {}
+            data: {},
+            yearType: null,
+            year: null,
+            availableYears: []
         };
         
         this.zakatTypes = {
             income: {
                 name: 'Zakat Pendapatan',
-                steps: ['amount', 'expenses'],
+                icon: '💼',
+                steps: ['year_type', 'year', 'amount', 'expenses'],
                 prompts: {
+                    year_type: 'Sila pilih jenis tahun:',
+                    year: 'Sila pilih tahun:',
                     amount: '💼 Sila masukkan jumlah pendapatan tahunan anda (RM):',
                     expenses: '💸 Sila masukkan jumlah perbelanjaan asas tahunan anda (RM):'
                 }
             },
             savings: {
                 name: 'Zakat Simpanan',
-                steps: ['amount'],
+                icon: '💰',
+                steps: ['year_type', 'year', 'amount'],
                 prompts: {
+                    year_type: 'Sila pilih jenis tahun:',
+                    year: 'Sila pilih tahun:',
                     amount: '💰 Sila masukkan jumlah simpanan anda (RM):'
-                }
-            },
-            gold: {
-                name: 'Zakat Emas',
-                steps: ['amount', 'gold_price'],
-                prompts: {
-                    amount: '⚱️ Sila masukkan berat emas anda (gram):',
-                    gold_price: '💎 Sila masukkan harga emas semasa per gram (RM) atau tekan Enter untuk guna harga default (RM300/g):'
                 }
             }
         };
@@ -62,13 +63,6 @@ class ZakatHandler {
             return 'savings';
         }
         
-        // Gold zakat keywords
-        if (msg.includes('kira zakat emas') || 
-            msg.includes('zakat emas') || 
-            msg.includes('zakat gold')) {
-            return 'gold';
-        }
-        
         // General zakat calculator request
         if ((msg.includes('kira zakat') || msg.includes('kalkulator zakat')) && 
             !this.state.active) {
@@ -89,16 +83,13 @@ class ZakatHandler {
     showZakatMenu() {
         const menuHTML = `
             <div class="zakat-menu">
-                <p style="margin-bottom: 12px;">Pilih jenis zakat yang ingin dikira:</p>
+                <p style="margin-bottom: 16px; font-weight: 600;">💰 Pilih jenis zakat yang ingin dikira:</p>
                 <div class="zakat-buttons">
                     <button class="zakat-type-btn" data-type="income">
                         💼 Zakat Pendapatan
                     </button>
                     <button class="zakat-type-btn" data-type="savings">
                         💰 Zakat Simpanan
-                    </button>
-                    <button class="zakat-type-btn" data-type="gold">
-                        ⚱️ Zakat Emas
                     </button>
                     <button class="zakat-type-btn" data-type="nisab">
                         📊 Maklumat Nisab
@@ -125,7 +116,7 @@ class ZakatHandler {
                 e.target.classList.add('selected');
                 
                 if (type === 'nisab') {
-                    this.fetchNisabInfo();
+                    this.showNisabYearSelection();
                 } else {
                     this.startZakatCalculation(type);
                 }
@@ -141,16 +132,234 @@ class ZakatHandler {
             active: true,
             type: type,
             step: 0,
-            data: {}
+            data: {},
+            yearType: null,
+            year: null,
+            availableYears: []
         };
         
-        const config = this.zakatTypes[type];
-        const firstStep = config.steps[0];
-        const prompt = config.prompts[firstStep];
+        // Show year type selection first
+        setTimeout(() => {
+            this.showYearTypeSelection();
+        }, 500);
+    }
+
+    /**
+     * Show year type selection (Hijrah/Masihi)
+     */
+    showYearTypeSelection() {
+        const config = this.zakatTypes[this.state.type];
+        const html = `
+            <div class="zakat-year-selection">
+                <p style="margin-bottom: 12px; font-weight: 600;">📅 ${config.prompts.year_type}</p>
+                <div class="zakat-buttons">
+                    <button class="zakat-year-type-btn" data-year-type="H">
+                        🌙 Tahun Hijrah
+                    </button>
+                    <button class="zakat-year-type-btn" data-year-type="M">
+                        📆 Tahun Masihi
+                    </button>
+                    <button class="zakat-cancel-btn">
+                        ❌ Batal
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        this.chatbot.appendMessage(html, 'bot', true);
+        this.attachYearTypeListeners();
+    }
+
+    /**
+     * Attach listeners to year type buttons
+     */
+    attachYearTypeListeners() {
+        const buttons = document.querySelectorAll('.zakat-year-type-btn');
+        const cancelBtn = document.querySelector('.zakat-cancel-btn');
+        
+        buttons.forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const yearType = e.target.getAttribute('data-year-type');
+                
+                // Disable all buttons
+                buttons.forEach(b => b.disabled = true);
+                if (cancelBtn) cancelBtn.disabled = true;
+                e.target.classList.add('selected');
+                
+                this.state.yearType = yearType;
+                
+                // Fetch available years
+                await this.fetchAndShowYears(yearType);
+            });
+        });
+        
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', () => {
+                this.cancel();
+            });
+        }
+    }
+
+    /**
+     * Fetch and show available years
+     */
+    async fetchAndShowYears(yearType) {
+        this.chatbot.setTyping(true);
+        
+        try {
+            const response = await fetch(`${window.CONFIG.API_BASE_URL}/zakat/years?type=${yearType}`);
+            const data = await response.json();
+            
+            if (data.success && data.years && Array.isArray(data.years)) {
+                this.state.availableYears = data.years;
+                
+                setTimeout(() => {
+                    this.chatbot.setTyping(false);
+                    this.showYearSelection(data.years, yearType);
+                }, 500);
+            } else {
+                throw new Error('Gagal mendapatkan senarai tahun');
+            }
+            
+        } catch (error) {
+            console.error('Error fetching years:', error);
+            this.chatbot.setTyping(false);
+            
+            // Use default years 
+            const defaultYears = yearType === 'H' 
+                ? ['1448','1447', '1446', '1445', '1444', '1443'] 
+                : ['2025' , '2024', '2023', '2022', '2021', '2020'];
+            
+            this.chatbot.appendMessage(
+                'ℹ️ Menggunakan tahun tersedia...',
+                'bot'
+            );
+            
+            setTimeout(() => {
+                this.showYearSelection(defaultYears, yearType);
+            }, 300);
+        }
+    }
+
+    /**
+     * Show year selection buttons
+     */
+    showYearSelection(years, yearType) {
+        const config = this.zakatTypes[this.state.type];
+        const yearLabel = yearType === 'H' ? 'Hijrah' : 'Masihi';
+        
+    
+        const yearArray = Array.isArray(years) ? years : [];
+        const displayYears = yearArray.slice(0, 5);
+        
+        if (displayYears.length === 0) {
+            // If no years available, use defaults
+            displayYears.push(...(yearType === 'H' 
+                ? ['1448', '1447', '1446', '1445'] 
+                : ['2025', '2024', '2023', '2022']));
+        }
+        
+        // Create year buttons
+        const yearButtons = displayYears.map(year => 
+            `<button class="zakat-year-btn" data-year="${year}">${year} ${yearLabel}</button>`
+        ).join('');
+        
+        const html = `
+            <div class="zakat-year-list">
+                <p style="margin-bottom: 12px; font-weight: 600;">📅 ${config.prompts.year}</p>
+                <div class="zakat-buttons">
+                    ${yearButtons}
+                    <button class="zakat-cancel-btn">❌ Batal</button>
+                </div>
+            </div>
+        `;
+        
+        this.chatbot.appendMessage(html, 'bot', true);
+        this.attachYearListeners();
+    }
+
+    /**
+     * Attach listeners to year selection buttons
+     */
+    attachYearListeners() {
+        const buttons = document.querySelectorAll('.zakat-year-btn');
+        const cancelBtn = document.querySelector('.zakat-cancel-btn');
+        
+        buttons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const year = e.target.getAttribute('data-year');
+                
+                // Disable all buttons
+                buttons.forEach(b => b.disabled = true);
+                if (cancelBtn) cancelBtn.disabled = true;
+                e.target.classList.add('selected');
+                
+                this.state.year = year;
+                
+                // Check if this is for nisab info or calculation
+                if (this.state.type === 'nisab') {
+                    // Fetch nisab info directly
+                    setTimeout(() => {
+                        this.fetchNisabInfo();
+                    }, 500);
+                } else {
+                    // Continue with calculation
+                    this.state.step = 2; // Move to amount input
+                    setTimeout(() => {
+                        this.askNextQuestion();
+                    }, 500);
+                }
+            });
+        });
+        
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', () => {
+                this.cancel();
+            });
+        }
+    }
+
+    /**
+     * Show nisab year selection for info query
+     */
+    showNisabYearSelection() {
+        this.state = {
+            active: true,
+            type: 'nisab',
+            step: 0,
+            data: {},
+            yearType: null,
+            year: null,
+            availableYears: []
+        };
+        
+        // Override the prompts for nisab query
+        this.zakatTypes.nisab = {
+            name: 'Maklumat Nisab',
+            icon: '📊',
+            steps: ['year_type', 'year'],
+            prompts: {
+                year_type: 'Sila pilih jenis tahun:',
+                year: 'Sila pilih tahun:'
+            }
+        };
         
         setTimeout(() => {
+            this.showYearTypeSelection();
+        }, 300);
+    }
+
+    /**
+     * Ask next question in the flow
+     */
+    askNextQuestion() {
+        const config = this.zakatTypes[this.state.type];
+        const currentStepName = config.steps[this.state.step];
+        const prompt = config.prompts[currentStepName];
+        
+        if (currentStepName !== 'year_type' && currentStepName !== 'year') {
             this.chatbot.appendMessage(prompt, 'bot');
-        }, 500);
+        }
     }
 
     /**
@@ -158,6 +367,15 @@ class ZakatHandler {
      */
     processInput(message) {
         if (!this.state.active) return false;
+        
+        // If waiting for year selection, ignore text input
+        if (this.state.step < 2) {
+            this.chatbot.appendMessage(
+                'Sila gunakan butang untuk memilih.',
+                'bot'
+            );
+            return true;
+        }
         
         const config = this.zakatTypes[this.state.type];
         const currentStepName = config.steps[this.state.step];
@@ -183,11 +401,8 @@ class ZakatHandler {
         }
         
         // Ask for next input
-        const nextStep = config.steps[this.state.step];
-        const nextPrompt = config.prompts[nextStep];
-        
         setTimeout(() => {
-            this.chatbot.appendMessage(nextPrompt, 'bot');
+            this.askNextQuestion();
         }, 500);
         
         return true;
@@ -199,12 +414,6 @@ class ZakatHandler {
     validateInput(message, stepName) {
         // Remove RM, comma, and whitespace
         const cleaned = message.replace(/[RM,\s]/gi, '').trim();
-        
-        // For gold_price, allow empty (will use default)
-        if (stepName === 'gold_price' && cleaned === '') {
-            return null; // Will use default price
-        }
-        
         const number = parseFloat(cleaned);
         
         if (isNaN(number) || number < 0) {
@@ -223,14 +432,14 @@ class ZakatHandler {
         try {
             const payload = {
                 type: this.state.type,
-                amount: this.state.data.amount
+                amount: this.state.data.amount,
+                year: this.state.year,
+                year_type: this.state.yearType
             };
             
             // Add type-specific data
             if (this.state.type === 'income') {
                 payload.expenses = this.state.data.expenses;
-            } else if (this.state.type === 'gold' && this.state.data.gold_price) {
-                payload.gold_price = this.state.data.gold_price;
             }
             
             const response = await fetch(`${window.CONFIG.API_BASE_URL}/calculate-zakat`, {
@@ -242,8 +451,9 @@ class ZakatHandler {
             const data = await response.json();
             
             if (data.success) {
-                // Format and display result with animation
-                this.displayResult(data.reply, data.data);
+                setTimeout(() => {
+                    this.displayResult(data.reply, data.data);
+                }, 800);
             } else {
                 this.chatbot.appendMessage(
                     `❌ ${data.error || 'Ralat pengiraan. Sila cuba lagi.'}`,
@@ -264,45 +474,42 @@ class ZakatHandler {
     }
 
     /**
-     * Display calculation result with animation
+     * Display calculation result
      */
     displayResult(message, data) {
-        // Add result with special styling
         const resultHTML = `
-            <div class="zakat-result">
+            <div class="zakat-result-card ${data.reaches_nisab ? 'success' : ''}">
                 ${this.formatMessage(message)}
-                ${data.reaches_nisab ? this.createPaymentButton(data) : ''}
+                ${this.createActionButtons(data)}
             </div>
         `;
         
-        setTimeout(() => {
-            this.chatbot.appendMessage(resultHTML, 'bot', true);
-            this.animateResult();
-        }, 800);
+        this.chatbot.appendMessage(resultHTML, 'bot', true);
+        this.animateResult();
     }
 
     /**
-     * Format message with proper line breaks and styling
+     * Format message with proper styling
      */
     formatMessage(message) {
-        return message
-            .replace(/\n\n/g, '</p><p>')
-            .replace(/\n/g, '<br>')
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            .replace(/^(.+)$/gm, '<p>$1</p>');
+        // Split by double newline for paragraphs
+        const paragraphs = message.split('\n\n').map(para => {
+            // Replace single newlines with <br>
+            const formatted = para.replace(/\n/g, '<br>');
+            // Make **text** bold
+            const withBold = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            return `<p>${withBold}</p>`;
+        }).join('');
+        
+        return paragraphs;
     }
 
     /**
-     * Create payment button for positive zakat amount
+     * Create action buttons
      */
-    createPaymentButton(data) {
-        if (!data.reaches_nisab || data.zakat_amount <= 0) return '';
-        
+    createActionButtons(data) {
         return `
-            <div class="zakat-action" style="margin-top: 16px;">
-                <button class="btn-pay-zakat" onclick="window.open('https://www.lznk.gov.my', '_blank')">
-                    💳 Bayar Zakat Sekarang
-                </button>
+            <div class="zakat-action-buttons">
                 <button class="btn-recalculate" onclick="window.zakatHandler.showZakatMenu()">
                     🔄 Kira Semula
                 </button>
@@ -314,17 +521,17 @@ class ZakatHandler {
      * Animate result display
      */
     animateResult() {
-        const results = document.querySelectorAll('.zakat-result');
-        const lastResult = results[results.length - 1];
+        const cards = document.querySelectorAll('.zakat-result-card');
+        const lastCard = cards[cards.length - 1];
         
-        if (lastResult) {
-            lastResult.style.opacity = '0';
-            lastResult.style.transform = 'translateY(20px)';
+        if (lastCard) {
+            lastCard.style.opacity = '0';
+            lastCard.style.transform = 'translateY(20px)';
             
             setTimeout(() => {
-                lastResult.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
-                lastResult.style.opacity = '1';
-                lastResult.style.transform = 'translateY(0)';
+                lastCard.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+                lastCard.style.opacity = '1';
+                lastCard.style.transform = 'translateY(0)';
             }, 100);
         }
     }
@@ -333,25 +540,36 @@ class ZakatHandler {
      * Fetch nisab information
      */
     async fetchNisabInfo() {
-        this.chatbot.setTyping(true);
-        
-        try {
-            const response = await fetch(`${window.CONFIG.API_BASE_URL}/zakat/nisab-info`);
-            const data = await response.json();
+        // If year already selected, fetch info
+        if (this.state.year && this.state.yearType) {
+            this.chatbot.setTyping(true);
             
-            if (data.success) {
-                setTimeout(() => {
-                    this.chatbot.appendMessage(this.formatMessage(data.reply), 'bot', true);
-                }, 500);
-            } else {
-                this.chatbot.appendMessage('❌ Gagal mendapatkan maklumat nisab.', 'bot');
+            try {
+                const response = await fetch(
+                    `${window.CONFIG.API_BASE_URL}/zakat/nisab-info?year=${this.state.year}&type=${this.state.yearType}`
+                );
+                const data = await response.json();
+                
+                if (data.success) {
+                    setTimeout(() => {
+                        this.chatbot.setTyping(false);
+                        const formattedMessage = this.formatMessage(data.reply);
+                        this.chatbot.appendMessage(formattedMessage, 'bot', true);
+                        this.resetState();
+                    }, 500);
+                } else {
+                    throw new Error(data.error || 'Gagal mendapatkan maklumat nisab');
+                }
+                
+            } catch (error) {
+                console.error('Nisab info error:', error);
+                this.chatbot.setTyping(false);
+                this.chatbot.appendMessage('❌ Ralat mendapatkan maklumat nisab. Sila cuba lagi.', 'bot');
+                this.resetState();
             }
-            
-        } catch (error) {
-            console.error('Nisab info error:', error);
-            this.chatbot.appendMessage('❌ Ralat sistem.', 'bot');
-        } finally {
-            this.chatbot.setTyping(false);
+        } else {
+            // Need to select year first, start the flow
+            this.showNisabYearSelection();
         }
     }
 
@@ -363,7 +581,10 @@ class ZakatHandler {
             active: false,
             type: null,
             step: 0,
-            data: {}
+            data: {},
+            yearType: null,
+            year: null,
+            availableYears: []
         };
     }
 
@@ -378,6 +599,30 @@ class ZakatHandler {
             );
             this.resetState();
         }
+    }
+    
+    /**
+     * Get current calculation summary
+     */
+    getCalculationSummary() {
+        if (!this.state.active) return null;
+        
+        const config = this.zakatTypes[this.state.type];
+        return {
+            type: config.name,
+            yearType: this.state.yearType ? (this.state.yearType === 'H' ? 'Hijrah' : 'Masihi') : null,
+            year: this.state.year,
+            step: this.state.step,
+            totalSteps: config.steps.length,
+            data: this.state.data
+        };
+    }
+    
+    /**
+     * Check if handler is busy
+     */
+    isBusy() {
+        return this.state.active;
     }
 }
 

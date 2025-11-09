@@ -66,6 +66,7 @@ class NLPProcessor:
             'lewat' : ['lewat','terlewat','late','overdue','delay','terlambat','melewatkan', 'menunda', 'melewatkan'],
             'faqir': ['fakir', 'poor', 'needy', 'destitute'],
             'bapa': ['bapa', 'ayah', 'father', 'dad', 'parent'],
+            'saya mempunyai': ['saya ada', 'saya punya' 'i have', 'i own', 'i possess', 'i got'],
             
         }
         

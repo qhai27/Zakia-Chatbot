@@ -1,12 +1,16 @@
 /* ================================================
-   ZAKAT CALCULATOR STYLES
+   ENHANCED ZAKAT CALCULATOR STYLES
+   Modern, Clean Design for Chatbot Interface
    ================================================ */
 
-/* Zakat Menu Buttons */
-.zakat-menu {
-    padding: 8px 0;
+/* Zakat Menu Container */
+.zakat-menu,
+.zakat-year-selection,
+.zakat-year-list {
+    padding: 12px 0;
 }
 
+/* Button Container */
 .zakat-buttons {
     display: flex;
     flex-direction: column;
@@ -14,11 +18,12 @@
     margin-top: 12px;
 }
 
+/* Main Zakat Type Buttons */
 .zakat-type-btn {
     background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
     border: 2px solid #5DB996;
     color: #157347;
-    padding: 14px 20px;
+    padding: 16px 20px;
     border-radius: 16px;
     font-size: 15px;
     font-weight: 600;
@@ -29,23 +34,41 @@
     align-items: center;
     gap: 12px;
     box-shadow: 0 2px 8px rgba(93, 185, 150, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.zakat-type-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s;
+}
+
+.zakat-type-btn:hover:not(:disabled)::before {
+    left: 100%;
 }
 
 .zakat-type-btn:hover:not(:disabled) {
     background: linear-gradient(135deg, #5DB996 0%, #4a9d7f 100%);
     color: #ffffff;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(93, 185, 150, 0.25);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 6px 20px rgba(93, 185, 150, 0.3);
 }
 
 .zakat-type-btn:active:not(:disabled) {
-    transform: translateY(0);
+    transform: translateY(0) scale(0.98);
     box-shadow: 0 2px 6px rgba(93, 185, 150, 0.2);
 }
 
 .zakat-type-btn:disabled {
-    opacity: 0.5;
+    opacity: 0.6;
     cursor: not-allowed;
+    transform: none;
 }
 
 .zakat-type-btn.selected {
@@ -58,59 +81,194 @@
 @keyframes selectedPulse {
     0% {
         transform: scale(1);
+        box-shadow: 0 2px 8px rgba(21, 115, 71, 0.2);
     }
     50% {
         transform: scale(1.05);
+        box-shadow: 0 8px 24px rgba(21, 115, 71, 0.4);
     }
     100% {
         transform: scale(1);
+        box-shadow: 0 4px 16px rgba(21, 115, 71, 0.3);
     }
 }
 
-/* Zakat Result Display */
-.zakat-result {
-    padding: 16px;
+/* Year Type Selection Buttons */
+.zakat-year-type-btn {
+    background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+    border: 2px solid #3b82f6;
+    color: #1e40af;
+    padding: 14px 20px;
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.1);
+}
+
+.zakat-year-type-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.25);
+}
+
+.zakat-year-type-btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.zakat-year-type-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.zakat-year-type-btn.selected {
+    background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+    color: #ffffff;
+    border-color: #1e40af;
+}
+
+/* Year Selection Buttons */
+.zakat-year-btn {
+    background: linear-gradient(135deg, #ffffff 0%, #fef3c7 100%);
+    border: 2px solid #fbbf24;
+    color: #92400e;
+    padding: 14px 20px;
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 2px 6px rgba(251, 191, 36, 0.1);
+}
+
+.zakat-year-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(251, 191, 36, 0.25);
+}
+
+.zakat-year-btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.zakat-year-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.zakat-year-btn.selected {
+    background: linear-gradient(135deg, #92400e 0%, #78350f 100%);
+    color: #ffffff;
+    border-color: #92400e;
+}
+
+/* Cancel Button */
+.zakat-cancel-btn {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    border: 2px solid #ef4444;
+    color: #991b1b;
+    padding: 12px 20px;
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.1);
+    margin-top: 4px;
+}
+
+.zakat-cancel-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.25);
+}
+
+.zakat-cancel-btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.zakat-cancel-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Result Card */
+.zakat-result-card {
     background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
     border-left: 4px solid #5DB996;
-    border-radius: 12px;
-    margin: 8px 0;
-    box-shadow: 0 4px 12px rgba(93, 185, 150, 0.15);
+    border-radius: 16px;
+    padding: 20px;
+    margin: 12px 0;
+    box-shadow: 0 4px 16px rgba(93, 185, 150, 0.15);
+    position: relative;
+    overflow: hidden;
 }
 
-.zakat-result p {
-    margin: 8px 0;
-    line-height: 1.6;
+.zakat-result-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.zakat-result-card p {
+    margin: 10px 0;
+    line-height: 1.7;
     color: #1f2937;
+    position: relative;
+    z-index: 1;
 }
 
-.zakat-result p:first-child {
+.zakat-result-card p:first-child {
     margin-top: 0;
 }
 
-.zakat-result p:last-child {
+.zakat-result-card p:last-child {
     margin-bottom: 0;
 }
 
-.zakat-result strong {
+.zakat-result-card strong {
     color: #157347;
     font-weight: 700;
     font-size: 1.05em;
 }
 
-/* Zakat Action Buttons */
-.zakat-action {
+/* Action Buttons Container */
+.zakat-action-buttons {
     display: flex;
     gap: 10px;
-    flex-wrap: wrap;
-    margin-top: 16px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 2px dashed rgba(93, 185, 150, 0.2);
 }
 
-.btn-pay-zakat,
+/* Recalculate Button */
 .btn-recalculate {
     flex: 1;
-    min-width: 140px;
     padding: 12px 20px;
-    border: none;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    color: #157347;
+    border: 2px solid #5DB996;
     border-radius: 12px;
     font-size: 14px;
     font-weight: 600;
@@ -120,29 +278,6 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-}
-
-.btn-pay-zakat {
-    background: linear-gradient(135deg, #157347 0%, #0f5a38 100%);
-    color: #ffffff;
-    box-shadow: 0 4px 12px rgba(21, 115, 71, 0.3);
-}
-
-.btn-pay-zakat:hover {
-    background: linear-gradient(135deg, #0f5a38 0%, #0a4428 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(21, 115, 71, 0.4);
-}
-
-.btn-pay-zakat:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 8px rgba(21, 115, 71, 0.3);
-}
-
-.btn-recalculate {
-    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-    color: #157347;
-    border: 2px solid #5DB996;
     box-shadow: 0 2px 8px rgba(93, 185, 150, 0.15);
 }
 
@@ -159,44 +294,7 @@
     box-shadow: 0 2px 8px rgba(255, 217, 95, 0.2);
 }
 
-/* Zakat Information Cards */
-.zakat-info-card {
-    background: #ffffff;
-    border: 2px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 16px;
-    margin: 12px 0;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-.zakat-info-card h4 {
-    color: #157347;
-    margin: 0 0 12px 0;
-    font-size: 16px;
-    font-weight: 700;
-}
-
-.zakat-info-card ul {
-    margin: 0;
-    padding-left: 24px;
-    list-style-type: none;
-}
-
-.zakat-info-card li {
-    margin: 8px 0;
-    position: relative;
-    padding-left: 20px;
-}
-
-.zakat-info-card li::before {
-    content: '✓';
-    position: absolute;
-    left: 0;
-    color: #5DB996;
-    font-weight: bold;
-}
-
-/* Loading State for Zakat Calculation */
+/* Loading State */
 .zakat-calculating {
     display: flex;
     align-items: center;
@@ -223,12 +321,14 @@
 }
 
 /* Highlight Important Numbers */
-.zakat-result .amount-highlight {
+.zakat-result-card .amount-highlight {
     background: linear-gradient(135deg, #FFD95F 0%, #ffd95f 100%);
-    padding: 2px 8px;
-    border-radius: 6px;
+    padding: 3px 10px;
+    border-radius: 8px;
     font-weight: 700;
     color: #8B4513;
+    display: inline-block;
+    box-shadow: 0 2px 6px rgba(255, 217, 95, 0.2);
 }
 
 /* Nisab Status Badge */
@@ -236,21 +336,40 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 6px 12px;
+    padding: 8px 14px;
     border-radius: 20px;
     font-size: 13px;
     font-weight: 600;
     margin: 8px 0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .nisab-badge.reached {
-    background: #dcfce7;
+    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
     color: #157347;
+    border: 2px solid #5DB996;
 }
 
 .nisab-badge.not-reached {
-    background: #fef3c7;
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
     color: #92400e;
+    border: 2px solid #fbbf24;
+}
+
+/* Animation for Result Appearance */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.zakat-result-card {
+    animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Responsive Design */
@@ -259,75 +378,68 @@
         gap: 8px;
     }
     
-    .zakat-type-btn {
+    .zakat-type-btn,
+    .zakat-year-type-btn,
+    .zakat-year-btn {
         padding: 12px 16px;
         font-size: 14px;
     }
     
-    .zakat-result {
-        padding: 12px;
+    .zakat-result-card {
+        padding: 16px;
         font-size: 14px;
     }
     
-    .zakat-action {
+    .zakat-action-buttons {
         flex-direction: column;
     }
     
-    .btn-pay-zakat,
     .btn-recalculate {
         width: 100%;
-        min-width: auto;
     }
 }
 
-/* Animation for Result Appearance */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
+/* Add subtle hover effect to result card */
+.zakat-result-card:hover {
+    box-shadow: 0 8px 24px rgba(93, 185, 150, 0.2);
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+}
+
+/* Icon spacing in buttons */
+.zakat-type-btn::before,
+.zakat-year-type-btn::before,
+.zakat-year-btn::before {
+    flex-shrink: 0;
+}
+
+/* Success checkmark animation */
+@keyframes checkmark {
+    0% {
+        transform: scale(0) rotate(0deg);
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
+    50% {
+        transform: scale(1.2) rotate(180deg);
+    }
+    100% {
+        transform: scale(1) rotate(360deg);
     }
 }
 
-.zakat-result {
-    animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Icon Styles in Results */
-.zakat-result p:first-child {
-    font-size: 16px;
-    font-weight: 600;
-}
-
-/* Emoji Spacing */
-.zakat-result p {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-}
-
-/* Make lists in zakat results */
-.zakat-result ul {
-    list-style-type: none;
-    padding-left: 20px;
-    margin: 12px 0;
-}
-
-.zakat-result li {
-    margin: 6px 0;
-    padding-left: 24px;
-    position: relative;
-}
-
-.zakat-result li::before {
-    content: '•';
+.zakat-result-card.success::after {
+    content: '✓';
     position: absolute;
-    left: 0;
-    color: #5DB996;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    background: #5DB996;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-weight: bold;
-    font-size: 20px;
-    line-height: 1;
+    font-size: 18px;
+    animation: checkmark 0.6s ease;
 }
