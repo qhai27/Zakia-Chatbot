@@ -1,5 +1,6 @@
 /**
- * Manages interactive zakat calculation flow with year selection
+ * Updated ZakatHandler with Reminder Integration
+ * Manages zakat calculation and reminder opt-in flow
  */
 
 class ZakatHandler {
@@ -14,6 +15,9 @@ class ZakatHandler {
             year: null,
             availableYears: []
         };
+        
+        // Initialize reminder handler
+        this.reminderHandler = new window.ReminderHandler(chatbot);
         
         this.zakatTypes = {
             income: {
@@ -40,13 +44,9 @@ class ZakatHandler {
         };
     }
 
-    /**
-     * Detect if user wants to calculate zakat
-     */
     detectZakatIntent(message) {
         const msg = message.toLowerCase();
         
-        // Income zakat keywords
         if (msg.includes('kira zakat pendapatan') || 
             msg.includes('zakat pendapatan') || 
             msg.includes('zakat gaji') ||
@@ -54,7 +54,6 @@ class ZakatHandler {
             return 'income';
         }
         
-        // Savings zakat keywords
         if (msg.includes('kira zakat simpanan') || 
             msg.includes('zakat simpanan') || 
             msg.includes('zakat wang') ||
@@ -62,13 +61,11 @@ class ZakatHandler {
             return 'savings';
         }
         
-        // General zakat calculator request
         if ((msg.includes('kira zakat') || msg.includes('kalkulator zakat')) && 
             !this.state.active) {
             return 'menu';
         }
         
-        // Nisab information request
         if (msg.includes('nisab') && !this.state.active) {
             return 'nisab';
         }
@@ -76,9 +73,6 @@ class ZakatHandler {
         return null;
     }
 
-    /**
-     * Show zakat type selection menu
-     */
     showZakatMenu() {
         const menuHTML = `
             <div class="zakat-menu">
@@ -101,16 +95,11 @@ class ZakatHandler {
         this.attachMenuListeners();
     }
 
-    /**
-     * Attach event listeners to menu buttons
-     */
     attachMenuListeners() {
         const buttons = document.querySelectorAll('.zakat-type-btn');
         buttons.forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const type = e.target.getAttribute('data-type');
-                
-                // Disable all buttons after selection
                 buttons.forEach(b => b.disabled = true);
                 e.target.classList.add('selected');
                 
@@ -123,9 +112,6 @@ class ZakatHandler {
         });
     }
 
-    /**
-     * Start zakat calculation process
-     */
     startZakatCalculation(type) {
         this.state = {
             active: true,
@@ -137,15 +123,11 @@ class ZakatHandler {
             availableYears: []
         };
         
-        // Show year type selection first
         setTimeout(() => {
             this.showYearTypeSelection();
         }, 500);
     }
 
-    /**
-     * Show year type selection (Hijrah/Masihi)
-     */
     showYearTypeSelection() {
         const config = this.zakatTypes[this.state.type];
         const html = `
@@ -169,41 +151,30 @@ class ZakatHandler {
         this.attachYearTypeListeners();
     }
 
-    /**
-     * Attach listeners to year type buttons
-     */
     attachYearTypeListeners() {
         const buttons = document.querySelectorAll('.zakat-year-type-btn');
         const cancelBtns = document.querySelectorAll('.zakat-cancel-btn');
-        const attachCancelOnce = (el) => {
-            if (!el || el.dataset.zakatCancelAttached) return;
-            el.addEventListener('click', () => this.cancel());
-            el.dataset.zakatCancelAttached = '1';
-        };
         
         buttons.forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 const yearType = e.target.getAttribute('data-year-type');
-                
-                // Disable all buttons
                 buttons.forEach(b => b.disabled = true);
                 cancelBtns.forEach(cb => cb.disabled = true);
                 e.target.classList.add('selected');
                 
                 this.state.yearType = yearType;
-                
-                // Fetch available years
                 await this.fetchAndShowYears(yearType);
             });
         });
         
-        // attach to any cancel buttons in the current message(s)
-        cancelBtns.forEach(attachCancelOnce);
+        cancelBtns.forEach(btn => {
+            if (!btn.dataset.zakatCancelAttached) {
+                btn.addEventListener('click', () => this.cancel());
+                btn.dataset.zakatCancelAttached = '1';
+            }
+        });
     }
-    
-    /**
-     * Fetch and show available years
-     */
+
     async fetchAndShowYears(yearType) {
         this.chatbot.setTyping(true);
         
@@ -213,7 +184,6 @@ class ZakatHandler {
             
             if (data.success && data.years && Array.isArray(data.years)) {
                 this.state.availableYears = data.years;
-                
                 setTimeout(() => {
                     this.chatbot.setTyping(false);
                     this.showYearSelection(data.years, yearType);
@@ -221,46 +191,32 @@ class ZakatHandler {
             } else {
                 throw new Error('Gagal mendapatkan senarai tahun');
             }
-            
         } catch (error) {
             console.error('Error fetching years:', error);
             this.chatbot.setTyping(false);
             
-            // Use default years 
             const defaultYears = yearType === 'H' 
-                ? ['1448','1447', '1446', '1445', '1444', '1443'] 
-                : ['2025' , '2024', '2023', '2022', '2021', '2020'];
+                ? ['1448','1447', '1446', '1445'] 
+                : ['2025', '2024', '2023', '2022'];
             
-            this.chatbot.appendMessage(
-                'ℹ️ Menggunakan tahun tersedia...',
-                'bot'
-            );
-            
+            this.chatbot.appendMessage('ℹ️ Menggunakan tahun tersedia...', 'bot');
             setTimeout(() => {
                 this.showYearSelection(defaultYears, yearType);
             }, 300);
         }
     }
 
-    /**
-     * Show year selection buttons
-     */
     showYearSelection(years, yearType) {
         const config = this.zakatTypes[this.state.type];
         const yearLabel = yearType === 'H' ? 'Hijrah' : 'Masihi';
-        
-    
-        const yearArray = Array.isArray(years) ? years : [];
-        const displayYears = yearArray.slice(0, 5);
+        const displayYears = Array.isArray(years) ? years.slice(0, 5) : [];
         
         if (displayYears.length === 0) {
-            // If no years available, use defaults
             displayYears.push(...(yearType === 'H' 
-                ? ['1448', '1447', '1446', '1445'] 
-                : ['2025', '2024', '2023', '2022']));
+                ? ['1448', '1447', '1446'] 
+                : ['2025', '2024', '2023']));
         }
         
-        // Create year buttons
         const yearButtons = displayYears.map(year => 
             `<button class="zakat-year-btn" data-year="${year}">${year} ${yearLabel}</button>`
         ).join('');
@@ -279,38 +235,25 @@ class ZakatHandler {
         this.attachYearListeners();
     }
 
-    /**
-     * Attach listeners to year selection buttons
-     */
     attachYearListeners() {
         const buttons = document.querySelectorAll('.zakat-year-btn');
         const cancelBtns = document.querySelectorAll('.zakat-cancel-btn');
-        const attachCancelOnce = (el) => {
-            if (!el || el.dataset.zakatCancelAttached) return;
-            el.addEventListener('click', () => this.cancel());
-            el.dataset.zakatCancelAttached = '1';
-        };
         
         buttons.forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const year = e.target.getAttribute('data-year');
-                
-                // Disable all buttons
                 buttons.forEach(b => b.disabled = true);
                 cancelBtns.forEach(cb => cb.disabled = true);
                 e.target.classList.add('selected');
                 
                 this.state.year = year;
                 
-                // Check if this is for nisab info or calculation
                 if (this.state.type === 'nisab') {
-                    // Fetch nisab info directly
                     setTimeout(() => {
                         this.fetchNisabInfo();
                     }, 500);
                 } else {
-                    // Continue with calculation
-                    this.state.step = 2; // Move to amount input
+                    this.state.step = 2;
                     setTimeout(() => {
                         this.askNextQuestion();
                     }, 500);
@@ -318,13 +261,14 @@ class ZakatHandler {
             });
         });
         
-        // attach to any cancel buttons in the current message(s)
-        cancelBtns.forEach(attachCancelOnce);
+        cancelBtns.forEach(btn => {
+            if (!btn.dataset.zakatCancelAttached) {
+                btn.addEventListener('click', () => this.cancel());
+                btn.dataset.zakatCancelAttached = '1';
+            }
+        });
     }
 
-    /**
-     * Show nisab year selection for info query
-     */
     showNisabYearSelection() {
         this.state = {
             active: true,
@@ -336,7 +280,6 @@ class ZakatHandler {
             availableYears: []
         };
         
-        // Override the prompts for nisab query
         this.zakatTypes.nisab = {
             name: 'Maklumat Nisab',
             icon: '📊',
@@ -352,9 +295,6 @@ class ZakatHandler {
         }, 300);
     }
 
-    /**
-     * Ask next question in the flow
-     */
     askNextQuestion() {
         const config = this.zakatTypes[this.state.type];
         const currentStepName = config.steps[this.state.step];
@@ -365,25 +305,22 @@ class ZakatHandler {
         }
     }
 
-    /**
-     * Process user input during calculation
-     */
     processInput(message) {
+        // Check if reminder handler is active first
+        if (this.reminderHandler && this.reminderHandler.isActive()) {
+            return this.reminderHandler.processInput(message);
+        }
+        
         if (!this.state.active) return false;
         
-        // If waiting for year selection, ignore text input
         if (this.state.step < 2) {
-            this.chatbot.appendMessage(
-                'Sila gunakan butang untuk memilih.',
-                'bot'
-            );
+            this.chatbot.appendMessage('Sila gunakan butang untuk memilih.', 'bot');
             return true;
         }
         
         const config = this.zakatTypes[this.state.type];
         const currentStepName = config.steps[this.state.step];
         
-        // Validate and store input
         const value = this.validateInput(message, currentStepName);
         
         if (value === null) {
@@ -397,13 +334,11 @@ class ZakatHandler {
         this.state.data[currentStepName] = value;
         this.state.step++;
         
-        // Check if we have all required inputs
         if (this.state.step >= config.steps.length) {
             this.calculateZakat();
             return true;
         }
         
-        // Ask for next input
         setTimeout(() => {
             this.askNextQuestion();
         }, 500);
@@ -411,11 +346,7 @@ class ZakatHandler {
         return true;
     }
 
-    /**
-     * Validate user input
-     */
     validateInput(message, stepName) {
-        // Remove RM, comma, and whitespace
         const cleaned = message.replace(/[RM,\s]/gi, '').trim();
         const number = parseFloat(cleaned);
         
@@ -426,9 +357,6 @@ class ZakatHandler {
         return number;
     }
 
-    /**
-     * Call API to calculate zakat
-     */
     async calculateZakat() {
         this.chatbot.setTyping(true);
         
@@ -440,7 +368,6 @@ class ZakatHandler {
                 year_type: this.state.yearType
             };
             
-            // Add type-specific data
             if (this.state.type === 'income') {
                 payload.expenses = this.state.data.expenses;
             }
@@ -456,6 +383,13 @@ class ZakatHandler {
             if (data.success) {
                 setTimeout(() => {
                     this.displayResult(data.reply, data.data);
+                    
+                    // Check if zakat exceeds nisab and offer reminder
+                    if (data.data.reaches_nisab && data.data.zakat_amount > 0) {
+                        setTimeout(() => {
+                            this.offerReminder(data.data);
+                        }, 1000);
+                    }
                 }, 800);
             } else {
                 this.chatbot.appendMessage(
@@ -476,9 +410,6 @@ class ZakatHandler {
         }
     }
 
-    /**
-     * Display calculation result
-     */
     displayResult(message, data) {
         const resultHTML = `
             <div class="zakat-result-card ${data.reaches_nisab ? 'success' : ''}">
@@ -491,15 +422,9 @@ class ZakatHandler {
         this.animateResult();
     }
 
-    /**
-     * Format message with proper styling
-     */
     formatMessage(message) {
-        // Split by double newline for paragraphs
         const paragraphs = message.split('\n\n').map(para => {
-            // Replace single newlines with <br>
             const formatted = para.replace(/\n/g, '<br>');
-            // Make **text** bold
             const withBold = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
             return `<p>${withBold}</p>`;
         }).join('');
@@ -507,9 +432,6 @@ class ZakatHandler {
         return paragraphs;
     }
 
-    /**
-     * Create action buttons
-     */
     createActionButtons(data) {
         return `
             <div class="zakat-action-buttons">
@@ -520,9 +442,6 @@ class ZakatHandler {
         `;
     }
 
-    /**
-     * Animate result display
-     */
     animateResult() {
         const cards = document.querySelectorAll('.zakat-result-card');
         const lastCard = cards[cards.length - 1];
@@ -539,11 +458,17 @@ class ZakatHandler {
         }
     }
 
-    /**
-     * Fetch nisab information
-     */
+    offerReminder(zakatData) {
+        // Start reminder flow
+        if (this.reminderHandler) {
+            this.reminderHandler.startReminderFlow(
+                this.state.type,
+                zakatData.zakat_amount
+            );
+        }
+    }
+
     async fetchNisabInfo() {
-        // If year already selected, fetch info
         if (this.state.year && this.state.yearType) {
             this.chatbot.setTyping(true);
             
@@ -563,7 +488,6 @@ class ZakatHandler {
                 } else {
                     throw new Error(data.error || 'Gagal mendapatkan maklumat nisab');
                 }
-                
             } catch (error) {
                 console.error('Nisab info error:', error);
                 this.chatbot.setTyping(false);
@@ -571,14 +495,10 @@ class ZakatHandler {
                 this.resetState();
             }
         } else {
-            // Need to select year first, start the flow
             this.showNisabYearSelection();
         }
     }
 
-    /**
-     * Reset calculation state
-     */
     resetState() {
         this.state = {
             active: false,
@@ -591,9 +511,6 @@ class ZakatHandler {
         };
     }
 
-    /**
-     * Cancel current calculation
-     */
     cancel() {
         if (this.state.active) {
             this.chatbot.appendMessage(
@@ -603,31 +520,10 @@ class ZakatHandler {
             this.resetState();
         }
     }
-    
-    /**
-     * Get current calculation summary
-     */
-    getCalculationSummary() {
-        if (!this.state.active) return null;
-        
-        const config = this.zakatTypes[this.state.type];
-        return {
-            type: config.name,
-            yearType: this.state.yearType ? (this.state.yearType === 'H' ? 'Hijrah' : 'Masihi') : null,
-            year: this.state.year,
-            step: this.state.step,
-            totalSteps: config.steps.length,
-            data: this.state.data
-        };
-    }
-    
-    /**
-     * Check if handler is busy
-     */
+
     isBusy() {
-        return this.state.active;
+        return this.state.active || (this.reminderHandler && this.reminderHandler.isActive());
     }
 }
 
-// Export for use in main chatbot
 window.ZakatHandler = ZakatHandler;

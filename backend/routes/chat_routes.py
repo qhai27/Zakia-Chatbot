@@ -7,6 +7,7 @@ from flask import Blueprint, request, jsonify
 import uuid
 from database import DatabaseManager
 from nlp_processor import NLPProcessor
+import datetime
 
 # Create blueprint
 chat_bp = Blueprint('chat', __name__)
@@ -14,6 +15,30 @@ chat_bp = Blueprint('chat', __name__)
 # Initialize components
 db = DatabaseManager()
 nlp = NLPProcessor()
+
+def ensure_reminders_table():
+    """Create reminders table if it doesn't exist"""
+    try:
+        if not db.connection:
+            db.connect()
+        conn = db.connection
+        cur = conn.cursor()
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS reminders (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                name VARCHAR(255),
+                ic_number VARCHAR(32),
+                phone VARCHAR(32),
+                zakat_type VARCHAR(32),
+                zakat_amount DECIMAL(12,2),
+                created_at DATETIME NOT NULL,
+                updated_at DATETIME NOT NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        """)
+        conn.commit()
+        cur.close()
+    except Exception as e:
+        print("ensure_reminders_table error:", e)
 
 @chat_bp.route("/chat", methods=["POST"])
 def chat():
@@ -81,7 +106,7 @@ def chat():
                 "language": language
             })
         
-        # Handle goodbye with language awareness
+        # Handle goodbye 
         if intent['is_goodbye']:
             language = intent.get('language', 'malay')
             if language == 'english':
@@ -164,3 +189,40 @@ def health_check():
         "nlp_trained": len(nlp.training_pairs) > 0,
         "keywords_indexed": len(nlp.keyword_index)
     })
+
+@chat_bp.route('/api/save-reminder', methods=['POST'])
+def api_save_reminder():
+    """Persist reminder data posted from frontend"""
+    payload = request.get_json() or {}
+    name = (payload.get('name') or '').strip()
+    ic_number = (payload.get('ic_number') or '').strip()
+    phone = (payload.get('phone') or '').strip()
+    zakat_type = (payload.get('zakat_type') or '').strip()
+    try:
+        zakat_amount = float(payload.get('zakat_amount')) if payload.get('zakat_amount') not in (None, '') else None
+    except Exception:
+        zakat_amount = None
+
+    # basic validation
+    if not name or not ic_number or not phone:
+        return jsonify({'success': False, 'error': 'Sila lengkapkan nama, IC dan nombor telefon.'}), 400
+
+    try:
+        ensure_reminders_table()
+        if not db.connection:
+            db.connect()
+        conn = db.connection
+        cur = conn.cursor()
+        now = datetime.datetime.utcnow().replace(microsecond=0)
+        cur.execute("""
+            INSERT INTO reminders (name, ic_number, phone, zakat_type, zakat_amount, created_at, updated_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """, (name, ic_number, phone, zakat_type, zakat_amount, now, now))
+        conn.commit()
+        cur.close()
+        reply = f"✅ Terima kasih {name.split(' ')[0]}. Maklumat peringatan telah disimpan."
+        return jsonify({'success': True, 'reply': reply})
+    except Exception as e:
+        # log and return generic error
+        print("api_save_reminder error:", e)
+        return jsonify({'success': False, 'error': 'Gagal menyimpan maklumat. Sila cuba lagi.'}), 500

@@ -34,7 +34,8 @@ class NLPProcessor:
             'wang': ['wang', 'duit', 'money', 'cash'],
             'pejabat': ['pejabat', 'office', 'kaunter', 'cawangan', 'branch'],
             'bantuan': ['bantuan', 'help', 'tolong', 'assist', 'aid'],
-            'mohon': ['mohon', 'apply', 'permohonan', 'application']
+            'mohon': ['mohon', 'apply', 'permohonan', 'application'],
+            'syarat': ['syarat', 'syrt', 'syart']
         }
         
         # Expanded synonyms
