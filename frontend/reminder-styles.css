@@ -9,13 +9,13 @@
 }
 
 .reminder-prompt p {
-    color: #1f2937;
+    color: #f9fafb;
     font-size: 14px;
     line-height: 1.6;
 }
 
 /* Reminder Buttons Container */
-.reminder-buttons {
+.reminder-buttons { 
     display: flex;
     flex-direction: column;
     gap: 10px;

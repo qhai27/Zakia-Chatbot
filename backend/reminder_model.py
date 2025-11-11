@@ -47,11 +47,12 @@ class ReminderManager:
             print(f"❌ Error creating user_reminder table: {e}")
             return False
     
-    def save_reminder(self, name, ic_number, phone, zakat_type, zakat_amount):
+    def save(self, session_id, name, ic_number, phone, zakat_type, zakat_amount):
         """
         Save user reminder to database
         
         Args:
+            session_id (str): User session ID
             name (str): User's full name
             ic_number (str): IC number without dashes
             phone (str): Phone number
@@ -61,6 +62,7 @@ class ReminderManager:
         Returns:
             dict: Success status and message
         """
+        # Ensure database connection
         if not self.db.connection or not self.db.connection.is_connected():
             if not self.db.connect():
                 return {
@@ -88,8 +90,8 @@ class ReminderManager:
                 name.strip(),
                 ic_number.strip(),
                 phone.strip(),
-                zakat_type,
-                float(zakat_amount)
+                zakat_type or 'umum',
+                float(zakat_amount) if zakat_amount else 0.0
             ))
             
             self.db.connection.commit()
@@ -97,20 +99,36 @@ class ReminderManager:
             cursor.close()
             
             # Get first name for personalized message
-            first_name = name.strip().split()[0]
+            first_name = name.strip().split()[0] if name.strip() else 'Pengguna'
+            
+            print(f"✅ Reminder saved successfully: ID={reminder_id}, Name={name}")
             
             return {
                 'success': True,
-                'reminder_id': reminder_id,
+                'id': reminder_id,
                 'reply': f"Terima kasih {first_name}! ✅ Maklumat anda telah direkod dan LZNK akan menghantar peringatan zakat anda nanti. 🤲"
             }
             
         except Error as e:
             print(f"❌ Error saving reminder: {e}")
+            import traceback
+            traceback.print_exc()
             return {
                 'success': False,
                 'error': 'Ralat menyimpan maklumat. Sila cuba lagi.'
             }
+        except Exception as e:
+            print(f"❌ Unexpected error saving reminder: {e}")
+            import traceback
+            traceback.print_exc()
+            return {
+                'success': False,
+                'error': 'Ralat sistem. Sila cuba lagi.'
+            }
+    
+    def save_reminder(self, name, ic_number, phone, zakat_type, zakat_amount):
+        """Alias for save() method for backward compatibility"""
+        return self.save(None, name, ic_number, phone, zakat_type, zakat_amount)
     
     def _validate_input(self, name, ic_number, phone, zakat_amount):
         """
@@ -148,7 +166,7 @@ class ReminderManager:
         # Validate zakat amount
         try:
             amount = float(zakat_amount)
-            if amount <= 0:
+            if amount < 0:
                 return {
                     'valid': False,
                     'error': 'Jumlah zakat tidak sah'
@@ -163,8 +181,10 @@ class ReminderManager:
     
     def get_reminders(self, limit=100):
         """Get all reminders (for admin purposes)"""
+        # Ensure database connection
         if not self.db.connection or not self.db.connection.is_connected():
             if not self.db.connect():
+                print("❌ Failed to connect to database in get_reminders")
                 return []
         
         try:
@@ -178,8 +198,19 @@ class ReminderManager:
             cursor.close()
             return reminders
         except Error as e:
-            print(f"Error fetching reminders: {e}")
+            print(f"❌ Error fetching reminders: {e}")
+            import traceback
+            traceback.print_exc()
             return []
+        except Exception as e:
+            print(f"❌ Unexpected error fetching reminders: {e}")
+            import traceback
+            traceback.print_exc()
+            return []
+    
+    def list(self, limit=100):
+        """Alias for get_reminders() for backward compatibility"""
+        return self.get_reminders(limit)
     
     def get_pending_reminders(self):
         """Get reminders that haven't been sent yet"""

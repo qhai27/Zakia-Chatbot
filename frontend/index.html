@@ -74,8 +74,40 @@
   </div>
 
   <!-- Load scripts -->
-  <script src="js/zakat-handler.js"></script>
-  <script src="js/chatbot.js"></script>
+  <!-- avoid duplicate includes (already loaded in <head>) -->
+  <script>
+    // Attach quick-reply handlers (prevents duplicate listeners)
+    (function () {
+      function setupQuickReplies() {
+        const ta = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        if (!ta || !sendBtn) return;
+
+        document.querySelectorAll('.quick-reply').forEach(btn => {
+          if (btn.dataset._qrAttached) return;
+          btn.dataset._qrAttached = '1';
+          btn.addEventListener('click', (e) => {
+            const text = btn.getAttribute('data-text') || '';
+            if (!text) return;
+            ta.value = text;
+            // trigger input resize if available
+            const ev = new Event('input', { bubbles: true });
+            ta.dispatchEvent(ev);
+            // send message
+            sendBtn.click();
+            ta.focus();
+          });
+        });
+      }
+
+      // run after DOM ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupQuickReplies);
+      } else {
+        setupQuickReplies();
+      }
+    })();
+  </script>
 
   <script>
     (function(){

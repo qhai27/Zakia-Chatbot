@@ -86,33 +86,37 @@ class ReminderHandler {
         const buttons = document.querySelectorAll('.reminder-btn');
         
         buttons.forEach(btn => {
+            if (btn.dataset._attached) return;
+            btn.dataset._attached = '1';
             btn.addEventListener('click', (e) => {
-                const answer = e.target.getAttribute('data-answer');
-                
-                // Disable all buttons
-                buttons.forEach(b => b.disabled = true);
-                e.target.classList.add('selected');
-                
-                if (answer === 'yes') {
-                    this.state.step = 1; // Move to name step
-                    setTimeout(() => {
-                        this.askName();
-                    }, 500);
-                } else {
-                    this.chatbot.appendMessage(
-                        'Baik, semoga Allah memberkati rezeki anda. 🤲',
-                        'bot'
-                    );
-                    this.resetState();
-                }
-            });
+                 const answer = e.target.getAttribute('data-answer');
+                 
+                 // Disable all buttons
+                 buttons.forEach(b => b.disabled = true);
+                 e.target.classList.add('selected');
+                 
+                 if (answer === 'yes') {
+                     this.state.step = 1; // Move to name step
+                     setTimeout(() => {
+                         this.askName();
+                     }, 500);
+                 } else {
+                     this.chatbot.appendMessage(
+                         'Baik, semoga Allah memberkati rezeki anda. 🤲',
+                         'bot'
+                     );
+                     this.resetState();
+                 }
+             });
         });
     }
-
+    
     /**
      * Ask for user's name
      */
     askName() {
+        // mark that we're waiting for name so processInput captures the next user message
+        this.state.waitingFor = 'name';
         this.chatbot.appendMessage(this.prompts.name, 'bot');
     }
 
@@ -120,8 +124,9 @@ class ReminderHandler {
      * Ask for user's IC number
      */
     askIC() {
-        const firstName = this.state.data.name.split(' ')[0];
+        const firstName = (this.state.data.name || '').split(' ')[0] || '';
         const prompt = this.prompts.ic(firstName);
+        this.state.waitingFor = 'ic';
         this.chatbot.appendMessage(prompt, 'bot');
     }
 
@@ -129,6 +134,7 @@ class ReminderHandler {
      * Ask for user's phone number
      */
     askPhone() {
+        this.state.waitingFor = 'phone';
         this.chatbot.appendMessage(this.prompts.phone, 'bot');
     }
 
