@@ -458,15 +458,33 @@ class ZakatHandler {
         }
     }
 
-    offerReminder(zakatData) {
-        // Start reminder flow
-        if (this.reminderHandler) {
-            this.reminderHandler.startReminderFlow(
-                this.state.type,
-                zakatData.zakat_amount
-            );
-        }
+
+// Update the offerReminder method in zakat-handler.js
+// This ensures the zakat type is properly passed to the reminder handler
+
+offerReminder(zakatData) {
+    // Map the calculation type to proper zakat type name
+    const zakatTypeMap = {
+        'income': 'pendapatan',
+        'savings': 'simpanan'
+    };
+    
+    const zakatType = zakatTypeMap[this.state.type] || this.state.type;
+    
+    console.log('Offering reminder with:', {
+        type: zakatType,
+        amount: zakatData.zakat_amount
+    });
+    
+    // Start reminder flow with proper zakat type
+    if (this.reminderHandler) {
+        this.reminderHandler.startReminderFlow(
+            zakatType,
+            zakatData.zakat_amount
+        );
     }
+}
+    
 
     async fetchNisabInfo() {
         if (this.state.year && this.state.yearType) {

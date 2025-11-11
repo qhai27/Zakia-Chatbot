@@ -177,97 +177,107 @@ if (!window.ZakiaChatbot) {
             this.quickRepliesEl.style.display = 'flex';
         }
 
-        async sendMessage(messageOverride) {
-            const text = (messageOverride ?? this.inputEl.value).trim();
-            if (!text) return;
 
-            this.appendMessage(text, 'user');
-            this.inputEl.value = '';
-            this.sendBtn.disabled = true;
-            this.hideQuickReplies();
+async sendMessage(messageOverride) {
+    const text = (messageOverride ?? this.inputEl.value).trim();
+    if (!text) return;
 
-            this.hasUserSentMessage = true;
+    this.appendMessage(text, 'user');
+    this.inputEl.value = '';
+    this.sendBtn.disabled = true;
+    this.hideQuickReplies();
 
-            // Check if zakat handler should process this
-            if (this.zakatHandler) {
-                // Check if currently in zakat calculation
-                if (this.zakatHandler.state.active) {
-                    // Check for cancel command
-                    if (text.toLowerCase().includes('batal') || text.toLowerCase().includes('cancel')) {
-                        this.zakatHandler.cancel();
-                        this.sendBtn.disabled = false;
-                        return;
-                    }
-                    
-                    // Process zakat input
-                    const handled = this.zakatHandler.processInput(text);
-                    if (handled) {
-                        this.sendBtn.disabled = false;
-                        return;
-                    }
-                }
-                
-                // Check for new zakat intent
-                const zakatIntent = this.zakatHandler.detectZakatIntent(text);
-                if (zakatIntent) {
-                    if (zakatIntent === 'menu') {
-                        setTimeout(() => {
-                            this.zakatHandler.showZakatMenu();
-                        }, 500);
-                        this.sendBtn.disabled = false;
-                        return;
-                    } else if (zakatIntent === 'nisab') {
-                        this.zakatHandler.fetchNisabInfo();
-                        this.sendBtn.disabled = false;
-                        return;
-                    } else {
-                        setTimeout(() => {
-                            this.zakatHandler.startZakatCalculation(zakatIntent);
-                        }, 500);
-                        this.sendBtn.disabled = false;
-                        return;
-                    }
-                }
-            }
+    this.hasUserSentMessage = true;
 
-            // Regular chat processing
-            this.setTyping(true);
+    // Priority 1: Check if reminder handler is active
+    if (this.zakatHandler && this.zakatHandler.reminderHandler && 
+        this.zakatHandler.reminderHandler.isActive()) {
+        const handled = await this.zakatHandler.reminderHandler.processInput(text);
+        if (handled) {
+            this.sendBtn.disabled = false;
+            return;
+        }
+    }
 
-            try {
-                const requestBody = { message: text };
-                if (this.sessionId) {
-                    requestBody.session_id = this.sessionId;
-                }
-
-                const res = await fetch(`${this.apiBaseUrl}${window.CONFIG.ENDPOINTS.CHAT}`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(requestBody)
-                });
-
-                const data = await res.json();
-
-                if (data.session_id) {
-                    this.sessionId = data.session_id;
-                }
-
-                this.appendMessage(data.reply || window.CONFIG.MESSAGES.SERVER_ERROR, 'bot');
-
-                if (!this.hasUserSentMessage) {
-                    setTimeout(() => this.showQuickReplies(), window.CONFIG.UI.TYPING_DELAY);
-                }
-
-            } catch (e) {
-                this.appendMessage(window.CONFIG.MESSAGES.CONNECTION_ERROR, 'bot');
-                if (!this.hasUserSentMessage) {
-                    this.showQuickReplies();
-                }
-            } finally {
-                this.setTyping(false);
+    // Priority 2: Check if zakat handler is active
+    if (this.zakatHandler && this.zakatHandler.state.active) {
+        // Check for cancel command
+        if (text.toLowerCase().includes('batal') || text.toLowerCase().includes('cancel')) {
+            this.zakatHandler.cancel();
+            this.sendBtn.disabled = false;
+            return;
+        }
+        
+        // Process zakat input
+        const handled = this.zakatHandler.processInput(text);
+        if (handled) {
+            this.sendBtn.disabled = false;
+            return;
+        }
+    }
+    
+    // Priority 3: Check for new zakat intent
+    if (this.zakatHandler) {
+        const zakatIntent = this.zakatHandler.detectZakatIntent(text);
+        if (zakatIntent) {
+            if (zakatIntent === 'menu') {
+                setTimeout(() => {
+                    this.zakatHandler.showZakatMenu();
+                }, 500);
                 this.sendBtn.disabled = false;
-                this.messagesEl.scrollTop = this.messagesEl.scrollHeight;
+                return;
+            } else if (zakatIntent === 'nisab') {
+                this.zakatHandler.fetchNisabInfo();
+                this.sendBtn.disabled = false;
+                return;
+            } else {
+                setTimeout(() => {
+                    this.zakatHandler.startZakatCalculation(zakatIntent);
+                }, 500);
+                this.sendBtn.disabled = false;
+                return;
             }
         }
+    }
+
+    // Priority 4: Regular chat processing
+    this.setTyping(true);
+
+    try {
+        const requestBody = { message: text };
+        if (this.sessionId) {
+            requestBody.session_id = this.sessionId;
+        }
+
+        const res = await fetch(`${this.apiBaseUrl}${window.CONFIG.ENDPOINTS.CHAT}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(requestBody)
+        });
+
+        const data = await res.json();
+
+        if (data.session_id) {
+            this.sessionId = data.session_id;
+        }
+
+        this.appendMessage(data.reply || window.CONFIG.MESSAGES.SERVER_ERROR, 'bot');
+
+        if (!this.hasUserSentMessage) {
+            setTimeout(() => this.showQuickReplies(), window.CONFIG.UI.TYPING_DELAY);
+        }
+
+    } catch (e) {
+        this.appendMessage(window.CONFIG.MESSAGES.CONNECTION_ERROR, 'bot');
+        if (!this.hasUserSentMessage) {
+            this.showQuickReplies();
+        }
+    } finally {
+        this.setTyping(false);
+        this.sendBtn.disabled = false;
+        this.messagesEl.scrollTop = this.messagesEl.scrollHeight;
+    }
+}
 
         handleQuickReplyClick(target) {
             document.querySelectorAll('.quick-reply').forEach(btn => {

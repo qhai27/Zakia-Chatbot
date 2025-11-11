@@ -8,7 +8,7 @@ class ReminderHandler {
         this.chatbot = chatbot;
         this.state = {
             active: false,
-            step: 0, // 0: ask permission, 1: name, 2: ic, 3: phone
+            waitingFor: null,
             data: {
                 name: null,
                 ic_number: null,
@@ -18,17 +18,13 @@ class ReminderHandler {
             }
         };
         
-        this.steps = {
-            0: 'permission',
-            1: 'name',
-            2: 'ic',
-            3: 'phone'
-        };
-        
         this.prompts = {
-            permission: 'Adakah anda ingin menerima peringatan pembayaran zakat?',
+            permission: 'Adakah anda ingin menerima peringatan pembayaran zakat? 🔔',
             name: 'Baik, boleh saya tahu nama penuh anda? 📝',
-            ic: (name) => `Terima kasih ${name} 😊. Seterusnya, sila masukkan nombor IC anda (tanpa tanda sempang).`,
+            ic: (name) => {
+                const firstName = (name || '').split(' ')[0] || '';
+                return `Terima kasih ${firstName} 😊. Seterusnya, sila masukkan nombor IC anda (12 digit tanpa tanda sempang, contoh: 950101015678).`;
+            },
             phone: 'Baik, terakhir sekali, sila masukkan nombor telefon anda. 📱'
         };
     }
@@ -39,7 +35,7 @@ class ReminderHandler {
     startReminderFlow(zakatType, zakatAmount) {
         this.state = {
             active: true,
-            step: 0,
+            waitingFor: null,
             data: {
                 name: null,
                 ic_number: null,
@@ -61,7 +57,7 @@ class ReminderHandler {
     showPermissionPrompt() {
         const html = `
             <div class="reminder-prompt">
-                <p style="margin-bottom: 16px; font-weight: 600;">
+                <p style="margin-bottom: 16px; font-weight: 600; color: #2d3748;">
                     ${this.prompts.permission}
                 </p>
                 <div class="reminder-buttons">
@@ -86,28 +82,30 @@ class ReminderHandler {
         const buttons = document.querySelectorAll('.reminder-btn');
         
         buttons.forEach(btn => {
-            if (btn.dataset._attached) return;
-            btn.dataset._attached = '1';
+            if (btn.dataset._reminderAttached) return;
+            btn.dataset._reminderAttached = '1';
+            
             btn.addEventListener('click', (e) => {
-                 const answer = e.target.getAttribute('data-answer');
-                 
-                 // Disable all buttons
-                 buttons.forEach(b => b.disabled = true);
-                 e.target.classList.add('selected');
-                 
-                 if (answer === 'yes') {
-                     this.state.step = 1; // Move to name step
-                     setTimeout(() => {
-                         this.askName();
-                     }, 500);
-                 } else {
-                     this.chatbot.appendMessage(
-                         'Baik, semoga Allah memberkati rezeki anda. 🤲',
-                         'bot'
-                     );
-                     this.resetState();
-                 }
-             });
+                const answer = e.target.getAttribute('data-answer');
+                
+                // Disable all buttons
+                buttons.forEach(b => b.disabled = true);
+                e.target.classList.add('selected');
+                
+                if (answer === 'yes') {
+                    setTimeout(() => {
+                        this.askName();
+                    }, 500);
+                } else {
+                    setTimeout(() => {
+                        this.chatbot.appendMessage(
+                            'Baik, terima kasih. Semoga Allah memberkati rezeki anda. 🤲',
+                            'bot'
+                        );
+                        this.resetState();
+                    }, 500);
+                }
+            });
         });
     }
     
@@ -115,7 +113,6 @@ class ReminderHandler {
      * Ask for user's name
      */
     askName() {
-        // mark that we're waiting for name so processInput captures the next user message
         this.state.waitingFor = 'name';
         this.chatbot.appendMessage(this.prompts.name, 'bot');
     }
@@ -142,83 +139,114 @@ class ReminderHandler {
      * Process user input during reminder flow
      */
     async processInput(message) {
-        // Debug: log incoming message and state
-        try { console.debug('ReminderHandler.processInput', { message, state: this.state }); } catch (_) {}
-
-        // If reminder flow not active or not waiting for input, do nothing
-        if (!this.state || !this.state.active || !this.state.waitingFor) return false;
+        // If reminder flow not active or not waiting for input, ignore
+        if (!this.state || !this.state.active || !this.state.waitingFor) {
+            return false;
+        }
 
         const text = (message || '').trim();
+        
+        // Check for cancel command
+        if (text.toLowerCase().includes('batal') || text.toLowerCase().includes('cancel')) {
+            this.cancel();
+            return true;
+        }
+        
         if (!text) {
-            this.chatbot.appendMessage('Sila masukkan nilai yang sah.', 'bot');
+            this.chatbot.appendMessage('Sila masukkan nilai yang sah. ⚠️', 'bot');
             return true;
         }
 
         try {
-            // ensure data object exists
-            if (!this.state.data) this.state.data = {};
-
             const field = this.state.waitingFor;
 
             if (field === 'name') {
                 if (text.length < 3) {
-                    this.chatbot.appendMessage('Sila masukkan nama penuh yang sah (sekurang-kurangnya 3 aksara).', 'bot');
+                    this.chatbot.appendMessage(
+                        'Sila masukkan nama penuh yang sah (sekurang-kurangnya 3 aksara). ⚠️',
+                        'bot'
+                    );
                     return true;
                 }
-                // save name and move to IC step
+                
+                // Save name and move to IC step
                 this.state.data.name = text;
-                // clear waitingFor before asking next so double messages are ignored
                 this.state.waitingFor = null;
-                // prompt next
-                this.askIC();
+                
+                setTimeout(() => {
+                    this.askIC();
+                }, 500);
                 return true;
             }
 
             if (field === 'ic') {
                 const clean = text.replace(/[-\s]/g, '');
+                
                 if (!/^\d{12}$/.test(clean)) {
-                    this.chatbot.appendMessage('Nombor IC tidak sah. Sila masukkan 12 digit tanpa tanda sempang.', 'bot');
+                    this.chatbot.appendMessage(
+                        'Nombor IC tidak sah. Sila masukkan 12 digit tanpa tanda sempang (contoh: 950101015678). ⚠️',
+                        'bot'
+                    );
                     return true;
                 }
+                
+                // Save IC and move to phone step
                 this.state.data.ic_number = clean;
                 this.state.waitingFor = null;
-                this.askPhone();
+                
+                setTimeout(() => {
+                    this.askPhone();
+                }, 500);
                 return true;
             }
 
             if (field === 'phone') {
                 let phone = text.replace(/[\s\-]/g, '');
-                if (phone.startsWith('+')) phone = phone.replace('+', '');
-                if (!/^\d{9,13}$/.test(phone)) {
-                    this.chatbot.appendMessage('Nombor telefon tidak sah. Sila cuba lagi.', 'bot');
+                
+                // Handle +60 format
+                if (phone.startsWith('+60')) {
+                    phone = '0' + phone.slice(3);
+                } else if (phone.startsWith('60') && phone.length >= 11) {
+                    phone = '0' + phone.slice(2);
+                }
+                
+                // Validate phone (10-11 digits starting with 0)
+                if (!/^0\d{9,10}$/.test(phone)) {
+                    this.chatbot.appendMessage(
+                        'Nombor telefon tidak sah. Sila masukkan nombor telefon Malaysia yang betul (contoh: 0123456789). ⚠️',
+                        'bot'
+                    );
                     return true;
                 }
-                if (phone.startsWith('60') && phone.length >= 11) phone = '0' + phone.slice(2);
+                
+                // Save phone and submit
                 this.state.data.phone = phone;
                 this.state.waitingFor = null;
-                // all data collected -> submit
-                await this._submitReminder();
+                
+                await this.submitReminder();
                 return true;
             }
 
-            // If waitingFor set but field not matched, consume message to avoid other handlers interfering
             return true;
         } catch (err) {
             console.error('ReminderHandler.processInput error', err);
-            this.chatbot.appendMessage('Maaf, ralat berlaku semasa memproses input. Sila cuba lagi.', 'bot');
+            this.chatbot.appendMessage(
+                '❌ Maaf, ralat berlaku semasa memproses input. Sila cuba lagi.',
+                'bot'
+            );
             this.resetState();
             return true;
         }
     }
 
     /**
-     * Save reminder to database
+     * Submit reminder to backend
      */
-    async saveReminder() {
+    async submitReminder() {
         this.chatbot.setTyping(true);
         
         try {
-            const response = await fetch(`${window.CONFIG.API_BASE_URL}/save-reminder`, {
+            const response = await fetch(`${window.CONFIG.API_BASE_URL}/api/save-reminder`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -236,10 +264,12 @@ class ReminderHandler {
                 this.chatbot.setTyping(false);
                 
                 if (data.success) {
-                    // Success message
-                    this.chatbot.appendMessage(data.reply, 'bot');
+                    const firstName = (this.state.data.name || '').split(' ')[0] || 'Pengguna';
+                    this.chatbot.appendMessage(
+                        `✅ Terima kasih ${firstName}! Maklumat peringatan anda telah berjaya disimpan. LZNK akan menghantar peringatan zakat kepada anda nanti. 🤲\n\nSemoga Allah memberkati rezeki anda. 🌟`,
+                        'bot'
+                    );
                 } else {
-                    // Error message
                     this.chatbot.appendMessage(
                         `❌ ${data.error || 'Ralat menyimpan maklumat. Sila cuba lagi.'}`,
                         'bot'
@@ -266,7 +296,7 @@ class ReminderHandler {
     resetState() {
         this.state = {
             active: false,
-            step: 0,
+            waitingFor: null,
             data: {
                 name: null,
                 ic_number: null,
@@ -281,14 +311,7 @@ class ReminderHandler {
      * Check if handler is currently active
      */
     isActive() {
-        return this.state.active;
-    }
-
-    /**
-     * Get current step name
-     */
-    getCurrentStep() {
-        return this.steps[this.state.step];
+        return this.state && this.state.active;
     }
 
     /**

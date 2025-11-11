@@ -1,34 +1,30 @@
 """
 Reminder Routes for Zakat Payment System
 Handles API endpoints for reminder management
+Saves to user_reminder table
 """
 
-from flask import Blueprint, request, jsonify
-from database import DatabaseManager
+from flask import Blueprint, request, jsonify, current_app
 from reminder_model import ReminderManager
-import uuid
+import datetime
 
 # Create blueprint
-reminder_bp = Blueprint('reminder', __name__, url_prefix='/api')
+reminder_bp = Blueprint('reminder', __name__)
 
-# Initialize database and reminder manager
-db = DatabaseManager()
-if not db.connection or not db.connection.is_connected():
-    db.connect()
+# Initialize reminder manager (do not auto-create table by default)
+rm = ReminderManager(auto_create=False)
 
-rm = ReminderManager(db)
-
-@reminder_bp.route('/save-reminder', methods=['POST'])
+@reminder_bp.route('/api/save-reminder', methods=['POST'])
 def save_reminder():
     """
-    Save user reminder for zakat payment
+    Save user reminder for zakat payment to user_reminder table
     
     Expected JSON payload:
     {
         "name": "Ahmad Bin Ali",
         "ic_number": "950101015678",
         "phone": "0123456789",
-        "zakat_type": "pendapatan",
+        "zakat_type": "pendapatan",  # or "simpanan"
         "zakat_amount": 875.00
     }
     
@@ -39,83 +35,29 @@ def save_reminder():
         "id": 123
     }
     """
-    try:
-        payload = request.get_json() or {}
-        session_id = payload.get('session_id') or str(uuid.uuid4())
-        name = payload.get('name', '').strip()
-        ic = payload.get('ic_number', '').strip()
-        phone = payload.get('phone', '').strip()
-        zakat_type = payload.get('zakat_type', 'umum')
-        
-        try:
-            zakat_amount = float(payload.get('zakat_amount', 0)) if payload.get('zakat_amount') not in (None, '') else 0.0
-        except (ValueError, TypeError):
-            zakat_amount = 0.0
+    payload = request.get_json(silent=True) or {}
 
-        print(f"📝 Saving reminder: name={name}, ic={ic}, phone={phone}, type={zakat_type}, amount={zakat_amount}")
-
-        # Validate required fields
-        if not name or not ic or not phone:
-            return jsonify({
-                'success': False, 
-                'error': 'Sila lengkapkan nama, nombor IC dan nombor telefon.'
-            }), 400
-
-        # Save to database
-        res = rm.save(session_id, name, ic, phone, zakat_type, zakat_amount)
-        
-        if res.get('success'):
-            first_name = name.split(' ')[0] if name else 'Pengguna'
-            return jsonify({
-                'success': True, 
-                'id': res.get('id'), 
-                'reply': f"✅ Terima kasih {first_name}! Maklumat peringatan anda telah disimpan dengan jayanya. LZNK akan menghantar peringatan zakat kepada anda. 🤲"
-            })
-        else:
-            error_msg = res.get('error', 'Gagal menyimpan maklumat. Sila cuba lagi.')
-            print(f"❌ Failed to save reminder: {error_msg}")
-            return jsonify({
-                'success': False, 
-                'error': error_msg
-            }), 400
-            
-    except Exception as e:
-        print(f"❌ Error in save_reminder endpoint: {e}")
-        import traceback
-        traceback.print_exc()
-        return jsonify({
-            'success': False, 
-            'error': 'Ralat sistem. Sila cuba lagi.'
-        }), 500
-
-@reminder_bp.route('/reminders', methods=['GET'])
-def list_reminders():
-    """
-    Get all reminders (for admin purposes)
-    
-    Query params:
-    - limit: Number of records to return (default: 50)
-    
-    Returns:
-    {
-        "success": true,
-        "count": 25,
-        "data": [...]
+    # normalize keys
+    sanitized = {
+        'name': (payload.get('name') or '').strip(),
+        'ic_number': (payload.get('ic_number') or payload.get('ic') or '').strip(),
+        'phone': (payload.get('phone') or '').strip(),
+        'zakat_type': (payload.get('zakat_type') or 'umum').strip(),
+        'zakat_amount': payload.get('zakat_amount')
     }
-    """
-    try:
-        limit = int(request.args.get('limit', 50))
-        rows = rm.list(limit)
-        return jsonify({
-            'success': True, 
-            'count': len(rows), 
-            'data': rows
-        })
-    except Exception as e:
-        print(f"❌ Error in list_reminders: {e}")
-        import traceback
-        traceback.print_exc()
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+
+    # Validate quickly before delegating
+    if not sanitized['name'] or not sanitized['ic_number'] or not sanitized['phone']:
+        return jsonify({'success': False, 'error': 'Sila lengkapkan nama, nombor IC dan nombor telefon.'}), 400
+
+    # Use model.save() — it will attempt to INSERT into "reminders" but will NOT create the table.
+    res = rm.save(sanitized)
+    if res.get('success'):
+        first = (sanitized['name'] or '').split(' ')[0]
+        return jsonify({'success': True, 'reply': f"✅ Terima kasih {first}. Maklumat peringatan telah disimpan.", 'id': res.get('id')})
+    # save failed (likely table missing) — return error and helpful hint
+    err = res.get('error') or 'Gagal menyimpan maklumat.'
+    # add hint if it's likely missing table
+    if 'no such table' in (err.lower() if isinstance(err, str) else '') or 'doesn\'t exist' in (err.lower() if isinstance(err, str) else ''):
+        err += ' (Pastikan jadual "reminders" wujud dalam pangkalan data.)'
+    return jsonify({'success': False, 'error': err}), 500
