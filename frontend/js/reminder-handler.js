@@ -25,7 +25,7 @@ class ReminderHandler {
                 const firstName = (name || '').split(' ')[0] || '';
                 return `Terima kasih ${firstName} 😊. Seterusnya, sila masukkan nombor IC anda (12 digit tanpa tanda sempang, contoh: 950101015678).`;
             },
-            phone: 'Baik, terakhir sekali, sila masukkan nombor telefon anda. 📱'
+            phone: 'Baik, terakhir sekali, sila masukkan nombor telefon anda tanpa sebarang ruang atau tanda sempang (contoh: 0123456789). 📱'
         };
     }
 
