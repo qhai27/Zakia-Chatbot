@@ -8,7 +8,7 @@ from datetime import datetime
 from database import DatabaseManager
 
 class ReminderManager:
-    # default table name (avoid user_reminder)
+    # default table name
     TABLE_NAME = "reminders"
 
     TABLE_SQL = f"""
@@ -19,6 +19,7 @@ class ReminderManager:
         phone VARCHAR(32) NOT NULL,
         zakat_type VARCHAR(64),
         zakat_amount DECIMAL(12,2),
+        year VARCHAR(32),
         created_at DATETIME NOT NULL,
         updated_at DATETIME NOT NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -30,7 +31,6 @@ class ReminderManager:
         Set auto_create=True if you explicitly want the table created on init.
         """
         self.db = db or DatabaseManager()
-        # Do not auto-create table to avoid unexpected schema changes
         if auto_create:
             self._ensure_table()
 
@@ -46,7 +46,6 @@ class ReminderManager:
         except Exception as e:
             print("ReminderManager._ensure_table error:", e)
 
-    # Backwards-compatible alias (if some code calls create_reminder_table)
     def create_reminder_table(self):
         return self._ensure_table()
 
@@ -78,17 +77,21 @@ class ReminderManager:
             except Exception:
                 zakat_amount = None
 
-            # INSERT into reminders table (no auto-create here)
+            # Get year information
+            year = payload.get('year', '')
+
+            # INSERT into reminders table
             cur.execute(f"""
                 INSERT INTO {self.TABLE_NAME}
-                (name, ic_number, phone, zakat_type, zakat_amount, created_at, updated_at)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                (name, ic_number, phone, zakat_type, zakat_amount, year, created_at, updated_at)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """, (
                 payload.get('name').strip(),
                 payload.get('ic_number').replace('-', '').replace(' ', ''),
                 payload.get('phone').strip(),
                 payload.get('zakat_type'),
                 zakat_amount,
+                year,
                 now, now
             ))
             conn.commit()
@@ -99,12 +102,29 @@ class ReminderManager:
             print("ReminderManager.save error:", e)
             return {'success': False, 'error': 'Gagal menyimpan maklumat.'}
 
-    def list(self, limit: int = 100) -> List[Dict[str, Any]]:
+    def list(self, limit: int = 100, offset: int = 0, search: str = '', zakat_type: str = '') -> List[Dict[str, Any]]:
         try:
             if not self.db.connection:
                 self.db.connect()
             cur = self.db.connection.cursor(dictionary=True)
-            cur.execute(f"SELECT * FROM {self.TABLE_NAME} ORDER BY created_at DESC LIMIT %s", (limit,))
+            
+            # Build query with filters
+            query = f"SELECT * FROM {self.TABLE_NAME} WHERE 1=1"
+            params = []
+            
+            if search:
+                query += " AND (name LIKE %s OR ic_number LIKE %s OR phone LIKE %s)"
+                search_param = f"%{search}%"
+                params.extend([search_param, search_param, search_param])
+            
+            if zakat_type:
+                query += " AND zakat_type = %s"
+                params.append(zakat_type)
+            
+            query += " ORDER BY created_at DESC LIMIT %s OFFSET %s"
+            params.extend([limit, offset])
+            
+            cur.execute(query, tuple(params))
             rows = cur.fetchall()
             cur.close()
             return rows or []
@@ -112,13 +132,62 @@ class ReminderManager:
             print("ReminderManager.list error:", e)
             return []
 
-# Initialize reminder table on import
-if __name__ == "__main__":
-    from database import DatabaseManager
-    
-    db = DatabaseManager()
-    if db.connect():
-        reminder_mgr = ReminderManager(db)
-        reminder_mgr.create_reminder_table()
-        print("✅ Reminder system initialized")
-        db.close()
+    def get_by_id(self, reminder_id: int) -> Optional[Dict[str, Any]]:
+        try:
+            if not self.db.connection:
+                self.db.connect()
+            cur = self.db.connection.cursor(dictionary=True)
+            cur.execute(f"SELECT * FROM {self.TABLE_NAME} WHERE id = %s", (reminder_id,))
+            row = cur.fetchone()
+            cur.close()
+            return row
+        except Exception as e:
+            print("ReminderManager.get_by_id error:", e)
+            return None
+
+    def delete(self, reminder_id: int) -> bool:
+        try:
+            if not self.db.connection:
+                self.db.connect()
+            cur = self.db.connection.cursor()
+            cur.execute(f"DELETE FROM {self.TABLE_NAME} WHERE id = %s", (reminder_id,))
+            self.db.connection.commit()
+            affected = cur.rowcount
+            cur.close()
+            return affected > 0
+        except Exception as e:
+            print("ReminderManager.delete error:", e)
+            return False
+
+    def get_stats(self) -> Dict[str, Any]:
+        try:
+            if not self.db.connection:
+                self.db.connect()
+            cur = self.db.connection.cursor(dictionary=True)
+            
+            # Total count
+            cur.execute(f"SELECT COUNT(*) as total FROM {self.TABLE_NAME}")
+            total = cur.fetchone()['total']
+            
+            # Total amount
+            cur.execute(f"SELECT SUM(zakat_amount) as total_amount FROM {self.TABLE_NAME}")
+            total_amount = cur.fetchone()['total_amount'] or 0
+            
+            # By type
+            cur.execute(f"""
+                SELECT zakat_type, COUNT(*) as count, SUM(zakat_amount) as amount 
+                FROM {self.TABLE_NAME} 
+                GROUP BY zakat_type
+            """)
+            by_type = cur.fetchall()
+            
+            cur.close()
+            
+            return {
+                'total': total,
+                'total_amount': float(total_amount),
+                'by_type': by_type
+            }
+        except Exception as e:
+            print("ReminderManager.get_stats error:", e)
+            return {'total': 0, 'total_amount': 0, 'by_type': []}

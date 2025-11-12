@@ -1,6 +1,6 @@
 /**
  * Reminder Flow Handler for Zakat Calculator
- * Manages step-by-step reminder opt-in process
+ * Manages step-by-step reminder opt-in process with year tracking
  */
 
 class ReminderHandler {
@@ -14,7 +14,8 @@ class ReminderHandler {
                 ic_number: null,
                 phone: null,
                 zakat_type: null,
-                zakat_amount: null
+                zakat_amount: null,
+                year: null  // Added year field
             }
         };
         
@@ -30,9 +31,13 @@ class ReminderHandler {
     }
 
     /**
-     * Start reminder collection flow
+     * Start reminder collection flow with year tracking
      */
-    startReminderFlow(zakatType, zakatAmount) {
+    startReminderFlow(zakatType, zakatAmount, year, yearType) {
+        // Format year with type (e.g., "2025 Masihi" or "1447 Hijrah")
+        const yearLabel = yearType === 'H' ? 'Hijrah' : 'Masihi';
+        const formattedYear = year ? `${year} ${yearLabel}` : '';
+        
         this.state = {
             active: true,
             waitingFor: null,
@@ -41,9 +46,12 @@ class ReminderHandler {
                 ic_number: null,
                 phone: null,
                 zakat_type: zakatType,
-                zakat_amount: zakatAmount
+                zakat_amount: zakatAmount,
+                year: formattedYear
             }
         };
+        
+        console.log('ReminderHandler started with:', this.state.data);
         
         // Show permission buttons
         setTimeout(() => {
@@ -245,6 +253,8 @@ class ReminderHandler {
     async submitReminder() {
         this.chatbot.setTyping(true);
         
+        console.log('Submitting reminder with data:', this.state.data);
+        
         try {
             const response = await fetch(`${window.CONFIG.API_BASE_URL}/api/save-reminder`, {
                 method: 'POST',
@@ -254,7 +264,8 @@ class ReminderHandler {
                     ic_number: this.state.data.ic_number,
                     phone: this.state.data.phone,
                     zakat_type: this.state.data.zakat_type,
-                    zakat_amount: this.state.data.zakat_amount
+                    zakat_amount: this.state.data.zakat_amount,
+                    year: this.state.data.year  // Include year in submission
                 })
             });
             
@@ -302,7 +313,8 @@ class ReminderHandler {
                 ic_number: null,
                 phone: null,
                 zakat_type: null,
-                zakat_amount: null
+                zakat_amount: null,
+                year: null
             }
         };
     }

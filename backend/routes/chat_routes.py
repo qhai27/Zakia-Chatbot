@@ -198,6 +198,8 @@ def api_save_reminder():
     ic_number = (payload.get('ic_number') or '').strip()
     phone = (payload.get('phone') or '').strip()
     zakat_type = (payload.get('zakat_type') or '').strip()
+    year = (payload.get('year') or '').strip()  # Get year field
+    
     try:
         zakat_amount = float(payload.get('zakat_amount')) if payload.get('zakat_amount') not in (None, '') else None
     except Exception:
@@ -215,9 +217,9 @@ def api_save_reminder():
         cur = conn.cursor()
         now = datetime.datetime.utcnow().replace(microsecond=0)
         cur.execute("""
-            INSERT INTO reminders (name, ic_number, phone, zakat_type, zakat_amount, created_at, updated_at)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
-        """, (name, ic_number, phone, zakat_type, zakat_amount, now, now))
+            INSERT INTO reminders (name, ic_number, phone, zakat_type, zakat_amount, year, created_at, updated_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """, (name, ic_number, phone, zakat_type, zakat_amount, year, now, now))
         conn.commit()
         cur.close()
         reply = f"✅ Terima kasih {name.split(' ')[0]}. Maklumat peringatan telah disimpan."
