@@ -18,9 +18,23 @@ def get_reminder_manager():
     """Get or create reminder manager instance"""
     global rm
     if rm is None:
-        if not db.connection or not db.connection.is_connected():
-            db.connect()
-        rm = ReminderManager(db, auto_create=False)
+        try:
+            # Ensure database connection
+            if not db.connection or not db.connection.is_connected():
+                if not db.connect():
+                    print("❌ Failed to connect to database in get_reminder_manager")
+                    raise Exception("Database connection failed")
+            
+            rm = ReminderManager(db, auto_create=True)
+            # Ensure table exists (this is safe to call multiple times)
+            if not rm.create_reminder_table():
+                print("⚠️ Warning: Could not create reminders table, but continuing anyway")
+        except Exception as e:
+            print(f"❌ Error initializing reminder manager: {e}")
+            import traceback
+            traceback.print_exc()
+            # Re-raise to let the route handler catch it
+            raise
     return rm
 
 @admin_reminder_bp.route('', methods=['GET'])
@@ -49,27 +63,61 @@ def list_reminders():
         
         # Ensure database connection
         if not db.connection or not db.connection.is_connected():
+            print("⚠️ Database not connected, attempting to connect...")
             if not db.connect():
+                print("❌ Database connection failed")
                 return jsonify({
                     "success": False,
                     "reminders": [],
+                    "count": 0,
                     "error": "Database connection failed"
                 }), 500
+            print("✅ Database connected successfully")
         
         # Get reminder manager and fetch reminders
-        manager = get_reminder_manager()
-        reminders = manager.list(
-            limit=limit,
-            offset=offset,
-            search=search,
-            zakat_type=zakat_type
-        )
+        try:
+            manager = get_reminder_manager()
+        except Exception as mgr_error:
+            print(f"❌ Failed to get reminder manager: {mgr_error}")
+            return jsonify({
+                "success": False,
+                "reminders": [],
+                "error": "Failed to initialize reminder manager"
+            }), 500
         
-        return jsonify({
-            "success": True,
-            "reminders": reminders,
-            "count": len(reminders)
-        })
+        # Fetch reminders with error handling
+        try:
+            reminders = manager.list(
+                limit=limit,
+                offset=offset,
+                search=search,
+                zakat_type=zakat_type
+            )
+            
+            # Ensure reminders is a list
+            if not isinstance(reminders, list):
+                print("⚠️ manager.list() did not return a list, converting...")
+                reminders = []
+            
+            # Log success for debugging
+            print(f"✅ Successfully fetched {len(reminders)} reminders")
+            
+            return jsonify({
+                "success": True,
+                "reminders": reminders,
+                "count": len(reminders)
+            })
+        except Exception as list_error:
+            print(f"❌ Error in manager.list(): {list_error}")
+            import traceback
+            traceback.print_exc()
+            # Return error response instead of empty success
+            return jsonify({
+                "success": False,
+                "reminders": [],
+                "count": 0,
+                "error": f"Failed to fetch reminders: {str(list_error)}"
+            }), 500
         
     except ValueError as e:
         return jsonify({
@@ -109,20 +157,57 @@ def get_stats():
     try:
         # Ensure database connection
         if not db.connection or not db.connection.is_connected():
+            print("⚠️ Database not connected for stats, attempting to connect...")
             if not db.connect():
+                print("❌ Database connection failed for stats")
                 return jsonify({
                     "success": False,
                     "error": "Database connection failed"
                 }), 500
+            print("✅ Database connected successfully for stats")
         
-        # Get stats
-        manager = get_reminder_manager()
-        stats = manager.get_stats()
+        # Get reminder manager (this will ensure table exists)
+        try:
+            manager = get_reminder_manager()
+        except Exception as mgr_error:
+            print(f"❌ Failed to get reminder manager for stats: {mgr_error}")
+            return jsonify({
+                "success": False,
+                "error": "Failed to initialize reminder manager"
+            }), 500
         
-        return jsonify({
-            "success": True,
-            "stats": stats
-        })
+        # Get stats with error handling
+        try:
+            stats = manager.get_stats()
+            
+            # Validate stats structure
+            if not isinstance(stats, dict):
+                print("⚠️ manager.get_stats() did not return a dict, using defaults")
+                stats = {'total': 0, 'total_amount': 0, 'by_type': []}
+            
+            # Ensure all required fields exist
+            if 'total' not in stats:
+                stats['total'] = 0
+            if 'total_amount' not in stats:
+                stats['total_amount'] = 0
+            if 'by_type' not in stats:
+                stats['by_type'] = []
+            
+            print(f"✅ Successfully fetched stats: {stats.get('total', 0)} reminders")
+            
+            return jsonify({
+                "success": True,
+                "stats": stats
+            })
+        except Exception as stats_error:
+            print(f"❌ Error in manager.get_stats(): {stats_error}")
+            import traceback
+            traceback.print_exc()
+            # Return empty stats instead of failing
+            return jsonify({
+                "success": True,
+                "stats": {'total': 0, 'total_amount': 0, 'by_type': []}
+            })
         
     except Exception as e:
         print(f"Error getting stats: {e}")

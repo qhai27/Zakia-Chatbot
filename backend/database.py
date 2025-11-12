@@ -1,10 +1,15 @@
 import mysql.connector
 from mysql.connector import Error
+from mysql.connector import pooling
 import json
 from datetime import datetime
 from config import Config
 
 class DatabaseManager:
+    # Class-level connection pool
+    _pool = None
+    _pool_name = "lznk_pool"
+    
     def __init__(self, host=None, user=None, password=None, database=None):
         # Default MySQL connection settings
         self.host = host or 'localhost'
@@ -13,21 +18,82 @@ class DatabaseManager:
         self.database = database or 'lznk_chatbot'
         self.connection = None
         
-    def connect(self):
-        """Establish database connection"""
+        # Initialize pool if not exists
+        if DatabaseManager._pool is None:
+            self._init_pool()
+    
+    def _init_pool(self):
+        """Initialize connection pool"""
         try:
+            DatabaseManager._pool = pooling.MySQLConnectionPool(
+                pool_name=self._pool_name,
+                pool_size=5,
+                pool_reset_session=True,
+                host=self.host,
+                user=self.user,
+                password=self.password,
+                database=self.database,
+                autocommit=False,
+                connect_timeout=10,
+                charset='utf8mb4',
+                collation='utf8mb4_general_ci'
+            )
+            print(f"✅ Connection pool initialized (size: 5)")
+        except Error as e:
+            print(f"⚠️ Could not create connection pool: {e}")
+            DatabaseManager._pool = None
+    
+    def connect(self):
+        """Get connection from pool or create new connection"""
+        try:
+            # Try to get from pool first
+            if DatabaseManager._pool is not None:
+                self.connection = DatabaseManager._pool.get_connection()
+                if self.connection.is_connected():
+                    print("✅ Got connection from pool")
+                    return True
+            
+            # Fallback to direct connection
             self.connection = mysql.connector.connect(
                 host=self.host,
                 user=self.user,
                 password=self.password,
-                database=self.database
+                database=self.database,
+                autocommit=False,
+                connect_timeout=10,
+                charset='utf8mb4',
+                collation='utf8mb4_general_ci',
+                # Add these to prevent connection loss
+                use_pure=True,
+                pool_size=5,
+                pool_reset_session=True
             )
+            
             if self.connection.is_connected():
-                print("Connected to MySQL database")
+                print("✅ Connected to MySQL database (direct)")
                 return True
+                
         except Error as e:
-            print(f"Error connecting to MySQL: {e}")
+            print(f"❌ Error connecting to MySQL: {e}")
+            self.connection = None
             return False
+        
+        return False
+    
+    def ensure_connection(self):
+        """Ensure connection is alive, reconnect if needed"""
+        try:
+            if self.connection is None or not self.connection.is_connected():
+                print("⚠️ Connection lost, reconnecting...")
+                return self.connect()
+            
+            # Ping to check if connection is alive
+            self.connection.ping(reconnect=True, attempts=3, delay=1)
+            return True
+            
+        except Error as e:
+            print(f"⚠️ Connection check failed: {e}, reconnecting...")
+            return self.connect()
     
     def create_database(self):
         """Create database if it doesn't exist"""
@@ -35,21 +101,22 @@ class DatabaseManager:
             connection = mysql.connector.connect(
                 host=self.host,
                 user=self.user,
-                password=self.password
+                password=self.password,
+                autocommit=True
             )
             cursor = connection.cursor()
-            cursor.execute(f"CREATE DATABASE IF NOT EXISTS {self.database}")
-            print(f"Database '{self.database}' created or already exists")
+            cursor.execute(f"CREATE DATABASE IF NOT EXISTS {self.database} CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci")
+            print(f"✅ Database '{self.database}' created or already exists")
             cursor.close()
             connection.close()
             return True
         except Error as e:
-            print(f"Error creating database: {e}")
+            print(f"❌ Error creating database: {e}")
             return False
     
     def create_tables(self):
         """Create necessary tables"""
-        if not self.connection:
+        if not self.ensure_connection():
             return False
             
         try:
@@ -64,7 +131,7 @@ class DatabaseManager:
                     category VARCHAR(100),
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-                )
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """)
             
             # Chat logs table
@@ -75,7 +142,7 @@ class DatabaseManager:
                     bot_response TEXT NOT NULL,
                     session_id VARCHAR(100),
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """)
             
             # Users table for session management
@@ -85,21 +152,21 @@ class DatabaseManager:
                     session_id VARCHAR(100) UNIQUE,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-                )
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """)
             
             self.connection.commit()
             cursor.close()
-            print("Tables created successfully")
+            print("✅ Tables created successfully")
             return True
             
         except Error as e:
-            print(f"Error creating tables: {e}")
+            print(f"❌ Error creating tables: {e}")
             return False
     
     def insert_faqs(self):
         """Insert initial FAQ data"""
-        if not self.connection:
+        if not self.ensure_connection():
             return False
             
         try:
@@ -110,7 +177,7 @@ class DatabaseManager:
             count = cursor.fetchone()[0]
             
             if count > 0:
-                print("FAQs already exist, skipping insertion")
+                print("ℹ️ FAQs already exist, skipping insertion")
                 cursor.close()
                 return True
             
@@ -124,15 +191,8 @@ class DatabaseManager:
                 ("Berapakah kadar zakat emas?", "Kadar zakat emas ialah 2.5% daripada nilai emas yang mencukupi nisab.", "Kadar"),
                 ("Bagaimana mengira zakat perniagaan?", "Zakat perniagaan dikira 2.5% daripada modal kerja dan keuntungan bersih selepas tolak hutang dan perbelanjaan operasi.", "Perniagaan"),
                 ("Bilakah haul zakat bermula?", "Haul zakat bermula dari tarikh harta mencapai nisab dan berterusan selama 12 bulan hijrah.", "Haul"),
-                # LZNK Company FAQs
                 ("Apa itu LZNK?", "LZNK (Lembaga Zakat Negeri Kedah) ialah badan berkanun yang bertanggungjawab menguruskan zakat di Negeri Kedah Darul Aman.", "LZNK"),
                 ("Di mana lokasi pejabat LZNK?", "Pejabat utama LZNK terletak di Alor Setar, Kedah. LZNK juga mempunyai cawangan di seluruh negeri Kedah.", "LZNK"),
-                ("Apakah perkhidmatan yang ditawarkan LZNK?", "LZNK menawarkan perkhidmatan pengutipan zakat, pengagihan zakat kepada asnaf, pendidikan zakat, dan khidmat nasihat zakat.", "LZNK"),
-                ("Bagaimana cara menghubungi LZNK?", "Anda boleh menghubungi LZNK melalui telefon, email, atau melawat pejabat LZNK yang terdekat.", "LZNK"),
-                ("Apakah program bantuan LZNK?", "LZNK menjalankan pelbagai program bantuan untuk asnaf termasuk bantuan pendidikan, perubatan, dan keperluan asas.", "LZNK"),
-                ("Bilakah LZNK ditubuhkan?", "LZNK ditubuhkan sebagai badan berkanun untuk menguruskan zakat di Negeri Kedah secara sistematik dan profesional.", "LZNK"),
-                ("Siapa yang layak menerima bantuan LZNK?", "Bantuan LZNK diberikan kepada 8 golongan asnaf yang layak menerima zakat mengikut syariat Islam.", "LZNK"),
-                ("Bagaimana LZNK memastikan ketelusan?", "LZNK mengamalkan prinsip ketelusan dalam pengurusan zakat dengan laporan kewangan yang boleh diakses oleh orang ramai.", "LZNK")
             ]
             
             cursor.executemany("""
@@ -142,16 +202,16 @@ class DatabaseManager:
             
             self.connection.commit()
             cursor.close()
-            print("FAQ data inserted successfully")
+            print("✅ FAQ data inserted successfully")
             return True
             
         except Error as e:
-            print(f"Error inserting FAQs: {e}")
+            print(f"❌ Error inserting FAQs: {e}")
             return False
     
     def get_faqs(self):
         """Get all FAQs from database"""
-        if not self.connection:
+        if not self.ensure_connection():
             return []
             
         try:
@@ -161,12 +221,12 @@ class DatabaseManager:
             cursor.close()
             return faqs
         except Error as e:
-            print(f"Error fetching FAQs: {e}")
+            print(f"❌ Error fetching FAQs: {e}")
             return []
 
     def get_faq_by_id(self, faq_id):
         """Get a single FAQ by id"""
-        if not self.connection:
+        if not self.ensure_connection():
             return None
         try:
             cursor = self.connection.cursor(dictionary=True)
@@ -175,12 +235,12 @@ class DatabaseManager:
             cursor.close()
             return faq
         except Error as e:
-            print(f"Error fetching FAQ by id: {e}")
+            print(f"❌ Error fetching FAQ by id: {e}")
             return None
 
     def create_faq(self, question, answer, category=None):
         """Create a new FAQ"""
-        if not self.connection:
+        if not self.ensure_connection():
             return None
         try:
             cursor = self.connection.cursor()
@@ -196,12 +256,12 @@ class DatabaseManager:
             cursor.close()
             return new_id
         except Error as e:
-            print(f"Error creating FAQ: {e}")
+            print(f"❌ Error creating FAQ: {e}")
             return None
 
     def update_faq(self, faq_id, question, answer, category=None):
         """Update an existing FAQ"""
-        if not self.connection:
+        if not self.ensure_connection():
             return False
         try:
             cursor = self.connection.cursor()
@@ -218,12 +278,12 @@ class DatabaseManager:
             cursor.close()
             return affected > 0
         except Error as e:
-            print(f"Error updating FAQ: {e}")
+            print(f"❌ Error updating FAQ: {e}")
             return False
 
     def delete_faq(self, faq_id):
         """Delete an FAQ by id"""
-        if not self.connection:
+        if not self.ensure_connection():
             return False
         try:
             cursor = self.connection.cursor()
@@ -233,12 +293,12 @@ class DatabaseManager:
             cursor.close()
             return affected > 0
         except Error as e:
-            print(f"Error deleting FAQ: {e}")
+            print(f"❌ Error deleting FAQ: {e}")
             return False
     
     def log_chat(self, user_message, bot_response, session_id=None):
         """Log chat interaction"""
-        if not self.connection:
+        if not self.ensure_connection():
             return False
             
         try:
@@ -251,11 +311,11 @@ class DatabaseManager:
             cursor.close()
             return True
         except Error as e:
-            print(f"Error logging chat: {e}")
+            print(f"❌ Error logging chat: {e}")
             return False
     
     def close(self):
         """Close database connection"""
         if self.connection and self.connection.is_connected():
             self.connection.close()
-            print("MySQL connection closed")
+            print("🔒 MySQL connection closed")

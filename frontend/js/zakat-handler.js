@@ -15,10 +15,10 @@ class ZakatHandler {
             year: null,
             availableYears: []
         };
-        
+
         // Initialize reminder handler
         this.reminderHandler = new window.ReminderHandler(chatbot);
-        
+
         this.zakatTypes = {
             income: {
                 name: 'Zakat Pendapatan',
@@ -46,30 +46,30 @@ class ZakatHandler {
 
     detectZakatIntent(message) {
         const msg = message.toLowerCase();
-        
-        if (msg.includes('kira zakat pendapatan') || 
-            msg.includes('zakat pendapatan') || 
+
+        if (msg.includes('kira zakat pendapatan') ||
+            msg.includes('zakat pendapatan') ||
             msg.includes('zakat gaji') ||
             msg.includes('zakat income')) {
             return 'income';
         }
-        
-        if (msg.includes('kira zakat simpanan') || 
-            msg.includes('zakat simpanan') || 
+
+        if (msg.includes('kira zakat simpanan') ||
+            msg.includes('zakat simpanan') ||
             msg.includes('zakat wang') ||
             msg.includes('zakat savings')) {
             return 'savings';
         }
-        
-        if ((msg.includes('kira zakat') || msg.includes('kalkulator zakat')) && 
+
+        if ((msg.includes('kira zakat') || msg.includes('kalkulator zakat')) &&
             !this.state.active) {
             return 'menu';
         }
-        
+
         if (msg.includes('nisab') && !this.state.active) {
             return 'nisab';
         }
-        
+
         return null;
     }
 
@@ -90,7 +90,7 @@ class ZakatHandler {
                 </div>
             </div>
         `;
-        
+
         this.chatbot.appendMessage(menuHTML, 'bot', true);
         this.attachMenuListeners();
     }
@@ -102,7 +102,7 @@ class ZakatHandler {
                 const type = e.target.getAttribute('data-type');
                 buttons.forEach(b => b.disabled = true);
                 e.target.classList.add('selected');
-                
+
                 if (type === 'nisab') {
                     this.showNisabYearSelection();
                 } else {
@@ -122,7 +122,7 @@ class ZakatHandler {
             year: null,
             availableYears: []
         };
-        
+
         setTimeout(() => {
             this.showYearTypeSelection();
         }, 500);
@@ -146,7 +146,7 @@ class ZakatHandler {
                 </div>
             </div>
         `;
-        
+
         this.chatbot.appendMessage(html, 'bot', true);
         this.attachYearTypeListeners();
     }
@@ -154,19 +154,19 @@ class ZakatHandler {
     attachYearTypeListeners() {
         const buttons = document.querySelectorAll('.zakat-year-type-btn');
         const cancelBtns = document.querySelectorAll('.zakat-cancel-btn');
-        
+
         buttons.forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 const yearType = e.target.getAttribute('data-year-type');
                 buttons.forEach(b => b.disabled = true);
                 cancelBtns.forEach(cb => cb.disabled = true);
                 e.target.classList.add('selected');
-                
+
                 this.state.yearType = yearType;
                 await this.fetchAndShowYears(yearType);
             });
         });
-        
+
         cancelBtns.forEach(btn => {
             if (!btn.dataset.zakatCancelAttached) {
                 btn.addEventListener('click', () => this.cancel());
@@ -177,11 +177,11 @@ class ZakatHandler {
 
     async fetchAndShowYears(yearType) {
         this.chatbot.setTyping(true);
-        
+
         try {
-            const response = await fetch(`${window.CONFIG.API_BASE_URL}/zakat/years?type=${yearType}`);
+            const response = await fetch(`${window.CONFIG.API_BASE_URL}/api/zakat/years?type=${yearType}`);
             const data = await response.json();
-            
+
             if (data.success && data.years && Array.isArray(data.years)) {
                 this.state.availableYears = data.years;
                 setTimeout(() => {
@@ -194,11 +194,11 @@ class ZakatHandler {
         } catch (error) {
             console.error('Error fetching years:', error);
             this.chatbot.setTyping(false);
-            
-            const defaultYears = yearType === 'H' 
-                ? ['1448','1447', '1446', '1445'] 
+
+            const defaultYears = yearType === 'H'
+                ? ['1448', '1447', '1446', '1445']
                 : ['2025', '2024', '2023', '2022'];
-            
+
             this.chatbot.appendMessage('ℹ️ Menggunakan tahun tersedia...', 'bot');
             setTimeout(() => {
                 this.showYearSelection(defaultYears, yearType);
@@ -210,17 +210,17 @@ class ZakatHandler {
         const config = this.zakatTypes[this.state.type];
         const yearLabel = yearType === 'H' ? 'Hijrah' : 'Masihi';
         const displayYears = Array.isArray(years) ? years.slice(0, 5) : [];
-        
+
         if (displayYears.length === 0) {
-            displayYears.push(...(yearType === 'H' 
-                ? ['1448', '1447', '1446'] 
+            displayYears.push(...(yearType === 'H'
+                ? ['1448', '1447', '1446']
                 : ['2025', '2024', '2023']));
         }
-        
-        const yearButtons = displayYears.map(year => 
+
+        const yearButtons = displayYears.map(year =>
             `<button class="zakat-year-btn" data-year="${year}">${year} ${yearLabel}</button>`
         ).join('');
-        
+
         const html = `
             <div class="zakat-year-list">
                 <p style="margin-bottom: 12px; font-weight: 600;">📅 ${config.prompts.year}</p>
@@ -230,7 +230,7 @@ class ZakatHandler {
                 </div>
             </div>
         `;
-        
+
         this.chatbot.appendMessage(html, 'bot', true);
         this.attachYearListeners();
     }
@@ -238,16 +238,16 @@ class ZakatHandler {
     attachYearListeners() {
         const buttons = document.querySelectorAll('.zakat-year-btn');
         const cancelBtns = document.querySelectorAll('.zakat-cancel-btn');
-        
+
         buttons.forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const year = e.target.getAttribute('data-year');
                 buttons.forEach(b => b.disabled = true);
                 cancelBtns.forEach(cb => cb.disabled = true);
                 e.target.classList.add('selected');
-                
+
                 this.state.year = year;
-                
+
                 if (this.state.type === 'nisab') {
                     setTimeout(() => {
                         this.fetchNisabInfo();
@@ -260,7 +260,7 @@ class ZakatHandler {
                 }
             });
         });
-        
+
         cancelBtns.forEach(btn => {
             if (!btn.dataset.zakatCancelAttached) {
                 btn.addEventListener('click', () => this.cancel());
@@ -279,7 +279,7 @@ class ZakatHandler {
             year: null,
             availableYears: []
         };
-        
+
         this.zakatTypes.nisab = {
             name: 'Maklumat Nisab',
             icon: '📊',
@@ -289,7 +289,7 @@ class ZakatHandler {
                 year: 'Sila pilih tahun:'
             }
         };
-        
+
         setTimeout(() => {
             this.showYearTypeSelection();
         }, 300);
@@ -299,7 +299,7 @@ class ZakatHandler {
         const config = this.zakatTypes[this.state.type];
         const currentStepName = config.steps[this.state.step];
         const prompt = config.prompts[currentStepName];
-        
+
         if (currentStepName !== 'year_type' && currentStepName !== 'year') {
             this.chatbot.appendMessage(prompt, 'bot');
         }
@@ -310,19 +310,19 @@ class ZakatHandler {
         if (this.reminderHandler && this.reminderHandler.isActive()) {
             return this.reminderHandler.processInput(message);
         }
-        
+
         if (!this.state.active) return false;
-        
+
         if (this.state.step < 2) {
             this.chatbot.appendMessage('Sila gunakan butang untuk memilih.', 'bot');
             return true;
         }
-        
+
         const config = this.zakatTypes[this.state.type];
         const currentStepName = config.steps[this.state.step];
-        
+
         const value = this.validateInput(message, currentStepName);
-        
+
         if (value === null) {
             this.chatbot.appendMessage(
                 '❌ Nilai tidak sah. Sila masukkan nombor yang betul.',
@@ -330,36 +330,37 @@ class ZakatHandler {
             );
             return true;
         }
-        
+
         this.state.data[currentStepName] = value;
         this.state.step++;
-        
+
         if (this.state.step >= config.steps.length) {
             this.calculateZakat();
             return true;
         }
-        
+
         setTimeout(() => {
             this.askNextQuestion();
         }, 500);
-        
+
         return true;
     }
 
     validateInput(message, stepName) {
         const cleaned = message.replace(/[RM,\s]/gi, '').trim();
         const number = parseFloat(cleaned);
-        
+
         if (isNaN(number) || number < 0) {
             return null;
         }
-        
+
         return number;
     }
 
     async calculateZakat() {
         this.chatbot.setTyping(true);
-        
+        let shouldResetState = true; // Track if we should reset state
+
         try {
             const payload = {
                 type: this.state.type,
@@ -367,27 +368,38 @@ class ZakatHandler {
                 year: this.state.year,
                 year_type: this.state.yearType
             };
-            
+
             if (this.state.type === 'income') {
                 payload.expenses = this.state.data.expenses;
             }
-            
-            const response = await fetch(`${window.CONFIG.API_BASE_URL}/calculate-zakat`, {
+
+            const response = await fetch(`${window.CONFIG.API_BASE_URL}/api/calculate-zakat`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
-            
+
             const data = await response.json();
-            
+
             if (data.success) {
+                // Store state values before resetting (needed for reminder)
+                const zakatType = this.state.type;
+                const year = this.state.year;
+                const yearType = this.state.yearType;
+
+                // Check if reminder will be offered - if so, don't reset state yet
+                if (data.data.reaches_nisab && data.data.zakat_amount > 0) {
+                    shouldResetState = false; // Don't reset in finally block
+                }
+
                 setTimeout(() => {
                     this.displayResult(data.reply, data.data);
-                    
+
                     // Check if zakat exceeds nisab and offer reminder
                     if (data.data.reaches_nisab && data.data.zakat_amount > 0) {
                         setTimeout(() => {
-                            this.offerReminder(data.data);
+                            // Pass stored values to offerReminder
+                            this.offerReminder(data.data, zakatType, year, yearType);
                         }, 1000);
                     }
                 }, 800);
@@ -397,7 +409,7 @@ class ZakatHandler {
                     'bot'
                 );
             }
-            
+
         } catch (error) {
             console.error('Zakat calculation error:', error);
             this.chatbot.appendMessage(
@@ -406,7 +418,11 @@ class ZakatHandler {
             );
         } finally {
             this.chatbot.setTyping(false);
-            this.resetState();
+            // Only reset state if reminder won't be offered
+            // If reminder will be offered, state will be reset after reminder flow completes
+            if (shouldResetState) {
+                this.resetState();
+            }
         }
     }
 
@@ -417,7 +433,7 @@ class ZakatHandler {
                 ${this.createActionButtons(data)}
             </div>
         `;
-        
+
         this.chatbot.appendMessage(resultHTML, 'bot', true);
         this.animateResult();
     }
@@ -428,7 +444,7 @@ class ZakatHandler {
             const withBold = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
             return `<p>${withBold}</p>`;
         }).join('');
-        
+
         return paragraphs;
     }
 
@@ -445,11 +461,11 @@ class ZakatHandler {
     animateResult() {
         const cards = document.querySelectorAll('.zakat-result-card');
         const lastCard = cards[cards.length - 1];
-        
+
         if (lastCard) {
             lastCard.style.opacity = '0';
             lastCard.style.transform = 'translateY(20px)';
-            
+
             setTimeout(() => {
                 lastCard.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
                 lastCard.style.opacity = '1';
@@ -459,43 +475,68 @@ class ZakatHandler {
     }
 
 
-// Update the offerReminder method in zakat-handler.js
-// This ensures the zakat type is properly passed to the reminder handler
+    // Update the offerReminder method in zakat-handler.js
+    // This ensures the zakat type is properly passed to the reminder handler
 
-offerReminder(zakatData) {
-    // Map the calculation type to proper zakat type name
-    const zakatTypeMap = {
-        'income': 'pendapatan',
-        'savings': 'simpanan'
-    };
-    
-    const zakatType = zakatTypeMap[this.state.type] || this.state.type;
-    
-    console.log('Offering reminder with:', {
-        type: zakatType,
-        amount: zakatData.zakat_amount
-    });
-    
-    // Start reminder flow with proper zakat type
-    if (this.reminderHandler) {
-        this.reminderHandler.startReminderFlow(
-            zakatType,
-            zakatData.zakat_amount
-        );
+    offerReminder(zakatData, zakatTypeFromState = null, yearFromState = null, yearTypeFromState = null) {
+        // Map the calculation type to proper zakat type name
+        const zakatTypeMap = {
+            'income': 'pendapatan',
+            'savings': 'simpanan'
+        };
+
+        // Use passed values if available, otherwise try to get from state
+        const stateType = zakatTypeFromState !== null ? zakatTypeFromState : this.state.type;
+        let zakatType = zakatTypeMap[stateType] || stateType;
+
+        // Ensure zakat type is valid (pendapatan or simpanan)
+        if (!zakatType || (zakatType !== 'pendapatan' && zakatType !== 'simpanan')) {
+            console.warn('Invalid zakat type, defaulting to pendapatan:', zakatType);
+            zakatType = 'pendapatan';
+        }
+
+        // Get year and yearType from passed values or state (these come from user button selection)
+        const year = yearFromState !== null ? yearFromState : (this.state.year || '');
+        const yearType = yearTypeFromState !== null ? yearTypeFromState : (this.state.yearType || 'M'); // Default to Masihi if not set
+
+        console.log('Offering reminder with:', {
+            type: zakatType,
+            amount: zakatData.zakat_amount,
+            year: year,
+            yearType: yearType
+        });
+
+        // Start reminder flow with proper zakat type, year, and yearType
+        if (this.reminderHandler) {
+            this.reminderHandler.startReminderFlow(
+                zakatType,
+                zakatData.zakat_amount,
+                year,
+                yearType
+            );
+
+            // Reset state after reminder flow is started
+            // The reminder handler will manage its own state
+            setTimeout(() => {
+                this.resetState();
+            }, 100);
+        } else {
+            // If no reminder handler, reset state immediately
+            this.resetState();
+        }
     }
-}
-    
+
 
     async fetchNisabInfo() {
         if (this.state.year && this.state.yearType) {
             this.chatbot.setTyping(true);
-            
+
             try {
                 const response = await fetch(
-                    `${window.CONFIG.API_BASE_URL}/zakat/nisab-info?year=${this.state.year}&type=${this.state.yearType}`
+                    `${window.CONFIG.API_BASE_URL}/api/zakat/nisab-info?year=${this.state.year}&type=${this.state.yearType}`
                 );
                 const data = await response.json();
-                
+
                 if (data.success) {
                     setTimeout(() => {
                         this.chatbot.setTyping(false);

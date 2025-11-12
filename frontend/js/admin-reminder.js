@@ -2,7 +2,7 @@
 // ADMIN REMINDERS HANDLER
 // =========================
 
-(function() {
+(function () {
     document.addEventListener('DOMContentLoaded', () => {
         const CONFIG = {
             API_BASE: 'http://127.0.0.1:5000/admin/reminders',
@@ -42,16 +42,16 @@
             item.addEventListener('click', (e) => {
                 e.preventDefault();
                 const section = item.getAttribute('data-section');
-                
+
                 // Update active nav
                 navItems.forEach(nav => nav.classList.remove('active'));
                 item.classList.add('active');
-                
+
                 // Show appropriate section
                 document.querySelectorAll('.content-section').forEach(sec => {
                     sec.style.display = 'none';
                 });
-                
+
                 if (section === 'reminders') {
                     document.getElementById('remindersSection').style.display = 'block';
                     ReminderOperations.load();
@@ -103,7 +103,7 @@
                 if (!ic) return '';
                 // Format IC as 123456-12-1234
                 if (ic.length === 12) {
-                    return `${ic.substr(0,6)}-${ic.substr(6,2)}-${ic.substr(8,4)}`;
+                    return `${ic.substr(0, 6)}-${ic.substr(6, 2)}-${ic.substr(8, 4)}`;
                 }
                 return ic;
             },
@@ -112,14 +112,27 @@
                 if (!phone) return '';
                 // Format phone as 012-345 6789
                 if (phone.length >= 10) {
-                    return `${phone.substr(0,3)}-${phone.substr(3,3)} ${phone.substr(6)}`;
+                    return `${phone.substr(0, 3)}-${phone.substr(3, 3)} ${phone.substr(6)}`;
                 }
                 return phone;
             },
 
+            formatZakatType(zakatType) {
+                if (!zakatType) return 'N/A';
+                // Capitalize first letter: pendapatan -> Pendapatan, simpanan -> Simpanan
+                return zakatType.charAt(0).toUpperCase() + zakatType.slice(1).toLowerCase();
+            },
+
+            formatYear(year) {
+                if (!year) return 'N/A';
+                // Year should already be in format "2025 Masihi" or "1446 Hijrah"
+                // Just return it as is, or format if needed
+                return year.trim();
+            },
+
             renderReminders(reminders) {
                 if (!DOM.reminderTableBody) return;
-                
+
                 if (reminders.length === 0) {
                     DOM.reminderTableBody.innerHTML = '';
                     if (DOM.reminderEmptyState) DOM.reminderEmptyState.style.display = 'block';
@@ -137,10 +150,11 @@
                         <td>
                             <span class="zakat-type-badge ${r.zakat_type || 'umum'}">
                                 ${r.zakat_type === 'pendapatan' ? '💼' : '💰'} 
-                                ${this.escapeHtml(r.zakat_type || 'Umum')}
+                                ${this.escapeHtml(this.formatZakatType(r.zakat_type))}
                             </span>
                         </td>
                         <td class="amount-cell">${this.formatAmount(r.zakat_amount)}</td>
+                        <td class="year-cell">${this.escapeHtml(this.formatYear(r.year))}</td>
                         <td class="date-cell">${this.formatDate(r.created_at)}</td>
                         <td>
                             <div class="admin-actions">
@@ -256,19 +270,53 @@
                     limit: limit.toString(),
                     offset: offset.toString()
                 });
-                
+
                 if (search) params.append('search', search);
                 if (zakatType) params.append('zakat_type', zakatType);
 
                 const res = await fetch(`${CONFIG.API_BASE}?${params}`);
-                if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-                return await res.json();
+
+                if (!res.ok) {
+                    const errorData = await res.json().catch(() => ({}));
+                    const errorMsg = errorData.error || `HTTP ${res.status}: ${res.statusText}`;
+                    throw new Error(errorMsg);
+                }
+
+                const data = await res.json();
+
+                // Ensure response has expected structure
+                if (!data.hasOwnProperty('reminders')) {
+                    console.warn('Unexpected response format:', data);
+                    return { reminders: [], count: 0 };
+                }
+
+                return data;
             },
 
             async fetchStats() {
-                const res = await fetch(CONFIG.STATS_API);
-                if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-                return await res.json();
+                try {
+                    const res = await fetch(CONFIG.STATS_API);
+
+                    if (!res.ok) {
+                        const errorData = await res.json().catch(() => ({}));
+                        const errorMsg = errorData.error || `HTTP ${res.status}: ${res.statusText}`;
+                        throw new Error(errorMsg);
+                    }
+
+                    const data = await res.json();
+
+                    // Ensure response has expected structure
+                    if (!data.hasOwnProperty('stats')) {
+                        console.warn('Unexpected stats response format:', data);
+                        return { stats: null };
+                    }
+
+                    return data;
+                } catch (error) {
+                    console.error('Error fetching stats:', error);
+                    // Return default stats instead of throwing
+                    return { stats: { total: 0, total_amount: 0, by_type: [] } };
+                }
             },
 
             async deleteReminder(id) {
@@ -292,22 +340,40 @@
                     UIManager.showLoading(true);
                     UIManager.updateStatus('⏳ Memuat reminders...');
 
-                    // Load reminders and stats
-                    const [reminderData, statsData] = await Promise.all([
-                        APIService.fetchReminders(),
-                        APIService.fetchStats()
-                    ]);
+                    // Load reminders and stats separately to handle partial failures
+                    let reminderData = { reminders: [], count: 0 };
+                    let statsData = { stats: null };
+
+                    try {
+                        reminderData = await APIService.fetchReminders();
+                    } catch (reminderError) {
+                        console.error('Error fetching reminders:', reminderError);
+                        UIManager.updateStatus(`⚠️ Gagal memuat reminders: ${reminderError.message}`, true);
+                    }
+
+                    try {
+                        statsData = await APIService.fetchStats();
+                    } catch (statsError) {
+                        console.error('Error fetching stats:', statsError);
+                        // Stats error is less critical, just log it
+                    }
 
                     STATE.reminders = reminderData.reminders || [];
                     STATE.stats = statsData.stats || null;
-                    
+
                     this.applyFilters();
                     UIManager.updateStats(STATE.stats);
-                    UIManager.updateStatus(`✅ ${STATE.reminders.length} reminders loaded`);
+
+                    if (STATE.reminders.length > 0) {
+                        UIManager.updateStatus(`✅ ${STATE.reminders.length} reminders loaded`);
+                    } else {
+                        UIManager.updateStatus('ℹ️ Tiada reminders ditemui', false);
+                    }
                 } catch (error) {
                     console.error('Error loading reminders:', error);
                     UIManager.updateStatus(`❌ Error: ${error.message}`, true);
                     STATE.reminders = [];
+                    STATE.stats = null;
                     this.applyFilters();
                 } finally {
                     UIManager.showLoading(false);
@@ -319,11 +385,11 @@
                 const zakatType = DOM.zakatTypeFilter?.value || '';
 
                 STATE.filteredReminders = STATE.reminders.filter(r => {
-                    const matchesSearch = !search || 
+                    const matchesSearch = !search ||
                         (r.name && r.name.toLowerCase().includes(search)) ||
                         (r.ic_number && r.ic_number.includes(search)) ||
                         (r.phone && r.phone.includes(search));
-                    
+
                     const matchesType = !zakatType || r.zakat_type === zakatType;
 
                     return matchesSearch && matchesType;
@@ -391,7 +457,7 @@
                             <h2>${UIManager.escapeHtml(reminder.name)}</h2>
                             <span class="zakat-type-badge ${reminder.zakat_type}">
                                 ${reminder.zakat_type === 'pendapatan' ? '💼' : '💰'} 
-                                ${UIManager.escapeHtml(reminder.zakat_type || 'Umum')}
+                                ${UIManager.escapeHtml(UIManager.formatZakatType(reminder.zakat_type))}
                             </span>
                         </div>
                         
@@ -410,7 +476,11 @@
                             </div>
                             <div class="detail-item">
                                 <label>Jenis Zakat:</label>
-                                <span>${UIManager.escapeHtml(reminder.zakat_type || 'N/A')}</span>
+                                <span>${UIManager.escapeHtml(UIManager.formatZakatType(reminder.zakat_type))}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Tahun:</label>
+                                <span>${UIManager.escapeHtml(UIManager.formatYear(reminder.year))}</span>
                             </div>
                             <div class="detail-item highlight">
                                 <label>Jumlah Zakat:</label>
@@ -437,14 +507,15 @@
                     return;
                 }
 
-                const headers = ['ID', 'Name', 'IC Number', 'Phone', 'Zakat Type', 'Zakat Amount', 'Created Date'];
+                const headers = ['ID', 'Name', 'IC Number', 'Phone', 'Jenis Zakat', 'Zakat Amount', 'Tahun', 'Tarikh Daftar'];
                 const rows = STATE.filteredReminders.map(r => [
                     r.id,
                     r.name,
                     r.ic_number,
                     r.phone,
-                    r.zakat_type || '',
+                    UIManager.formatZakatType(r.zakat_type),
                     r.zakat_amount || 0,
+                    UIManager.formatYear(r.year),
                     r.created_at || ''
                 ]);
 
@@ -456,11 +527,11 @@
                 const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
                 const link = document.createElement('a');
                 const url = URL.createObjectURL(blob);
-                
+
                 link.setAttribute('href', url);
                 link.setAttribute('download', `reminders_${new Date().toISOString().split('T')[0]}.csv`);
                 link.style.visibility = 'hidden';
-                
+
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
@@ -476,11 +547,11 @@
 
                 const printWindow = window.open('', '_blank');
                 const content = this.generatePrintContent(STATE.filteredReminders, STATE.stats);
-                
+
                 printWindow.document.write(content);
                 printWindow.document.close();
                 printWindow.focus();
-                
+
                 setTimeout(() => {
                     printWindow.print();
                 }, 500);
@@ -489,11 +560,11 @@
             printSingle(reminder) {
                 const printWindow = window.open('', '_blank');
                 const content = this.generateSinglePrintContent(reminder);
-                
+
                 printWindow.document.write(content);
                 printWindow.document.close();
                 printWindow.focus();
-                
+
                 setTimeout(() => {
                     printWindow.print();
                 }, 500);
@@ -562,7 +633,8 @@
                                     <th>Phone</th>
                                     <th>Zakat Type</th>
                                     <th>Amount (RM)</th>
-                                    <th>Date</th>
+                                    <th>Tahun</th>
+                                    <th>Tarikh Daftar</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -572,8 +644,9 @@
                                         <td>${UIManager.escapeHtml(r.name)}</td>
                                         <td>${UIManager.formatIC(r.ic_number)}</td>
                                         <td>${UIManager.formatPhone(r.phone)}</td>
-                                        <td>${UIManager.escapeHtml(r.zakat_type || 'N/A')}</td>
+                                        <td>${UIManager.escapeHtml(UIManager.formatZakatType(r.zakat_type))}</td>
                                         <td>${UIManager.formatAmount(r.zakat_amount)}</td>
+                                        <td>${UIManager.escapeHtml(UIManager.formatYear(r.year))}</td>
                                         <td>${UIManager.formatDate(r.created_at)}</td>
                                     </tr>
                                 `).join('')}
@@ -637,7 +710,11 @@
                             </div>
                             <div class="detail-row">
                                 <span class="detail-label">Zakat Type:</span>
-                                <span class="detail-value">${UIManager.escapeHtml(reminder.zakat_type || 'N/A')}</span>
+                                <span class="detail-value">${UIManager.escapeHtml(UIManager.formatZakatType(reminder.zakat_type))}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Tahun:</span>
+                                <span class="detail-value">${UIManager.escapeHtml(UIManager.formatYear(reminder.year))}</span>
                             </div>
                             
                             <div class="highlight">

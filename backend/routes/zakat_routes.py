@@ -5,7 +5,7 @@ zakat_bp = Blueprint('zakat', __name__)
 calculator = ZakatCalculator()
 
 
-@zakat_bp.route("/calculate-zakat", methods=["POST"])
+@zakat_bp.route("/api/calculate-zakat", methods=["POST"])
 def calculate_zakat():
     try:
         data = request.json
@@ -25,7 +25,7 @@ def calculate_zakat():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
-@zakat_bp.route("/zakat/nisab-info", methods=["GET"])
+@zakat_bp.route("/api/zakat/nisab-info", methods=["GET"])
 def nisab_info():
     year = request.args.get('year', '1447')
     year_type = request.args.get('type', 'H')

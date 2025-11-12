@@ -7,7 +7,12 @@ from flask import Flask
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)
+# Configure CORS to allow preflight requests from all origins
+CORS(app, 
+     origins="*",
+     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+     allow_headers=["Content-Type", "Authorization"],
+     supports_credentials=False)
 
 print("🚀 Starting ZAKIA Chatbot...")
 print("=" * 60)
@@ -48,7 +53,7 @@ except ImportError as e:
 
 # Import and register reminder routes
 try:
-    from reminder_routes import reminder_bp
+    from routes.reminder_routes import reminder_bp
     app.register_blueprint(reminder_bp)
     loaded_blueprints.append("✅ Reminder routes")
     print("✅ Reminder routes loaded successfully")
@@ -120,7 +125,7 @@ except ImportError as e:
 
 # Import and register admin reminder routes
 try:
-    from reminder_routes import admin_reminder_bp
+    from routes.admin_reminder_routes import admin_reminder_bp
     app.register_blueprint(admin_reminder_bp)
     loaded_blueprints.append("✅ Admin reminder routes")
     print("✅ Admin reminder routes loaded successfully")
@@ -260,7 +265,9 @@ if __name__ == "__main__":
             print("🌐 Flask server starting on http://localhost:5000")
             print("\n📋 Available endpoints:")
             print("   💬 Chat: POST /chat")
-            print("   💰 Zakat Calculator: POST /calculate-zakat")
+            print("   💰 Zakat Calculator: POST /api/calculate-zakat")
+            print("   📅 Zakat Years: GET /api/zakat/years")
+            print("   📊 Zakat Nisab Info: GET /api/zakat/nisab-info")
             print("   🔔 Save Reminder: POST /api/save-reminder")
             print("   📋 List Reminders: GET /api/reminders")
             print("   👨‍💼 Admin FAQs: GET /admin/faqs")
