@@ -22,21 +22,24 @@
 .zakat-type-btn {
     background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
     border: 2px solid #5DB996;
-    color: 
-    #157347;
-    padding: 16px 20px;
-    border-radius: 16px;
+    color: #157347;
+    padding: 14px 20px;
+    border-radius: 14px;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    text-align: center;
+    transition: all 0.3s ease;
     display: flex;
     align-items: center;
-    gap: 12px;
-    box-shadow: 0 2px 8px rgba(93, 185, 150, 0.1);
-    position: relative;
-    overflow: hidden;
+    justify-content: center;
+    width: 100%;
+    gap: 8px;
+    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.1);
+    margin: 0 auto; /* Center the button itself */
+    text-align: center;
+
+    
+    
 }
 
 .zakat-type-btn::before {
@@ -108,8 +111,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    width: 100%;
+    gap: 8px;
     box-shadow: 0 2px 6px rgba(59, 130, 246, 0.1);
+    margin: 0 auto; /* Center the button itself */
+    text-align: center;
 }
 
 .zakat-year-type-btn:hover:not(:disabled) {
@@ -148,8 +154,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 100%;
     gap: 8px;
     box-shadow: 0 2px 6px rgba(251, 191, 36, 0.1);
+    margin: 0 auto; /* Center the button itself */
+    text-align: center;
 }
 
 .zakat-year-btn:hover:not(:disabled) {
@@ -188,9 +197,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 100%;
     gap: 8px;
     box-shadow: 0 2px 6px rgba(239, 68, 68, 0.1);
-    margin-top: 4px;
+    margin: 4px auto 0 auto; /* Center the button itself */
+    text-align: center;
 }
 
 .zakat-cancel-btn:hover:not(:disabled) {
@@ -209,7 +220,30 @@
     cursor: not-allowed;
 }
 
-/* Result Card */
+/* Center the content inside buttons */
+.zakat-type-btn > span,
+.zakat-year-type-btn > span,
+.zakat-year-btn > span,
+.zakat-cancel-btn > span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    text-align: center;
+}
+
+/* Make sure emoji and text are perfectly aligned */
+.zakat-type-btn .emoji,
+.zakat-year-type-btn .emoji,
+.zakat-year-btn .emoji,
+.zakat-cancel-btn .emoji {
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 1;
+}
+
+/* Rest of your existing CSS remains the same... */
 .zakat-result-card {
     background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
     border-left: 4px solid #5DB996;
@@ -280,6 +314,8 @@
     justify-content: center;
     gap: 8px;
     box-shadow: 0 2px 8px rgba(93, 185, 150, 0.15);
+    text-align: center;
+    margin: 0 auto;
 }
 
 .btn-recalculate:hover {
@@ -384,7 +420,6 @@
     .zakat-year-btn {
         padding: 12px 16px;
         font-size: 14px;
-        font-style: center;
     }
     
     .zakat-result-card {
@@ -406,13 +441,6 @@
     box-shadow: 0 8px 24px rgba(93, 185, 150, 0.2);
     transform: translateY(-2px);
     transition: all 0.3s ease;
-}
-
-/* Icon spacing in buttons */
-.zakat-type-btn::before,
-.zakat-year-type-btn::before,
-.zakat-year-btn::before {
-    flex-shrink: 0;
 }
 
 /* Success checkmark animation */
