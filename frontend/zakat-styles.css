@@ -1,7 +1,6 @@
-/* ================================================
-   ENHANCED ZAKAT CALCULATOR STYLES
-   Modern, Clean Design for Chatbot Interface
-   ================================================ */
+/* ==========================
+   ZAKAT CALCULATOR STYLES 
+   ========================== */
 
 /* Zakat Menu Container */
 .zakat-menu,
@@ -20,26 +19,48 @@
 
 /* Main Zakat Type Buttons */
 .zakat-type-btn {
-    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-    border: 2px solid #5DB996;
-    color: #157347;
-    padding: 14px 20px;
-    border-radius: 14px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    /* Layout & Sizing */
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
+    padding: 14px 20px;
     gap: 8px;
-    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.1);
-    margin: 0 auto; /* Center the button itself */
+    
+    /* Positioning */
+    position: relative;
+    overflow: hidden;
+    
+    /* Styling */
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border: 2px solid #5DB996;
+    border-radius: 14px;
+    color: #157347;
+    
+    /* Typography */
+    font-size: 14px;
+    font-weight: 600;
     text-align: center;
+    line-height: 1;
+    white-space: nowrap;
+    
+    /* Effects */
+    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
+    /* Reset browser defaults */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    box-sizing: border-box;
+    margin: 0;
+}
 
-    
-    
+
+.zakat-type-btn * {
+    margin: 0;
+    padding: 0;
 }
 
 .zakat-type-btn::before {
@@ -51,6 +72,7 @@
     height: 100%;
     background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
     transition: left 0.5s;
+    pointer-events: none;
 }
 
 .zakat-type-btn:hover:not(:disabled)::before {
@@ -99,23 +121,47 @@
 
 /* Year Type Selection Buttons */
 .zakat-year-type-btn {
-    background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
-    border: 2px solid #3b82f6;
-    color: #1e40af;
-    padding: 14px 20px;
-    border-radius: 14px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    /* Layout & Sizing */
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
+    padding: 14px 20px;
     gap: 8px;
-    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.1);
-    margin: 0 auto; /* Center the button itself */
+    
+    /* Positioning */
+    position: relative;
+    overflow: hidden;
+    
+    /* Styling */
+    background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+    border: 2px solid #3b82f6;
+    border-radius: 14px;
+    color: #1e40af;
+    
+    /* Typography */
+    font-size: 14px;
+    font-weight: 600;
     text-align: center;
+    line-height: 1;
+    white-space: nowrap;
+    
+    /* Effects */
+    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
+    /* Reset browser defaults */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    box-sizing: border-box;
+    margin: 0;
+}
+
+.zakat-year-type-btn * {
+    margin: 0;
+    padding: 0;
 }
 
 .zakat-year-type-btn:hover:not(:disabled) {
@@ -142,23 +188,48 @@
 
 /* Year Selection Buttons */
 .zakat-year-btn {
-    background: linear-gradient(135deg, #ffffff 0%, #fef3c7 100%);
-    border: 2px solid #fbbf24;
-    color: #92400e;
-    padding: 14px 20px;
-    border-radius: 14px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    /* Layout & Sizing */
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
+    padding: 14px 20px;
     gap: 8px;
-    box-shadow: 0 2px 6px rgba(251, 191, 36, 0.1);
-    margin: 0 auto; /* Center the button itself */
+    
+    /* Positioning */
+    position: relative;
+    overflow: hidden;
+    
+    /* Styling */
+    background: linear-gradient(135deg, #ffffff 0%, #fef3c7 100%);
+    border: 2px solid #fbbf24;
+    border-radius: 14px;
+    color: #92400e;
+    
+    /* Typography */
+    font-size: 14px;
+    font-weight: 600;
     text-align: center;
+    line-height: 1;
+    white-space: nowrap;
+    
+    /* Effects */
+    box-shadow: 0 2px 6px rgba(251, 191, 36, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
+    /* Reset browser defaults */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    box-sizing: border-box;
+    margin: 0;
+}
+
+/* Remove any default spacing */
+.zakat-year-btn * {
+    margin: 0;
+    padding: 0;
 }
 
 .zakat-year-btn:hover:not(:disabled) {
@@ -185,23 +256,50 @@
 
 /* Cancel Button */
 .zakat-cancel-btn {
-    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-    border: 2px solid #ef4444;
-    color: #991b1b;
-    padding: 12px 20px;
-    border-radius: 14px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    /* Layout & Sizing */
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
+    padding: 12px 20px;
     gap: 8px;
-    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.1);
-    margin: 4px auto 0 auto; /* Center the button itself */
+    
+    /* Positioning */
+    position: relative;
+    overflow: hidden;
+    
+    /* Styling */
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    border: 2px solid #ef4444;
+    border-radius: 14px;
+    color: #991b1b;
+    
+    /* Typography */
+    font-size: 14px;
+    font-weight: 600;
     text-align: center;
+    line-height: 1;
+    white-space: nowrap;
+    
+    /* Effects */
+    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
+    /* Spacing */
+    margin: 4px 0 0 0;
+    
+    /* Reset browser defaults */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    box-sizing: border-box;
+}
+
+/* Remove any default spacing */
+.zakat-cancel-btn * {
+    margin: 0;
+    padding: 0;
 }
 
 .zakat-cancel-btn:hover:not(:disabled) {
@@ -220,30 +318,16 @@
     cursor: not-allowed;
 }
 
-/* Center the content inside buttons */
-.zakat-type-btn > span,
-.zakat-year-type-btn > span,
-.zakat-year-btn > span,
-.zakat-cancel-btn > span {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    text-align: center;
+/* Ensure emoji and text are inline and centered together */
+.zakat-type-btn,
+.zakat-year-type-btn,
+.zakat-year-btn,
+.zakat-cancel-btn {
+    line-height: 1.4;
+    white-space: nowrap;
 }
 
-/* Make sure emoji and text are perfectly aligned */
-.zakat-type-btn .emoji,
-.zakat-year-type-btn .emoji,
-.zakat-year-btn .emoji,
-.zakat-cancel-btn .emoji {
-    display: inline-block;
-    vertical-align: middle;
-    line-height: 1;
-}
-
-/* Rest of your existing CSS remains the same... */
+/* Result Card Styles */
 .zakat-result-card {
     background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
     border-left: 4px solid #5DB996;
@@ -297,25 +381,44 @@
     border-top: 2px dashed rgba(93, 185, 150, 0.2);
 }
 
-/* Recalculate Button */
+/* Recalculate Button - FIXED CENTERING */
 .btn-recalculate {
+    /* Layout & Sizing */
     flex: 1;
-    padding: 12px 20px;
-    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-    color: #157347;
-    border: 2px solid #5DB996;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    display: inline-flex;
+    display: flex;
     align-items: center;
     justify-content: center;
+    padding: 12px 20px;
     gap: 8px;
-    box-shadow: 0 2px 8px rgba(93, 185, 150, 0.15);
+    
+    /* Positioning */
+    position: relative;
+    overflow: hidden;
+    
+    /* Styling */
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border: 2px solid #5DB996;
+    border-radius: 12px;
+    color: #157347;
+    
+    /* Typography */
+    font-size: 14px;
+    font-weight: 600;
     text-align: center;
-    margin: 0 auto;
+    line-height: 1;
+    white-space: nowrap;
+    
+    /* Effects */
+    box-shadow: 0 2px 8px rgba(93, 185, 150, 0.15);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Reset browser defaults */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    box-sizing: border-box;
+    margin: 0;
 }
 
 .btn-recalculate:hover {
@@ -335,6 +438,7 @@
 .zakat-calculating {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 12px;
     padding: 16px;
     background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
@@ -372,6 +476,7 @@
 .nisab-badge {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
     padding: 8px 14px;
     border-radius: 20px;
@@ -417,7 +522,8 @@
     
     .zakat-type-btn,
     .zakat-year-type-btn,
-    .zakat-year-btn {
+    .zakat-year-btn,
+    .zakat-cancel-btn {
         padding: 12px 16px;
         font-size: 14px;
     }
@@ -472,4 +578,24 @@
     font-weight: bold;
     font-size: 18px;
     animation: checkmark 0.6s ease;
+}
+
+.zakat-type-btn,
+.zakat-year-type-btn,
+.zakat-year-btn,
+.zakat-cancel-btn,
+.btn-recalculate {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    box-sizing: border-box;
+}
+
+.zakat-type-btn > *,
+.zakat-year-type-btn > *,
+.zakat-year-btn > *,
+.zakat-cancel-btn > *,
+.btn-recalculate > * {
+    display: inline-block;
+    vertical-align: middle;
 }

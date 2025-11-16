@@ -35,7 +35,8 @@ class NLPProcessor:
             'pejabat': ['pejabat', 'office', 'kaunter', 'cawangan', 'branch'],
             'bantuan': ['bantuan', 'help', 'tolong', 'assist', 'aid'],
             'mohon': ['mohon', 'apply', 'permohonan', 'application'],
-            'syarat': ['syarat', 'syrt', 'syart']
+            'syarat': ['syarat', 'syrt', 'syart'],
+            'khairiat': ['khairiat', 'khairat', 'khairiat', 'kheiriyat']
         }
         
         # Expanded synonyms
@@ -68,6 +69,7 @@ class NLPProcessor:
             'faqir': ['fakir', 'poor', 'needy', 'destitute'],
             'bapa': ['bapa', 'ayah', 'father', 'dad', 'parent'],
             'saya mempunyai': ['saya ada', 'saya punya' 'i have', 'i own', 'i possess', 'i got'],
+            'khairiat kematian': ['khairat', 'khairiat', 'funeral fund', 'funeral assistance'],
             
         }
         
