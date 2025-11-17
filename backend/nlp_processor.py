@@ -70,6 +70,7 @@ class NLPProcessor:
             'bapa': ['bapa', 'ayah', 'father', 'dad', 'parent'],
             'saya mempunyai': ['saya ada', 'saya punya' 'i have', 'i own', 'i possess', 'i got'],
             'khairiat kematian': ['khairat', 'khairiat', 'funeral fund', 'funeral assistance'],
+            'perbezaan': ['perbezaan', 'bezanya', 'difference', 'distinction', 'variety', 'beza'],
             
         }
         
