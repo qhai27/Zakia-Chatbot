@@ -39,21 +39,58 @@ class NLPProcessor:
         # Typo corrections
         self.typo_corrections = {
             'zakat': ['zakat', 'zakah', 'zakt', 'zkat', 'zaket'],
-            'bayar': ['bayar', 'bayr', 'byr', 'membayar', 'pembayaran'],
-            'bagaimana': ['bagaimana', 'bgaimana', 'bgmn', 'bagaimanakah', 'mcm mana'],
-            'apa': ['apa', 'ap', 'apakah', 'pe'],
-            'berapa': ['berapa', 'brp', 'brpa', 'berapakah'],
+            'bayar': ['bayar', 'bayr', 'byr', 'membayar', 'pembayaran', 'pay', 'payment'],
+            'bagaimana': ['bagaimana', 'bgaimana', 'bgmn', 'bagaimanakah', 'mcm mana', 'macam mana', 'how'],
+            'apa': ['apa', 'ap', 'apakah', 'pe', 'what', 'maksud'],
+            'siapa': ['siapa', 'sipa', 'siapakah', 'sape', 'who'],
+            'berapa': ['berapa', 'brp', 'brpa', 'berapakah', 'brape', 'how much', 'how many'],
+            'bila': ['bila', 'bl', 'bilakah', 'bile', 'when'],
+            'mana': ['mana', 'mn', 'manakah', 'mne', 'where'],
+            'kenapa': ['kenapa', 'knp', 'kenapakah', 'nape', 'why','mengapa'],
+            'lznk': ['lznk', 'lembaga zakat', 'lembaga zakat negeri kedah', 'lembaga'],
             'nisab': ['nisab', 'threshold'],
-            'lznk': ['lznk', 'lembaga zakat', 'lembaga zakat negeri kedah']
+            'fitrah': ['fitrah', 'fitr'],
+            'emas': ['emas', 'gold'],
+            'wang': ['wang', 'duit', 'money', 'cash'],
+            'pejabat': ['pejabat', 'office', 'kaunter', 'cawangan', 'branch'],
+            'bantuan': ['bantuan', 'help', 'tolong', 'assist', 'aid'],
+            'mohon': ['mohon', 'apply', 'permohonan', 'application'],
+            'syarat': ['syarat', 'syrt', 'syart'],
+            'khairiat': ['khairiat', 'khairat', 'khairiat', 'kheiriyat']
         }
         
         # Synonyms
         self.synonyms = {
-            'cara': ['cara', 'kaedah', 'method', 'bagaimana', 'how'],
-            'bayar': ['bayar', 'membayar', 'pembayaran', 'pay', 'payment'],
-            'lokasi': ['lokasi', 'tempat', 'alamat', 'location', 'address'],
-            'jumlah': ['jumlah', 'berapa', 'nilai', 'amount'],
-            'wajib': ['wajib', 'mesti', 'perlu', 'must', 'required']
+            'cara': ['cara', 'kaedah', 'method', 'bagaimana', 'how', 'steps','cara-cara'],
+            'lokasi': ['lokasi', 'tempat', 'alamat', 'mana', 'location', 'address', 'where'],
+            'waktu': ['waktu', 'masa', 'tempoh', 'bila', 'time', 'when', 'period'],
+            'jumlah': ['jumlah', 'berapa', 'nilai', 'kadar', 'amount', 'rate'],
+            'wajib': ['wajib', 'mesti', 'perlu', 'kena', 'must', 'required', 'mandatory'],
+            'bayar': ['bayar', 'membayar', 'pembayaran', 'selesai', 'pay', 'payment'],
+            'bantuan': ['bantuan', 'help', 'tolong', 'assist', 'aid', 'support'],
+            'pejabat': ['pejabat', 'office', 'kaunter', 'cawangan', 'branch'],
+            'mohon': ['mohon', 'apply', 'permohonan', 'application', 'request'],
+            'kena': ['kena', 'perlu', 'wajib', 'mesti', 'need to', 'must'],
+            'menerima': ['menerima', 'terima', 'dapat', 'receive', 'get', 'obtain'],
+            'sehingga': ['sehingga', 'sampai', 'hingga', 'until', 'up to', 'till'],
+            'segera' :['cepat', 'pantas', 'laju', 'urgent', 'immediately', 'asap'],
+            'informasi': ['info', 'maklumat', 'information', 'details', 'data'],
+            'muallaf':['mualaf','new convert','new muslim','convert', 'convert to islam', 'newly converted','baru convert'],
+            'pembelajaran':['belajar','study','learning','education','pendidikan'],
+            'polisi':['policy','peraturan','rules','guidelines','garis panduan'],
+            'insurans':['insurance','takaful','coverage','protection','insurans', 'insurans takaful','insuran'],
+            'isteri': ['isteri', 'wife', 'spouse', 'pasangan', 'ibu'],
+            'pinjam': ['pinjaman', 'loan', 'borrow', 'hutang', 'debt'],
+            'menampung' : ['tampung','support','sokong','cover','sara'],
+            'Fixed Deposit' : ['fixed deposit','fd','deposit tetap','simpanan tetap','fixed deposit account'],
+            'pinjaman' : ['loan','pinjam','hutang','debt','borrow'],
+            'setahun' : ['setahun','1 tahun','one year','1 year','setahun sekali','once a year' ,'annually', 'satu tahun'],
+            'lewat' : ['lewat','terlewat','late','overdue','delay','terlambat','melewatkan', 'menunda', 'melewatkan'],
+            'faqir': ['fakir', 'poor', 'needy', 'destitute'],
+            'bapa': ['bapa', 'ayah', 'father', 'dad', 'parent'],
+            'saya mempunyai': ['saya ada', 'saya punya' 'i have', 'i own', 'i possess', 'i got'],
+            'khairiat kematian': ['khairat', 'khairiat', 'funeral fund', 'funeral assistance'],
+            'perbezaan': ['perbezaan', 'bezanya', 'difference', 'distinction', 'variety', 'beza'],
         }
         
         # Optional Gemini integration
