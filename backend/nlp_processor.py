@@ -56,7 +56,11 @@ class NLPProcessor:
             'bantuan': ['bantuan', 'help', 'tolong', 'assist', 'aid'],
             'mohon': ['mohon', 'apply', 'permohonan', 'application'],
             'syarat': ['syarat', 'syrt', 'syart'],
-            'khairiat': ['khairiat', 'khairat', 'khairiat', 'kheiriyat']
+            'khairiat': ['khairiat', 'khairat', 'khairiat', 'kheiriyat'],
+            'saya': ['saya', 'sy', 'aku', 'i', 'me'],
+            'anda': ['anda', 'akau', 'you', 'u'],
+            'kami': ['kami', 'kmi', 'we', 'us'],
+            'mereka': ['mereka', 'mrk', 'they', 'them'],
         }
         
         # Synonyms
