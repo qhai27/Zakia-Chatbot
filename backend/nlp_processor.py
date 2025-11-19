@@ -95,6 +95,8 @@ class NLPProcessor:
             'saya mempunyai': ['saya ada', 'saya punya' 'i have', 'i own', 'i possess', 'i got'],
             'khairiat kematian': ['khairat', 'khairiat', 'funeral fund', 'funeral assistance'],
             'perbezaan': ['perbezaan', 'bezanya', 'difference', 'distinction', 'variety', 'beza'],
+            'apakah' : ['apakah','apa itu','what is','define','meaning of', 'apa itu', 'maksud'],
+            'apa itu' : ['apa itu','apakah','what is','define','meaning of', 'maksud'],
         }
         
         # Optional Gemini integration
@@ -368,7 +370,7 @@ class NLPProcessor:
         return [q for q, s in scored_questions[:top_n] if s > 0.2]
     
     def _generate_fallback(self, similar_questions: List[str] = None) -> str:
-        fallback = "Maaf, saya tidak pasti tentang soalan anda.\n\n"
+        fallback = "Maaf, saya kurang faham soalan anda.\n\n"
         if similar_questions and len(similar_questions) > 0:
             fallback += "Mungkin anda ingin tanya tentang:\n"
             for i, q in enumerate(similar_questions, 1):

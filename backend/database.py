@@ -1,29 +1,29 @@
 import mysql.connector
-from mysql.connector import Error
-from mysql.connector import pooling
+from mysql.connector import Error, pooling
 import json
 from datetime import datetime
-from config import Config
+
 
 class DatabaseManager:
     # Class-level connection pool
     _pool = None
     _pool_name = "lznk_pool"
-    
+
     def __init__(self, host=None, user=None, password=None, database=None):
-        # Default MySQL connection settings
         self.host = host or 'localhost'
         self.user = user or 'root'
-        self.password = password or ''  # Change this to your MySQL password
+        self.password = password or ''       # Change this to your MySQL password
         self.database = database or 'lznk_chatbot'
         self.connection = None
-        
-        # Initialize pool if not exists
+
+        # Create pool only once
         if DatabaseManager._pool is None:
             self._init_pool()
-    
+
+    # -----------------------------------------------------------
+    # INITIALIZE POOL
+    # -----------------------------------------------------------
     def _init_pool(self):
-        """Initialize connection pool"""
         try:
             DatabaseManager._pool = pooling.MySQLConnectionPool(
                 pool_name=self._pool_name,
@@ -38,22 +38,28 @@ class DatabaseManager:
                 charset='utf8mb4',
                 collation='utf8mb4_general_ci'
             )
-            print(f"✅ Connection pool initialized (size: 5)")
+            print("✅ Connection pool initialized")
         except Error as e:
             print(f"⚠️ Could not create connection pool: {e}")
             DatabaseManager._pool = None
-    
+
+    # -----------------------------------------------------------
+    # CONNECT FUNCTION (FIXED & CLEAN)
+    # -----------------------------------------------------------
     def connect(self):
-        """Get connection from pool or create new connection"""
+        """Get connection from pool or fallback to direct connection."""
+        # 1) Try pool first
         try:
-            # Try to get from pool first
             if DatabaseManager._pool is not None:
                 self.connection = DatabaseManager._pool.get_connection()
                 if self.connection.is_connected():
-                    print("✅ Got connection from pool")
+                    print("✅ Connection obtained from pool")
                     return True
-            
-            # Fallback to direct connection
+        except Exception as e:
+            print(f"⚠️ Pool connection failed: {e}. Fallback to direct...")
+
+        # 2) Fallback direct connection
+        try:
             self.connection = mysql.connector.connect(
                 host=self.host,
                 user=self.user,
@@ -63,66 +69,68 @@ class DatabaseManager:
                 connect_timeout=10,
                 charset='utf8mb4',
                 collation='utf8mb4_general_ci',
-                # Add these to prevent connection loss
-                use_pure=True,
-                pool_size=5,
-                pool_reset_session=True
+                use_pure=True
             )
-            
+
             if self.connection.is_connected():
-                print("✅ Connected to MySQL database (direct)")
+                print("✅ Direct MySQL connection established")
                 return True
-                
+
         except Error as e:
-            print(f"❌ Error connecting to MySQL: {e}")
+            print(f"❌ MySQL Connection Error: {e}")
             self.connection = None
             return False
-        
-        return False
-    
+
+    # -----------------------------------------------------------
+    # ENSURE CONNECTION
+    # -----------------------------------------------------------
     def ensure_connection(self):
-        """Ensure connection is alive, reconnect if needed"""
         try:
             if self.connection is None or not self.connection.is_connected():
-                print("⚠️ Connection lost, reconnecting...")
+                print("⚠️ MySQL connection lost, reconnecting...")
                 return self.connect()
-            
-            # Ping to check if connection is alive
+
             self.connection.ping(reconnect=True, attempts=3, delay=1)
             return True
-            
-        except Error as e:
-            print(f"⚠️ Connection check failed: {e}, reconnecting...")
+
+        except Error:
+            print("⚠️ Ping failed, reconnecting...")
             return self.connect()
-    
+
+    # -----------------------------------------------------------
+    # CREATE DATABASE
+    # -----------------------------------------------------------
     def create_database(self):
-        """Create database if it doesn't exist"""
         try:
-            connection = mysql.connector.connect(
+            conn = mysql.connector.connect(
                 host=self.host,
                 user=self.user,
                 password=self.password,
                 autocommit=True
             )
-            cursor = connection.cursor()
-            cursor.execute(f"CREATE DATABASE IF NOT EXISTS {self.database} CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci")
-            print(f"✅ Database '{self.database}' created or already exists")
+            cursor = conn.cursor()
+            cursor.execute(
+                f"CREATE DATABASE IF NOT EXISTS {self.database} "
+                "CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci"
+            )
             cursor.close()
-            connection.close()
+            conn.close()
+            print(f"✅ Database '{self.database}' is ready")
             return True
         except Error as e:
-            print(f"❌ Error creating database: {e}")
+            print(f"❌ Database creation error: {e}")
             return False
-    
+
+    # -----------------------------------------------------------
+    # CREATE TABLES
+    # -----------------------------------------------------------
     def create_tables(self):
-        """Create necessary tables"""
         if not self.ensure_connection():
             return False
-            
+
         try:
             cursor = self.connection.cursor()
-            
-            # FAQ table
+
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS faqs (
                     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -133,8 +141,7 @@ class DatabaseManager:
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """)
-            
-            # Chat logs table
+
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS chat_logs (
                     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -144,8 +151,7 @@ class DatabaseManager:
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """)
-            
-            # Users table for session management
+
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS users (
                     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -154,78 +160,76 @@ class DatabaseManager:
                     last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """)
-            
+
             self.connection.commit()
             cursor.close()
-            print("✅ Tables created successfully")
+            print("✅ All tables are ready")
             return True
-            
+
         except Error as e:
-            print(f"❌ Error creating tables: {e}")
+            print(f"❌ Table creation error: {e}")
             return False
-    
+
+    # -----------------------------------------------------------
+    # INSERT FAQ
+    # -----------------------------------------------------------
     def insert_faqs(self):
-        """Insert initial FAQ data"""
         if not self.ensure_connection():
             return False
-            
+
         try:
             cursor = self.connection.cursor()
-            
-            # Check if FAQs already exist
             cursor.execute("SELECT COUNT(*) FROM faqs")
             count = cursor.fetchone()[0]
-            
+
             if count > 0:
-                print("ℹ️ FAQs already exist, skipping insertion")
+                print("ℹ️ FAQs already exist, skipping.")
                 cursor.close()
                 return True
-            
-            # Insert FAQ data
+
             faqs = [
-                ("Apa itu zakat?", "Zakat ialah kewajipan agama yang dikenakan ke atas umat Islam untuk menunaikan sebahagian harta kepada golongan yang layak menerimanya.", "Umum"),
-                ("Siapa yang wajib membayar zakat?", "Setiap Muslim yang cukup syarat seperti cukup haul, nisab, dan memiliki harta yang mencukupi.", "Umum"),
-                ("Bagaimana cara membayar zakat?", "Anda boleh membayar zakat melalui portal rasmi LZNK, kaunter zakat, atau wakil amil yang dilantik.", "Pembayaran"),
-                ("Apakah waktu sesuai untuk bayar zakat?", "Zakat boleh dibayar bila-bila masa, namun paling digalakkan pada akhir tahun haul atau bulan Ramadan.", "Pembayaran"),
-                ("Berapakah nisab zakat emas?", "Nisab zakat emas ialah 85 gram atau nilai setara dengan 85 gram emas semasa.", "Nisab"),
-                ("Berapakah kadar zakat emas?", "Kadar zakat emas ialah 2.5% daripada nilai emas yang mencukupi nisab.", "Kadar"),
-                ("Bagaimana mengira zakat perniagaan?", "Zakat perniagaan dikira 2.5% daripada modal kerja dan keuntungan bersih selepas tolak hutang dan perbelanjaan operasi.", "Perniagaan"),
-                ("Bilakah haul zakat bermula?", "Haul zakat bermula dari tarikh harta mencapai nisab dan berterusan selama 12 bulan hijrah.", "Haul"),
-                ("Apa itu LZNK?", "LZNK (Lembaga Zakat Negeri Kedah) ialah badan berkanun yang bertanggungjawab menguruskan zakat di Negeri Kedah Darul Aman.", "LZNK"),
-                ("Di mana lokasi pejabat LZNK?", "Pejabat utama LZNK terletak di Alor Setar, Kedah. LZNK juga mempunyai cawangan di seluruh negeri Kedah.", "LZNK"),
+                ("Apa itu zakat?", "Zakat ialah kewajipan agama...", "Umum"),
+                ("Siapa yang wajib membayar zakat?", "Setiap Muslim...", "Umum"),
+                ("Bagaimana cara membayar zakat?", "Melalui portal LZNK...", "Pembayaran"),
+                ("Apakah waktu sesuai untuk bayar zakat?", "Akhir haul...", "Pembayaran"),
+                ("Berapakah nisab zakat emas?", "85 gram...", "Nisab"),
+                ("Berapakah kadar zakat emas?", "2.5%...", "Kadar"),
+                ("Bagaimana mengira zakat perniagaan?", "2.5% modal kerja...", "Perniagaan"),
+                ("Bilakah haul zakat bermula?", "12 bulan hijrah...", "Haul"),
+                ("Apa itu LZNK?", "LZNK ialah badan zakat...", "LZNK"),
+                ("Di mana lokasi pejabat LZNK?", "Alor Setar...", "LZNK"),
             ]
-            
+
             cursor.executemany("""
-                INSERT INTO faqs (question, answer, category) 
+                INSERT INTO faqs (question, answer, category)
                 VALUES (%s, %s, %s)
             """, faqs)
-            
+
             self.connection.commit()
             cursor.close()
-            print("✅ FAQ data inserted successfully")
-            return True
-            
+            print("✅ FAQ inserted")
+
         except Error as e:
-            print(f"❌ Error inserting FAQs: {e}")
+            print(f"❌ FAQ insert error: {e}")
             return False
-    
+
+    # -----------------------------------------------------------
+    # CRUD FAQ
+    # -----------------------------------------------------------
     def get_faqs(self):
-        """Get all FAQs from database"""
         if not self.ensure_connection():
             return []
-            
         try:
             cursor = self.connection.cursor(dictionary=True)
             cursor.execute("SELECT * FROM faqs ORDER BY category, question")
-            faqs = cursor.fetchall()
+            data = cursor.fetchall()
             cursor.close()
-            return faqs
+            return data
         except Error as e:
-            print(f"❌ Error fetching FAQs: {e}")
+            print(f"❌ FAQ fetch error: {e}")
             return []
 
     def get_faq_by_id(self, faq_id):
-        """Get a single FAQ by id"""
         if not self.ensure_connection():
             return None
         try:
@@ -235,87 +239,80 @@ class DatabaseManager:
             cursor.close()
             return faq
         except Error as e:
-            print(f"❌ Error fetching FAQ by id: {e}")
+            print(f"❌ FAQ fetch by ID error: {e}")
             return None
 
-    def create_faq(self, question, answer, category=None):
-        """Create a new FAQ"""
+    def create_faq(self, q, a, c=None):
         if not self.ensure_connection():
             return None
         try:
             cursor = self.connection.cursor()
             cursor.execute(
-                """
-                INSERT INTO faqs (question, answer, category)
-                VALUES (%s, %s, %s)
-                """,
-                (question, answer, category)
+                "INSERT INTO faqs (question, answer, category) VALUES (%s, %s, %s)",
+                (q, a, c)
             )
             self.connection.commit()
             new_id = cursor.lastrowid
             cursor.close()
             return new_id
         except Error as e:
-            print(f"❌ Error creating FAQ: {e}")
+            print(f"❌ FAQ create error: {e}")
             return None
 
-    def update_faq(self, faq_id, question, answer, category=None):
-        """Update an existing FAQ"""
+    def update_faq(self, faq_id, q, a, c=None):
         if not self.ensure_connection():
             return False
-        try:
-            cursor = self.connection.cursor()
-            cursor.execute(
-                """
-                UPDATE faqs
-                SET question = %s, answer = %s, category = %s
-                WHERE id = %s
-                """,
-                (question, answer, category, faq_id)
-            )
-            self.connection.commit()
-            affected = cursor.rowcount
-            cursor.close()
-            return affected > 0
-        except Error as e:
-            print(f"❌ Error updating FAQ: {e}")
-            return False
-
-    def delete_faq(self, faq_id):
-        """Delete an FAQ by id"""
-        if not self.ensure_connection():
-            return False
-        try:
-            cursor = self.connection.cursor()
-            cursor.execute("DELETE FROM faqs WHERE id = %s", (faq_id,))
-            self.connection.commit()
-            affected = cursor.rowcount
-            cursor.close()
-            return affected > 0
-        except Error as e:
-            print(f"❌ Error deleting FAQ: {e}")
-            return False
-    
-    def log_chat(self, user_message, bot_response, session_id=None):
-        """Log chat interaction"""
-        if not self.ensure_connection():
-            return False
-            
         try:
             cursor = self.connection.cursor()
             cursor.execute("""
-                INSERT INTO chat_logs (user_message, bot_response, session_id) 
+                UPDATE faqs SET question=%s, answer=%s, category=%s
+                WHERE id=%s
+            """, (q, a, c, faq_id))
+            self.connection.commit()
+            affected = cursor.rowcount
+            cursor.close()
+            return affected > 0
+        except Error as e:
+            print(f"❌ FAQ update error: {e}")
+            return False
+
+    def delete_faq(self, faq_id):
+        if not self.ensure_connection():
+            return False
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute("DELETE FROM faqs WHERE id=%s", (faq_id,))
+            self.connection.commit()
+            affected = cursor.rowcount
+            cursor.close()
+            return affected > 0
+        except Error as e:
+            print(f"❌ FAQ delete error: {e}")
+            return False
+
+    # -----------------------------------------------------------
+    # LOG CHAT
+    # -----------------------------------------------------------
+    def log_chat(self, user_message, bot_response, session_id=None):
+        if not self.ensure_connection():
+            return False
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute("""
+                INSERT INTO chat_logs (user_message, bot_response, session_id)
                 VALUES (%s, %s, %s)
             """, (user_message, bot_response, session_id))
             self.connection.commit()
             cursor.close()
             return True
         except Error as e:
-            print(f"❌ Error logging chat: {e}")
+            print(f"❌ Chat log error: {e}")
             return False
-    
+
+    # -----------------------------------------------------------
+    # CLOSE
+    # -----------------------------------------------------------
     def close(self):
-        """Close database connection"""
         if self.connection and self.connection.is_connected():
             self.connection.close()
             print("🔒 MySQL connection closed")

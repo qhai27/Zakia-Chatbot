@@ -426,3 +426,18 @@ def test_smart_mode():
         print(f"❌ Test error: {e}")
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
+    
+@chat_bp.route("/faqs", methods=["GET"])
+def list_faqs():
+    try:
+        if not db.connect():
+            return jsonify({"error": "DB not connected"}), 500
+
+        faqs = db.get_faqs()
+        return jsonify({
+            "success": True,
+            "count": len(faqs),
+            "faqs": faqs
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500

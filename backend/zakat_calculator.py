@@ -1,5 +1,5 @@
 """
-Enhanced Zakat Calculator Module for ZAKIA Chatbot
+Zakat Calculator Module for ZAKIA Chatbot
 Integrates with LZNK API for real-time nisab values
 """
 
