@@ -5,17 +5,26 @@
       "answer": "Faqir : Seseorang yang tiada harta dan sumber pendapatan atau mempunyai kedua-duanya tetapi tidak mampu untuk menampung keperluan asasi (makanan,pakaian dan tempat tinggal) dirinya. Seperti contoh seseorang yang memerlukan rm1000 sebulan untuk menampung keperluan asasinya tetapi hanya mampu mendapatkan kurang separuh dari amaun tersebut (rm400 ke bawah) \n\nMiskin : Seseorang yang mempunyai harta dan sumber pendapatan tetapi tidak mampu untuk menampung keperluan asasi (makanan,pakaian dan tempat tinggal) dirinya. Seperti contoh seseorang yang memerlukan rm1000 sebulan untuk menampung keperluan asasinya tetapi hanya mampu mendapatkan lebih separuh dari amaun tersebut (rm500 hingga rm900).\n\nRujukan Kitab At Taqrirat Sadidah Fi Masail Mufidah muka surat 423",
       "category": null,
       "keywords": [
-        "asnaf",
+        "destitute",
+        "distinction",
+        "variety",
         "antara asnaf",
-        "perbezaan",
-        "miskin",
-        "apa perbezaan",
-        "apa",
-        "asnaf faqir",
         "faqir miskin",
         "antara",
+        "asnaf faqir",
+        "perbezaan antara",
+        "miskin",
+        "perbezaan",
+        "bezanya",
+        "beza",
+        "needy",
+        "apa perbezaan",
+        "fakir",
+        "poor",
         "faqir",
-        "perbezaan antara"
+        "asnaf",
+        "difference",
+        "apa"
       ]
     },
     {
@@ -23,23 +32,25 @@
       "answer": "Disunatkan mengeluarkan zakat fitrah lebih dari kadar yang wajib. Hal ini kerana, makanan asasi pada hari ini tidak hanya nasi kosong, tetapi nasi yang disertakan dengan lauk, sayur, kuah dan lain-lain. Jika hanya segantang beras diberikan kepada fakir, belum layak lagi bagi mereka untuk menjamu makan bagi diri dan keluarga. Atas dasar ini, jika zakat fitrah dibayar dengan kadar yang lebih, nescaya ianya lebih menepati tujuan zakat itu sendiri.",
       "category": null,
       "keywords": [
-        "hukum",
-        "wajib",
-        "mengeluarkan",
-        "perlu",
-        "lebih",
-        "fitrah lebih",
-        "mesti",
-        "fitrah",
-        "kadar",
-        "must",
-        "zakat",
         "lebih kadar",
-        "mengeluarkan zakat",
+        "wajib",
+        "hukum",
+        "perlu",
+        "zakat",
+        "mengeluarkan",
         "required",
+        "kadar wajib",
+        "fitrah lebih",
+        "kadar",
         "zakat fitrah",
         "hukum mengeluarkan",
-        "kadar wajib"
+        "mandatory",
+        "fitrah",
+        "must",
+        "kena",
+        "mesti",
+        "lebih",
+        "mengeluarkan zakat"
       ]
     },
     {
@@ -47,27 +58,32 @@
       "answer": "Seorang mualaf layak menerima agihan zakat di bawah “asnaf mualaf” walau apa sahaja status kekayaannya. Antara maqasid atau matlamat pemberian zakat kepada mualaf adalah bertujuan melenturkan hatinya agar kukuh dengan islam.",
       "category": null,
       "keywords": [
-        "menerima agihan",
-        "lumayan",
-        "adakah layak",
-        "pendapatan",
-        "zakat",
-        "layak menerima",
-        "pendapatan lumayan",
-        "stabil pendapatan",
-        "stabil",
-        "agihan",
-        "kerjaya",
-        "layak",
-        "adakah",
         "agihan zakat",
-        "mempunyai",
-        "mempunyai kerjaya",
-        "mualaf",
+        "pendapatan lumayan",
+        "get",
+        "kerjaya",
+        "zakat",
+        "adakah layak",
         "lumayan adakah",
+        "receive",
+        "stabil pendapatan",
+        "menerima agihan",
+        "mempunyai kerjaya",
+        "dapat",
+        "terima",
+        "adakah",
+        "obtain",
         "mualaf mempunyai",
-        "kerjaya stabil",
-        "menerima"
+        "mempunyai",
+        "mualaf",
+        "layak menerima",
+        "agihan",
+        "menerima",
+        "lumayan",
+        "stabil",
+        "pendapatan",
+        "layak",
+        "kerjaya stabil"
       ]
     },
     {
@@ -75,25 +91,29 @@
       "answer": "Jumhur fuqaha’ menyatakan secara hukum adalah harus bagi seorang isteri membayar zakat kepada suaminya. Bahkan, mazhab syafie’ menganjurkan secara tuntutan sunnah kepada isteri membayar zakat kepada suami. Namun, ia berbeza dengan pandangan mazhab hanafi yang tidak membenarkan perkara tersebut. (rujukan Dar Ifta’ Misr).",
       "category": "Agihan Zakat",
       "keywords": [
-        "harus",
-        "zakat",
-        "suami",
-        "harus bagi",
-        "seorang",
-        "isteri memberi",
-        "adakah harus",
-        "zakat kepada",
-        "kepada",
-        "memberi zakat",
-        "isteri",
-        "adakah",
-        "miskin",
-        "bagi",
-        "seorang isteri",
-        "suami miskin",
+        "spouse",
         "kepada suami",
+        "bagi",
+        "zakat",
+        "wife",
+        "miskin",
+        "suami",
+        "suami miskin",
+        "isteri memberi",
+        "ibu",
+        "memberi zakat",
+        "adakah",
+        "isteri",
+        "adakah harus",
+        "bagi seorang",
+        "harus bagi",
+        "zakat kepada",
+        "harus",
         "memberi",
-        "bagi seorang"
+        "pasangan",
+        "kepada",
+        "seorang",
+        "seorang isteri"
       ]
     },
     {
@@ -101,36 +121,37 @@
       "answer": "Secara asasnya, zakat perlu dibayar di negeri tempat harta itu diperoleh atau dimiliki, kerana asnaf di negeri tersebut lebih berhak menerimanya.\n\nNamun, harus memindahkan pembayaran zakat ke negeri lain sekiranya terdapat keperluan atau maslahat tertentu, seperti ahli keluarga miskin di negeri lain yang lebih memerlukan bantuan.\n\nWalau bagaimanapun, sebaiknya zakat ditunaikan di negeri sendiri terlebih dahulu, agar manfaatnya dapat dirasai oleh asnaf tempatan.",
       "category": "Agihan Zakat",
       "keywords": [
-        "apa hukum",
-        "membayar",
-        "lain",
-        "daripada negeri",
-        "zakat",
-        "lain selain",
-        "zakat negeri",
-        "hukum",
         "muzakki",
-        "tinggalnya",
+        "selesai",
+        "jika",
+        "tempat tinggalnya",
+        "jika seseorang",
+        "hukum",
+        "hukum jika",
+        "negeri tempat",
+        "zakat negeri",
+        "lain",
+        "zakat",
+        "selain daripada",
+        "negeri muzakki",
         "pay",
         "daripada",
-        "negeri muzakki",
-        "jika seseorang",
-        "negeri",
-        "bayar",
-        "seseorang bayar",
-        "selain",
-        "tempat",
-        "pembayaran",
-        "bayar zakat",
-        "apa",
-        "negeri tempat",
-        "tinggalnya negeri",
+        "apa hukum",
         "seseorang",
-        "jika",
-        "selain daripada",
-        "tempat tinggalnya",
+        "membayar",
+        "bayar zakat",
+        "tempat",
+        "seseorang bayar",
+        "apa",
+        "tinggalnya negeri",
+        "tinggalnya",
         "negeri lain",
-        "hukum jika",
+        "lain selain",
+        "negeri",
+        "daripada negeri",
+        "pembayaran",
+        "bayar",
+        "selain",
         "payment"
       ]
     },
@@ -139,51 +160,61 @@
       "answer": "Sekiranya masih mempunyai harta yang mencukupi untuk menampung keperluan hidupnya, maka tidak layak menerima zakat, walaupun usianya telah lanjut.\n\nZakat hanya diberikan kepada mereka yang benar-benar tidak mampu, tidak berpendapatan mencukupi, atau termasuk dalam kategori asnaf fakir dan miskin.\n\nNamun, jika hartanya tidak mencukupi untuk menampung keperluan harian atau tidak boleh dimanfaatkan (contohnya tanah yang tidak boleh dijual atau digunakan), maka harus baginya menerima bantuan zakat berdasarkan keperluan sebenar",
       "category": "Agihan Zakat",
       "keywords": [
-        "harta seperti",
-        "bantuan",
-        "zakat kerana",
-        "ayah tua",
-        "keadaan",
-        "beliau",
-        "namun beliau",
-        "zakat",
-        "tanah adakah",
-        "namun",
-        "harta",
-        "bantuan zakat",
-        "tua",
-        "dibenarkan beliau",
-        "tanah",
-        "dibenarkan",
-        "masih",
-        "masih mempunyai",
-        "menerima bantuan",
-        "menerima zakat",
-        "tersebut",
-        "mempunyai harta",
-        "ayah",
-        "adakah",
-        "beliau menerima",
-        "keadaan tersebut",
-        "simpanan",
-        "simpanan tanah",
-        "mempunyai",
-        "faktor",
-        "umur",
-        "zakat dalam",
-        "dalam keadaan",
-        "tua menerima",
-        "wang simpanan",
-        "adakah dibenarkan",
         "kerana",
-        "faktor umur",
+        "faktor",
+        "bantuan",
+        "get",
+        "tua menerima",
         "umur namun",
+        "tersebut",
+        "dibenarkan beliau",
+        "umur",
+        "adakah dibenarkan",
+        "zakat",
+        "masih",
+        "mempunyai harta",
+        "masih mempunyai",
+        "keadaan tersebut",
+        "ayah tua",
+        "simpanan",
+        "menerima bantuan",
+        "tanah adakah",
+        "tua",
+        "receive",
+        "namun beliau",
+        "beliau menerima",
+        "namun",
+        "zakat kerana",
+        "menerima zakat",
+        "dapat",
+        "dalam keadaan",
+        "terima",
+        "support",
+        "tanah",
+        "adakah",
+        "help",
+        "assist",
+        "obtain",
+        "mempunyai",
         "dalam",
-        "seperti wang",
         "beliau masih",
+        "wang simpanan",
+        "zakat dalam",
+        "beliau",
         "kerana faktor",
-        "wang",
+        "simpanan tanah",
+        "tolong",
+        "harta",
+        "faktor umur",
+        "aid",
         "menerima",
+        "bantuan zakat",
+        "ayah",
+        "wang",
+        "seperti wang",
+        "harta seperti",
+        "keadaan",
+        "dibenarkan",
         "seperti"
       ]
     },
@@ -193,28 +224,28 @@
       "category": "Agihan Zakat",
       "keywords": [
         "sekolah pelajar",
-        "orang",
+        "cenderahati kepada",
+        "baju",
         "lebihan",
+        "diberikan sebagai",
+        "miskin",
+        "sebagai cenderahati",
+        "lebihan baju",
+        "pelajar",
+        "bolehkah",
+        "pelajar miskin",
         "kepada orang",
         "baju sekolah",
-        "miskin diberikan",
-        "awam",
-        "baju",
-        "orang awam",
-        "sebagai cenderahati",
-        "diberikan sebagai",
-        "kepada",
-        "sekolah",
-        "pelajar miskin",
-        "miskin",
-        "diberikan",
-        "pelajar",
-        "sebagai",
         "cenderahati",
-        "cenderahati kepada",
+        "sekolah",
+        "diberikan",
         "bolehkah lebihan",
-        "lebihan baju",
-        "bolehkah"
+        "orang",
+        "sebagai",
+        "awam",
+        "orang awam",
+        "kepada",
+        "miskin diberikan"
       ]
     },
     {
@@ -222,23 +253,28 @@
       "answer": "Sesungguhnya zakat itu tidak dikeluarkan bagi tujuan menampung perbelanjaan seseorang untuk melakukan ibadah haji atau umrah. Hal ini kerana, haji dan umrah wajib secara khusus ke atas orang yang berkemampuan sahaja maka diharuskan pemberian sedekah sunat ke atas orang yang ingin menunaikan haji dan umrah bagi menampung perbelanjaan mereka. (rujukan Dar Ifta’ Misr)",
       "category": "Agihan Zakat",
       "keywords": [
-        "umrah",
-        "menunaikan",
-        "digunakan menampung",
-        "seseorang",
-        "menampung kos",
-        "haji umrah",
-        "menunaikan haji",
-        "seseorang menunaikan",
-        "bolehkah zakat",
-        "kos seseorang",
-        "digunakan",
-        "zakat",
-        "haji",
         "zakat digunakan",
-        "menampung",
+        "kos",
+        "menampung kos",
+        "tampung",
+        "kos seseorang",
+        "zakat",
         "bolehkah",
-        "kos"
+        "sara",
+        "seseorang",
+        "digunakan menampung",
+        "seseorang menunaikan",
+        "support",
+        "sokong",
+        "cover",
+        "menampung",
+        "menunaikan",
+        "haji umrah",
+        "bolehkah zakat",
+        "umrah",
+        "menunaikan haji",
+        "haji",
+        "digunakan"
       ]
     },
     {
@@ -246,20 +282,20 @@
       "answer": "Hukum mengagihkan zakat kepada asnaf adalah wajib serta merta apabila sudah cukup syarat wajibnya. Namun harus bagi institusi zakat untuk melewatkan agihan serta mengagihkannya secara ansuran kepada asnaf sekiranya perkara tersebut memberi maslahah kepada asnaf. \n\n(Nihayatul Muhtaj Syarh Minhaj-Imam Romli) (Dar Ifta’ Misriyyah)",
       "category": "Agihan Zakat",
       "keywords": [
-        "hukum",
-        "asnaf",
-        "agihan zakat",
-        "zakat kepada",
-        "kepada asnaf",
+        "agihan",
         "institusi zakat",
         "melewatkan agihan",
-        "zakat",
+        "agihan zakat",
+        "zakat kepada",
+        "asnaf",
         "institusi",
-        "hukum institusi",
         "melewatkan",
+        "hukum institusi",
+        "zakat melewatkan",
+        "hukum",
         "kepada",
-        "agihan",
-        "zakat melewatkan"
+        "zakat",
+        "kepada asnaf"
       ]
     },
     {
@@ -267,29 +303,34 @@
       "answer": "Dr. Muhammad Zuhaili menyatakan bahawa apabila seorang isteri itu kaya dan suami serta anaknya fakir dan miskin, maka tidak wajib baginya untuk memberi nafkah ke atas mereka. Dan harus bagi isteri itu memberi zakat hartanya kepada suaminya bahkan ia merupakan perkara yang disunatkan. Begitu juga disunatkan seorang isteri memberi zakat kepada anaknya sekiranya anaknya itu seorang yang fakir dan miskin. (Lihat al-Mu’tamad fi al-Fiqh al-Syafi’e, 2/122) \n\nImam Ibn Hajar al-A’sqalani menyebut hal yang sedemikian sekiranya dengan kewujudan bapa, maka nafkah tersebut adalah di atas tanggungan bapanya, maka zakat boleh diberikan kepada anaknya yang fakir atau miskin, kerana tidak wajib bagi ibu untuk menanggung nafkah anaknya. Berbeza keadaan dengan ketiadaan bapa, maka nafkah anak ketika itu wajib ditanggung oleh ibunya dan tidak dibenarkan untuk memberi zakat kepada anaknya \n\nنقل ابن المنذر وغيره الإجماع على\n أن الولد لا يُعطى من الزكاة الواجبة قال الحافظ: وفيه نظر، لأن الذي يمتنع إعطاؤه\nمن الصدقة الواجبة مَنْ يلزم المعطي نفقته ، والأم لا يلزمها نفقة ولدها مع وجود الأب\n\n\nMaksudnya: Dinukilkan oleh Ibnu Munzir dan selainnya, ijma’ (bersepakat) berkenaan anak tidak boleh diberikan zakat. Imam Ibn Hajar menyatakan ia perlu dilihat semula, kerana yang menghalang pemberian zakat (kepada anak) adalah kepada yang wajib memberi nafkah kepadanya, sedangkan ibu tidak wajib memberi nafkah kepada anaknya dengan kewujudan bapa.",
       "category": "Agihan Zakat",
       "keywords": [
-        "membayar",
-        "zakat",
-        "suami",
-        "seorang",
-        "hukum",
-        "pay",
-        "zakat kepada",
-        "kepada",
-        "isteri",
-        "anak",
-        "bayar",
-        "suami fakir",
-        "miskin",
-        "pembayaran",
-        "bayar zakat",
+        "spouse",
+        "selesai",
         "hukum seorang",
-        "fakir miskin",
-        "seorang isteri",
-        "miskin anak",
-        "isteri bayar",
-        "fakir",
         "kepada suami",
-        "payment"
+        "hukum",
+        "zakat",
+        "wife",
+        "miskin",
+        "suami",
+        "pay",
+        "isteri bayar",
+        "membayar",
+        "bayar zakat",
+        "ibu",
+        "suami fakir",
+        "isteri",
+        "fakir miskin",
+        "fakir",
+        "miskin anak",
+        "zakat kepada",
+        "pasangan",
+        "payment",
+        "pembayaran",
+        "bayar",
+        "kepada",
+        "seorang",
+        "seorang isteri",
+        "anak"
       ]
     },
     {
@@ -297,19 +338,19 @@
       "answer": "Pada asal hukum dibolehkan untuk memberi zakat kepada kaum keluarga yang bukan dibawah tanggungan nafkah kita. Malah, lebih utama daripada orang lain. Golongan yang lain termasuklah anak-anak yang telah dewasa dan mampu bekerja, tetapi pendapatan mereka tidak mencukupi. Ini adalah berdasarkan daripada hadis nabi SAW yang diriwayatkan oleh Salman bin Amir RA katanya, Rasulullah SAW bersabda:\n\nالصَّدَقَةُ عَلَى الْمِسْكِينِ صَدَقَةٌ، وَعَلَى ذِي الْقَرَابَةِ اثِنْتَانِ: صَدَقَةٌ وَصِلَةٌ \n\nMaksudnya: “Zakat kepada orang miskin adalah dikira zakat, dan kepada saudara mara dikira dua kelebihan, iaitu zakat dan mengukuhkan hubungan kekeluargaannya.”\n\nPemilik harta yang wajib berzakat harus memberi zakatnya kepada saudara mara yang bukan di bawah tanggungan nafkahnya, seperti adik-beradik lelaki atau perempuan, bapa dan ibu saudara pihak bapa, bapa dan ibu saudara pihak ibu, anak-anak mereka dan lain-lain sekiranya mereka fakir, miskin dan golongan yang berhak menerima zakat.\n\nNamun, kami berpendapat bahawa memberi zakat kepada amil LZNK wajib kerana maslahat jauh lebih besar berbanding memberi zakat tersebut secara langsung",
       "category": "Asnaf",
       "keywords": [
-        "menantu",
         "zakat kepada",
-        "susah",
-        "zakat",
         "beri",
         "beri zakat",
-        "kepada menantu",
-        "menantu lelaki",
-        "lelaki susah",
-        "kepada",
         "bolehkah beri",
+        "menantu",
+        "susah",
+        "menantu lelaki",
         "bolehkah",
-        "lelaki"
+        "kepada menantu",
+        "lelaki",
+        "kepada",
+        "zakat",
+        "lelaki susah"
       ]
     },
     {
@@ -317,13 +358,11 @@
       "answer": "Haul zakat bermula dari tarikh harta mencapai nisab dan berterusan selama 12 bulan hijrah.",
       "category": "Haul",
       "keywords": [
-        "haul",
-        "bilakah haul",
-        "zakat",
         "haul zakat",
-        "bilakah",
+        "zakat bermula",
         "bermula",
-        "zakat bermula"
+        "haul",
+        "zakat"
       ]
     },
     {
@@ -331,50 +370,67 @@
       "answer": "Dicadang serta digalakkan untuk membayar segera zakat pendapatan setelah memperoleh hadiah persaraan berbentuk wang tunai tersebut. Hal ini kerana, ia dapat mengelakkan wang tersebut kurang di akhir haul atau digunakan pada perkara-perkara yang tidak berbentuk keperluan (dhoruriyat dan hajiyyat). Adapun dari sudut hukum asal, hadiah wang persaraan tersebut hanya diwajibkan zakat setelah cukup syarat wajib zakat iaitu antaranya cukup haul setahun.",
       "category": "Haul",
       "keywords": [
-        "membayar",
-        "dia bayar",
-        "sehingga",
-        "zakat",
-        "zakat kadar",
-        "berbentuk wang",
-        "wang tunai",
-        "berbentuk",
-        "seseorang menerima",
-        "ataupun",
-        "tunai perlu",
-        "pay",
-        "haul",
-        "hadiah persaraan",
-        "cukup haul",
+        "selesai",
+        "dia",
+        "ataupun perlu",
+        "get",
+        "jika",
+        "till",
+        "sampai",
         "jika seseorang",
-        "tak",
-        "tunggu",
+        "immediately",
+        "perlu",
+        "segera ataupun",
+        "menerima hadiah",
+        "zakat",
+        "persaraan",
+        "up to",
+        "pay",
+        "perlu tak",
+        "cukup haul",
+        "laju",
+        "segera",
+        "pantas",
+        "zakat kadar",
+        "seseorang",
+        "sehingga",
+        "bayar zakat",
+        "berbentuk wang",
+        "cukup",
         "kadar segera",
+        "urgent",
+        "tunai",
+        "membayar",
+        "kadar",
+        "hadiah",
         "tak dia",
         "sehingga cukup",
-        "perlu tak",
-        "dia",
-        "bayar",
-        "perlu",
-        "segera",
-        "tunai",
-        "pembayaran",
-        "bayar zakat",
-        "ataupun perlu",
-        "seseorang",
-        "jika",
-        "hadiah",
-        "menerima hadiah",
-        "kadar",
-        "cukup",
-        "perlu tunggu",
-        "segera ataupun",
-        "persaraan",
-        "wang",
+        "hingga",
+        "dapat",
+        "ataupun",
+        "terima",
+        "berbentuk",
         "persaraan berbentuk",
+        "until",
+        "obtain",
         "tunggu sehingga",
+        "tunggu",
+        "cepat",
+        "tak",
+        "haul",
+        "perlu tunggu",
+        "tunai perlu",
+        "hadiah persaraan",
+        "menerima",
+        "receive",
+        "wang",
         "payment",
-        "menerima"
+        "pembayaran",
+        "dia bayar",
+        "bayar",
+        "seseorang menerima",
+        "wang tunai",
+        "asap"
       ]
     },
     {
@@ -382,11 +438,11 @@
       "answer": "Kadar zakat emas ialah 2.5% daripada nilai emas yang mencukupi nisab.",
       "category": "Kadar",
       "keywords": [
-        "kadar zakat",
         "kadar",
+        "kadar zakat",
+        "zakat emas",
         "emas",
         "zakat",
-        "zakat emas",
         "berapa",
         "berapa kadar"
       ]
@@ -396,13 +452,13 @@
       "answer": "Nisab zakat emas ialah 85 gram atau nilai setara dengan 85 gram emas semasa.",
       "category": "Nisab",
       "keywords": [
-        "berapa nisab",
-        "nisab",
-        "emas",
-        "zakat",
         "zakat emas",
         "nisab zakat",
-        "berapa"
+        "emas",
+        "berapa nisab",
+        "nisab",
+        "berapa",
+        "zakat"
       ]
     },
     {
@@ -410,51 +466,52 @@
       "answer": "Apabila mati seseorang dan dia ada meninggalkan harta, maka tertahanlah harta itu daripada dibelanjakan oleh segala warisnya yang berhak dan haram diambil milik melainkan untuk 3 perkara\n\n1) berkaitan pengurusan jenazahnya\n2) membayar segala hutangnya dengan Allah (zakat, fidyah) dan hutangnya sesama manusia\n3) menjelaskan wasiatnya.\n\nUpah haji termasuk dalam hutang kepada Allah seandainya dia mampu sewaktu hidup. Duit si mati mesti digunakan terlebih dahulu untuk upah haji sebelum difaraidkan.\nZakat tidak wajib dibayar jika harta si mati sewaktu hidup tidak mencukupi nisab atau haul. Jika sudah cukup nisab dan haul namun si mati tidak membayar, barulah waris boleh mengambil harta si mati untuk tujuan bayar zakat.",
       "category": "Nisab",
       "keywords": [
-        "mati bagaimana",
-        "ditinggalkan tersebut",
-        "membayar",
-        "lagi tetapi",
-        "zakat",
-        "upah haji",
-        "bagi harta",
-        "difaraidkan lagi",
-        "status",
+        "masih belum",
+        "selesai",
         "waris mati",
-        "pihak",
-        "payment",
-        "harta",
         "tinggalkan",
-        "pay",
-        "bagi pihak",
-        "lagi",
-        "status zakat",
-        "masih",
         "mati",
         "tersebut",
-        "belum difaraidkan",
-        "bayar",
-        "bagaimana",
-        "pembayaran",
-        "haji",
         "bagi",
-        "difaraidkan",
-        "zakat bagi",
-        "pihak mati",
-        "belum",
-        "tetapi",
+        "belum difaraidkan",
+        "zakat",
+        "masih",
         "tetapi waris",
-        "mati bayar",
-        "upah",
-        "ditinggalkan",
-        "mati tinggalkan",
-        "harta masih",
-        "bagaimana status",
-        "harta ditinggalkan",
-        "tinggalkan harta",
+        "pay",
         "haji bagi",
+        "belum",
+        "status zakat",
+        "mati bayar",
+        "membayar",
+        "bagi harta",
+        "harta masih",
+        "tinggalkan harta",
+        "difaraidkan lagi",
+        "lagi",
+        "bagaimana",
+        "tetapi",
+        "zakat bagi",
+        "harta ditinggalkan",
+        "bagi pihak",
+        "ditinggalkan tersebut",
+        "pihak",
+        "pihak mati",
+        "upah",
+        "mati bagaimana",
+        "lagi tetapi",
         "bayar upah",
-        "masih belum",
-        "waris"
+        "bagaimana status",
+        "harta",
+        "upah haji",
+        "status",
+        "haji",
+        "payment",
+        "pembayaran",
+        "waris",
+        "mati tinggalkan",
+        "difaraidkan",
+        "bayar",
+        "ditinggalkan"
       ]
     },
     {
@@ -463,10 +520,10 @@
       "category": "Nisab",
       "keywords": [
         "test",
-        "test testing",
+        "testing jjjjjjjjjjjjj",
         "jjjjjjjjjjjjj",
-        "testing",
-        "testing jjjjjjjjjjjjj"
+        "test testing",
+        "testing"
       ]
     },
     {
@@ -474,18 +531,25 @@
       "answer": "Zakat boleh dibayar bila-bila masa, namun paling digalakkan pada akhir tahun haul atau bulan Ramadan.",
       "category": "Pembayaran",
       "keywords": [
-        "bayar",
+        "selesai",
+        "tempoh",
+        "zakat",
+        "time",
+        "pay",
         "sesuai bayar",
         "membayar",
-        "pay",
-        "waktu",
-        "pembayaran",
         "bayar zakat",
-        "sesuai",
-        "zakat",
+        "period",
+        "waktu",
         "apa",
+        "masa",
+        "sesuai",
         "waktu sesuai",
         "apa waktu",
+        "pembayaran",
+        "bayar",
+        "bila",
+        "when",
         "payment"
       ]
     },
@@ -494,20 +558,23 @@
       "answer": "Anda boleh membayar zakat melalui portal rasmi LZNK, kaunter zakat, atau wakil amil yang dilantik.",
       "category": "Pembayaran",
       "keywords": [
-        "bayar",
-        "cara bayar",
-        "membayar",
         "bagaimana",
-        "pay",
-        "kaedah",
-        "pembayaran",
-        "bayar zakat",
-        "zakat",
+        "selesai",
         "how",
-        "method",
+        "pay",
         "cara",
-        "payment",
-        "bagaimana cara"
+        "cara-cara",
+        "pembayaran",
+        "membayar",
+        "bayar zakat",
+        "bayar",
+        "method",
+        "kaedah",
+        "steps",
+        "cara bayar",
+        "zakat",
+        "bagaimana cara",
+        "payment"
       ]
     },
     {
@@ -515,17 +582,24 @@
       "answer": "Sekiranya latihan tersebut memberi faedah serta maslahah kepada urusan muallaf yang diuruskan oleh pihak yang bertanggungjawab tersebut, maka harus menggunakan wang zakat dari bahagian asnaf muallaf.",
       "category": "Penggunaan Wang Zakat",
       "keywords": [
-        "muallaf",
+        "new muslim",
+        "baru convert",
+        "convert",
         "muallaf digunakan",
-        "pegawai",
-        "zakat muallaf",
-        "digunakan",
-        "zakat",
-        "kursus pegawai",
-        "kursus",
+        "muallaf",
         "wang",
+        "pegawai",
+        "digunakan",
+        "convert to islam",
         "wang zakat",
-        "digunakan kursus"
+        "digunakan kursus",
+        "new convert",
+        "zakat muallaf",
+        "mualaf",
+        "newly converted",
+        "kursus",
+        "kursus pegawai",
+        "zakat"
       ]
     },
     {
@@ -533,21 +607,28 @@
       "answer": "Imam Nawawi menyimpulkan bahawa di wajibkan zakat bagi harta batin atau zahir ataupun dari jenis hutang atau selain daripadanya. Perkara ini dinyatakan oleh Imam Nawawi di dalam kitabnya Majmu’:\n\nفَالْحَاصِلُ أَنَّ الْمَذْهَبَ وُجُوبُ الزَّكَاةِ سَوَاءٌ كَانَ الْمَالُ بَاطِنًا أَوْ ظَاهِرًا أَمْ مِنْ جِنْسِ الدَّيْنِ أَمْ غَيْرِ هِ قَالَ أَصْحَابُنَا سَوَاءٌ دَيْنُ\nالْْدَمِ ي وَدَيْنُ اللََِّّ عَزَّ وَجَلَّ\n\nMaksudnya: “Maka kesimpulannya disisi mazhab wajib zakat samaada harta itu harta batin atau zahir atau dari jenis hutang atau selainnya, menurut para ulama’ kami sama ada hutang itu hutang dengan manusia atau hutang dengan Allah”\n\n(Lihat Majmu’ Syarh Muhazzab 5/344) \n\nDiwajibkan zakat jika mencukupi nisab (jumlah minimum yang diwajibkan zakat) dan tidak dibelanjakan dalam tempoh haul (tempoh masa setahun). Jika telah dibelanjakan sebelum sampai tempoh haul, maka tidak diwajibkan membayar zakat ke atas hutang tersebut",
       "category": "Perniagaan",
       "keywords": [
-        "adakah",
+        "wang pinjaman",
+        "pinjam",
         "wajib",
-        "adakah duit",
         "perlu",
-        "perniagaan wajib",
-        "perniagaan",
-        "mesti",
-        "must",
         "zakat",
+        "borrow",
+        "loan",
         "pinjaman",
-        "duit",
+        "required",
+        "perniagaan wajib",
         "wajib zakat",
-        "duit pinjaman",
+        "debt",
+        "adakah",
+        "mandatory",
         "pinjaman perniagaan",
-        "required"
+        "adakah wang",
+        "hutang",
+        "must",
+        "wang",
+        "perniagaan",
+        "kena",
+        "mesti"
       ]
     },
     {
@@ -557,11 +638,11 @@
       "keywords": [
         "bagaimana",
         "perniagaan",
-        "zakat",
-        "bagaimana mengira",
-        "zakat perniagaan",
         "mengira",
-        "mengira zakat"
+        "mengira zakat",
+        "zakat perniagaan",
+        "bagaimana mengira",
+        "zakat"
       ]
     },
     {
@@ -569,38 +650,41 @@
       "answer": "Di antara syarat wajib zakat perniagaan adalah cukup haul (tempoh setahun). Namun, di dalam mazhab syafie diharuskan membayar zakat sebelum cukup haul dengan menggunakan konsep (تعجيل الزكاة) dengan beberapa syarat. Di antaranya harta tersebut mestilah cukup nisab di sisi pemilik harta, (تعجيل الزكاة) mendahulukan pembayaran zakat sebelum tempohnya mestilah dalam tempoh setahun sahaja dan tidak melebihi dua tahun. (Minhaju  Talibin - Imam Nawawi)",
       "category": "Perniagaan",
       "keywords": [
+        "selesai",
+        "membayarnya",
         "wajib",
-        "membayar",
-        "menunggu cukup",
-        "zakat",
-        "secara",
-        "hukum seseorang",
-        "membayarnya secara",
-        "required",
+        "secara bulanan",
         "hukum",
+        "wajib bayar",
+        "perlu",
+        "zakat",
+        "bulanan",
+        "tanpa menunggu",
+        "hukum seseorang",
+        "secara",
         "pay",
-        "haul",
-        "perniagaan",
-        "mesti",
         "cukup haul",
+        "required",
+        "seseorang wajib",
+        "zakat perniagaan",
+        "seseorang",
+        "membayar",
+        "bayar zakat",
+        "cukup",
+        "bulanan tanpa",
+        "mandatory",
+        "menunggu",
+        "haul",
         "perniagaan membayarnya",
         "must",
-        "tanpa",
-        "membayarnya",
-        "bulanan tanpa",
-        "bayar",
-        "perlu",
+        "perniagaan",
         "pembayaran",
-        "bayar zakat",
-        "menunggu",
-        "zakat perniagaan",
-        "bulanan",
-        "seseorang",
-        "secara bulanan",
-        "cukup",
-        "seseorang wajib",
-        "tanpa menunggu",
-        "wajib bayar",
+        "menunggu cukup",
+        "kena",
+        "bayar",
+        "tanpa",
+        "membayarnya secara",
+        "mesti",
         "payment"
       ]
     },
@@ -609,37 +693,38 @@
       "answer": "Menurut pandangan Imam al-Syafie r.h.m, pemilik harta yang dihutangkan kepada orang kaya, wajib membayar zakatnya setiap tahun yang walaupun belum menerima bayaran balik hutang tersebut. Ini adalah disebabkan kuasa menuntut dan keupayaan membayar oleh pihak berhutang itu wujud. Di samping itu, kemungkinan melakukan tasarruf (berkuasa menguruskan wang secara mutlak) pada harta tersebut ada di pihak pemiutang. Ia sama seperti barang wadi’ah (yang ditumpangkan atau ditinggalkan pada jagaan seseorang), di mana pemilik ada upaya tasarruf pada harta wadiah tersebut.",
       "category": "Perniagaan",
       "keywords": [
-        "membayar",
-        "rakan kongsi",
-        "berhutang",
-        "zakat",
-        "atas wang",
-        "pay",
-        "haul",
+        "masih belum",
+        "selesai",
+        "beberapa",
+        "beberapa rakan",
         "perlu bayar",
+        "rakan kongsi",
+        "perlu",
         "tiba",
+        "zakat",
+        "berhutang haul",
         "masih",
-        "haul zakat",
         "wang masih",
+        "pay",
+        "atas wang",
+        "belum",
+        "tiba perlu",
+        "membayar",
+        "bayar zakat",
+        "haul zakat",
         "belum bayar",
+        "kongsi",
         "zakat tiba",
         "kongsi berhutang",
-        "bayar",
-        "perlu",
-        "rakan",
-        "berhutang haul",
-        "pembayaran",
-        "bayar zakat",
-        "tiba perlu",
-        "belum",
-        "beberapa rakan",
-        "zakat atas",
+        "haul",
         "atas",
-        "beberapa",
-        "kongsi",
+        "zakat atas",
         "wang",
-        "payment",
-        "masih belum"
+        "pembayaran",
+        "bayar",
+        "rakan",
+        "berhutang",
+        "payment"
       ]
     },
     {
@@ -647,28 +732,28 @@
       "answer": "Zakat wajib dibayar sekiranya sudah mencukupi haul dan nisab. Bayaran zakat wajib diqadha seandainya terlupa untuk membayarnya pada waktu yang diwajibkan. Orang yang terlupa menunaikan zakat, tetap diwajibkan qada walaupun tidak berdosa. Kewajipan tersebut hanya akan terangkat jika dia telah menqada zakatnya. Adapun orang yang tidak menunaikan zakat secara sengaja, dia wajib qada berserta bertaubat kepada Allah s.w.t.",
       "category": "Syariah",
       "keywords": [
+        "diqada",
+        "jika",
+        "tersebut",
         "nisab",
+        "perlu",
         "zakat",
+        "zakat tersebut",
+        "diqada bayaran",
+        "jika terlupa",
+        "bayaran zakat",
+        "haul nisab",
         "adakah perlu",
         "mencukupi",
-        "jika terlupa",
-        "mencukupi haul",
-        "diqada",
-        "diqada bayaran",
-        "haul",
-        "nisab adakah",
-        "terlupa bayaran",
-        "perlu diqada",
-        "bayaran zakat",
-        "tersebut",
         "adakah",
-        "terlupa",
-        "perlu",
-        "haul nisab",
-        "zakat mencukupi",
         "bayaran",
-        "zakat tersebut",
-        "jika"
+        "perlu diqada",
+        "mencukupi haul",
+        "haul",
+        "terlupa bayaran",
+        "zakat mencukupi",
+        "nisab adakah",
+        "terlupa"
       ]
     },
     {
@@ -676,45 +761,53 @@
       "answer": "Jumlah rm 15 ribu (dalam nilai semasa) tidak mencukupi nisab, maka tidak diwajibkan zakat wang simpanan ke atasnya kerana tidak mencukupi salah satu syarat wajib zakat iaitu nisab. Namun, jika dia mempunyai simpanan wang yang lain sama ada di institusi perbankan atau seumpamanya maka ia perlu dicampur dengan jumlah rm15 ribu tersebut. Dan setelah itu, jika jumlah terkumpul mencapai nisab dan haul maka wajib ke atasnya untuk membayar zakat wang simpanan.",
       "category": "Syariah",
       "keywords": [
-        "wajib",
-        "membayar",
-        "zakat",
-        "payment",
-        "zakat wang",
-        "seseorang menerima",
-        "required",
         "pusaka berjumlah",
+        "selesai",
+        "dia",
+        "bekerja",
+        "wajib",
+        "get",
+        "sekiranya seseorang",
+        "wajib bayar",
+        "perlu",
+        "zakat",
         "pay",
+        "required",
+        "simpanan",
+        "wang pusaka",
+        "berjumlah",
+        "ribu dia",
+        "seseorang",
+        "receive",
+        "tidak bekerja",
+        "bayar zakat",
+        "membayar",
+        "pusaka",
+        "dapat",
+        "terima",
+        "adakah",
+        "obtain",
+        "mandatory",
+        "adakah dia",
+        "wang simpanan",
+        "ribu",
         "menerima wang",
         "dia tidak",
-        "mesti",
-        "pusaka",
-        "must",
-        "ribu dia",
-        "dia",
-        "adakah",
-        "bayar",
-        "perlu",
-        "bekerja",
-        "simpanan",
-        "berjumlah",
-        "bayar zakat",
-        "pembayaran",
-        "sekiranya seseorang",
-        "sekiranya",
-        "ribu",
-        "tidak",
-        "seseorang",
-        "dia wajib",
-        "wang pusaka",
-        "wang simpanan",
-        "tidak bekerja",
         "bekerja adakah",
-        "wang",
-        "wajib bayar",
-        "berjumlah ribu",
+        "tidak",
         "menerima",
-        "adakah dia"
+        "sekiranya",
+        "berjumlah ribu",
+        "must",
+        "wang",
+        "pembayaran",
+        "kena",
+        "bayar",
+        "mesti",
+        "seseorang menerima",
+        "zakat wang",
+        "dia wajib",
+        "payment"
       ]
     },
     {
@@ -722,41 +815,48 @@
       "answer": "Zakat emas diwajibkan kepada isteri kerana isteri merupakan pemilik sempurna bagi    emas tersebut. Isu isteri tidak bekerja tidak boleh dijadikan alasan untuk tidak membayar zakat kerana apabila seseorang telah memiliki emas yang melebihi nisab maka dia dikira sebagai orang yang berharta.",
       "category": "Syariah",
       "keywords": [
+        "zakat emas",
+        "spouse",
+        "selesai",
+        "bekerja",
         "wajib",
-        "membayar",
-        "isteri tidak",
+        "memberi emas",
         "nisab",
+        "wajib bayar",
+        "perlu",
         "zakat",
+        "kepada isteri",
+        "wife",
         "suami",
+        "isteri tidak",
+        "pay",
+        "siapa wajib",
+        "required",
+        "seorang suami",
+        "membayar",
+        "tidak bekerja",
+        "bayar zakat",
+        "ibu",
+        "isteri",
         "melebihi",
-        "seorang",
+        "mandatory",
+        "melebihi nisab",
+        "bekerja siapa",
+        "tidak",
+        "suami memberi",
+        "nisab kepada",
+        "emas",
+        "siapa",
+        "must",
         "memberi",
         "emas melebihi",
-        "seorang suami",
-        "required",
-        "memberi emas",
-        "suami memberi",
-        "pay",
-        "kepada isteri",
-        "nisab kepada",
-        "mesti",
-        "must",
-        "siapakah wajib",
-        "kepada",
-        "isteri",
-        "bayar",
-        "perlu",
-        "bekerja",
+        "pasangan",
         "pembayaran",
-        "bayar zakat",
-        "zakat emas",
-        "bekerja siapakah",
-        "tidak",
-        "melebihi nisab",
-        "emas",
-        "tidak bekerja",
-        "wajib bayar",
-        "siapakah",
+        "kena",
+        "bayar",
+        "kepada",
+        "mesti",
+        "seorang",
         "payment"
       ]
     },
@@ -765,39 +865,39 @@
       "answer": "Zakat tidak wajib dibayar jika harta si mati sewaktu hidup tidak mencukupi nisab dan haul. Jika sudah cukup nisab dan haul namun si mati belum membayar zakat ketika hayatnya barulah waris boleh mengambil harta si mati untuk tujuan bayar zakat.",
       "category": "Syariah",
       "keywords": [
-        "dibahagikan",
+        "perlu dibayar",
         "zakat dahulu",
+        "perlu",
+        "sebelum dibahagikan",
+        "zakat",
         "ahli",
-        "dunia",
+        "meninggalkan harta",
+        "sebelum",
+        "seseorang",
+        "meninggal",
         "seseorang meninggal",
         "dunia meninggalkan",
-        "zakat",
-        "meninggal",
-        "dahulu sebelum",
-        "dibayar",
         "meninggal dunia",
-        "harta",
-        "harta apa",
-        "waris sebagai",
-        "ahli waris",
-        "sebelum",
-        "faraid",
-        "kepada",
-        "dahulu",
-        "perlu dibayar",
-        "perlu",
-        "meninggalkan",
-        "meninggalkan harta",
-        "dibahagikan kepada",
-        "apa",
-        "sebagai",
         "dibayar zakat",
-        "kepada ahli",
-        "seseorang",
-        "sebelum dibahagikan",
+        "waris sebagai",
+        "dunia",
+        "dibahagikan kepada",
+        "dahulu",
+        "faraid",
+        "harta",
         "sebagai faraid",
         "apa perlu",
-        "waris"
+        "dibayar",
+        "ahli waris",
+        "dahulu sebelum",
+        "waris",
+        "sebagai",
+        "dibahagikan",
+        "kepada ahli",
+        "kepada",
+        "meninggalkan",
+        "apa",
+        "harta apa"
       ]
     },
     {
@@ -805,35 +905,40 @@
       "answer": "Seorang anak yang sudah bekerja dan mempunyai pendapatan sendiri wajib membayar zakat fitrahnya sendiri. Bapa boleh membayar zakat fitrah bagi anak dengan syarat meminta izin terlebih dahulu daripada tuan badan sebelum membayarnya",
       "category": "Umum",
       "keywords": [
-        "bekerja serta",
-        "membayar",
-        "fitrah",
-        "pendapatan",
+        "dad",
+        "selesai",
+        "bekerja",
+        "serta",
         "zakat",
-        "dewasa",
-        "adakah bapa",
-        "fitrah anak",
-        "anak perempuan",
         "pay",
-        "mempunyai pendapatan",
+        "dewasa bekerja",
+        "membayar",
+        "sendiri",
+        "bayar zakat",
+        "serta mempunyai",
+        "pendapatan sendiri",
+        "perempuan",
+        "zakat fitrah",
         "bapa bayar",
+        "fitrah anak",
+        "bekerja serta",
+        "adakah bapa",
         "anak",
         "adakah",
-        "bayar",
-        "bekerja",
-        "bapa",
-        "perempuan",
-        "serta mempunyai",
+        "parent",
         "mempunyai",
-        "bayar zakat",
-        "pembayaran",
+        "bapa",
+        "fitrah",
+        "father",
+        "mempunyai pendapatan",
         "perempuan dewasa",
-        "zakat fitrah",
-        "pendapatan sendiri",
-        "serta",
-        "dewasa bekerja",
+        "ayah",
         "payment",
-        "sendiri"
+        "pembayaran",
+        "pendapatan",
+        "anak perempuan",
+        "bayar",
+        "dewasa"
       ]
     },
     {
@@ -841,21 +946,23 @@
       "answer": "Deposit tetap (FD) adalah sejenis pelaburan jangka pendek di mana pelabur mendepositkan sejumlah wang dan bersetuju untuk mengelak daripada mengeluarkan wang mereka untuk sesuatu tempoh masa yang ditetapkan.\nSekiranya amaun mencukupi nisab dan haul, maka dikenakan zakat wang simpanan.",
       "category": "Umum",
       "keywords": [
-        "adakah",
-        "wajib",
-        "perlu",
-        "wajib dikenakan",
-        "mesti",
-        "must",
-        "zakat",
         "fixed deposit",
         "adakah fixed",
-        "deposit",
-        "deposit wajib",
-        "fixed",
+        "wajib",
         "required",
+        "adakah",
+        "must",
+        "mandatory",
+        "dikenakan zakat",
+        "fixed",
+        "deposit",
+        "kena",
+        "perlu",
+        "mesti",
         "dikenakan",
-        "dikenakan zakat"
+        "wajib dikenakan",
+        "zakat",
+        "deposit wajib"
       ]
     },
     {
@@ -863,33 +970,33 @@
       "answer": "Hukum menggunakan wang zakat untuk membeli binatang korban adalah tidak dibolehkan. Hal ini kerana ibadah korban adalah ibadah yang berbentuk khusus dan mesti menggunakan harta persendirian tanpa melibatkan harta pihak lain seumpamanya wang zakat yang diwakilkan untuk diagih kepada lapan asnaf.",
       "category": "Umum",
       "keywords": [
-        "korban diagihkan",
+        "zakat digunakan",
+        "agihan zakat",
         "sebagai pembelian",
+        "wakalah agihan",
+        "binatang",
+        "kepada fakir",
         "zakat",
+        "miskin",
+        "wang wakalah",
+        "korban diagihkan",
+        "adakah",
+        "korban",
+        "pembelian",
+        "diagihkan",
+        "fakir miskin",
+        "fakir",
+        "adakah wang",
+        "diagihkan kepada",
         "wakalah",
         "agihan",
-        "pembelian",
-        "kepada fakir",
-        "wang wakalah",
-        "kepada",
-        "wakalah agihan",
-        "adakah",
-        "agihan zakat",
-        "binatang korban",
-        "miskin",
-        "digunakan",
-        "diagihkan",
-        "sebagai",
-        "fakir miskin",
-        "zakat digunakan",
-        "diagihkan kepada",
-        "korban",
-        "pembelian binatang",
-        "adakah wang",
         "digunakan sebagai",
-        "fakir",
-        "binatang",
-        "wang"
+        "pembelian binatang",
+        "binatang korban",
+        "wang",
+        "digunakan",
+        "sebagai",
+        "kepada"
       ]
     },
     {
@@ -897,9 +1004,9 @@
       "answer": "Zakat ialah kewajipan agama yang dikenakan ke atas umat Islam untuk menunaikan sebahagian harta kepada golongan yang layak menerimanya.",
       "category": "Umum",
       "keywords": [
-        "zakat",
+        "apa",
         "apa zakat",
-        "apa"
+        "zakat"
       ]
     },
     {
@@ -907,15 +1014,14 @@
       "answer": "🕰️ Haul bermaksud tempoh masa satu tahun hijrah (12 bulan) yang perlu dilalui oleh sesuatu harta sebelum diwajibkan zakat.\n\n💡 Contohnya:\nJika seseorang mula menyimpan wang pada 1 Muharram, maka zakat hanya wajib dikeluarkan apabila cukup 1 tahun hijrah penuh, iaitu pada 1 Muharram tahun berikutnya, dengan syarat jumlahnya masih mencapai nisab.",
       "category": "Umum",
       "keywords": [
-        "haul",
-        "apa maksud",
-        "maksud haul",
-        "zakat",
+        "apa haul",
+        "haul dalam",
         "dalam",
+        "apa apa",
         "apa",
-        "maksud",
         "dalam zakat",
-        "haul dalam"
+        "haul",
+        "zakat"
       ]
     },
     {
@@ -923,10 +1029,10 @@
       "answer": "🤖 Zakia Chatbot boleh membantu pengguna dengan pelbagai perkara berkaitan zakat secara cepat dan mudah, antaranya:\n\n💬 Menjawab soalan lazim tentang zakat (contohnya zakat pendapatan, zakat harta, zakat fitrah dan lain-lain).\n\n📅 Memberi panduan tentang cara, waktu, dan syarat pembayaran zakat.\n\n💸 Menyemak kadar zakat semasa berdasarkan jenis harta atau pendapatan.\n\n📍 Memberi maklumat lokasi dan saluran pembayaran zakat (kaunter, online, eZakat dan sebagainya).\n\n🕋 Membantu pengguna memahami hukum dan niat zakat mengikut syariat Islam.\n\n🌟 Dengan Zakia, pengguna boleh mendapatkan maklumat zakat bila-bila masa dan di mana sahaja!",
       "category": "Umum",
       "keywords": [
-        "zakia buat",
         "buat",
-        "apa",
         "apa zakia",
+        "apa",
+        "zakia buat",
         "zakia"
       ]
     },
@@ -935,14 +1041,19 @@
       "answer": "💡 Zakat adalah kewajipan bagi Muslim yang cukup syarat, manakala sedekah adalah amalan sunat yang boleh dilakukan bila-bila masa, tanpa had nilai.",
       "category": "Umum",
       "keywords": [
-        "perbezaan",
-        "sedekah",
-        "apa perbezaan",
-        "zakat",
-        "apa",
         "antara zakat",
         "zakat sedekah",
+        "distinction",
+        "apa perbezaan",
+        "difference",
+        "variety",
+        "perbezaan",
+        "bezanya",
         "antara",
+        "beza",
+        "apa",
+        "sedekah",
+        "zakat",
         "perbezaan antara"
       ]
     },
@@ -951,23 +1062,24 @@
       "answer": "Anda boleh menggunakan portal Jom Zakat untuk pengiraan dan pembayaran secara dalam talian.\n\n-> https://jom.zakatkedah.com.my/kirazakat/tabkirazakat.php",
       "category": "Umum",
       "keywords": [
-        "bayar",
-        "membayar",
-        "kedah",
+        "selesai",
+        "secara",
         "pay",
-        "pembayaran",
-        "bayar zakat",
-        "zakat secara",
+        "kedah",
         "secara online",
-        "zakat",
-        "apa",
+        "apa prosedur",
+        "zakat secara",
+        "pembayaran",
         "prosedur bayar",
         "online kedah",
-        "secara",
-        "payment",
-        "prosedur",
+        "membayar",
         "online",
-        "apa prosedur"
+        "bayar",
+        "bayar zakat",
+        "apa",
+        "zakat",
+        "prosedur",
+        "payment"
       ]
     },
     {
@@ -975,17 +1087,19 @@
       "answer": "Jika anda mempunyai simpanan yang cukup nisab dan telah mencapai haul (354 hari) maka zakat simpanan diwajibkan. \n\nContoh: Simpanan tetap di bank → apabila cukup haul dan nilai simpanan ≥ nisab, zakat perlu dikeluarkan.\n\nAnda boleh kira disini -> https://jom.zakatkedah.com.my/kirazakat/tabkirazakat.php",
       "category": "Umum",
       "keywords": [
-        "zakat simpanan",
-        "bagaimana",
-        "kaedah",
-        "simpanan",
-        "kira zakat",
-        "kira",
-        "zakat",
         "cara kira",
+        "bagaimana",
         "how",
-        "method",
         "cara",
+        "simpanan",
+        "zakat simpanan",
+        "kira zakat",
+        "cara-cara",
+        "zakat",
+        "steps",
+        "method",
+        "kaedah",
+        "kira",
         "bagaimana cara"
       ]
     },
@@ -995,24 +1109,26 @@
       "category": "Umum",
       "keywords": [
         "wajib",
-        "yatim wajib",
-        "fitrah",
-        "zakat",
-        "anak yatim",
-        "required",
-        "fitrah anak",
-        "mesti",
-        "must",
-        "bayaran zakat",
-        "anak",
-        "wajib atas",
         "perlu",
+        "zakat",
+        "required",
         "yatim",
         "zakat fitrah",
+        "anak yatim",
+        "bayaran zakat",
+        "fitrah anak",
+        "mandatory",
         "bayaran",
         "atas",
+        "fitrah",
+        "wajib atas",
         "siapa",
-        "atas siapa"
+        "yatim wajib",
+        "must",
+        "kena",
+        "atas siapa",
+        "mesti",
+        "anak"
       ]
     },
     {
@@ -1020,19 +1136,19 @@
       "answer": "💰 Kadar zakat berbeza mengikut jenis harta. Berikut ialah kadar yang ditetapkan:\n\n1️⃣ Zakat Wang Simpanan / Pendapatan / Perniagaan / Pelaburan / Emas & Perak\n➡️ 2.5% daripada jumlah harta yang mencapai nisab dan cukup haul (1 tahun).\n\n2️⃣ Zakat Pertanian\n🌾 Jika menggunakan air hujan / sungai (tanpa kos pengairan) → 10%\n💧 Jika menggunakan pengairan berbayar / sistem moden (ada kos) → 5%\n\n3️⃣ Zakat Ternakan\n🐄 Bergantung pada jenis dan bilangan haiwan (contohnya lembu, kambing, unta).\n➡️ Hanya diwajibkan jika mencapai nisab tertentu dan cukup haul.\n\n4️⃣ Zakat Fitrah\n🍚 Kadar ditetapkan oleh negeri (contohnya Kedah: RM7 seorang).\n➡️ Wajib dikeluarkan sebelum solat Hari Raya Aidilfitri.",
       "category": "Umum",
       "keywords": [
-        "jenis",
-        "bagi setiap",
-        "kadar zakat",
-        "setiap jenis",
-        "kadar",
-        "jenis harta",
-        "bagi",
-        "zakat",
-        "berapa",
-        "zakat bagi",
-        "berapa kadar",
         "harta",
-        "setiap"
+        "kadar zakat",
+        "zakat bagi",
+        "bagi setiap",
+        "setiap jenis",
+        "bagi",
+        "berapa kadar",
+        "zakat",
+        "jenis",
+        "berapa",
+        "setiap",
+        "jenis harta",
+        "kadar"
       ]
     },
     {
@@ -1040,13 +1156,13 @@
       "answer": "❓ 1. Apakah itu LZNK?\n💼 Lembaga Zakat Negeri Kedah (LZNK) ialah institusi rasmi yang bertanggungjawab untuk mengutip dan mengagihkan zakat di negeri Kedah Darul Aman.\nLZNK memastikan pengurusan zakat dijalankan secara telus, patuh syariah, dan berkesan bagi membantu golongan asnaf yang memerlukan.\n\n❓ 2. Apakah fungsi utama LZNK?\n⚙️ LZNK berperanan untuk:\n💸 Mengutip zakat daripada umat Islam yang layak menunaikan kewajipan zakat.\n🕌 Mengagihkan dana zakat kepada 8 golongan asnaf seperti fakir, miskin, amil, muallaf, dan lain-lain.\n📊 Mengurus dan memantau program pembangunan asnaf agar bantuan zakat memberi kesan jangka panjang.\n\n❓ 3. Bagaimana cara untuk membayar zakat melalui LZNK?\n💳 Anda boleh menunaikan zakat melalui beberapa cara mudah:\n🏢 Kaunter zakat di semua cawangan LZNK.\n🌐 Portal rasmi: www.zakatkedah.com.my\n📱 Aplikasi mudah alih “Zakat On Touch”.\n💻 Perbankan dalam talian melalui bank yang dilantik LZNK.\n\n❓ 4. Apakah jenis zakat yang dikutip oleh LZNK?\n📋 Antara jenis zakat yang dikutip ialah:\n- Zakat Pendapatan 💼\n- Zakat Perniagaan 🏢\n- Zakat Simpanan 💰\n- Zakat Emas & Perak 🪙\n- Zakat Pertanian 🌾\n- Zakat Ternakan 🐄\n- Zakat Fitrah 🕌\n\n❓ 5. Bagaimana cara memohon bantuan zakat daripada LZNK?\n📝 Anda boleh memohon bantuan zakat dengan:\nMengisi borang permohonan di cawangan LZNK berdekatan.\nAtau secara atas talian melalui portal rasmi www.zakatkedah.com.my.\n📎 Pastikan anda menyediakan dokumen sokongan seperti salinan kad pengenalan, slip gaji, dan bukti tanggungan (jika ada).\n\n❓ 6. Bagaimana untuk menghubungi LZNK?\n📞 Talian Bebas Tol: 1-800-88-1740\n📧 E-mel: info@zakatkedah.com.my atau aduan@zakatkedah.com.my\n🏢 Alamat: Menara Zakat, Jalan Teluk Wan Jah, 05200 Alor Setar, Kedah Darul Aman\n🌐 Laman Web: http://www.zakatkedah.com.my",
       "category": "Umum",
       "keywords": [
-        "tentang",
+        "beri",
         "info",
         "info tentang",
-        "beri",
-        "beri info",
+        "tentang",
+        "tentang lznk",
         "lznk",
-        "tentang lznk"
+        "beri info"
       ]
     },
     {
@@ -1063,23 +1179,23 @@
       "answer": "Terdapat banyak ayat Al Quran dan hadis yang menjadi dalil kepada keharusan wakalah, antaranya;\n- surah Yusuf ayat 55. Allah SWT berfirman:\n\nقَالَ ٱجْعَلْنِى عَلَىٰ خَزَآئِنِ ٱلْأَرْضِ ۖ إِنِّى حَفِيظٌ عَلِيمٌ\n\nErtinya: \"Berkata Yusuf: \"Jadikanlah aku penjaga perbendaharaan negara (Mesir), sesungguhnya aku adalah orang yang pandai menjaga, lagi berpengetahuan.\" (QS. Yusuf: 55)\n\n- Nabi yusuf bersedia untuk menjadi wakil bagi menguruskan ekonomi Mesir.\n\n- antaranya firman Allah;\nقال الله تعالى: {وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَى وَلَا تَعَاوَنُوا عَلَى الْإِثْمِ وَالْعُدْوَانِ وَاتَّقُوا اللَّهَ إِنَّ اللَّهَ شَدِيدُ الْعِقَابِ  [المائدة:2\n\nDan hendaklah kamu bertolong-tolongan untuk membuat kebajikan dan bertaqwa, dan janganlah kamu bertolong-tolongan pada melakukan dosa (maksiat) dan pencerobohan. Dan bertaqwalah kepada Allah, kerana sesungguhnya Allah Maha Berat azab seksaNya (bagi sesiapa yang melanggar perintahNya). (Al-Māʾidah, Ayat 2)\n\n- Firman Allah;\n\n وقال الله تعالى: {قَالُوا رَبُّكُمْ أَعْلَمُ بِمَا لَبِثْتُمْ فَابْعَثُوا أَحَدَكُمْ بِوَرِقِكُمْ هَذِهِ إِلَى الْمَدِينَةِ فَلْيَنْظُرْ أَيُّهَا أَزْكَى طَعَامًا فَلْيَأْتِكُمْ بِرِزْقٍ مِنْهُ وَلْيَتَلَطَّفْ وَلَا يُشْعِرَنَّ بِكُمْ أَحَدًا [19] [الكهف:19]\n\nErtinya: \"mereka berkata: \"Tuhan kamu lebih menengetahui tentang lamanya kamu tidur; sekarang utuslah salah seorang dari kamu, membawa wang perak kamu ini ke bandar (sebagai wakil); kemudian biarlah dia mencari dan memilih mana-mana jenis makanan yang lebih baik lagi halal (yang dijual di situ); kemudian hendaklah ia membawa untuk kamu sedikit habuan daripadanya; dan hendaklah ia berlemah-lembut dengan bersungguh-sungguh (semasa di bandar); dan janganlah dia melakukan sesuatu yang menyebabkan sesiapapun menyedari akan hal kamu. (Al-Kahf, Ayat 19)\n\n- Hadith Nabi s.a.w;\n\nوَعَنْ عَلِيٍّ رَضِيَ اللهُ عَنهُ قَالَ: أمَرَنِي رَسُولُ الله صلى الله عليه وسلم أنْ أتَصَدَّقَ بِجِلالِ البُدْنِ الَّتِي نَحَرْتُ وَبِجُلُودِهَا. متفق عليه\n\nErtinya; Daripada Saidina Ali katanya: Rasulullah telah memerintahku (mewakilkanku) untuk bersedekah unta yang aku telah sembelih bersama kulitnya (HR Bukhari & Muslim)\n\nKesemua dalil-dalil tersebut menjadi hujah secara umum aqad wakalah atau wakil diharuskan termasuk membabitkan agihan zakat.",
       "category": "Umum",
       "keywords": [
-        "apa dalil",
-        "rujukan wakalah",
-        "rujukan",
+        "agihan",
         "agihan zakat",
-        "apa",
-        "wakalah",
-        "zakat",
-        "lznk",
+        "tahu",
+        "apa dalil",
         "zakat diamalkan",
         "dalil",
         "diamalkan lznk",
-        "diamalkan",
-        "tahu",
-        "tahu apa",
-        "agihan",
+        "wakalah agihan",
+        "rujukan",
+        "rujukan wakalah",
+        "lznk",
         "dalil rujukan",
-        "wakalah agihan"
+        "diamalkan",
+        "tahu apa",
+        "apa",
+        "zakat",
+        "wakalah"
       ]
     },
     {
@@ -1087,23 +1203,23 @@
       "answer": "Hutang yang diberikan tidak boleh diniatkan sebagai zakat dengan cara menghalalkan hutang tersebut. Hal ini kerana, ibadah zakat dan bayaran hutang merupakan dua perkara wajib yang berbeza.",
       "category": "Umum",
       "keywords": [
-        "niatkan",
+        "hutang",
+        "hutang kita",
+        "zakat kepada",
         "bolehkah hutang",
+        "kita",
         "penghutang",
         "kita niatkan",
-        "hutang",
         "sebagai zakat",
-        "zakat kepada",
-        "penghutang miskin",
-        "miskin",
-        "zakat",
-        "sebagai",
-        "hutang kita",
-        "kepada penghutang",
-        "kita",
-        "kepada",
         "niatkan sebagai",
-        "bolehkah"
+        "sebagai",
+        "niatkan",
+        "bolehkah",
+        "kepada penghutang",
+        "penghutang miskin",
+        "kepada",
+        "zakat",
+        "miskin"
       ]
     },
     {
@@ -1111,39 +1227,39 @@
       "answer": "klik link disini\n\nhttps://docs.google.com/forms/d/e/1FAIpQLSc-4mJaTeK0v0Om-ZViqiK6IfLEo0qtYe49KJmT-Uydl2P-iA/viewform",
       "category": "Umum",
       "keywords": [
-        "darul aman",
-        "borang",
-        "pelanggan",
-        "kedah",
-        "selidik",
-        "zakat",
-        "2025",
-        "soal selidik",
-        "kajian",
-        "kajian kepuasan",
-        "perkhidmatan lembaga",
-        "lembaga zakat",
-        "soal",
-        "zakat negeri",
-        "kedah darul",
         "terhadap",
-        "kualiti",
-        "selidik kajian",
-        "borang soal",
-        "terhadap kualiti",
-        "negeri",
-        "negeri kedah",
+        "pelanggan terhadap",
+        "kepuasan",
+        "borang",
+        "kajian kepuasan",
+        "zakat negeri",
+        "darul",
+        "zakat",
+        "soal selidik",
+        "2025",
         "tahun",
+        "selidik",
+        "lznk",
+        "lznk zakat",
+        "selidik kajian",
+        "negeri kedah",
+        "pelanggan",
+        "kedah darul",
+        "soal",
+        "kedah",
+        "kajian",
+        "darul aman",
         "kualiti perkhidmatan",
         "perkhidmatan",
-        "kepuasan",
-        "aman tahun",
-        "tahun 2025",
+        "terhadap kualiti",
+        "negeri",
         "aman",
-        "pelanggan terhadap",
-        "darul",
         "kepuasan pelanggan",
-        "lembaga"
+        "kualiti",
+        "perkhidmatan lznk",
+        "tahun 2025",
+        "borang soal",
+        "aman tahun"
       ]
     },
     {
@@ -1151,9 +1267,9 @@
       "answer": "🕌 Terdapat dua jenis zakat utama dalam Islam:\n\n1️⃣ Zakat Fitrah\n🍚 Dikeluarkan setahun sekali pada bulan Ramadan sebelum solat Hari Raya Aidilfitri.\nTujuannya untuk menyucikan diri dan membantu golongan fakir miskin.\n\n2️⃣ Zakat Harta\n💰 Dikeluarkan apabila harta seseorang mencapai nisab dan haul (cukup setahun).\nZakat harta merangkumi:\n\n- Zakat wang simpanan 💵\n- Zakat emas dan perak 🪙\n- Zakat perniagaan 🏪\n- Zakat pendapatan (gaji) 💼\n- Zakat pertanian 🌾\n- Zakat ternakan 🐄\n- Zakat pelaburan 📊",
       "category": "Umum",
       "keywords": [
-        "jenis",
         "jenis zakat",
-        "zakat"
+        "zakat",
+        "jenis"
       ]
     },
     {
@@ -1162,8 +1278,8 @@
       "category": "Umum",
       "keywords": [
         "jumhur fuqaha",
-        "jumhur",
-        "fuqaha"
+        "fuqaha",
+        "jumhur"
       ]
     },
     {
@@ -1171,14 +1287,16 @@
       "answer": "Menara Zakat, Jalan Teluk Wanjah, 05200 Alor Setar, Kedah",
       "category": "Umum",
       "keywords": [
-        "location",
-        "tempat",
-        "address",
+        "mana",
         "lokasi tempat",
         "tempat lznk",
         "alamat",
+        "where",
+        "lokasi",
         "lznk",
-        "lokasi"
+        "address",
+        "tempat",
+        "location"
       ]
     },
     {
@@ -1186,9 +1304,13 @@
       "answer": "Faqir : Seseorang yang tiada harta dan sumber pendapatan atau mempunyai kedua-duanya tetapi tidak mampu untuk menampung keperluan asasi (makanan,pakaian dan tempat tinggal) dirinya. Seperti contoh seseorang yang memerlukan rm1000 sebulan untuk menampung keperluan asasinya tetapi hanya mampu mendapatkan kurang separuh dari amaun tersebut (rm400 ke bawah)",
       "category": "Umum",
       "keywords": [
-        "maksud faqir",
-        "maksud",
-        "faqir"
+        "destitute",
+        "needy",
+        "apa faqir",
+        "faqir",
+        "fakir",
+        "apa",
+        "poor"
       ]
     },
     {
@@ -1196,9 +1318,9 @@
       "answer": "Lembaga Zakat Negeri Kedah",
       "category": "Umum",
       "keywords": [
+        "apa",
         "lznk",
-        "maksud lznk",
-        "maksud"
+        "apa lznk"
       ]
     },
     {
@@ -1206,9 +1328,19 @@
       "answer": "Maslahah bermaksud kebaikan, manfaat, atau kemaslahatan umum yang diambil kira dalam menetapkan hukum Islam bagi menjaga kepentingan umat manusia.\n\nDalam konteks zakat dan pentadbiran Islam, maslahah digunakan untuk memastikan setiap keputusan atau tindakan yang diambil membawa manfaat kepada masyarakat dan tidak menimbulkan kemudaratan.",
       "category": "Umum",
       "keywords": [
-        "maksud maslahah",
-        "maksud",
+        "apa",
+        "apa maslahah",
         "maslahah"
+      ]
+    },
+    {
+      "question": "Maksud miskin",
+      "answer": "Seseorang yang mempunyai harta dan sumber pendapatan tetapi tidak mampu untuk menampung keperluan asasi (makanan,pakaian dan tempat tinggal) dirinya. Seperti contoh seseorang yang memerlukan rm1000 sebulan untuk menampung keperluan asasinya tetapi hanya mampu mendapatkan lebih separuh dari amaun tersebut (rm500 hingga rm900).",
+      "category": "Umum",
+      "keywords": [
+        "apa",
+        "apa miskin",
+        "miskin"
       ]
     },
     {
@@ -1216,9 +1348,9 @@
       "answer": "💡 Zakia Chatbot ialah singkatan daripada “Zakat + IA (Intelligent Assistant)”, yang bermaksud Pembantu Pintar Zakat. Zakia dibangunkan sebagai chatbot berasaskan kecerdasan buatan (AI) untuk membantu pengguna mendapatkan maklumat zakat dengan lebih cepat, tepat, dan mesra pengguna.\n\nMelalui sistem ini, pengguna boleh:\n\n💡 Mendapat jawapan segera bagi persoalan berkaitan zakat harta, pendapatan, perniagaan dan sebagainya.\n\n🕌 Memahami hukum, syarat, dan kategori asnaf dengan cara yang mudah difahami.\n\n🤖 Berinteraksi secara semula jadi melalui teknologi Natural Language Processing (NLP) yang membolehkan Zakia memahami dan memberi respons berdasarkan konteks perbualan.\n\n📚 Mengakses pangkalan data soalan lazim (FAQ) yang dikemaskini mengikut garis panduan institusi zakat semasa.\n\nZakia dibangunkan bukan sekadar sebagai chatbot, tetapi sebagai inisiatif digital dakwah dan pendidikan zakat yang membantu meningkatkan kesedaran masyarakat terhadap tanggungjawab berzakat di era teknologi pintar.\n\nNota kaki:\n📖 Perkataan “Zakia” juga berasal daripada bahasa Arab yang membawa maksud “bijak” dan “suci”, melambangkan chatbot yang beretika, membantu, dan mesra pengguna. 🌙✨",
       "category": "Umum",
       "keywords": [
-        "zakia",
-        "maksud zakia",
-        "maksud"
+        "apa zakia",
+        "apa",
+        "zakia"
       ]
     },
     {
@@ -1227,10 +1359,10 @@
       "category": "Umum",
       "keywords": [
         "operasi lznk",
+        "masa operasi",
         "masa",
         "lznk",
-        "operasi",
-        "masa operasi"
+        "operasi"
       ]
     },
     {
@@ -1239,8 +1371,8 @@
       "category": "Umum",
       "keywords": [
         "penat stress",
-        "penat",
-        "stress"
+        "stress",
+        "penat"
       ]
     },
     {
@@ -1248,40 +1380,49 @@
       "answer": "Seseorang yang sakit pada asalnya tidak layak menerima zakat kerana sakit bukanlah salah satu dari asnaf zakat. Namun, sekiranya seseorang itu sakit dan pada masa yang sama tidak mampu untuk menanggung pembiayaan rawatannya dia boleh memohon zakat di atas asnaf miskin atau penghutang. Kelulusan permohonan tertakluk kepada syarat-syarat yang telah ditetapkan oleh LZNK.",
       "category": "Umum",
       "keywords": [
-        "awam mempunyai",
+        "kos",
+        "layak memohon",
         "bantuan",
-        "memohon bantuan",
-        "kronik",
-        "adakah layak",
+        "menampung kos",
+        "tampung",
+        "rawatan",
         "zakat",
         "suami",
-        "seorang",
         "kos rawatan",
-        "awam",
-        "penjawat awam",
-        "penjawat",
-        "layak memohon",
-        "bantuan zakat",
-        "rawatan",
-        "rawatan suami",
-        "layak",
-        "menampung",
-        "mempunyai suami",
-        "menghidap",
-        "adakah",
-        "mempunyai",
-        "seorang penjawat",
-        "memohon",
-        "suami tinggi",
-        "penyakit",
-        "kos",
-        "suami menghidap",
-        "menghidap penyakit",
-        "penyakit kronik",
-        "zakat menampung",
         "tinggi",
-        "menampung kos",
-        "kronik adakah"
+        "penjawat awam",
+        "menghidap penyakit",
+        "suami menghidap",
+        "adakah layak",
+        "sara",
+        "kronik",
+        "menghidap",
+        "penyakit kronik",
+        "kronik adakah",
+        "penjawat",
+        "memohon bantuan",
+        "support",
+        "adakah",
+        "help",
+        "assist",
+        "suami tinggi",
+        "sokong",
+        "mempunyai",
+        "penyakit",
+        "cover",
+        "menampung",
+        "tolong",
+        "awam mempunyai",
+        "seorang penjawat",
+        "aid",
+        "zakat menampung",
+        "bantuan zakat",
+        "rawatan suami",
+        "memohon",
+        "layak",
+        "awam",
+        "seorang",
+        "mempunyai suami"
       ]
     },
     {
@@ -1297,42 +1438,45 @@
       "answer": "Seseorang yang menjalankan perniagaan emas maka wajib ke atasnya membayar satu jenis zakat sahaja sama ada zakat emas atau zakat perniagaan. Tidak wajib ke atasnya untuk membayar dua jenis zakat bersumberkan harta yang sama. Berdasarkan hadis Riwayat Ibn Abi Syaibah لا ثنى في الصدقة yang bermaksud tidak ada gandaan di dalam zakat.",
       "category": "Umum",
       "keywords": [
-        "wajib",
-        "membayar",
-        "aset sebagainya",
-        "zakat",
-        "perhiasan",
-        "berbentuk",
-        "perniagaan zakat",
-        "required",
-        "perniagaan emas",
-        "menjalankan",
-        "pay",
-        "sebagainya",
-        "perniagaan",
-        "mesti",
-        "must",
-        "sebagainya adakah",
-        "dia",
-        "adakah",
-        "bayar",
-        "perlu",
-        "pembayaran",
-        "bayar zakat",
         "zakat emas",
-        "aset",
-        "perhiasan aset",
-        "zakat perniagaan",
+        "selesai",
+        "menjalankan",
+        "dia",
+        "wajib",
+        "perniagaan zakat",
+        "wajib bayar",
+        "perlu",
+        "emas berbentuk",
+        "zakat",
+        "sebagainya",
+        "pay",
+        "required",
         "berbentuk perhiasan",
         "seseorang",
-        "dia wajib",
-        "menjalankan perniagaan",
-        "emas",
+        "zakat perniagaan",
+        "bayar zakat",
+        "membayar",
+        "perniagaan emas",
+        "aset sebagainya",
+        "sebagainya adakah",
         "seseorang menjalankan",
-        "wajib bayar",
-        "emas berbentuk",
-        "payment",
-        "adakah dia"
+        "berbentuk",
+        "adakah",
+        "mandatory",
+        "adakah dia",
+        "aset",
+        "perhiasan aset",
+        "emas",
+        "must",
+        "perniagaan",
+        "pembayaran",
+        "kena",
+        "menjalankan perniagaan",
+        "perhiasan",
+        "bayar",
+        "mesti",
+        "dia wajib",
+        "payment"
       ]
     },
     {
@@ -1340,21 +1484,24 @@
       "answer": "Setiap Muslim yang cukup syarat seperti cukup haul, nisab, dan memiliki harta yang mencukupi.",
       "category": "Umum",
       "keywords": [
-        "wajib",
-        "bayar",
-        "perlu",
-        "siapa wajib",
-        "membayar",
+        "selesai",
         "pay",
-        "mesti",
-        "pembayaran",
-        "bayar zakat",
-        "must",
-        "zakat",
+        "siapa wajib",
+        "wajib",
         "siapa",
+        "required",
+        "must",
+        "mandatory",
+        "pembayaran",
+        "kena",
+        "membayar",
         "wajib bayar",
-        "payment",
-        "required"
+        "bayar zakat",
+        "bayar",
+        "mesti",
+        "perlu",
+        "zakat",
+        "payment"
       ]
     },
     {
@@ -1362,17 +1509,22 @@
       "answer": "📖 Terdapat 8 golongan asnaf yang layak menerima zakat (Surah At-Taubah: 60):\n\n- Fakir\n- Miskin\n- Amil\n- Muallaf\n- Riqab (hamba)\n- Gharimin (berhutang)\n- Fisabilillah\n- Ibnu Sabil",
       "category": "Umum",
       "keywords": [
-        "asnaf",
-        "asnaf layak",
-        "golongan",
-        "zakat",
-        "layak menerima",
         "golongan asnaf",
-        "layak",
-        "siapakah",
+        "siapa golongan",
         "menerima zakat",
+        "terima",
         "menerima",
-        "siapakah golongan"
+        "siapa",
+        "golongan",
+        "asnaf",
+        "dapat",
+        "get",
+        "obtain",
+        "receive",
+        "layak",
+        "layak menerima",
+        "zakat",
+        "asnaf layak"
       ]
     },
     {
@@ -1380,21 +1532,24 @@
       "answer": "👤 Zakat wajib ke atas:\n\nMuslim 🕌\n\nMerdeka\n\nCukup nisab\n\nCukup haul (1 tahun Hijrah)\n\nMemiliki harta sepenuhnya",
       "category": "Umum",
       "keywords": [
-        "wajib",
-        "bayar",
-        "perlu",
-        "membayar",
+        "selesai",
         "pay",
-        "mesti",
-        "pembayaran",
-        "bayar zakat",
+        "siapa wajib",
+        "wajib",
+        "siapa",
+        "required",
         "must",
-        "zakat",
-        "siapakah wajib",
+        "mandatory",
+        "pembayaran",
+        "kena",
+        "membayar",
         "wajib bayar",
-        "siapakah",
-        "payment",
-        "required"
+        "bayar zakat",
+        "bayar",
+        "mesti",
+        "perlu",
+        "zakat",
+        "payment"
       ]
     },
     {
@@ -1402,14 +1557,15 @@
       "answer": "1. Islam\nZakat hanya diwajibkan ke atas orang Islam sahaja.\n➡️ Orang bukan Islam tidak diwajibkan zakat walaupun mereka memiliki harta yang banyak.\n\n2. Merdeka\nHanya individu yang merdeka (bukan hamba atau dalam penguasaan orang lain) wajib menunaikan zakat.\n\n3. Milik Sempurna\nHarta yang dizakatkan mestilah dimiliki sepenuhnya, tanpa ada sekatan terhadap pemilikan atau penggunaannya.\nContoh: wang dalam akaun sendiri boleh dikeluarkan bila-bila masa.\n\n4. Cukup Nisab\nHarta tersebut hendaklah mencapai paras minimum (nisab) yang ditetapkan oleh pihak berkuasa zakat.\n➡️ Nisab biasanya bersamaan dengan nilai 85 gram emas semasa.\n\n5. Cukup Haul (Genap Setahun)\nHarta seperti wang simpanan, perniagaan, atau ternakan mesti disimpan selama satu haul, iaitu 354 hari mengikut kalendar Hijri.\n➡️ Bagi hasil pertanian dan ternakan tertentu, haul tidak disyaratkan.\n\n6. Cukup Keperluan Asas\nZakat hanya diwajibkan ke atas harta yang melebihi keperluan asas kehidupan seperti makan, pakaian, tempat tinggal, dan nafkah keluarga.\n\n7. Niat dan Tujuan\nPembayaran zakat mesti dilakukan dengan niat yang betul, iaitu untuk menunaikan kewajipan zakat kerana Allah SWT.",
       "category": "Umum",
       "keywords": [
-        "bayar",
-        "membayar",
-        "pay",
-        "pembayaran",
-        "bayar zakat",
         "syarat",
-        "zakat",
+        "selesai",
+        "pay",
         "syarat bayar",
+        "pembayaran",
+        "membayar",
+        "bayar zakat",
+        "bayar",
+        "zakat",
         "payment"
       ]
     },
@@ -1466,25 +1622,26 @@
       "answer": "Bayar zakat itu lebih afdhal menggunakan kalendar hijri seperti mana yang telah dilakukan pada zaman Rasulullah SAW namun diharuskan untuk membayar zakat menggunakan kalendar masihi.",
       "category": "Umum",
       "keywords": [
-        "membayar",
-        "zakat",
-        "zakat mengikut",
-        "afdhal",
-        "kalendar",
+        "selesai",
         "lebih afdhal",
-        "afdhal bayar",
-        "lebih",
+        "zakat mengikut",
+        "zakat",
         "pay",
-        "masihi hijri",
-        "kalendar masihi",
-        "bayar",
-        "pembayaran",
-        "bayar zakat",
-        "masihi",
-        "mengikut",
-        "payment",
         "hijri",
-        "mengikut kalendar"
+        "membayar",
+        "bayar zakat",
+        "afdhal",
+        "mengikut",
+        "masihi",
+        "masihi hijri",
+        "afdhal bayar",
+        "kalendar masihi",
+        "kalendar",
+        "mengikut kalendar",
+        "pembayaran",
+        "bayar",
+        "lebih",
+        "payment"
       ]
     },
     {
@@ -1492,23 +1649,25 @@
       "answer": "Disunatkan mengeluarkan zakat fitrah lebih dari kadar yang wajib. Hal ini kerana, makanan asasi pada hari ini tidak hanya nasi kosong, tetapi nasi yang disertakan dengan lauk, sayur, kuah dan lain-lain. Jika hanya segantang beras diberikan kepada fakir, belum layak lagi bagi mereka untuk menjamu makan bagi diri dan keluarga. \n\nAtas dasar ini, jika zakat fitrah dibayar dengan kadar yang lebih, nescaya ianya lebih menepati tujuan zakat itu sendiri.",
       "category": "Zakat Fitrah",
       "keywords": [
-        "adakah",
-        "wajib",
-        "mengeluarkan",
-        "perlu",
-        "lebih",
-        "fitrah lebih",
-        "mesti",
-        "fitrah",
-        "kadar",
-        "must",
-        "zakat",
-        "required",
         "lebih kadar",
-        "mengeluarkan zakat",
-        "adakah mengeluarkan",
+        "wajib",
+        "perlu",
+        "zakat",
+        "mengeluarkan",
+        "required",
+        "kadar wajib",
+        "fitrah lebih",
+        "kadar",
         "zakat fitrah",
-        "kadar wajib"
+        "adakah mengeluarkan",
+        "adakah",
+        "mandatory",
+        "fitrah",
+        "must",
+        "kena",
+        "mesti",
+        "lebih",
+        "mengeluarkan zakat"
       ]
     },
     {
@@ -1516,32 +1675,33 @@
       "answer": "Ya, dibolehkan mewakilkan orang lain untuk membayar zakat fitrah bagi pihak diri dan keluarga dengan syarat mendapat keizinan daripada pihak yang diwakilkan.\n\nWakil tersebut hendaklah amanah dan memahami niat zakat fitrah, serta memastikan bayaran disalurkan dalam waktu yang ditetapkan, iaitu sebelum solat sunat Aidilfitri.",
       "category": "Zakat Fitrah",
       "keywords": [
-        "membayar",
-        "adakah dibolehkan",
-        "orang",
-        "lain",
-        "keluarga",
-        "fitrah",
-        "zakat",
-        "dibolehkan mewakilkan",
-        "fitrah bagi",
-        "pihak",
+        "selesai",
         "diri",
-        "mewakilkan orang",
-        "pay",
-        "bagi pihak",
-        "pihak diri",
-        "lain bayar",
-        "dibolehkan",
-        "adakah",
-        "bayar",
-        "diri keluarga",
-        "pembayaran",
-        "bayar zakat",
         "bagi",
-        "mewakilkan",
-        "zakat fitrah",
+        "diri keluarga",
+        "lain",
+        "zakat",
+        "pay",
+        "dibolehkan mewakilkan",
+        "keluarga",
+        "fitrah bagi",
+        "membayar",
         "orang lain",
+        "bayar zakat",
+        "adakah dibolehkan",
+        "zakat fitrah",
+        "lain bayar",
+        "bagi pihak",
+        "pihak",
+        "adakah",
+        "mewakilkan orang",
+        "fitrah",
+        "mewakilkan",
+        "orang",
+        "dibolehkan",
+        "pihak diri",
+        "pembayaran",
+        "bayar",
         "payment"
       ]
     },
@@ -1550,45 +1710,48 @@
       "answer": "Tidak wajib menanggung zakat fitrah bagi saudara mara kerana tanggungjawab zakat fitrah hanya tertakluk kepada diri sendiri dan tanggungan di bawah nafkahnya, seperti isteri, anak, atau ibu bapa yang tidak berupaya.\n\nNamun, seseorang boleh membayarkan zakat fitrah bagi pihak saudara mara dengan izin dan persetujuan mereka, sebagai satu bentuk bantuan dan pahala.",
       "category": "Zakat Fitrah",
       "keywords": [
+        "selesai",
         "wajib",
-        "ahli",
-        "membayar",
-        "beradik ahli",
-        "beradik",
-        "keluarga",
-        "lain",
-        "fitrah",
-        "mara seperti",
-        "zakat",
-        "adakah seseorang",
-        "fitrah bagi",
-        "pihak",
-        "adik beradik",
-        "required",
-        "pay",
-        "bagi pihak",
-        "mesti",
-        "must",
-        "adik",
-        "pihak saudara",
-        "adakah",
-        "bayar",
-        "perlu",
-        "ahli keluarga",
-        "pembayaran",
-        "bayar zakat",
-        "bagi",
-        "saudara",
-        "zakat fitrah",
         "saudara mara",
-        "seseorang",
         "seperti adik",
-        "mara",
-        "keluarga lain",
-        "seseorang wajib",
+        "bagi",
         "wajib bayar",
-        "payment",
-        "seperti"
+        "ahli keluarga",
+        "perlu",
+        "lain",
+        "zakat",
+        "ahli",
+        "pay",
+        "required",
+        "seseorang wajib",
+        "fitrah bagi",
+        "keluarga",
+        "seseorang",
+        "membayar",
+        "bayar zakat",
+        "mara",
+        "beradik ahli",
+        "adik",
+        "zakat fitrah",
+        "adakah seseorang",
+        "bagi pihak",
+        "pihak",
+        "adakah",
+        "mandatory",
+        "saudara",
+        "fitrah",
+        "beradik",
+        "keluarga lain",
+        "must",
+        "pihak saudara",
+        "pembayaran",
+        "kena",
+        "bayar",
+        "mesti",
+        "seperti",
+        "adik beradik",
+        "mara seperti",
+        "payment"
       ]
     },
     {
@@ -1596,42 +1759,48 @@
       "answer": "Bekas suami wajib menanggung nafkah anak-anak yang tinggal bersama isteri sekaligus wajib membayar zakat fitrah bagi pihak anak-anak walaupun mereka tinggal bersama bekas isteri. Penceraian tidak membatalkan kewajipan nafkah anak-anak bagi pihak suami.",
       "category": "Zakat Fitrah",
       "keywords": [
+        "spouse",
+        "selesai",
         "wajib",
-        "tinggal",
-        "ibu",
-        "membayar",
-        "fitrah",
-        "bercerai",
-        "zakat",
-        "tinggal bersama",
-        "suami",
-        "bersama",
-        "anak tersebut",
-        "payment",
-        "required",
-        "fitrah anak",
-        "isteri bercerai",
-        "pay",
-        "mesti",
-        "must",
-        "jika suami",
-        "tersebut",
-        "isteri",
-        "anak",
-        "bayar",
-        "perlu",
-        "pembayaran",
-        "bayar zakat",
-        "anak tinggal",
-        "zakat fitrah",
-        "bercerai anak",
-        "ibu siapa",
-        "siapa wajib",
         "jika",
-        "siapa",
-        "bersama ibu",
+        "tersebut",
         "wajib bayar",
-        "suami isteri"
+        "perlu",
+        "zakat",
+        "wife",
+        "suami",
+        "bercerai",
+        "pay",
+        "siapa wajib",
+        "required",
+        "anak tersebut",
+        "ibu siapa",
+        "bersama ibu",
+        "suami isteri",
+        "tinggal bersama",
+        "membayar",
+        "bayar zakat",
+        "bersama",
+        "zakat fitrah",
+        "ibu",
+        "fitrah anak",
+        "isteri",
+        "mandatory",
+        "tinggal",
+        "bercerai anak",
+        "fitrah",
+        "jika suami",
+        "isteri bercerai",
+        "siapa",
+        "must",
+        "pasangan",
+        "payment",
+        "pembayaran",
+        "anak tinggal",
+        "kena",
+        "bayar",
+        "mesti",
+        "anak"
       ]
     },
     {
@@ -1639,48 +1808,55 @@
       "answer": "Jika suami miskin dan tidak mampu mengeluarkan zakat fitrah, gugur kewajipan zakat fitrah daripada pihak isterinya sebagaimana gugur kewajipan itu bagi pihak dirinya. \n\nTidak wajib isteri mengeluarkan zakat fitrah bagi pihak dirinya sendiri kerana kewajipan itu diwajibkan ke atas suami. Namun, disunatkan isteri untuk mengeluarkan zakat fitrah bagi pihak dirinya sendiri.",
       "category": "Zakat Fitrah",
       "keywords": [
-        "wajib",
-        "menunaikan",
-        "adakah isteri",
-        "membayar",
-        "keadaan",
-        "fitrah",
-        "mampu bayar",
-        "zakat",
-        "suami",
+        "spouse",
+        "selesai",
         "dirinya sendiri",
-        "dirinya",
-        "suami berada",
-        "required",
-        "pay",
-        "mesti",
-        "must",
-        "keadaan miskin",
-        "isteri",
-        "wajib menunaikan",
-        "bayar",
-        "adakah",
-        "fitrah dirinya",
-        "perlu",
-        "isteri wajib",
-        "sekiranya suami",
-        "miskin",
-        "miskin tidak",
-        "bayar zakat",
-        "pembayaran",
-        "berada dalam",
-        "sekiranya",
-        "berada",
-        "dalam keadaan",
-        "zakat fitrah",
-        "tidak",
         "menunaikan zakat",
-        "fitrah adakah",
-        "dalam",
-        "tidak mampu",
-        "payment",
+        "wajib",
+        "isteri wajib",
+        "berada",
+        "berada dalam",
+        "perlu",
+        "zakat",
+        "wife",
+        "miskin",
+        "suami",
+        "adakah isteri",
+        "pay",
+        "dirinya",
+        "required",
+        "fitrah dirinya",
+        "membayar",
         "sendiri",
-        "mampu"
+        "bayar zakat",
+        "fitrah adakah",
+        "zakat fitrah",
+        "ibu",
+        "dalam keadaan",
+        "adakah",
+        "isteri",
+        "mandatory",
+        "dalam",
+        "menunaikan",
+        "fitrah",
+        "tidak",
+        "sekiranya suami",
+        "miskin tidak",
+        "sekiranya",
+        "mampu",
+        "wajib menunaikan",
+        "must",
+        "pasangan",
+        "suami berada",
+        "mampu bayar",
+        "pembayaran",
+        "payment",
+        "kena",
+        "bayar",
+        "keadaan",
+        "mesti",
+        "tidak mampu",
+        "keadaan miskin"
       ]
     },
     {
@@ -1688,23 +1864,26 @@
       "answer": "Tidak wajib bagi seseorang menanggung zakat fitrah saudara mara sekalipun mereka susah dan miskin. Malah, tidak sah seseorang itu mengeluarkan zakat fitrah untuk saudara mara yang bukan menjadi kewajipannya untuk menanggung nafkah mereka kecuali dengan izin mereka sendiri.",
       "category": "Zakat Fitrah",
       "keywords": [
+        "selesai",
         "wajib",
-        "bayar",
         "saudara mara",
-        "perlu",
-        "membayar",
-        "mara",
-        "pay",
-        "mesti",
-        "pembayaran",
-        "bayar zakat",
-        "must",
-        "zakat",
-        "zakat saudara",
         "wajib bayar",
+        "perlu",
+        "zakat",
+        "pay",
+        "required",
+        "membayar",
+        "bayar zakat",
+        "mara",
+        "zakat saudara",
+        "mandatory",
         "saudara",
-        "payment",
-        "required"
+        "must",
+        "pembayaran",
+        "kena",
+        "bayar",
+        "mesti",
+        "payment"
       ]
     },
     {
@@ -1712,18 +1891,19 @@
       "answer": "Harus bagi seseorang itu mewakilkan orang lain bagi membayar zakat fitrah untuk dirinya dan keluarga.",
       "category": "Zakat Fitrah",
       "keywords": [
-        "bayar",
+        "lain bayar",
+        "selesai",
         "wakil orang",
-        "wakil",
-        "membayar",
         "pay",
         "orang",
-        "lain",
-        "orang lain",
-        "bayar zakat",
         "pembayaran",
+        "wakil",
+        "membayar",
+        "orang lain",
+        "bayar",
+        "bayar zakat",
+        "lain",
         "zakat",
-        "lain bayar",
         "payment"
       ]
     },
@@ -1732,34 +1912,35 @@
       "answer": "Faedah lebihan di dalam bank bukanlah wang dan hak milik dia maka tidak wajib ke atasnya zakat. Namun, wang tersebut haruslah dibersihkan dengan cara menyalurkan kepada perkara yang mendatangkan manfaat awam, seperti pembinaan jalanraya, tandas\nawam dan seumpamanya. \n\nAtau untuk lebih mudah, wang tidak patuh syariah tersebut hendaklah diserahkan kepada Majlis Agama Islam Negeri yang bertindak sebagai agensi bertanggungjawab mengurus harta tidak patuh syariah dari orang ramai.",
       "category": "Zakat Harta",
       "keywords": [
-        "membayar",
-        "daripada harta",
-        "riba",
-        "bank konvensional",
-        "seperti faedah",
-        "faedah riba",
-        "zakat",
-        "adakah perlu",
-        "harta",
-        "pay",
-        "daripada",
-        "perlu bayar",
-        "bank",
-        "zakat daripada",
-        "adakah",
-        "bayar",
-        "perlu",
-        "haram",
-        "daripada bank",
+        "selesai",
         "harta haram",
-        "bayar zakat",
+        "perlu bayar",
+        "bank konvensional",
         "riba daripada",
-        "pembayaran",
+        "perlu",
+        "zakat",
+        "pay",
+        "faedah riba",
+        "daripada",
+        "haram",
+        "riba",
+        "daripada harta",
+        "membayar",
+        "bayar zakat",
+        "adakah perlu",
+        "adakah",
+        "faedah",
+        "zakat daripada",
+        "bank",
+        "harta",
+        "seperti faedah",
         "haram seperti",
         "konvensional",
-        "faedah",
-        "payment",
-        "seperti"
+        "pembayaran",
+        "bayar",
+        "seperti",
+        "daripada bank",
+        "payment"
       ]
     },
     {
@@ -1768,34 +1949,36 @@
       "category": "Zakat Harta",
       "keywords": [
         "wajib",
-        "dana masjid",
-        "orang",
         "nisab",
-        "diwakafkan wajib",
-        "disumbangkan",
-        "disumbangkan oleh",
-        "awam",
-        "masjid",
+        "perlu",
+        "cukup haul",
         "required",
+        "apabila",
+        "masjid",
+        "diwakafkan",
+        "cukup",
+        "disumbangkan",
+        "dana masjid",
+        "haul nisab",
+        "apabila cukup",
+        "mandatory",
+        "oleh orang",
+        "awam diwakafkan",
+        "dizakatkan apabila",
         "haul",
+        "masjid disumbangkan",
+        "orang",
+        "disumbangkan oleh",
+        "must",
+        "oleh",
+        "diwakafkan wajib",
+        "kena",
+        "awam",
         "orang awam",
         "mesti",
-        "cukup haul",
-        "must",
-        "masjid disumbangkan",
-        "dizakatkan",
-        "apabila cukup",
-        "wajib dizakatkan",
-        "oleh orang",
-        "perlu",
-        "haul nisab",
-        "oleh",
-        "dizakatkan apabila",
-        "diwakafkan",
-        "apabila",
         "dana",
-        "cukup",
-        "awam diwakafkan"
+        "dizakatkan",
+        "wajib dizakatkan"
       ]
     },
     {
@@ -1803,33 +1986,33 @@
       "answer": "Tidak diharuskan hutang itu diniatkan sebagai zakat. (rujukan Kitab al-Majmu’ Imam Nawawi)",
       "category": "Zakat Harta",
       "keywords": [
-        "dia termasuk",
-        "zakat kerana",
-        "menghalalkan hutang",
+        "kerana",
+        "dia",
+        "sebagai zakat",
+        "jika",
+        "menghalalkan",
+        "niatkan",
+        "hukum",
+        "hukum jika",
+        "jika menghalalkan",
         "zakat",
         "seseorang niatkan",
-        "hukum",
+        "golongan",
+        "termasuk dalam",
+        "seseorang",
+        "kerana dia",
+        "dia termasuk",
+        "zakat kerana",
+        "termasuk",
         "dalam golongan",
+        "golongan asnaf",
+        "niatkan sebagai",
+        "dalam",
+        "menghalalkan hutang",
         "hutang",
         "hutang seseorang",
-        "sebagai zakat",
-        "dia",
         "asnaf",
-        "kerana dia",
-        "menghalalkan",
-        "termasuk dalam",
-        "sebagai",
-        "niatkan sebagai",
-        "niatkan",
-        "seseorang",
-        "kerana",
-        "jika",
-        "golongan",
-        "jika menghalalkan",
-        "dalam",
-        "golongan asnaf",
-        "hukum jika",
-        "termasuk"
+        "sebagai"
       ]
     },
     {
@@ -1837,27 +2020,27 @@
       "answer": "Harus bagi sesorang itu mengambil kembali lebihan baki wang zakat yang tersalah amaun bayarannya apabila pembayar itu mengetahui kesalahan tersebut ketika proses membayar zakat. (Al-Majmu’ Imam Nawawi)",
       "category": "Zakat Harta",
       "keywords": [
-        "lebihan",
-        "zakat",
-        "wang zakat",
-        "zakat tersalah",
-        "hukum seseorang",
-        "hukum",
-        "kembali",
-        "kembali lebihan",
-        "seseorang mengambil",
-        "amaun bayarannya",
-        "baki wang",
-        "bayarannya",
-        "amaun",
-        "mengambil",
         "lebihan baki",
-        "seseorang",
+        "tersalah amaun",
         "tersalah",
         "mengambil kembali",
-        "tersalah amaun",
+        "hukum",
+        "amaun",
+        "lebihan",
+        "zakat",
+        "hukum seseorang",
+        "baki wang",
+        "wang zakat",
+        "seseorang",
+        "amaun bayarannya",
+        "seseorang mengambil",
+        "kembali lebihan",
+        "mengambil",
+        "zakat tersalah",
+        "bayarannya",
         "wang",
-        "baki"
+        "baki",
+        "kembali"
       ]
     },
     {
@@ -1865,35 +2048,40 @@
       "answer": "Setiap harta pendapatan seumpama harta pusaka dikira sebagai zakat dan boleh diiktibarkan sebagai zakat pendapatan dengan harus membayarnya tanpa menunggu haul atau diiktibarkan ia sebagai zakat wang simpanan dengan mencampur bersama simpanan yang lain dan menunggu hingga cukup tempoh haul setahun bersama simpanan yang lain.",
       "category": "Zakat Harta",
       "keywords": [
-        "terus tanpa",
-        "zakat secara",
-        "zakat",
-        "kita",
-        "kita menerima",
-        "jika kita",
-        "secara",
-        "daripada",
-        "terus",
-        "haul",
-        "pusaka",
-        "tanpa",
-        "menerima duit",
-        "dikenakan",
-        "adakah",
-        "pembahagian",
-        "menunggu haul",
-        "adakah dikenakan",
-        "duit",
-        "menunggu",
-        "pusaka adakah",
-        "dikenakan zakat",
-        "pembahagian pusaka",
-        "jika",
+        "get",
         "secara terus",
+        "jika",
+        "dikenakan zakat",
+        "adakah dikenakan",
+        "menunggu haul",
+        "kita menerima",
+        "zakat",
         "tanpa menunggu",
+        "secara",
+        "pusaka adakah",
+        "kita",
+        "daripada",
+        "terus tanpa",
         "daripada pembahagian",
+        "receive",
+        "pembahagian",
+        "pusaka",
+        "dapat",
+        "terima",
+        "pembahagian pusaka",
+        "adakah",
+        "obtain",
+        "menunggu",
+        "wang daripada",
+        "menerima wang",
+        "haul",
         "menerima",
-        "duit daripada"
+        "jika kita",
+        "wang",
+        "zakat secara",
+        "terus",
+        "tanpa",
+        "dikenakan"
       ]
     },
     {
@@ -1901,23 +2089,24 @@
       "answer": "Katakan jumlah yang dimiliki (berkongsi 7 orang) berjumlah RM70k. Wang RM70K tersebut perlu dibahagikan terlebih dahulu kerana setiap bahagian dimiliki oleh orang yang berbeza. Kemudian, wang yang dibahagikan tersebut akan dikira sebagai pendapatan masing-masing. Setiap satu bahagian akan menerima RM10K dan ianya masih tidak mencukupi nisab. Ketika menerima wang tersebut, tidak wajib membayar zakat. Namun, ianya perlu dicampur dengan pendapatan yang lain dihujung haul nanti. Sekiranya cukup nisab, maka akan dikenakan zakat. Sekiranya tidak mencukupi nisab, maka tidak wajib zakat.",
       "category": "Zakat Harta",
       "keywords": [
-        "bayar",
-        "perlu",
-        "membayar",
+        "selesai",
         "pay",
-        "perlu bayar",
-        "zakat atas",
-        "atas",
         "atas hasil",
         "tanah",
-        "bayar zakat",
         "pembayaran",
-        "zakat",
-        "jual",
+        "perlu bayar",
+        "membayar",
         "hasil jual",
+        "zakat",
+        "perlu",
+        "bayar",
+        "bayar zakat",
+        "jual",
+        "zakat atas",
+        "hasil",
+        "atas",
         "jual tanah",
-        "payment",
-        "hasil"
+        "payment"
       ]
     },
     {
@@ -1925,56 +2114,60 @@
       "answer": "Tidak wajib ke atas lelaki itu mengeluarkan zakat harta pusaka selagi mana dia belum mendapat bahagiannya dan harta tersebut berada di bawah pengawasan bapa saudaranya. Zakat harta wajib ke atasnya setelah dia mendapat bahagian pusaka dan memiliki pemilikan penuh untuk menggunakan harta tersebut serta cukup syarat-syarat zakat. (rujukan Dar Ifta’ Jordan)",
       "category": "Zakat Harta",
       "keywords": [
-        "bawah",
-        "tempoh",
-        "masih bawah",
-        "tempoh tersebut",
-        "zakat",
-        "bapa saudaranya",
-        "seorang",
-        "tetapi harta",
-        "pengawasan",
-        "tahun adakah",
-        "saudaranya",
-        "ayahnya",
-        "harta",
-        "pusaka daripada",
-        "daripada",
-        "pusaka",
-        "masih",
-        "perlu mengeluarkan",
-        "faraid",
-        "bawah pengawasan",
-        "tersebut",
-        "faraid selama",
-        "dia perlu",
-        "dia",
-        "adakah",
-        "perlu",
-        "mengeluarkan",
-        "bapa",
-        "urusan faraid",
-        "ayahnya tetapi",
-        "bagi",
-        "mewarisi harta",
-        "harta pusaka",
-        "zakat bagi",
-        "tahun",
-        "tetapi",
-        "pengawasan bapa",
-        "harta masih",
-        "daripada ayahnya",
-        "mewarisi",
-        "selama",
-        "urusan",
-        "lelaki mewarisi",
+        "dad",
         "saudaranya urusan",
-        "bagi tempoh",
         "seorang lelaki",
-        "mengeluarkan zakat",
-        "selama tahun",
+        "dia",
+        "dia perlu",
+        "bagi tempoh",
+        "pengawasan",
+        "tempoh",
+        "tersebut",
+        "bagi",
         "lelaki",
-        "adakah dia"
+        "perlu",
+        "mewarisi",
+        "zakat",
+        "masih",
+        "bapa saudaranya",
+        "mengeluarkan",
+        "lelaki mewarisi",
+        "daripada",
+        "saudaranya",
+        "tahun",
+        "urusan faraid",
+        "harta masih",
+        "pusaka",
+        "tahun adakah",
+        "pusaka daripada",
+        "faraid selama",
+        "tetapi",
+        "zakat bagi",
+        "adakah",
+        "ayahnya",
+        "parent",
+        "tetapi harta",
+        "faraid",
+        "adakah dia",
+        "harta pusaka",
+        "bawah",
+        "bapa",
+        "pengawasan bapa",
+        "father",
+        "selama",
+        "tempoh tersebut",
+        "harta",
+        "urusan",
+        "ayahnya tetapi",
+        "selama tahun",
+        "ayah",
+        "mewarisi harta",
+        "masih bawah",
+        "daripada ayahnya",
+        "perlu mengeluarkan",
+        "seorang",
+        "bawah pengawasan",
+        "mengeluarkan zakat"
       ]
     },
     {
@@ -1982,27 +2175,27 @@
       "answer": "Wang subsidi adalah harga padi, maka dengan itu ia perlu dicampur dengan harga padi dan dikenakan zakat padi.\n\n(Himpunan Fatwa Kedah)",
       "category": "Zakat Padi",
       "keywords": [
-        "zakat",
-        "padi perlu",
-        "jualan padi",
-        "dicampurkan hasil",
-        "dicampurkan",
-        "jualan",
-        "wang subsidi",
-        "dikenakan",
-        "hasil",
-        "zakat padi",
-        "adakah",
-        "perlu",
-        "hasil jualan",
-        "padi",
         "dikenakan zakat",
-        "subsidi padi",
+        "dicampurkan",
         "subsidi",
+        "perlu",
+        "perlu dicampurkan",
+        "hasil",
+        "zakat",
+        "jualan padi",
+        "wang subsidi",
+        "padi",
+        "hasil jualan",
         "padi dikenakan",
+        "dicampurkan hasil",
+        "adakah",
+        "jualan",
         "adakah wang",
+        "subsidi padi",
         "wang",
-        "perlu dicampurkan"
+        "padi perlu",
+        "zakat padi",
+        "dikenakan"
       ]
     },
     {
@@ -2010,17 +2203,22 @@
       "answer": "Dicadang serta digalakkan untuk membayar segera zakat pendapatan setelah memperoleh hadiah persaraan berbentuk wang tunai tersebut. Hal ini kerana, ia dapat mengelakkan wang tersebut kurang di akhir haul atau digunakan pada perkara-perkara yang tidak berbentuk keperluan (dhoruriyat dan hajiyyat). Adapun dari sudut hukum asal, hadiah wang persaraan tersebut hanya diwajibkan zakat setelah cukup syarat wajib zakat iaitu antaranya cukup haul setahun.",
       "category": "Zakat Pendapatan",
       "keywords": [
-        "kena tunggu",
-        "tunggu haul",
-        "haul",
-        "hadiah persaraan",
-        "hadiah",
-        "zakat",
-        "tunggu",
-        "zakat hadiah",
         "persaraan",
+        "hadiah persaraan",
+        "tunggu haul",
+        "wajib",
+        "zakat hadiah",
         "persaraan kena",
-        "kena"
+        "must",
+        "tunggu",
+        "kena",
+        "need to",
+        "kena tunggu",
+        "perlu",
+        "mesti",
+        "haul",
+        "zakat",
+        "hadiah"
       ]
     },
     {
@@ -2028,17 +2226,28 @@
       "answer": "Pemegang takaful keluarga perlu membayar zakat setiap tahun ke atas nilai simpanan/pelaburan boleh dikeluarkan (cash value) sahaja dan bukannya surrender value (jumlah wang yang akan diperolehi jika membatalkan polisi).\n\nIni kerana, hukum zakat untuk simpanan / pelaburan dalam polisi takaful adalah sama hukum zakat untuk simpanan / wang di institusi kewangan. Ini adalah kerana cash value boleh dikeluarkan tanpa perlu menunggu tempoh tamat kontrak dengan pihak takaful.\n*sumber rujukan dari Muzakarah Jawatankuasa Fatwa Majlis Kebangsaan Bagi Hal Ehwal Ugama Islam Malaysia kali ke-94 pada 20-22 april 2011",
       "category": "Zakat Simpanan",
       "keywords": [
-        "adakah",
-        "adakah polisi",
-        "insurans",
-        "polisi",
         "beli",
-        "zakat",
-        "insurans beli",
-        "polisi insurans",
-        "beli dikenakan",
+        "garis panduan",
+        "dikenakan zakat",
+        "peraturan",
         "dikenakan",
-        "dikenakan zakat"
+        "insurans",
+        "insurance",
+        "takaful",
+        "zakat",
+        "rules",
+        "insurans beli",
+        "insuran",
+        "protection",
+        "coverage",
+        "adakah",
+        "polisi insurans",
+        "insurans takaful",
+        "policy",
+        "polisi",
+        "adakah polisi",
+        "guidelines",
+        "beli dikenakan"
       ]
     },
     {
@@ -2046,29 +2255,29 @@
       "answer": "Wang yang dikumpulkan oleh seseorang untuk tujuan pembiayaan pendidikan anak-anak diwajibkan zakat wang simpanan jika sudah cukup syarat wajib zakat iaitu  sempurna nisab, haul dan pemilikan sempurna. Adapun tujuan duit itu disimpan tidak diterima oleh syara’ sebagai sebab untuk menggugurkan hak kewajipan berzakat pada harta wang simpanan.",
       "category": "Zakat Simpanan",
       "keywords": [
-        "pembiayaan",
-        "zakat",
-        "zakat wang",
-        "pendidikan",
         "anak anak",
         "ditunaikan zakat",
-        "anak",
-        "adakah",
-        "simpanan bagi",
-        "perlu",
         "anak perlu",
-        "simpanan",
         "bagi",
-        "perlu ditunaikan",
-        "pembiayaan pendidikan",
-        "wang simpanan",
-        "pendidikan anak",
-        "ditunaikan",
-        "adakah wang",
         "tujuan",
+        "perlu",
+        "pembiayaan pendidikan",
+        "zakat",
+        "pendidikan",
+        "pembiayaan",
+        "ditunaikan",
+        "simpanan",
+        "simpanan bagi",
+        "adakah",
+        "perlu ditunaikan",
+        "wang simpanan",
+        "adakah wang",
         "tujuan pembiayaan",
+        "wang",
         "bagi tujuan",
-        "wang"
+        "pendidikan anak",
+        "zakat wang",
+        "anak"
       ]
     },
     {
@@ -2076,21 +2285,24 @@
       "answer": "Wang simpanan persatuan khairat kematian ialah wang yang terkumpul daripada ahli persatuan dari masa ke semasa di atas kadar yang dipersetujui untuk membantu ahli-ahli apabila berlaku kematian. Persatuan khairat kematian hanyalah pemegang amanah bagi mengurus dan mentadbir wang itu untuk tujuan dipersetujui. Oleh kerana wang persatuan khairat kematian itu tiada pemilik, maka tidak diwajibkan zakat wang simpanan kerana di antara syarat-syarat wajib zakat ialah pemilikan sempurna.\n\n(Himpunan Fatwa Kedah)",
       "category": "Zakat Simpanan",
       "keywords": [
-        "adakah",
-        "khairat kematian",
-        "simpanan persatuan",
-        "wang simpanan",
-        "simpanan",
-        "persatuan khairat",
         "kematian",
-        "adakah wang",
-        "zakat",
-        "khairat",
-        "kematian dikenakan",
+        "simpanan",
+        "adakah",
         "wang",
+        "kematian dikenakan",
+        "dikenakan zakat",
+        "funeral fund",
+        "funeral assistance",
+        "adakah wang",
+        "wang simpanan",
         "persatuan",
+        "persatuan khairiat",
+        "khairiat kematian",
         "dikenakan",
-        "dikenakan zakat"
+        "khairat",
+        "simpanan persatuan",
+        "zakat",
+        "khairiat"
       ]
     },
     {
@@ -2098,21 +2310,21 @@
       "answer": "Wang yang dikumpulkan oleh seseorang untuk tujuan pembiayaan pendidikan anak-anak diwajibkan zakat wang simpanan jika sudah cukup syarat wajib zakat iaitu  sempurna nisab, haul dan pemilikan sempurna. Adapun tujuan duit itu disimpan tidak diterima oleh syara’ sebagai sebab untuk menggugurkan hak kewajipan berzakat pada harta wang simpanan.",
       "category": "Zakat Simpanan",
       "keywords": [
-        "adakah",
-        "perlu",
-        "wang simpanan",
-        "pendidikan anak",
-        "anak perlu",
-        "pendidikan",
-        "simpanan",
-        "ditunaikan",
-        "adakah wang",
-        "zakat",
-        "perlu ditunaikan",
-        "wang",
         "simpanan pendidikan",
         "anak anak",
+        "ditunaikan",
         "ditunaikan zakat",
+        "simpanan",
+        "adakah",
+        "wang",
+        "anak perlu",
+        "perlu ditunaikan",
+        "wang simpanan",
+        "perlu",
+        "adakah wang",
+        "pendidikan anak",
+        "zakat",
+        "pendidikan",
         "anak"
       ]
     },
@@ -2121,28 +2333,30 @@
       "answer": "Setelah meneliti beberapa pandangan di dalam menentukan kaedah taksiran bagi zakat wang simpanan, pihak LZNK mencadangkan untuk zakat wang simpanan ditaksir melalui baki terakhir di dalam penyata akaun yang melebihi nisab dan cukup tempoh haulnya (setahun).",
       "category": "Zakat Simpanan",
       "keywords": [
-        "zakat",
-        "wang pertengahan",
-        "haul",
-        "cara kira",
-        "method",
-        "bagaimana cara",
-        "pertambahan wang",
-        "bagaimana",
-        "simpanan",
-        "kira",
-        "cara",
-        "simpanan jika",
-        "zakat simpanan",
-        "kaedah",
-        "jika pertambahan",
-        "pertengahan haul",
-        "jika",
-        "kira zakat",
-        "pertengahan",
         "how",
-        "pertambahan",
-        "wang"
+        "cara",
+        "jika",
+        "pertengahan haul",
+        "kaedah",
+        "zakat",
+        "simpanan",
+        "zakat simpanan",
+        "bagaimana cara",
+        "bagaimana",
+        "wang pertengahan",
+        "jika pertambahan",
+        "kira",
+        "method",
+        "simpanan jika",
+        "haul",
+        "cara-cara",
+        "cara kira",
+        "wang",
+        "kira zakat",
+        "steps",
+        "pertengahan",
+        "pertambahan wang",
+        "pertambahan"
       ]
     },
     {
@@ -2150,9 +2364,31 @@
       "answer": "Wang simpanan persatuan khairat kematian ialah wang yang terkumpul daripada ahli persatuan dari masa ke semasa di atas kadar yang dipersetujui untuk membantu ahli-ahli apabila berlaku kematian. Persatuan khairat kematian hanyalah pemegang amanah bagi mengurus dan mentadbir wang itu untuk tujuan dipersetujui. Oleh kerana wang persatuan khairat kematian itu tiada pemilik, maka tidak diwajibkan zakat wang simpanan kerana di antara syarat-syarat wajib zakat ialah pemilikan sempurna.\n\n(Himpunan Fatwa Kedah)",
       "category": "Zakat Simpanan",
       "keywords": [
-        "khairat",
         "kematian",
-        "khairat kematian"
+        "khairiat",
+        "funeral assistance",
+        "khairat",
+        "khairiat kematian",
+        "funeral fund"
+      ]
+    },
+    {
+      "question": "KWSP kena zakat tak?",
+      "answer": "KWSP (Kumpulan Wang Simpanan Pekerja) wajib dikenakan Zakat kerana konsepnya sama seperti wang simpanan lain, iaitu ia adalah harta yang dimiliki. Namun, cara pengiraan dan masa wajib bayar zakat bergantung kepada status pengeluaran wang KWSP tersebut. Zakat KWSP termasuk dalam kategori Zakat Wang Simpanan (atau Zakat Al-Mal Al-Mustafad / Harta Perolehan).\n\nSecara ringkas, kadar zakat KWSP adalah 2.5% jika memenuhi syarat Nisab (nilai minimum) semasa pengeluaran.\n\nSituasi Kewajipan Zakat KWSP\nTerdapat dua pandangan utama dalam isu Zakat KWSP, yang kini banyak dipermudahkan oleh Pusat Zakat di Malaysia:\n\n1. Pengeluaran Setelah Mencapai Umur Persaraan (Cth: 55 Tahun)\nApabila wang KWSP dikeluarkan secara pukal atau secara berkala selepas bersara (apabila berlaku Pemilikan Sempurna), maka: Wajib Zakat: 2.5% dikenakan ke atas keseluruhan amaun yang dikeluarkan.\n\nMasa Bayar: Pencarum digalakkan membayar zakat segera sejurus menerima wang KWSP tersebut (jika cukup Nisab) tanpa perlu menunggu Haul (setahun) kerana pemilikan sempurna telah berlaku.\n\n2. Pengeluaran Sebelum Umur Persaraan (Skim Pengeluaran Lain)\nApabila pengeluaran dibuat sebelum pemilikan sempurna (contohnya Skim Pengeluaran Pendidikan, Kesihatan, i-Sinar, dll): Secara Umum: 2.5% dikenakan ke atas jumlah pengeluaran tersebut (jika cukup Nisab apabila dicampur dengan pendapatan lain).\n\nPengecualian Zakat: Wang yang dikeluarkan bagi tujuan Hajah Asliyah (keperluan asas/mustahak) seperti pembelian rumah pertama, perubatan, pendidikan, dan penyelesaian hutang yang mendesak, biasanya tidak dikenakan zakat (mengikut fatwa di Wilayah Persekutuan dan beberapa negeri lain).",
+      "category": "Zakat Simpanan",
+      "keywords": [
+        "kwsp",
+        "kena zakat",
+        "zakat tak",
+        "wajib",
+        "must",
+        "kwsp kena",
+        "kena",
+        "need to",
+        "tak",
+        "perlu",
+        "mesti",
+        "zakat"
       ]
     },
     {
@@ -2160,56 +2396,85 @@
       "answer": "Menurut pendapat yang muktabar disisi mazhab syafie adalah diwajibkan zakat bagi wang pinjaman jika mencukupi syarat iaitu cukup nisab dan haul. Ini berdasarkan kenyataan imam nawawi dalam kitabnya Majmu’:\n\nفَالْحَاصِلُ أَنَّ الْمَذْهَبَ وُجُوبُ الزَّكَاةِ سَوَاءٌ كَانَ الْمَالُ بَاطِنًا أَوْ ظَاهِرًا أَمْ مِنْ جِنْسِ الدَّيْنِ أَمْ غَيْرِهِ قَالَ أَصْحَابُنَا سَوَاءٌ دَيْنُ الْآدَمِيِّ وَدَيْنُ اللَّهِ عَزَّ وَجَلَّ\n\nMaksudnya: “Maka kesimpulannya disisi mazhab wajib zakat samaada harta itu harta batin atau zahir atau dari jenis hutang atau selainnya, menurut para ulama’ kami sama ada hutang itu hutang dengan manusia atau hutang dengan Allah”\n\n(Majmu’ Syarh Muhazzab 5/344)",
       "category": "Zakat Simpanan",
       "keywords": [
-        "membayar",
-        "menyimpannya hingga",
-        "zakat",
-        "simpanan tersebut",
-        "pihak",
-        "pay",
         "setahun",
-        "daripada",
-        "bank menyimpannya",
-        "bank",
-        "tak",
-        "pihak bank",
-        "hingga",
-        "tersebut",
-        "perlu tak",
-        "bayar",
-        "perlu",
-        "menyimpannya",
-        "simpanan",
-        "pinjam wang",
-        "pembayaran",
-        "bayar zakat",
+        "selesai",
         "hingga genap",
-        "bagi",
-        "zakat bagi",
-        "bagi wang",
-        "genap setahun",
         "pinjam",
-        "wang simpanan",
-        "setahun perlu",
-        "daripada pihak",
-        "wang daripada",
-        "wang",
+        "simpanan tersebut",
+        "annually",
+        "menyimpannya hingga",
+        "setahun sekali",
+        "tersebut",
+        "bagi",
+        "perlu",
+        "1 tahun",
+        "zakat",
+        "borrow",
+        "loan",
+        "pay",
+        "perlu tak",
+        "pinjaman",
+        "simpanan",
+        "daripada",
         "tak bayar",
+        "daripada pihak",
+        "setahun perlu",
+        "membayar",
+        "bayar zakat",
+        "once a year",
+        "pinjam wang",
+        "hingga",
+        "genap setahun",
+        "pihak bank",
+        "zakat bagi",
+        "debt",
+        "pihak",
+        "1 year",
+        "menyimpannya",
+        "one year",
+        "wang daripada",
+        "bagi wang",
+        "tak",
+        "wang simpanan",
+        "bank",
+        "hutang",
+        "wang",
         "payment",
+        "pembayaran",
+        "satu tahun",
+        "bank menyimpannya",
+        "bayar",
         "genap"
       ]
     }
   ],
   "keyword_index": {
-    "asnaf": [
+    "destitute": [
       0,
-      8,
-      57,
-      76
+      47
+    ],
+    "distinction": [
+      0,
+      34
+    ],
+    "variety": [
+      0,
+      34
     ],
     "antara asnaf": [
       0
     ],
-    "perbezaan": [
+    "faqir miskin": [
+      0
+    ],
+    "antara": [
+      0,
+      34
+    ],
+    "asnaf faqir": [
+      0
+    ],
+    "perbezaan antara": [
       0,
       34
     ],
@@ -2220,9 +2485,50 @@
       9,
       30,
       42,
-      71
+      50,
+      72
+    ],
+    "perbezaan": [
+      0,
+      34
+    ],
+    "bezanya": [
+      0,
+      34
+    ],
+    "beza": [
+      0,
+      34
+    ],
+    "needy": [
+      0,
+      47
     ],
     "apa perbezaan": [
+      0,
+      34
+    ],
+    "fakir": [
+      0,
+      9,
+      30,
+      47
+    ],
+    "poor": [
+      0,
+      47
+    ],
+    "faqir": [
+      0,
+      47
+    ],
+    "asnaf": [
+      0,
+      8,
+      58,
+      77
+    ],
+    "difference": [
       0,
       34
     ],
@@ -2236,34 +2542,16 @@
       33,
       34,
       35,
-      41
+      41,
+      47,
+      48,
+      49,
+      50,
+      51
     ],
-    "asnaf faqir": [
-      0
-    ],
-    "faqir miskin": [
-      0
-    ],
-    "antara": [
-      0,
-      34
-    ],
-    "faqir": [
-      0,
-      47
-    ],
-    "perbezaan antara": [
-      0,
-      34
-    ],
-    "hukum": [
+    "lebih kadar": [
       1,
-      4,
-      8,
-      9,
-      22,
-      76,
-      77
+      68
     ],
     "wajib": [
       1,
@@ -2273,20 +2561,26 @@
       26,
       29,
       37,
-      55,
       56,
-      58,
-      67,
-      69,
+      57,
+      59,
+      68,
       70,
       71,
       72,
-      75
+      73,
+      76,
+      83,
+      90
     ],
-    "mengeluarkan": [
+    "hukum": [
       1,
-      67,
-      80
+      4,
+      8,
+      9,
+      22,
+      77,
+      78
     ],
     "perlu": [
       1,
@@ -2300,84 +2594,24 @@
       27,
       29,
       37,
-      55,
       56,
-      58,
-      67,
-      69,
+      57,
+      59,
+      68,
       70,
       71,
       72,
-      74,
+      73,
       75,
-      79,
+      76,
       80,
       81,
-      84,
-      86,
-      89
-    ],
-    "lebih": [
-      1,
-      66,
-      67
-    ],
-    "fitrah lebih": [
-      1,
-      67
-    ],
-    "mesti": [
-      1,
-      20,
-      22,
-      25,
-      26,
-      29,
-      37,
-      55,
-      56,
-      58,
-      67,
-      69,
-      70,
-      71,
-      72,
-      75
-    ],
-    "fitrah": [
-      1,
-      28,
-      37,
-      67,
-      68,
-      69,
-      70,
-      71
-    ],
-    "kadar": [
-      1,
-      12,
-      13,
-      38,
-      67
-    ],
-    "must": [
-      1,
-      20,
-      22,
-      25,
-      26,
-      29,
-      37,
-      55,
-      56,
-      58,
-      67,
-      69,
-      70,
-      71,
-      72,
-      75
+      82,
+      83,
+      85,
+      87,
+      90,
+      91
     ],
     "zakat": [
       1,
@@ -2419,13 +2653,12 @@
       42,
       43,
       44,
-      53,
-      55,
+      54,
       56,
       57,
       58,
       59,
-      66,
+      60,
       67,
       68,
       69,
@@ -2434,7 +2667,7 @@
       72,
       73,
       74,
-      76,
+      75,
       77,
       78,
       79,
@@ -2446,16 +2679,14 @@
       85,
       86,
       87,
-      89
+      88,
+      90,
+      91
     ],
-    "lebih kadar": [
+    "mengeluarkan": [
       1,
-      67
-    ],
-    "mengeluarkan zakat": [
-      1,
-      67,
-      80
+      68,
+      81
     ],
     "required": [
       1,
@@ -2465,73 +2696,201 @@
       26,
       29,
       37,
-      55,
       56,
-      58,
-      67,
-      69,
+      57,
+      59,
+      68,
       70,
       71,
       72,
-      75
+      73,
+      76
+    ],
+    "kadar wajib": [
+      1,
+      68
+    ],
+    "fitrah lebih": [
+      1,
+      68
+    ],
+    "kadar": [
+      1,
+      12,
+      13,
+      38,
+      68
     ],
     "zakat fitrah": [
       1,
       28,
       37,
-      67,
       68,
       69,
       70,
-      71
+      71,
+      72
     ],
     "hukum mengeluarkan": [
       1
     ],
-    "kadar wajib": [
+    "mandatory": [
       1,
-      67
+      20,
+      22,
+      25,
+      26,
+      29,
+      37,
+      56,
+      57,
+      59,
+      68,
+      70,
+      71,
+      72,
+      73,
+      76
     ],
-    "menerima agihan": [
-      2
+    "fitrah": [
+      1,
+      28,
+      37,
+      68,
+      69,
+      70,
+      71,
+      72
     ],
-    "lumayan": [
-      2
+    "must": [
+      1,
+      20,
+      22,
+      25,
+      26,
+      29,
+      37,
+      56,
+      57,
+      59,
+      68,
+      70,
+      71,
+      72,
+      73,
+      76,
+      83,
+      90
     ],
-    "adakah layak": [
-      2,
-      53
+    "kena": [
+      1,
+      20,
+      22,
+      25,
+      26,
+      29,
+      37,
+      56,
+      57,
+      59,
+      68,
+      70,
+      71,
+      72,
+      73,
+      76,
+      83,
+      90
     ],
-    "pendapatan": [
-      2,
-      28
+    "mesti": [
+      1,
+      20,
+      22,
+      25,
+      26,
+      29,
+      37,
+      56,
+      57,
+      59,
+      68,
+      70,
+      71,
+      72,
+      73,
+      76,
+      83,
+      90
     ],
-    "layak menerima": [
-      2,
-      57
+    "lebih": [
+      1,
+      67,
+      68
     ],
-    "pendapatan lumayan": [
-      2
+    "mengeluarkan zakat": [
+      1,
+      68,
+      81
     ],
-    "stabil pendapatan": [
-      2
-    ],
-    "stabil": [
-      2
-    ],
-    "agihan": [
+    "agihan zakat": [
       2,
       8,
       30,
       41
     ],
+    "pendapatan lumayan": [
+      2
+    ],
+    "get": [
+      2,
+      5,
+      12,
+      25,
+      58,
+      79
+    ],
     "kerjaya": [
       2
     ],
-    "layak": [
+    "adakah layak": [
       2,
-      53,
-      57
+      54
+    ],
+    "lumayan adakah": [
+      2
+    ],
+    "receive": [
+      2,
+      5,
+      12,
+      25,
+      58,
+      79
+    ],
+    "stabil pendapatan": [
+      2
+    ],
+    "menerima agihan": [
+      2
+    ],
+    "mempunyai kerjaya": [
+      2
+    ],
+    "dapat": [
+      2,
+      5,
+      12,
+      25,
+      58,
+      79
+    ],
+    "terima": [
+      2,
+      5,
+      12,
+      25,
+      58,
+      79
     ],
     "adakah": [
       2,
@@ -2543,81 +2902,144 @@
       28,
       29,
       30,
-      53,
-      55,
-      67,
+      54,
+      56,
       68,
       69,
-      71,
-      74,
-      78,
-      80,
+      70,
+      72,
+      75,
+      79,
       81,
-      83,
+      82,
       84,
       85,
-      86
+      86,
+      87
     ],
-    "agihan zakat": [
+    "obtain": [
       2,
-      8,
-      30,
-      41
+      5,
+      12,
+      25,
+      58,
+      79
+    ],
+    "mualaf mempunyai": [
+      2
     ],
     "mempunyai": [
       2,
       5,
       28,
-      53
-    ],
-    "mempunyai kerjaya": [
-      2
+      54
     ],
     "mualaf": [
-      2
+      2,
+      19
     ],
-    "lumayan adakah": [
-      2
+    "layak menerima": [
+      2,
+      58
     ],
-    "mualaf mempunyai": [
-      2
-    ],
-    "kerjaya stabil": [
-      2
+    "agihan": [
+      2,
+      8,
+      30,
+      41
     ],
     "menerima": [
       2,
       5,
       12,
       25,
-      57,
-      78
+      58,
+      79
     ],
-    "harus": [
-      3
+    "lumayan": [
+      2
+    ],
+    "stabil": [
+      2
+    ],
+    "pendapatan": [
+      2,
+      28
+    ],
+    "layak": [
+      2,
+      54,
+      58
+    ],
+    "kerjaya stabil": [
+      2
+    ],
+    "spouse": [
+      3,
+      9,
+      26,
+      71,
+      72
+    ],
+    "kepada suami": [
+      3,
+      9
+    ],
+    "bagi": [
+      3,
+      15,
+      38,
+      69,
+      70,
+      81,
+      85,
+      91
+    ],
+    "wife": [
+      3,
+      9,
+      26,
+      71,
+      72
     ],
     "suami": [
       3,
       9,
       26,
-      53,
-      70,
-      71
+      54,
+      71,
+      72
     ],
-    "harus bagi": [
+    "suami miskin": [
       3
-    ],
-    "seorang": [
-      3,
-      9,
-      26,
-      53,
-      80
     ],
     "isteri memberi": [
       3
     ],
+    "ibu": [
+      3,
+      9,
+      26,
+      71,
+      72
+    ],
+    "memberi zakat": [
+      3
+    ],
+    "isteri": [
+      3,
+      9,
+      26,
+      71,
+      72
+    ],
     "adakah harus": [
+      3
+    ],
+    "bagi seorang": [
+      3
+    ],
+    "harus bagi": [
       3
     ],
     "zakat kepada": [
@@ -2626,6 +3048,20 @@
       9,
       10,
       42
+    ],
+    "harus": [
+      3
+    ],
+    "memberi": [
+      3,
+      26
+    ],
+    "pasangan": [
+      3,
+      9,
+      26,
+      71,
+      72
     ],
     "kepada": [
       3,
@@ -2638,48 +3074,21 @@
       30,
       42
     ],
-    "memberi zakat": [
-      3
-    ],
-    "isteri": [
+    "seorang": [
       3,
       9,
       26,
-      70,
-      71
-    ],
-    "bagi": [
-      3,
-      15,
-      38,
-      68,
-      69,
-      80,
-      84,
-      89
+      54,
+      81
     ],
     "seorang isteri": [
       3,
       9
     ],
-    "suami miskin": [
-      3
-    ],
-    "kepada suami": [
-      3,
-      9
-    ],
-    "memberi": [
-      3,
-      26
-    ],
-    "bagi seorang": [
-      3
-    ],
-    "apa hukum": [
+    "muzakki": [
       4
     ],
-    "membayar": [
+    "selesai": [
       4,
       9,
       12,
@@ -2692,41 +3101,58 @@
       26,
       28,
       35,
-      55,
       56,
-      58,
+      57,
       59,
-      66,
-      68,
+      60,
+      67,
       69,
       70,
       71,
       72,
       73,
       74,
-      79,
-      89
+      75,
+      80,
+      91
     ],
-    "lain": [
+    "jika": [
       4,
-      68,
-      69,
-      73
+      12,
+      24,
+      71,
+      77,
+      79,
+      88
     ],
-    "daripada negeri": [
+    "tempat tinggalnya": [
       4
     ],
-    "lain selain": [
+    "jika seseorang": [
+      4,
+      12
+    ],
+    "hukum jika": [
+      4,
+      77
+    ],
+    "negeri tempat": [
       4
     ],
     "zakat negeri": [
       4,
       43
     ],
-    "muzakki": [
+    "lain": [
+      4,
+      69,
+      70,
+      74
+    ],
+    "selain daripada": [
       4
     ],
-    "tinggalnya": [
+    "negeri muzakki": [
       4
     ],
     "pay": [
@@ -2742,40 +3168,44 @@
       26,
       28,
       35,
-      55,
       56,
-      58,
+      57,
       59,
-      66,
-      68,
+      60,
+      67,
       69,
       70,
       71,
       72,
       73,
       74,
-      79,
-      89
+      75,
+      80,
+      91
     ],
     "daripada": [
       4,
-      74,
-      78,
-      80,
-      89
+      75,
+      79,
+      81,
+      91
     ],
-    "negeri muzakki": [
+    "apa hukum": [
       4
     ],
-    "jika seseorang": [
+    "seseorang": [
       4,
-      12
+      7,
+      12,
+      22,
+      25,
+      27,
+      56,
+      70,
+      77,
+      78
     ],
-    "negeri": [
-      4,
-      43
-    ],
-    "bayar": [
+    "membayar": [
       4,
       9,
       12,
@@ -2788,30 +3218,73 @@
       26,
       28,
       35,
-      55,
       56,
-      58,
+      57,
       59,
-      66,
-      68,
+      60,
+      67,
       69,
       70,
       71,
       72,
       73,
       74,
-      79,
-      89
+      75,
+      80,
+      91
     ],
-    "seseorang bayar": [
-      4
-    ],
-    "selain": [
-      4
+    "bayar zakat": [
+      4,
+      9,
+      12,
+      17,
+      18,
+      22,
+      23,
+      25,
+      26,
+      28,
+      35,
+      56,
+      57,
+      59,
+      60,
+      67,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      80,
+      91
     ],
     "tempat": [
       4,
       46
+    ],
+    "seseorang bayar": [
+      4
+    ],
+    "tinggalnya negeri": [
+      4
+    ],
+    "tinggalnya": [
+      4
+    ],
+    "negeri lain": [
+      4
+    ],
+    "lain selain": [
+      4
+    ],
+    "negeri": [
+      4,
+      43
+    ],
+    "daripada negeri": [
+      4
     ],
     "pembayaran": [
       4,
@@ -2826,25 +3299,26 @@
       26,
       28,
       35,
-      55,
       56,
-      58,
+      57,
       59,
-      66,
-      68,
+      60,
+      67,
       69,
       70,
       71,
       72,
       73,
       74,
-      79,
-      89
+      75,
+      80,
+      91
     ],
-    "bayar zakat": [
+    "bayar": [
       4,
       9,
       12,
+      15,
       17,
       18,
       22,
@@ -2853,60 +3327,23 @@
       26,
       28,
       35,
-      55,
       56,
-      58,
+      57,
       59,
-      66,
-      68,
+      60,
+      67,
       69,
       70,
       71,
       72,
       73,
       74,
-      79,
-      89
+      75,
+      80,
+      91
     ],
-    "negeri tempat": [
+    "selain": [
       4
-    ],
-    "tinggalnya negeri": [
-      4
-    ],
-    "seseorang": [
-      4,
-      7,
-      12,
-      22,
-      25,
-      27,
-      55,
-      69,
-      76,
-      77
-    ],
-    "jika": [
-      4,
-      12,
-      24,
-      70,
-      76,
-      78,
-      87
-    ],
-    "selain daripada": [
-      4
-    ],
-    "tempat tinggalnya": [
-      4
-    ],
-    "negeri lain": [
-      4
-    ],
-    "hukum jika": [
-      4,
-      76
     ],
     "payment": [
       4,
@@ -2921,266 +3358,245 @@
       26,
       28,
       35,
-      55,
       56,
-      58,
+      57,
       59,
-      66,
-      68,
+      60,
+      67,
       69,
       70,
       71,
       72,
       73,
       74,
-      79,
-      89
+      75,
+      80,
+      91
     ],
-    "harta seperti": [
+    "kerana": [
+      5,
+      77
+    ],
+    "faktor": [
       5
     ],
     "bantuan": [
       5,
-      53
+      54
     ],
-    "zakat kerana": [
-      5,
-      76
-    ],
-    "ayah tua": [
+    "tua menerima": [
       5
     ],
-    "keadaan": [
-      5,
-      71
-    ],
-    "beliau": [
+    "umur namun": [
       5
     ],
-    "namun beliau": [
-      5
-    ],
-    "tanah adakah": [
-      5
-    ],
-    "namun": [
-      5
-    ],
-    "harta": [
+    "tersebut": [
       5,
       15,
-      27,
-      38,
-      74,
-      80
-    ],
-    "bantuan zakat": [
-      5,
-      53
-    ],
-    "tua": [
-      5
+      24,
+      71,
+      81,
+      91
     ],
     "dibenarkan beliau": [
       5
     ],
-    "tanah": [
-      5,
-      79
+    "umur": [
+      5
     ],
-    "dibenarkan": [
+    "adakah dibenarkan": [
       5
     ],
     "masih": [
       5,
       15,
       23,
-      80
-    ],
-    "masih mempunyai": [
-      5
-    ],
-    "menerima bantuan": [
-      5
-    ],
-    "menerima zakat": [
-      5,
-      57
-    ],
-    "tersebut": [
-      5,
-      15,
-      24,
-      70,
-      80,
-      89
+      81
     ],
     "mempunyai harta": [
       5
     ],
-    "ayah": [
-      5
-    ],
-    "beliau menerima": [
+    "masih mempunyai": [
       5
     ],
     "keadaan tersebut": [
+      5
+    ],
+    "ayah tua": [
       5
     ],
     "simpanan": [
       5,
       25,
       36,
-      84,
       85,
       86,
       87,
-      89
+      88,
+      91
     ],
-    "simpanan tanah": [
+    "menerima bantuan": [
       5
     ],
-    "faktor": [
+    "tanah adakah": [
       5
     ],
-    "umur": [
+    "tua": [
       5
     ],
-    "zakat dalam": [
+    "namun beliau": [
       5
+    ],
+    "beliau menerima": [
+      5
+    ],
+    "namun": [
+      5
+    ],
+    "zakat kerana": [
+      5,
+      77
+    ],
+    "menerima zakat": [
+      5,
+      58
     ],
     "dalam keadaan": [
       5,
-      71
+      72
     ],
-    "tua menerima": [
+    "support": [
+      5,
+      7,
+      54
+    ],
+    "tanah": [
+      5,
+      80
+    ],
+    "help": [
+      5,
+      54
+    ],
+    "assist": [
+      5,
+      54
+    ],
+    "dalam": [
+      5,
+      32,
+      72,
+      77
+    ],
+    "beliau masih": [
       5
     ],
     "wang simpanan": [
       5,
       25,
-      84,
       85,
       86,
-      89
+      87,
+      91
     ],
-    "adakah dibenarkan": [
+    "zakat dalam": [
       5
     ],
-    "kerana": [
-      5,
-      76
-    ],
-    "faktor umur": [
-      5
-    ],
-    "umur namun": [
-      5
-    ],
-    "dalam": [
-      5,
-      32,
-      71,
-      76
-    ],
-    "seperti wang": [
-      5
-    ],
-    "beliau masih": [
+    "beliau": [
       5
     ],
     "kerana faktor": [
       5
     ],
+    "simpanan tanah": [
+      5
+    ],
+    "tolong": [
+      5,
+      54
+    ],
+    "harta": [
+      5,
+      15,
+      27,
+      38,
+      75,
+      81
+    ],
+    "faktor umur": [
+      5
+    ],
+    "aid": [
+      5,
+      54
+    ],
+    "bantuan zakat": [
+      5,
+      54
+    ],
+    "ayah": [
+      5,
+      28,
+      81
+    ],
     "wang": [
       5,
       12,
       19,
+      20,
       23,
       25,
       30,
-      77,
-      81,
-      84,
+      78,
+      79,
+      82,
       85,
       86,
       87,
-      89
+      88,
+      91
+    ],
+    "seperti wang": [
+      5
+    ],
+    "harta seperti": [
+      5
+    ],
+    "keadaan": [
+      5,
+      72
+    ],
+    "dibenarkan": [
+      5
     ],
     "seperti": [
       5,
-      69,
-      74
+      70,
+      75
     ],
     "sekolah pelajar": [
-      6
-    ],
-    "orang": [
-      6,
-      68,
-      73,
-      75
-    ],
-    "lebihan": [
-      6,
-      77
-    ],
-    "kepada orang": [
-      6
-    ],
-    "baju sekolah": [
-      6
-    ],
-    "miskin diberikan": [
-      6
-    ],
-    "awam": [
-      6,
-      53,
-      75
-    ],
-    "baju": [
-      6
-    ],
-    "orang awam": [
-      6,
-      75
-    ],
-    "sebagai cenderahati": [
-      6
-    ],
-    "diberikan sebagai": [
-      6
-    ],
-    "sekolah": [
-      6
-    ],
-    "pelajar miskin": [
-      6
-    ],
-    "diberikan": [
-      6
-    ],
-    "pelajar": [
-      6
-    ],
-    "sebagai": [
-      6,
-      27,
-      30,
-      42,
-      76
-    ],
-    "cenderahati": [
       6
     ],
     "cenderahati kepada": [
       6
     ],
-    "bolehkah lebihan": [
+    "baju": [
+      6
+    ],
+    "lebihan": [
+      6,
+      78
+    ],
+    "diberikan sebagai": [
+      6
+    ],
+    "sebagai cenderahati": [
       6
     ],
     "lebihan baju": [
+      6
+    ],
+    "pelajar": [
       6
     ],
     "bolehkah": [
@@ -3189,58 +3605,117 @@
       10,
       42
     ],
-    "umrah": [
-      7
+    "pelajar miskin": [
+      6
     ],
-    "menunaikan": [
-      7,
-      71
+    "kepada orang": [
+      6
     ],
-    "digunakan menampung": [
-      7
+    "baju sekolah": [
+      6
     ],
-    "menampung kos": [
-      7,
-      53
+    "cenderahati": [
+      6
     ],
-    "haji umrah": [
-      7
+    "sekolah": [
+      6
     ],
-    "menunaikan haji": [
-      7
+    "diberikan": [
+      6
     ],
-    "seseorang menunaikan": [
-      7
+    "bolehkah lebihan": [
+      6
     ],
-    "bolehkah zakat": [
-      7
+    "orang": [
+      6,
+      69,
+      74,
+      76
     ],
-    "kos seseorang": [
-      7
+    "sebagai": [
+      6,
+      27,
+      30,
+      42,
+      77
     ],
-    "digunakan": [
-      7,
-      19,
-      30
+    "awam": [
+      6,
+      54,
+      76
     ],
-    "haji": [
-      7,
-      15
+    "orang awam": [
+      6,
+      76
+    ],
+    "miskin diberikan": [
+      6
     ],
     "zakat digunakan": [
       7,
       30
     ],
-    "menampung": [
-      7,
-      53
-    ],
     "kos": [
       7,
-      53
+      54
     ],
-    "kepada asnaf": [
-      8
+    "menampung kos": [
+      7,
+      54
+    ],
+    "tampung": [
+      7,
+      54
+    ],
+    "kos seseorang": [
+      7
+    ],
+    "sara": [
+      7,
+      54
+    ],
+    "digunakan menampung": [
+      7
+    ],
+    "seseorang menunaikan": [
+      7
+    ],
+    "sokong": [
+      7,
+      54
+    ],
+    "cover": [
+      7,
+      54
+    ],
+    "menampung": [
+      7,
+      54
+    ],
+    "menunaikan": [
+      7,
+      72
+    ],
+    "haji umrah": [
+      7
+    ],
+    "bolehkah zakat": [
+      7
+    ],
+    "umrah": [
+      7
+    ],
+    "menunaikan haji": [
+      7
+    ],
+    "haji": [
+      7,
+      15
+    ],
+    "digunakan": [
+      7,
+      19,
+      30
     ],
     "institusi zakat": [
       8
@@ -3251,27 +3726,25 @@
     "institusi": [
       8
     ],
-    "hukum institusi": [
+    "melewatkan": [
       8
     ],
-    "melewatkan": [
+    "hukum institusi": [
       8
     ],
     "zakat melewatkan": [
       8
     ],
-    "anak": [
-      9,
-      28,
-      37,
-      70,
-      84,
-      86
-    ],
-    "suami fakir": [
-      9
+    "kepada asnaf": [
+      8
     ],
     "hukum seorang": [
+      9
+    ],
+    "isteri bayar": [
+      9
+    ],
+    "suami fakir": [
       9
     ],
     "fakir miskin": [
@@ -3281,18 +3754,13 @@
     "miskin anak": [
       9
     ],
-    "isteri bayar": [
-      9
-    ],
-    "fakir": [
+    "anak": [
       9,
-      30
-    ],
-    "menantu": [
-      10
-    ],
-    "susah": [
-      10
+      28,
+      37,
+      71,
+      85,
+      87
     ],
     "beri": [
       10,
@@ -3301,21 +3769,37 @@
     "beri zakat": [
       10
     ],
-    "kepada menantu": [
+    "bolehkah beri": [
+      10
+    ],
+    "menantu": [
+      10
+    ],
+    "susah": [
       10
     ],
     "menantu lelaki": [
       10
     ],
-    "lelaki susah": [
-      10
-    ],
-    "bolehkah beri": [
+    "kepada menantu": [
       10
     ],
     "lelaki": [
       10,
-      80
+      81
+    ],
+    "lelaki susah": [
+      10
+    ],
+    "haul zakat": [
+      11,
+      23
+    ],
+    "zakat bermula": [
+      11
+    ],
+    "bermula": [
+      11
     ],
     "haul": [
       11,
@@ -3324,75 +3808,87 @@
       23,
       24,
       32,
-      75,
-      78,
-      82,
-      87
+      76,
+      79,
+      83,
+      88
     ],
-    "bilakah haul": [
-      11
+    "dia": [
+      12,
+      25,
+      56,
+      77,
+      81
     ],
-    "haul zakat": [
-      11,
-      23
-    ],
-    "bilakah": [
-      11
-    ],
-    "bermula": [
-      11
-    ],
-    "zakat bermula": [
-      11
-    ],
-    "dia bayar": [
+    "ataupun perlu": [
       12
     ],
-    "sehingga": [
+    "till": [
+      12
+    ],
+    "sampai": [
+      12
+    ],
+    "immediately": [
+      12
+    ],
+    "segera ataupun": [
+      12
+    ],
+    "menerima hadiah": [
+      12
+    ],
+    "persaraan": [
+      12,
+      83
+    ],
+    "up to": [
+      12
+    ],
+    "perlu tak": [
+      12,
+      91
+    ],
+    "cukup haul": [
+      12,
+      22,
+      76
+    ],
+    "laju": [
+      12
+    ],
+    "segera": [
+      12
+    ],
+    "pantas": [
       12
     ],
     "zakat kadar": [
       12
     ],
+    "sehingga": [
+      12
+    ],
     "berbentuk wang": [
       12
     ],
-    "wang tunai": [
-      12
-    ],
-    "berbentuk": [
-      12,
-      55
-    ],
-    "seseorang menerima": [
-      12,
-      25
-    ],
-    "ataupun": [
-      12
-    ],
-    "tunai perlu": [
-      12
-    ],
-    "hadiah persaraan": [
-      12,
-      82
-    ],
-    "cukup haul": [
+    "cukup": [
       12,
       22,
-      75
-    ],
-    "tak": [
-      12,
-      89
-    ],
-    "tunggu": [
-      12,
-      82
+      76
     ],
     "kadar segera": [
       12
+    ],
+    "urgent": [
+      12
+    ],
+    "tunai": [
+      12
+    ],
+    "hadiah": [
+      12,
+      83
     ],
     "tak dia": [
       12
@@ -3400,69 +3896,76 @@
     "sehingga cukup": [
       12
     ],
-    "perlu tak": [
+    "hingga": [
       12,
-      89
+      91
     ],
-    "dia": [
+    "ataupun": [
+      12
+    ],
+    "berbentuk": [
       12,
-      25,
-      55,
-      76,
-      80
-    ],
-    "segera": [
-      12
-    ],
-    "tunai": [
-      12
-    ],
-    "ataupun perlu": [
-      12
-    ],
-    "hadiah": [
-      12,
-      82
-    ],
-    "menerima hadiah": [
-      12
-    ],
-    "cukup": [
-      12,
-      22,
-      75
-    ],
-    "perlu tunggu": [
-      12
-    ],
-    "segera ataupun": [
-      12
-    ],
-    "persaraan": [
-      12,
-      82
+      56
     ],
     "persaraan berbentuk": [
       12
     ],
+    "until": [
+      12
+    ],
     "tunggu sehingga": [
+      12
+    ],
+    "tunggu": [
+      12,
+      83
+    ],
+    "cepat": [
+      12
+    ],
+    "tak": [
+      12,
+      90,
+      91
+    ],
+    "perlu tunggu": [
+      12
+    ],
+    "tunai perlu": [
+      12
+    ],
+    "hadiah persaraan": [
+      12,
+      83
+    ],
+    "dia bayar": [
+      12
+    ],
+    "seseorang menerima": [
+      12,
+      25
+    ],
+    "wang tunai": [
+      12
+    ],
+    "asap": [
       12
     ],
     "kadar zakat": [
       13,
       38
     ],
-    "emas": [
-      13,
-      14,
-      26,
-      55
-    ],
     "zakat emas": [
       13,
       14,
       26,
-      55
+      56
+    ],
+    "emas": [
+      13,
+      14,
+      26,
+      56
     ],
     "berapa": [
       13,
@@ -3473,6 +3976,9 @@
       13,
       38
     ],
+    "nisab zakat": [
+      14
+    ],
     "berapa nisab": [
       14
     ],
@@ -3480,53 +3986,16 @@
       14,
       24,
       26,
-      75
+      76
     ],
-    "nisab zakat": [
-      14
-    ],
-    "mati bagaimana": [
-      15
-    ],
-    "ditinggalkan tersebut": [
-      15
-    ],
-    "lagi tetapi": [
-      15
-    ],
-    "upah haji": [
-      15
-    ],
-    "bagi harta": [
-      15
-    ],
-    "difaraidkan lagi": [
-      15
-    ],
-    "status": [
-      15
+    "masih belum": [
+      15,
+      23
     ],
     "waris mati": [
       15
     ],
-    "pihak": [
-      15,
-      68,
-      69,
-      89
-    ],
     "tinggalkan": [
-      15
-    ],
-    "bagi pihak": [
-      15,
-      68,
-      69
-    ],
-    "lagi": [
-      15
-    ],
-    "status zakat": [
       15
     ],
     "mati": [
@@ -3535,97 +4004,145 @@
     "belum difaraidkan": [
       15
     ],
-    "bagaimana": [
-      15,
-      18,
-      21,
-      36,
-      87
-    ],
-    "difaraidkan": [
+    "tetapi waris": [
       15
     ],
-    "zakat bagi": [
-      15,
-      38,
-      80,
-      89
-    ],
-    "pihak mati": [
+    "haji bagi": [
       15
     ],
     "belum": [
       15,
       23
     ],
-    "tetapi": [
-      15,
-      80
-    ],
-    "tetapi waris": [
+    "status zakat": [
       15
     ],
     "mati bayar": [
       15
     ],
-    "upah": [
-      15
-    ],
-    "ditinggalkan": [
-      15
-    ],
-    "mati tinggalkan": [
+    "bagi harta": [
       15
     ],
     "harta masih": [
       15,
-      80
-    ],
-    "bagaimana status": [
-      15
-    ],
-    "harta ditinggalkan": [
-      15
+      81
     ],
     "tinggalkan harta": [
       15
     ],
-    "haji bagi": [
+    "difaraidkan lagi": [
+      15
+    ],
+    "lagi": [
+      15
+    ],
+    "bagaimana": [
+      15,
+      18,
+      21,
+      36,
+      88
+    ],
+    "tetapi": [
+      15,
+      81
+    ],
+    "zakat bagi": [
+      15,
+      38,
+      81,
+      91
+    ],
+    "harta ditinggalkan": [
+      15
+    ],
+    "bagi pihak": [
+      15,
+      69,
+      70
+    ],
+    "ditinggalkan tersebut": [
+      15
+    ],
+    "pihak": [
+      15,
+      69,
+      70,
+      91
+    ],
+    "pihak mati": [
+      15
+    ],
+    "upah": [
+      15
+    ],
+    "mati bagaimana": [
+      15
+    ],
+    "lagi tetapi": [
       15
     ],
     "bayar upah": [
       15
     ],
-    "masih belum": [
-      15,
-      23
+    "bagaimana status": [
+      15
+    ],
+    "upah haji": [
+      15
+    ],
+    "status": [
+      15
     ],
     "waris": [
       15,
       27
     ],
+    "mati tinggalkan": [
+      15
+    ],
+    "difaraidkan": [
+      15
+    ],
+    "ditinggalkan": [
+      15
+    ],
     "test": [
       16
     ],
-    "test testing": [
+    "testing jjjjjjjjjjjjj": [
       16
     ],
     "jjjjjjjjjjjjj": [
       16
     ],
+    "test testing": [
+      16
+    ],
     "testing": [
       16,
-      64,
-      65
+      65,
+      66
     ],
-    "testing jjjjjjjjjjjjj": [
-      16
+    "tempoh": [
+      17,
+      81
+    ],
+    "time": [
+      17
     ],
     "sesuai bayar": [
       17
     ],
+    "period": [
+      17
+    ],
     "waktu": [
       17
+    ],
+    "masa": [
+      17,
+      52
     ],
     "sesuai": [
       17
@@ -3636,94 +4153,144 @@
     "apa waktu": [
       17
     ],
-    "cara bayar": [
-      18
+    "bila": [
+      17
     ],
-    "kaedah": [
-      18,
-      36,
-      87
+    "when": [
+      17
     ],
     "how": [
       18,
       36,
-      87
-    ],
-    "method": [
-      18,
-      36,
-      87
+      88
     ],
     "cara": [
       18,
       36,
-      87
+      88
+    ],
+    "cara-cara": [
+      18,
+      36,
+      88
+    ],
+    "method": [
+      18,
+      36,
+      88
+    ],
+    "kaedah": [
+      18,
+      36,
+      88
+    ],
+    "steps": [
+      18,
+      36,
+      88
+    ],
+    "cara bayar": [
+      18
     ],
     "bagaimana cara": [
       18,
       36,
-      87
+      88
     ],
-    "muallaf": [
+    "new muslim": [
+      19
+    ],
+    "baru convert": [
+      19
+    ],
+    "convert": [
       19
     ],
     "muallaf digunakan": [
       19
     ],
+    "muallaf": [
+      19
+    ],
     "pegawai": [
+      19
+    ],
+    "convert to islam": [
+      19
+    ],
+    "wang zakat": [
+      19,
+      78
+    ],
+    "digunakan kursus": [
+      19
+    ],
+    "new convert": [
       19
     ],
     "zakat muallaf": [
       19
     ],
-    "kursus pegawai": [
+    "newly converted": [
       19
     ],
     "kursus": [
       19
     ],
-    "wang zakat": [
-      19,
-      77
-    ],
-    "digunakan kursus": [
+    "kursus pegawai": [
       19
     ],
-    "adakah duit": [
+    "wang pinjaman": [
       20
+    ],
+    "pinjam": [
+      20,
+      91
+    ],
+    "borrow": [
+      20,
+      91
+    ],
+    "loan": [
+      20,
+      91
+    ],
+    "pinjaman": [
+      20,
+      91
     ],
     "perniagaan wajib": [
       20
+    ],
+    "wajib zakat": [
+      20
+    ],
+    "debt": [
+      20,
+      91
+    ],
+    "pinjaman perniagaan": [
+      20
+    ],
+    "adakah wang": [
+      20,
+      30,
+      82,
+      85,
+      86,
+      87
+    ],
+    "hutang": [
+      20,
+      42,
+      77,
+      91
     ],
     "perniagaan": [
       20,
       21,
       22,
-      55
-    ],
-    "pinjaman": [
-      20
-    ],
-    "duit": [
-      20,
-      78
-    ],
-    "wajib zakat": [
-      20
-    ],
-    "duit pinjaman": [
-      20
-    ],
-    "pinjaman perniagaan": [
-      20
-    ],
-    "bagaimana mengira": [
-      21
-    ],
-    "zakat perniagaan": [
-      21,
-      22,
-      55
+      56
     ],
     "mengira": [
       21
@@ -3731,84 +4298,104 @@
     "mengira zakat": [
       21
     ],
-    "menunggu cukup": [
+    "zakat perniagaan": [
+      21,
+      22,
+      56
+    ],
+    "bagaimana mengira": [
+      21
+    ],
+    "membayarnya": [
       22
+    ],
+    "secara bulanan": [
+      22
+    ],
+    "wajib bayar": [
+      22,
+      25,
+      26,
+      56,
+      57,
+      59,
+      70,
+      71,
+      73
+    ],
+    "bulanan": [
+      22
+    ],
+    "tanpa menunggu": [
+      22,
+      79
+    ],
+    "hukum seseorang": [
+      22,
+      78
     ],
     "secara": [
       22,
       35,
-      78
+      79
     ],
-    "hukum seseorang": [
+    "seseorang wajib": [
       22,
-      77
-    ],
-    "membayarnya secara": [
-      22
-    ],
-    "perniagaan membayarnya": [
-      22
-    ],
-    "tanpa": [
-      22,
-      78
-    ],
-    "membayarnya": [
-      22
+      70
     ],
     "bulanan tanpa": [
       22
     ],
     "menunggu": [
       22,
-      78
+      79
     ],
-    "bulanan": [
+    "perniagaan membayarnya": [
       22
     ],
-    "secara bulanan": [
+    "menunggu cukup": [
       22
     ],
-    "seseorang wajib": [
+    "tanpa": [
       22,
-      69
+      79
     ],
-    "tanpa menunggu": [
-      22,
-      78
+    "membayarnya secara": [
+      22
     ],
-    "wajib bayar": [
-      22,
-      25,
-      26,
-      55,
-      56,
-      58,
-      69,
-      70,
-      72
-    ],
-    "rakan kongsi": [
+    "beberapa": [
       23
     ],
-    "berhutang": [
-      23
-    ],
-    "atas wang": [
+    "beberapa rakan": [
       23
     ],
     "perlu bayar": [
       23,
-      74,
-      79
+      75,
+      80
+    ],
+    "rakan kongsi": [
+      23
     ],
     "tiba": [
+      23
+    ],
+    "berhutang haul": [
       23
     ],
     "wang masih": [
       23
     ],
+    "atas wang": [
+      23
+    ],
+    "tiba perlu": [
+      23
+    ],
     "belum bayar": [
+      23
+    ],
+    "kongsi": [
       23
     ],
     "zakat tiba": [
@@ -3817,101 +4404,71 @@
     "kongsi berhutang": [
       23
     ],
-    "rakan": [
-      23
-    ],
-    "berhutang haul": [
-      23
-    ],
-    "tiba perlu": [
-      23
-    ],
-    "beberapa rakan": [
-      23
-    ],
-    "zakat atas": [
-      23,
-      79
-    ],
     "atas": [
       23,
       37,
-      79
+      80
     ],
-    "beberapa": [
+    "zakat atas": [
+      23,
+      80
+    ],
+    "rakan": [
       23
     ],
-    "kongsi": [
+    "berhutang": [
       23
-    ],
-    "adakah perlu": [
-      24,
-      74
-    ],
-    "mencukupi": [
-      24
-    ],
-    "jika terlupa": [
-      24
-    ],
-    "mencukupi haul": [
-      24
     ],
     "diqada": [
+      24
+    ],
+    "zakat tersebut": [
       24
     ],
     "diqada bayaran": [
       24
     ],
-    "nisab adakah": [
-      24
-    ],
-    "terlupa bayaran": [
-      24
-    ],
-    "perlu diqada": [
+    "jika terlupa": [
       24
     ],
     "bayaran zakat": [
       24,
       37
     ],
-    "terlupa": [
-      24
-    ],
     "haul nisab": [
+      24,
+      76
+    ],
+    "adakah perlu": [
       24,
       75
     ],
-    "zakat mencukupi": [
+    "mencukupi": [
       24
     ],
     "bayaran": [
       24,
       37
     ],
-    "zakat tersebut": [
+    "perlu diqada": [
       24
     ],
-    "zakat wang": [
-      25,
-      84
+    "mencukupi haul": [
+      24
+    ],
+    "terlupa bayaran": [
+      24
+    ],
+    "zakat mencukupi": [
+      24
+    ],
+    "nisab adakah": [
+      24
+    ],
+    "terlupa": [
+      24
     ],
     "pusaka berjumlah": [
-      25
-    ],
-    "menerima wang": [
-      25
-    ],
-    "dia tidak": [
-      25
-    ],
-    "pusaka": [
-      25,
-      78,
-      80
-    ],
-    "ribu dia": [
       25
     ],
     "bekerja": [
@@ -3919,96 +4476,129 @@
       26,
       28
     ],
-    "berjumlah": [
-      25
-    ],
     "sekiranya seseorang": [
       25
     ],
-    "sekiranya": [
-      25,
-      71
-    ],
-    "ribu": [
+    "wang pusaka": [
       25
     ],
-    "tidak": [
-      25,
-      26,
-      71
+    "berjumlah": [
+      25
     ],
-    "dia wajib": [
-      25,
-      55
-    ],
-    "wang pusaka": [
+    "ribu dia": [
       25
     ],
     "tidak bekerja": [
       25,
       26
     ],
+    "pusaka": [
+      25,
+      79,
+      81
+    ],
+    "adakah dia": [
+      25,
+      56,
+      81
+    ],
+    "ribu": [
+      25
+    ],
+    "menerima wang": [
+      25,
+      79
+    ],
+    "dia tidak": [
+      25
+    ],
     "bekerja adakah": [
       25
+    ],
+    "tidak": [
+      25,
+      26,
+      72
+    ],
+    "sekiranya": [
+      25,
+      72
     ],
     "berjumlah ribu": [
       25
     ],
-    "adakah dia": [
+    "zakat wang": [
       25,
-      55,
-      80
+      85
     ],
-    "isteri tidak": [
-      26
-    ],
-    "melebihi": [
-      26
-    ],
-    "emas melebihi": [
-      26
-    ],
-    "seorang suami": [
-      26
+    "dia wajib": [
+      25,
+      56
     ],
     "memberi emas": [
-      26
-    ],
-    "suami memberi": [
       26
     ],
     "kepada isteri": [
       26
     ],
-    "nisab kepada": [
+    "isteri tidak": [
       26
     ],
-    "siapakah wajib": [
+    "siapa wajib": [
       26,
-      58
+      57,
+      59,
+      71
     ],
-    "bekerja siapakah": [
+    "seorang suami": [
+      26
+    ],
+    "melebihi": [
       26
     ],
     "melebihi nisab": [
       26
     ],
-    "siapakah": [
-      26,
-      57,
-      58
+    "bekerja siapa": [
+      26
     ],
-    "dibahagikan": [
+    "suami memberi": [
+      26
+    ],
+    "nisab kepada": [
+      26
+    ],
+    "siapa": [
+      26,
+      37,
+      57,
+      58,
+      59,
+      71
+    ],
+    "emas melebihi": [
+      26
+    ],
+    "perlu dibayar": [
       27
     ],
     "zakat dahulu": [
       27
     ],
+    "sebelum dibahagikan": [
+      27
+    ],
     "ahli": [
       27,
-      69
+      70
     ],
-    "dunia": [
+    "meninggalkan harta": [
+      27
+    ],
+    "sebelum": [
+      27
+    ],
+    "meninggal": [
       27
     ],
     "seseorang meninggal": [
@@ -4017,57 +4607,27 @@
     "dunia meninggalkan": [
       27
     ],
-    "meninggal": [
-      27
-    ],
-    "dahulu sebelum": [
-      27
-    ],
-    "dibayar": [
-      27
-    ],
     "meninggal dunia": [
-      27
-    ],
-    "harta apa": [
-      27
-    ],
-    "waris sebagai": [
-      27
-    ],
-    "ahli waris": [
-      27
-    ],
-    "sebelum": [
-      27
-    ],
-    "faraid": [
-      27,
-      80
-    ],
-    "dahulu": [
-      27
-    ],
-    "perlu dibayar": [
-      27
-    ],
-    "meninggalkan": [
-      27
-    ],
-    "meninggalkan harta": [
-      27
-    ],
-    "dibahagikan kepada": [
       27
     ],
     "dibayar zakat": [
       27
     ],
-    "kepada ahli": [
+    "waris sebagai": [
       27
     ],
-    "sebelum dibahagikan": [
+    "dunia": [
       27
+    ],
+    "dibahagikan kepada": [
+      27
+    ],
+    "dahulu": [
+      27
+    ],
+    "faraid": [
+      27,
+      81
     ],
     "sebagai faraid": [
       27
@@ -4075,44 +4635,30 @@
     "apa perlu": [
       27
     ],
-    "bekerja serta": [
-      28
+    "dibayar": [
+      27
     ],
-    "dewasa": [
-      28
+    "ahli waris": [
+      27
     ],
-    "adakah bapa": [
-      28
+    "dahulu sebelum": [
+      27
     ],
-    "fitrah anak": [
+    "dibahagikan": [
+      27
+    ],
+    "kepada ahli": [
+      27
+    ],
+    "meninggalkan": [
+      27
+    ],
+    "harta apa": [
+      27
+    ],
+    "dad": [
       28,
-      37,
-      70
-    ],
-    "anak perempuan": [
-      28
-    ],
-    "mempunyai pendapatan": [
-      28
-    ],
-    "bapa bayar": [
-      28
-    ],
-    "bapa": [
-      28,
-      80
-    ],
-    "perempuan": [
-      28
-    ],
-    "serta mempunyai": [
-      28
-    ],
-    "perempuan dewasa": [
-      28
-    ],
-    "pendapatan sendiri": [
-      28
+      81
     ],
     "serta": [
       28
@@ -4122,10 +4668,54 @@
     ],
     "sendiri": [
       28,
+      72
+    ],
+    "serta mempunyai": [
+      28
+    ],
+    "pendapatan sendiri": [
+      28
+    ],
+    "perempuan": [
+      28
+    ],
+    "bapa bayar": [
+      28
+    ],
+    "fitrah anak": [
+      28,
+      37,
       71
     ],
-    "wajib dikenakan": [
-      29
+    "bekerja serta": [
+      28
+    ],
+    "adakah bapa": [
+      28
+    ],
+    "parent": [
+      28,
+      81
+    ],
+    "bapa": [
+      28,
+      81
+    ],
+    "father": [
+      28,
+      81
+    ],
+    "mempunyai pendapatan": [
+      28
+    ],
+    "perempuan dewasa": [
+      28
+    ],
+    "anak perempuan": [
+      28
+    ],
+    "dewasa": [
+      28
     ],
     "fixed deposit": [
       29
@@ -4133,40 +4723,40 @@
     "adakah fixed": [
       29
     ],
+    "dikenakan zakat": [
+      29,
+      79,
+      82,
+      84,
+      86
+    ],
+    "fixed": [
+      29
+    ],
     "deposit": [
+      29
+    ],
+    "dikenakan": [
+      29,
+      79,
+      82,
+      84,
+      86
+    ],
+    "wajib dikenakan": [
       29
     ],
     "deposit wajib": [
       29
     ],
-    "fixed": [
-      29
-    ],
-    "dikenakan": [
-      29,
-      78,
-      81,
-      83,
-      85
-    ],
-    "dikenakan zakat": [
-      29,
-      78,
-      81,
-      83,
-      85
-    ],
-    "korban diagihkan": [
-      30
-    ],
     "sebagai pembelian": [
       30
     ],
-    "wakalah": [
+    "wakalah agihan": [
       30,
       41
     ],
-    "pembelian": [
+    "binatang": [
       30
     ],
     "kepada fakir": [
@@ -4175,11 +4765,13 @@
     "wang wakalah": [
       30
     ],
-    "wakalah agihan": [
-      30,
-      41
+    "korban diagihkan": [
+      30
     ],
-    "binatang korban": [
+    "korban": [
+      30
+    ],
+    "pembelian": [
       30
     ],
     "diagihkan": [
@@ -4188,62 +4780,47 @@
     "diagihkan kepada": [
       30
     ],
-    "korban": [
+    "wakalah": [
+      30,
+      41
+    ],
+    "digunakan sebagai": [
       30
     ],
     "pembelian binatang": [
       30
     ],
-    "adakah wang": [
-      30,
-      81,
-      84,
-      85,
-      86
-    ],
-    "digunakan sebagai": [
-      30
-    ],
-    "binatang": [
+    "binatang korban": [
       30
     ],
     "apa zakat": [
       31
     ],
-    "apa maksud": [
-      32
-    ],
-    "maksud haul": [
-      32
-    ],
-    "maksud": [
-      32,
-      47,
-      48,
-      49,
-      50
-    ],
-    "dalam zakat": [
+    "apa haul": [
       32
     ],
     "haul dalam": [
       32
     ],
-    "zakia buat": [
-      33
+    "apa apa": [
+      32
+    ],
+    "dalam zakat": [
+      32
     ],
     "buat": [
       33
     ],
     "apa zakia": [
+      33,
+      51
+    ],
+    "zakia buat": [
       33
     ],
     "zakia": [
       33,
-      50
-    ],
-    "sedekah": [
-      34
+      51
     ],
     "antara zakat": [
       34
@@ -4251,16 +4828,22 @@
     "zakat sedekah": [
       34
     ],
+    "sedekah": [
+      34
+    ],
     "kedah": [
       35,
       43
     ],
-    "zakat secara": [
-      35,
-      78
-    ],
     "secara online": [
       35
+    ],
+    "apa prosedur": [
+      35
+    ],
+    "zakat secara": [
+      35,
+      79
     ],
     "prosedur bayar": [
       35
@@ -4268,32 +4851,29 @@
     "online kedah": [
       35
     ],
-    "prosedur": [
-      35
-    ],
     "online": [
       35
     ],
-    "apa prosedur": [
+    "prosedur": [
       35
-    ],
-    "zakat simpanan": [
-      36,
-      87
-    ],
-    "kira zakat": [
-      36,
-      87
-    ],
-    "kira": [
-      36,
-      87
     ],
     "cara kira": [
       36,
-      87
+      88
     ],
-    "yatim wajib": [
+    "zakat simpanan": [
+      36,
+      88
+    ],
+    "kira zakat": [
+      36,
+      88
+    ],
+    "kira": [
+      36,
+      88
+    ],
+    "yatim": [
       37
     ],
     "anak yatim": [
@@ -4302,20 +4882,11 @@
     "wajib atas": [
       37
     ],
-    "yatim": [
+    "yatim wajib": [
       37
-    ],
-    "siapa": [
-      37,
-      56,
-      70
     ],
     "atas siapa": [
       37
-    ],
-    "jenis": [
-      38,
-      44
     ],
     "bagi setiap": [
       38
@@ -4323,14 +4894,15 @@
     "setiap jenis": [
       38
     ],
-    "jenis harta": [
-      38
+    "jenis": [
+      38,
+      44
     ],
     "setiap": [
       38
     ],
-    "tentang": [
-      39
+    "jenis harta": [
+      38
     ],
     "info": [
       39
@@ -4338,17 +4910,21 @@
     "info tentang": [
       39
     ],
-    "beri info": [
+    "tentang": [
+      39
+    ],
+    "tentang lznk": [
       39
     ],
     "lznk": [
       39,
       41,
+      43,
       46,
       48,
-      51
+      52
     ],
-    "tentang lznk": [
+    "beri info": [
       39
     ],
     "bla": [
@@ -4357,13 +4933,10 @@
     "bla bla": [
       40
     ],
+    "tahu": [
+      41
+    ],
     "apa dalil": [
-      41
-    ],
-    "rujukan wakalah": [
-      41
-    ],
-    "rujukan": [
       41
     ],
     "zakat diamalkan": [
@@ -4375,24 +4948,30 @@
     "diamalkan lznk": [
       41
     ],
-    "diamalkan": [
+    "rujukan": [
       41
     ],
-    "tahu": [
-      41
-    ],
-    "tahu apa": [
+    "rujukan wakalah": [
       41
     ],
     "dalil rujukan": [
       41
     ],
-    "niatkan": [
-      42,
-      76
+    "diamalkan": [
+      41
+    ],
+    "tahu apa": [
+      41
+    ],
+    "hutang kita": [
+      42
     ],
     "bolehkah hutang": [
       42
+    ],
+    "kita": [
+      42,
+      79
     ],
     "penghutang": [
       42
@@ -4400,88 +4979,78 @@
     "kita niatkan": [
       42
     ],
-    "hutang": [
-      42,
-      76
-    ],
     "sebagai zakat": [
       42,
-      76
+      77
     ],
-    "penghutang miskin": [
-      42
+    "niatkan sebagai": [
+      42,
+      77
     ],
-    "hutang kita": [
-      42
+    "niatkan": [
+      42,
+      77
     ],
     "kepada penghutang": [
       42
     ],
-    "kita": [
-      42,
-      78
+    "penghutang miskin": [
+      42
     ],
-    "niatkan sebagai": [
-      42,
-      76
+    "terhadap": [
+      43
     ],
-    "darul aman": [
+    "pelanggan terhadap": [
+      43
+    ],
+    "kepuasan": [
       43
     ],
     "borang": [
       43
     ],
-    "pelanggan": [
+    "kajian kepuasan": [
       43
     ],
-    "selidik": [
-      43
-    ],
-    "2025": [
+    "darul": [
       43
     ],
     "soal selidik": [
       43
     ],
-    "kajian": [
+    "2025": [
       43
     ],
-    "kajian kepuasan": [
+    "tahun": [
+      43,
+      81
+    ],
+    "selidik": [
       43
     ],
-    "perkhidmatan lembaga": [
-      43
-    ],
-    "lembaga zakat": [
-      43
-    ],
-    "soal": [
-      43
-    ],
-    "kedah darul": [
-      43
-    ],
-    "terhadap": [
-      43
-    ],
-    "kualiti": [
+    "lznk zakat": [
       43
     ],
     "selidik kajian": [
       43
     ],
-    "borang soal": [
-      43
-    ],
-    "terhadap kualiti": [
-      43
-    ],
     "negeri kedah": [
       43
     ],
-    "tahun": [
-      43,
-      80
+    "pelanggan": [
+      43
+    ],
+    "kedah darul": [
+      43
+    ],
+    "soal": [
+      43
+    ],
+    "kajian": [
+      43
+    ],
+    "darul aman": [
+      43
     ],
     "kualiti perkhidmatan": [
       43
@@ -4489,28 +5058,28 @@
     "perkhidmatan": [
       43
     ],
-    "kepuasan": [
-      43
-    ],
-    "aman tahun": [
-      43
-    ],
-    "tahun 2025": [
+    "terhadap kualiti": [
       43
     ],
     "aman": [
       43
     ],
-    "pelanggan terhadap": [
-      43
-    ],
-    "darul": [
-      43
-    ],
     "kepuasan pelanggan": [
       43
     ],
-    "lembaga": [
+    "kualiti": [
+      43
+    ],
+    "perkhidmatan lznk": [
+      43
+    ],
+    "tahun 2025": [
+      43
+    ],
+    "borang soal": [
+      43
+    ],
+    "aman tahun": [
       43
     ],
     "jenis zakat": [
@@ -4519,16 +5088,13 @@
     "jumhur fuqaha": [
       45
     ],
-    "jumhur": [
-      45
-    ],
     "fuqaha": [
       45
     ],
-    "location": [
-      46
+    "jumhur": [
+      45
     ],
-    "address": [
+    "mana": [
       46
     ],
     "lokasi tempat": [
@@ -4540,924 +5106,988 @@
     "alamat": [
       46
     ],
+    "where": [
+      46
+    ],
     "lokasi": [
       46
     ],
-    "maksud faqir": [
+    "address": [
+      46
+    ],
+    "location": [
+      46
+    ],
+    "apa faqir": [
       47
     ],
-    "maksud lznk": [
+    "apa lznk": [
       48
     ],
-    "maksud maslahah": [
+    "apa maslahah": [
       49
     ],
     "maslahah": [
       49
     ],
-    "maksud zakia": [
+    "apa miskin": [
       50
     ],
     "operasi lznk": [
-      51
-    ],
-    "masa": [
-      51
-    ],
-    "operasi": [
-      51
+      52
     ],
     "masa operasi": [
-      51
+      52
+    ],
+    "operasi": [
+      52
     ],
     "penat stress": [
-      52
-    ],
-    "penat": [
-      52
+      53
     ],
     "stress": [
-      52
-    ],
-    "awam mempunyai": [
       53
     ],
-    "memohon bantuan": [
-      53
-    ],
-    "kronik": [
-      53
-    ],
-    "kos rawatan": [
-      53
-    ],
-    "penjawat awam": [
-      53
-    ],
-    "penjawat": [
+    "penat": [
       53
     ],
     "layak memohon": [
-      53
-    ],
-    "rawatan": [
-      53
-    ],
-    "rawatan suami": [
-      53
-    ],
-    "mempunyai suami": [
-      53
-    ],
-    "menghidap": [
-      53
-    ],
-    "seorang penjawat": [
-      53
-    ],
-    "memohon": [
-      53
-    ],
-    "suami tinggi": [
-      53
-    ],
-    "penyakit": [
-      53
-    ],
-    "suami menghidap": [
-      53
-    ],
-    "menghidap penyakit": [
-      53
-    ],
-    "penyakit kronik": [
-      53
-    ],
-    "zakat menampung": [
-      53
-    ],
-    "tinggi": [
-      53
-    ],
-    "kronik adakah": [
-      53
-    ],
-    "sedih": [
       54
     ],
-    "aset sebagainya": [
-      55
+    "rawatan": [
+      54
     ],
-    "perhiasan": [
-      55
+    "kos rawatan": [
+      54
     ],
-    "perniagaan zakat": [
-      55
+    "tinggi": [
+      54
     ],
-    "perniagaan emas": [
+    "penjawat awam": [
+      54
+    ],
+    "menghidap penyakit": [
+      54
+    ],
+    "suami menghidap": [
+      54
+    ],
+    "kronik": [
+      54
+    ],
+    "menghidap": [
+      54
+    ],
+    "penyakit kronik": [
+      54
+    ],
+    "kronik adakah": [
+      54
+    ],
+    "penjawat": [
+      54
+    ],
+    "memohon bantuan": [
+      54
+    ],
+    "suami tinggi": [
+      54
+    ],
+    "penyakit": [
+      54
+    ],
+    "awam mempunyai": [
+      54
+    ],
+    "seorang penjawat": [
+      54
+    ],
+    "zakat menampung": [
+      54
+    ],
+    "rawatan suami": [
+      54
+    ],
+    "memohon": [
+      54
+    ],
+    "mempunyai suami": [
+      54
+    ],
+    "sedih": [
       55
     ],
     "menjalankan": [
-      55
+      56
     ],
-    "sebagainya": [
-      55
-    ],
-    "sebagainya adakah": [
-      55
-    ],
-    "aset": [
-      55
-    ],
-    "perhiasan aset": [
-      55
-    ],
-    "berbentuk perhiasan": [
-      55
-    ],
-    "menjalankan perniagaan": [
-      55
-    ],
-    "seseorang menjalankan": [
-      55
+    "perniagaan zakat": [
+      56
     ],
     "emas berbentuk": [
-      55
+      56
     ],
-    "siapa wajib": [
-      56,
-      70
+    "sebagainya": [
+      56
     ],
-    "asnaf layak": [
-      57
+    "berbentuk perhiasan": [
+      56
     ],
-    "golongan": [
-      57,
-      76
+    "perniagaan emas": [
+      56
+    ],
+    "aset sebagainya": [
+      56
+    ],
+    "sebagainya adakah": [
+      56
+    ],
+    "seseorang menjalankan": [
+      56
+    ],
+    "aset": [
+      56
+    ],
+    "perhiasan aset": [
+      56
+    ],
+    "menjalankan perniagaan": [
+      56
+    ],
+    "perhiasan": [
+      56
     ],
     "golongan asnaf": [
-      57,
-      76
+      58,
+      77
     ],
-    "siapakah golongan": [
-      57
+    "siapa golongan": [
+      58
+    ],
+    "golongan": [
+      58,
+      77
+    ],
+    "asnaf layak": [
+      58
     ],
     "syarat": [
-      59
+      60
     ],
     "syarat bayar": [
-      59
+      60
     ],
     "testinf": [
-      60,
       61,
       62,
-      63
-    ],
-    "zakat mengikut": [
-      66
-    ],
-    "afdhal": [
-      66
-    ],
-    "kalendar": [
-      66
+      63,
+      64
     ],
     "lebih afdhal": [
-      66
-    ],
-    "afdhal bayar": [
-      66
-    ],
-    "masihi hijri": [
-      66
-    ],
-    "kalendar masihi": [
-      66
-    ],
-    "masihi": [
-      66
-    ],
-    "mengikut": [
-      66
-    ],
-    "hijri": [
-      66
-    ],
-    "mengikut kalendar": [
-      66
-    ],
-    "adakah mengeluarkan": [
       67
     ],
-    "adakah dibolehkan": [
+    "zakat mengikut": [
+      67
+    ],
+    "hijri": [
+      67
+    ],
+    "afdhal": [
+      67
+    ],
+    "mengikut": [
+      67
+    ],
+    "masihi": [
+      67
+    ],
+    "masihi hijri": [
+      67
+    ],
+    "afdhal bayar": [
+      67
+    ],
+    "kalendar masihi": [
+      67
+    ],
+    "kalendar": [
+      67
+    ],
+    "mengikut kalendar": [
+      67
+    ],
+    "adakah mengeluarkan": [
       68
     ],
-    "keluarga": [
-      68,
+    "diri": [
+      69
+    ],
+    "diri keluarga": [
       69
     ],
     "dibolehkan mewakilkan": [
-      68
-    ],
-    "fitrah bagi": [
-      68,
       69
     ],
-    "diri": [
-      68
+    "keluarga": [
+      69,
+      70
     ],
-    "mewakilkan orang": [
-      68
-    ],
-    "pihak diri": [
-      68
-    ],
-    "lain bayar": [
-      68,
-      73
-    ],
-    "dibolehkan": [
-      68
-    ],
-    "diri keluarga": [
-      68
-    ],
-    "mewakilkan": [
-      68
+    "fitrah bagi": [
+      69,
+      70
     ],
     "orang lain": [
-      68,
+      69,
+      74
+    ],
+    "adakah dibolehkan": [
+      69
+    ],
+    "lain bayar": [
+      69,
+      74
+    ],
+    "mewakilkan orang": [
+      69
+    ],
+    "mewakilkan": [
+      69
+    ],
+    "dibolehkan": [
+      69
+    ],
+    "pihak diri": [
+      69
+    ],
+    "saudara mara": [
+      70,
+      73
+    ],
+    "seperti adik": [
+      70
+    ],
+    "ahli keluarga": [
+      70
+    ],
+    "mara": [
+      70,
       73
     ],
     "beradik ahli": [
-      69
-    ],
-    "beradik": [
-      69
-    ],
-    "mara seperti": [
-      69
-    ],
-    "adakah seseorang": [
-      69
-    ],
-    "adik beradik": [
-      69
-    ],
-    "adik": [
-      69
-    ],
-    "pihak saudara": [
-      69
-    ],
-    "ahli keluarga": [
-      69
-    ],
-    "saudara": [
-      69,
-      72
-    ],
-    "saudara mara": [
-      69,
-      72
-    ],
-    "seperti adik": [
-      69
-    ],
-    "mara": [
-      69,
-      72
-    ],
-    "keluarga lain": [
-      69
-    ],
-    "tinggal": [
       70
     ],
-    "ibu": [
+    "adik": [
+      70
+    ],
+    "adakah seseorang": [
+      70
+    ],
+    "saudara": [
+      70,
+      73
+    ],
+    "beradik": [
+      70
+    ],
+    "keluarga lain": [
+      70
+    ],
+    "pihak saudara": [
+      70
+    ],
+    "adik beradik": [
+      70
+    ],
+    "mara seperti": [
       70
     ],
     "bercerai": [
-      70
-    ],
-    "tinggal bersama": [
-      70
-    ],
-    "bersama": [
-      70
-    ],
-    "anak tersebut": [
-      70
-    ],
-    "isteri bercerai": [
-      70
-    ],
-    "jika suami": [
-      70
-    ],
-    "anak tinggal": [
-      70
-    ],
-    "bercerai anak": [
-      70
-    ],
-    "ibu siapa": [
-      70
-    ],
-    "bersama ibu": [
-      70
-    ],
-    "suami isteri": [
-      70
-    ],
-    "adakah isteri": [
       71
     ],
-    "mampu bayar": [
+    "anak tersebut": [
+      71
+    ],
+    "ibu siapa": [
+      71
+    ],
+    "bersama ibu": [
+      71
+    ],
+    "suami isteri": [
+      71
+    ],
+    "tinggal bersama": [
+      71
+    ],
+    "bersama": [
+      71
+    ],
+    "tinggal": [
+      71
+    ],
+    "bercerai anak": [
+      71
+    ],
+    "jika suami": [
+      71
+    ],
+    "isteri bercerai": [
+      71
+    ],
+    "anak tinggal": [
       71
     ],
     "dirinya sendiri": [
-      71
-    ],
-    "dirinya": [
-      71
-    ],
-    "suami berada": [
-      71
-    ],
-    "keadaan miskin": [
-      71
-    ],
-    "wajib menunaikan": [
-      71
-    ],
-    "fitrah dirinya": [
-      71
-    ],
-    "isteri wajib": [
-      71
-    ],
-    "sekiranya suami": [
-      71
-    ],
-    "miskin tidak": [
-      71
-    ],
-    "berada dalam": [
-      71
-    ],
-    "berada": [
-      71
-    ],
-    "menunaikan zakat": [
-      71
-    ],
-    "fitrah adakah": [
-      71
-    ],
-    "tidak mampu": [
-      71
-    ],
-    "mampu": [
-      71
-    ],
-    "zakat saudara": [
       72
     ],
-    "wakil orang": [
+    "menunaikan zakat": [
+      72
+    ],
+    "isteri wajib": [
+      72
+    ],
+    "berada": [
+      72
+    ],
+    "berada dalam": [
+      72
+    ],
+    "adakah isteri": [
+      72
+    ],
+    "dirinya": [
+      72
+    ],
+    "fitrah dirinya": [
+      72
+    ],
+    "fitrah adakah": [
+      72
+    ],
+    "sekiranya suami": [
+      72
+    ],
+    "miskin tidak": [
+      72
+    ],
+    "mampu": [
+      72
+    ],
+    "wajib menunaikan": [
+      72
+    ],
+    "suami berada": [
+      72
+    ],
+    "mampu bayar": [
+      72
+    ],
+    "tidak mampu": [
+      72
+    ],
+    "keadaan miskin": [
+      72
+    ],
+    "zakat saudara": [
       73
+    ],
+    "wakil orang": [
+      74
     ],
     "wakil": [
-      73
-    ],
-    "daripada harta": [
-      74
-    ],
-    "riba": [
-      74
-    ],
-    "bank konvensional": [
-      74
-    ],
-    "seperti faedah": [
-      74
-    ],
-    "faedah riba": [
-      74
-    ],
-    "bank": [
-      74,
-      89
-    ],
-    "zakat daripada": [
-      74
-    ],
-    "haram": [
-      74
-    ],
-    "daripada bank": [
       74
     ],
     "harta haram": [
-      74
+      75
+    ],
+    "bank konvensional": [
+      75
     ],
     "riba daripada": [
-      74
+      75
     ],
-    "haram seperti": [
-      74
+    "faedah riba": [
+      75
     ],
-    "konvensional": [
-      74
+    "haram": [
+      75
+    ],
+    "riba": [
+      75
+    ],
+    "daripada harta": [
+      75
     ],
     "faedah": [
-      74
-    ],
-    "dana masjid": [
       75
     ],
-    "diwakafkan wajib": [
+    "zakat daripada": [
       75
     ],
-    "disumbangkan": [
+    "bank": [
+      75,
+      91
+    ],
+    "seperti faedah": [
       75
     ],
-    "disumbangkan oleh": [
+    "haram seperti": [
       75
     ],
-    "masjid": [
+    "konvensional": [
       75
     ],
-    "masjid disumbangkan": [
-      75
-    ],
-    "dizakatkan": [
-      75
-    ],
-    "apabila cukup": [
-      75
-    ],
-    "wajib dizakatkan": [
-      75
-    ],
-    "oleh orang": [
-      75
-    ],
-    "oleh": [
-      75
-    ],
-    "dizakatkan apabila": [
-      75
-    ],
-    "diwakafkan": [
+    "daripada bank": [
       75
     ],
     "apabila": [
-      75
+      76
     ],
-    "dana": [
-      75
+    "masjid": [
+      76
+    ],
+    "diwakafkan": [
+      76
+    ],
+    "disumbangkan": [
+      76
+    ],
+    "dana masjid": [
+      76
+    ],
+    "apabila cukup": [
+      76
+    ],
+    "oleh orang": [
+      76
     ],
     "awam diwakafkan": [
-      75
-    ],
-    "dia termasuk": [
       76
     ],
-    "menghalalkan hutang": [
+    "dizakatkan apabila": [
       76
     ],
-    "seseorang niatkan": [
+    "masjid disumbangkan": [
       76
     ],
-    "dalam golongan": [
+    "disumbangkan oleh": [
       76
     ],
-    "hutang seseorang": [
+    "oleh": [
       76
     ],
-    "kerana dia": [
+    "diwakafkan wajib": [
+      76
+    ],
+    "dana": [
+      76
+    ],
+    "dizakatkan": [
+      76
+    ],
+    "wajib dizakatkan": [
       76
     ],
     "menghalalkan": [
-      76
-    ],
-    "termasuk dalam": [
-      76
+      77
     ],
     "jika menghalalkan": [
-      76
+      77
+    ],
+    "seseorang niatkan": [
+      77
+    ],
+    "termasuk dalam": [
+      77
+    ],
+    "kerana dia": [
+      77
+    ],
+    "dia termasuk": [
+      77
     ],
     "termasuk": [
-      76
-    ],
-    "zakat tersalah": [
       77
     ],
-    "kembali": [
+    "dalam golongan": [
       77
     ],
-    "kembali lebihan": [
+    "menghalalkan hutang": [
       77
     ],
-    "seseorang mengambil": [
-      77
-    ],
-    "amaun bayarannya": [
-      77
-    ],
-    "baki wang": [
-      77
-    ],
-    "bayarannya": [
-      77
-    ],
-    "amaun": [
-      77
-    ],
-    "mengambil": [
+    "hutang seseorang": [
       77
     ],
     "lebihan baki": [
-      77
-    ],
-    "tersalah": [
-      77
-    ],
-    "mengambil kembali": [
-      77
+      78
     ],
     "tersalah amaun": [
-      77
+      78
+    ],
+    "tersalah": [
+      78
+    ],
+    "mengambil kembali": [
+      78
+    ],
+    "amaun": [
+      78
+    ],
+    "baki wang": [
+      78
+    ],
+    "amaun bayarannya": [
+      78
+    ],
+    "seseorang mengambil": [
+      78
+    ],
+    "kembali lebihan": [
+      78
+    ],
+    "mengambil": [
+      78
+    ],
+    "zakat tersalah": [
+      78
+    ],
+    "bayarannya": [
+      78
     ],
     "baki": [
-      77
-    ],
-    "terus tanpa": [
       78
     ],
-    "kita menerima": [
-      78
-    ],
-    "jika kita": [
-      78
-    ],
-    "terus": [
-      78
-    ],
-    "menerima duit": [
-      78
-    ],
-    "pembahagian": [
-      78
-    ],
-    "menunggu haul": [
-      78
-    ],
-    "adakah dikenakan": [
-      78
-    ],
-    "pusaka adakah": [
-      78
-    ],
-    "pembahagian pusaka": [
+    "kembali": [
       78
     ],
     "secara terus": [
-      78
+      79
+    ],
+    "adakah dikenakan": [
+      79
+    ],
+    "menunggu haul": [
+      79
+    ],
+    "kita menerima": [
+      79
+    ],
+    "pusaka adakah": [
+      79
+    ],
+    "terus tanpa": [
+      79
     ],
     "daripada pembahagian": [
-      78
+      79
     ],
-    "duit daripada": [
-      78
+    "pembahagian": [
+      79
+    ],
+    "pembahagian pusaka": [
+      79
+    ],
+    "wang daripada": [
+      79,
+      91
+    ],
+    "jika kita": [
+      79
+    ],
+    "terus": [
+      79
     ],
     "atas hasil": [
-      79
-    ],
-    "jual": [
-      79
+      80
     ],
     "hasil jual": [
-      79
+      80
     ],
-    "jual tanah": [
-      79
+    "jual": [
+      80
     ],
     "hasil": [
-      79,
-      81
+      80,
+      82
     ],
-    "bawah": [
-      80
-    ],
-    "tempoh": [
-      80
-    ],
-    "masih bawah": [
-      80
-    ],
-    "tempoh tersebut": [
-      80
-    ],
-    "bapa saudaranya": [
-      80
-    ],
-    "tetapi harta": [
-      80
-    ],
-    "pengawasan": [
-      80
-    ],
-    "tahun adakah": [
-      80
-    ],
-    "saudaranya": [
-      80
-    ],
-    "ayahnya": [
-      80
-    ],
-    "pusaka daripada": [
-      80
-    ],
-    "perlu mengeluarkan": [
-      80
-    ],
-    "bawah pengawasan": [
-      80
-    ],
-    "faraid selama": [
-      80
-    ],
-    "dia perlu": [
-      80
-    ],
-    "urusan faraid": [
-      80
-    ],
-    "ayahnya tetapi": [
-      80
-    ],
-    "mewarisi harta": [
-      80
-    ],
-    "harta pusaka": [
-      80
-    ],
-    "pengawasan bapa": [
-      80
-    ],
-    "daripada ayahnya": [
-      80
-    ],
-    "mewarisi": [
-      80
-    ],
-    "selama": [
-      80
-    ],
-    "urusan": [
-      80
-    ],
-    "lelaki mewarisi": [
+    "jual tanah": [
       80
     ],
     "saudaranya urusan": [
-      80
-    ],
-    "bagi tempoh": [
-      80
+      81
     ],
     "seorang lelaki": [
-      80
+      81
+    ],
+    "dia perlu": [
+      81
+    ],
+    "bagi tempoh": [
+      81
+    ],
+    "pengawasan": [
+      81
+    ],
+    "mewarisi": [
+      81
+    ],
+    "bapa saudaranya": [
+      81
+    ],
+    "lelaki mewarisi": [
+      81
+    ],
+    "saudaranya": [
+      81
+    ],
+    "urusan faraid": [
+      81
+    ],
+    "tahun adakah": [
+      81
+    ],
+    "pusaka daripada": [
+      81
+    ],
+    "faraid selama": [
+      81
+    ],
+    "ayahnya": [
+      81
+    ],
+    "tetapi harta": [
+      81
+    ],
+    "harta pusaka": [
+      81
+    ],
+    "bawah": [
+      81
+    ],
+    "pengawasan bapa": [
+      81
+    ],
+    "selama": [
+      81
+    ],
+    "tempoh tersebut": [
+      81
+    ],
+    "urusan": [
+      81
+    ],
+    "ayahnya tetapi": [
+      81
     ],
     "selama tahun": [
-      80
-    ],
-    "padi perlu": [
       81
     ],
-    "jualan padi": [
+    "mewarisi harta": [
       81
     ],
-    "dicampurkan hasil": [
+    "masih bawah": [
+      81
+    ],
+    "daripada ayahnya": [
+      81
+    ],
+    "perlu mengeluarkan": [
+      81
+    ],
+    "bawah pengawasan": [
       81
     ],
     "dicampurkan": [
-      81
-    ],
-    "jualan": [
-      81
-    ],
-    "wang subsidi": [
-      81
-    ],
-    "zakat padi": [
-      81
-    ],
-    "hasil jualan": [
-      81
-    ],
-    "padi": [
-      81
-    ],
-    "subsidi padi": [
-      81
+      82
     ],
     "subsidi": [
-      81
-    ],
-    "padi dikenakan": [
-      81
+      82
     ],
     "perlu dicampurkan": [
-      81
+      82
     ],
-    "kena tunggu": [
+    "jualan padi": [
+      82
+    ],
+    "wang subsidi": [
+      82
+    ],
+    "padi": [
+      82
+    ],
+    "hasil jualan": [
+      82
+    ],
+    "padi dikenakan": [
+      82
+    ],
+    "dicampurkan hasil": [
+      82
+    ],
+    "jualan": [
+      82
+    ],
+    "subsidi padi": [
+      82
+    ],
+    "padi perlu": [
+      82
+    ],
+    "zakat padi": [
       82
     ],
     "tunggu haul": [
-      82
+      83
     ],
     "zakat hadiah": [
-      82
+      83
     ],
     "persaraan kena": [
-      82
-    ],
-    "kena": [
-      82
-    ],
-    "adakah polisi": [
       83
     ],
-    "insurans": [
-      83
+    "need to": [
+      83,
+      90
     ],
-    "polisi": [
+    "kena tunggu": [
       83
     ],
     "beli": [
-      83
+      84
+    ],
+    "garis panduan": [
+      84
+    ],
+    "peraturan": [
+      84
+    ],
+    "insurans": [
+      84
+    ],
+    "insurance": [
+      84
+    ],
+    "takaful": [
+      84
+    ],
+    "rules": [
+      84
     ],
     "insurans beli": [
-      83
+      84
+    ],
+    "insuran": [
+      84
+    ],
+    "protection": [
+      84
+    ],
+    "coverage": [
+      84
     ],
     "polisi insurans": [
-      83
+      84
+    ],
+    "insurans takaful": [
+      84
+    ],
+    "policy": [
+      84
+    ],
+    "polisi": [
+      84
+    ],
+    "adakah polisi": [
+      84
+    ],
+    "guidelines": [
+      84
     ],
     "beli dikenakan": [
-      83
-    ],
-    "pembiayaan": [
       84
-    ],
-    "pendidikan": [
-      84,
-      86
     ],
     "anak anak": [
-      84,
-      86
+      85,
+      87
     ],
     "ditunaikan zakat": [
-      84,
-      86
-    ],
-    "simpanan bagi": [
-      84
+      85,
+      87
     ],
     "anak perlu": [
-      84,
-      86
-    ],
-    "perlu ditunaikan": [
-      84,
-      86
-    ],
-    "pembiayaan pendidikan": [
-      84
-    ],
-    "pendidikan anak": [
-      84,
-      86
-    ],
-    "ditunaikan": [
-      84,
-      86
+      85,
+      87
     ],
     "tujuan": [
-      84
+      85
+    ],
+    "pembiayaan pendidikan": [
+      85
+    ],
+    "pendidikan": [
+      85,
+      87
+    ],
+    "pembiayaan": [
+      85
+    ],
+    "ditunaikan": [
+      85,
+      87
+    ],
+    "simpanan bagi": [
+      85
+    ],
+    "perlu ditunaikan": [
+      85,
+      87
     ],
     "tujuan pembiayaan": [
-      84
+      85
     ],
     "bagi tujuan": [
-      84
+      85
     ],
-    "khairat kematian": [
+    "pendidikan anak": [
       85,
-      88
-    ],
-    "simpanan persatuan": [
-      85
-    ],
-    "persatuan khairat": [
-      85
+      87
     ],
     "kematian": [
-      85,
-      88
-    ],
-    "khairat": [
-      85,
-      88
+      86,
+      89
     ],
     "kematian dikenakan": [
-      85
-    ],
-    "persatuan": [
-      85
-    ],
-    "simpanan pendidikan": [
       86
     ],
-    "wang pertengahan": [
-      87
+    "funeral fund": [
+      86,
+      89
     ],
-    "pertambahan wang": [
-      87
+    "funeral assistance": [
+      86,
+      89
     ],
-    "simpanan jika": [
-      87
+    "persatuan": [
+      86
     ],
-    "jika pertambahan": [
+    "persatuan khairiat": [
+      86
+    ],
+    "khairiat kematian": [
+      86,
+      89
+    ],
+    "khairat": [
+      86,
+      89
+    ],
+    "simpanan persatuan": [
+      86
+    ],
+    "khairiat": [
+      86,
+      89
+    ],
+    "simpanan pendidikan": [
       87
     ],
     "pertengahan haul": [
-      87
+      88
+    ],
+    "wang pertengahan": [
+      88
+    ],
+    "jika pertambahan": [
+      88
+    ],
+    "simpanan jika": [
+      88
     ],
     "pertengahan": [
-      87
+      88
+    ],
+    "pertambahan wang": [
+      88
     ],
     "pertambahan": [
-      87
+      88
     ],
-    "menyimpannya hingga": [
-      89
+    "kwsp": [
+      90
     ],
-    "simpanan tersebut": [
-      89
+    "kena zakat": [
+      90
+    ],
+    "zakat tak": [
+      90
+    ],
+    "kwsp kena": [
+      90
     ],
     "setahun": [
-      89
-    ],
-    "bank menyimpannya": [
-      89
-    ],
-    "pihak bank": [
-      89
-    ],
-    "hingga": [
-      89
-    ],
-    "menyimpannya": [
-      89
-    ],
-    "pinjam wang": [
-      89
+      91
     ],
     "hingga genap": [
-      89
+      91
     ],
-    "bagi wang": [
-      89
+    "simpanan tersebut": [
+      91
     ],
-    "genap setahun": [
-      89
+    "annually": [
+      91
     ],
-    "pinjam": [
-      89
+    "menyimpannya hingga": [
+      91
     ],
-    "setahun perlu": [
-      89
+    "setahun sekali": [
+      91
     ],
-    "daripada pihak": [
-      89
-    ],
-    "wang daripada": [
-      89
+    "1 tahun": [
+      91
     ],
     "tak bayar": [
-      89
+      91
+    ],
+    "daripada pihak": [
+      91
+    ],
+    "setahun perlu": [
+      91
+    ],
+    "once a year": [
+      91
+    ],
+    "pinjam wang": [
+      91
+    ],
+    "genap setahun": [
+      91
+    ],
+    "pihak bank": [
+      91
+    ],
+    "1 year": [
+      91
+    ],
+    "menyimpannya": [
+      91
+    ],
+    "one year": [
+      91
+    ],
+    "bagi wang": [
+      91
+    ],
+    "satu tahun": [
+      91
+    ],
+    "bank menyimpannya": [
+      91
     ],
     "genap": [
-      89
+      91
     ]
   },
-  "timestamp": "2025-11-18T12:01:11.481391",
-  "total_pairs": 90,
-  "total_keywords": 844
+  "timestamp": "2025-11-19T08:48:56.799358",
+  "total_pairs": 92,
+  "total_keywords": 917
 }
