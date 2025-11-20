@@ -181,8 +181,8 @@ def chat():
         
         if gemini:
             try:
-                # HIGH CONFIDENCE (0.45+) = FAQ match found - enhance it
-                if confidence >= 0.45 and matched_question:
+                # HIGH CONFIDENCE (0.75+) = FAQ match found - enhance it
+                if confidence >= 0.75 and matched_question:
                     print(f"   ✅ Good FAQ match - Enhancing with Gemini...")
                     
                     enhanced_reply = gemini.enhance_faq_response(
@@ -205,9 +205,9 @@ def chat():
                     
                     answer_source = "faq_enhanced"
                 
-                # MEDIUM CONFIDENCE (0.25-0.44) = Weak FAQ match
+                # MEDIUM CONFIDENCE (0.25-0.75) = Weak FAQ match
                 # Use Gemini to answer from knowledge, but mention related FAQ
-                elif 0.25 <= confidence < 0.45:
+                elif 0.25 <= confidence < 0.75:
                     print(f"   🤔 Weak FAQ match (confident: {confidence:.2f})")
                     print(f"   🤖 Using Gemini knowledge + suggest FAQ...")
                     
