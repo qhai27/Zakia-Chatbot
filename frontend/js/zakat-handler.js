@@ -1,6 +1,6 @@
 /**
- * Updated ZakatHandler with Reminder Integration
- * Manages zakat calculation and reminder opt-in flow
+ * Updated ZakatHandler with Reminder Integration and Payment Button
+ * Manages zakat calculation, reminder opt-in flow, and payment redirection
  */
 
 class ZakatHandler {
@@ -359,7 +359,7 @@ class ZakatHandler {
 
     async calculateZakat() {
         this.chatbot.setTyping(true);
-        let shouldResetState = true; // Track if we should reset state
+        let shouldResetState = true;
 
         try {
             const payload = {
@@ -382,23 +382,19 @@ class ZakatHandler {
             const data = await response.json();
 
             if (data.success) {
-                // Store state values before resetting (needed for reminder)
                 const zakatType = this.state.type;
                 const year = this.state.year;
                 const yearType = this.state.yearType;
 
-                // Check if reminder will be offered - if so, don't reset state yet
                 if (data.data.reaches_nisab && data.data.zakat_amount > 0) {
-                    shouldResetState = false; // Don't reset in finally block
+                    shouldResetState = false;
                 }
 
                 setTimeout(() => {
                     this.displayResult(data.reply, data.data);
 
-                    // Check if zakat exceeds nisab and offer reminder
                     if (data.data.reaches_nisab && data.data.zakat_amount > 0) {
                         setTimeout(() => {
-                            // Pass stored values to offerReminder
                             this.offerReminder(data.data, zakatType, year, yearType);
                         }, 1000);
                     }
@@ -418,8 +414,6 @@ class ZakatHandler {
             );
         } finally {
             this.chatbot.setTyping(false);
-            // Only reset state if reminder won't be offered
-            // If reminder will be offered, state will be reset after reminder flow completes
             if (shouldResetState) {
                 this.resetState();
             }
@@ -449,13 +443,22 @@ class ZakatHandler {
     }
 
     createActionButtons(data) {
-        return `
-            <div class="zakat-action-buttons">
-                <button class="btn-recalculate" onclick="window.zakatHandler.showZakatMenu()">
-                    🔄 Kira Semula
-                </button>
-            </div>
-        `;
+        // Add payment button if zakat exceeds nisab
+    const paymentButton = data.reaches_nisab && data.zakat_amount > 0 ? `
+        <button class="btn-pay-zakat" onclick="window.zakatHandler.openPaymentPage()">
+            💳 Bayar Zakat
+        </button>
+    ` : '';
+    
+    return `
+        <div class="zakat-action-buttons vertical-stack">
+            ${paymentButton}
+            <button class="btn-recalculate" onclick="window.zakatHandler.showZakatMenu()">
+                🔄 Kira Semula
+            </button>
+        </div>
+    `;
+
     }
 
     animateResult() {
@@ -474,30 +477,22 @@ class ZakatHandler {
         }
     }
 
-
-    // Update the offerReminder method in zakat-handler.js
-    // This ensures the zakat type is properly passed to the reminder handler
-
     offerReminder(zakatData, zakatTypeFromState = null, yearFromState = null, yearTypeFromState = null) {
-        // Map the calculation type to proper zakat type name
         const zakatTypeMap = {
             'income': 'pendapatan',
             'savings': 'simpanan'
         };
 
-        // Use passed values if available, otherwise try to get from state
         const stateType = zakatTypeFromState !== null ? zakatTypeFromState : this.state.type;
         let zakatType = zakatTypeMap[stateType] || stateType;
 
-        // Ensure zakat type is valid (pendapatan or simpanan)
         if (!zakatType || (zakatType !== 'pendapatan' && zakatType !== 'simpanan')) {
             console.warn('Invalid zakat type, defaulting to pendapatan:', zakatType);
             zakatType = 'pendapatan';
         }
 
-        // Get year and yearType from passed values or state (these come from user button selection)
         const year = yearFromState !== null ? yearFromState : (this.state.year || '');
-        const yearType = yearTypeFromState !== null ? yearTypeFromState : (this.state.yearType || 'M'); // Default to Masihi if not set
+        const yearType = yearTypeFromState !== null ? yearTypeFromState : (this.state.yearType || 'M');
 
         console.log('Offering reminder with:', {
             type: zakatType,
@@ -506,7 +501,6 @@ class ZakatHandler {
             yearType: yearType
         });
 
-        // Start reminder flow with proper zakat type, year, and yearType
         if (this.reminderHandler) {
             this.reminderHandler.startReminderFlow(
                 zakatType,
@@ -515,17 +509,13 @@ class ZakatHandler {
                 yearType
             );
 
-            // Reset state after reminder flow is started
-            // The reminder handler will manage its own state
             setTimeout(() => {
                 this.resetState();
             }, 100);
         } else {
-            // If no reminder handler, reset state immediately
             this.resetState();
         }
     }
-
 
     async fetchNisabInfo() {
         if (this.state.year && this.state.yearType) {
@@ -556,6 +546,18 @@ class ZakatHandler {
         } else {
             this.showNisabYearSelection();
         }
+    }
+
+    openPaymentPage() {
+        // Open JomZakat payment page
+        const paymentUrl = 'https://jom.zakatkedah.com.my';
+        window.open(paymentUrl, '_blank', 'noopener,noreferrer');
+        
+        // Show confirmation message
+        this.chatbot.appendMessage(
+            '✅ Halaman pembayaran JomZakat telah dibuka. Sila lengkapkan pembayaran zakat anda di tab baru. 🙏',
+            'bot'
+        );
     }
 
     resetState() {

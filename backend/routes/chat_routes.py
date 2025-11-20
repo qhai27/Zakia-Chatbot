@@ -30,12 +30,12 @@ except Exception as e:
 
 def add_emoji_if_missing(text: str) -> str:
     """Add emoji if missing"""
-    emojis = ['😊', '👋', '🙏', '💰', '📞', '✅', '😅', '🤝', '💡']
+    emojis = ['😊', '👋', '🙏', '💰', '📞', '✅', '🤝', '💡']
     if not any(emoji in text for emoji in emojis):
         if any(word in text.lower() for word in ['maaf', 'sorry', 'tidak']):
-            return text + " 😅"
-        elif any(word in text.lower() for word in ['terima kasih', 'thank']):
             return text + " 😊"
+        elif any(word in text.lower() for word in ['terima kasih', 'thank']):
+            return text + " 😄"
         elif any(word in text.lower() for word in ['hubungi', 'telefon']):
             return text + " 📞"
         else:

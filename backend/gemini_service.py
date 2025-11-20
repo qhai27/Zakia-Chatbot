@@ -233,7 +233,7 @@ JAWAB SEKARANG (gunakan pengetahuan zakat anda):
     
     def _get_default_fallback(self, matched_questions=None) -> str:
         """Safe default fallback - only when Gemini fails"""
-        msg = "Maaf, saya tidak pasti tentang soalan ini 😅\n\n"
+        msg = "Maaf, saya tidak pasti tentang soalan ini 😊\n\n"
         
         if matched_questions:
             msg += "Anda mungkin ingin bertanya:\n"

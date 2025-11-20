@@ -135,9 +135,9 @@
     
     /* Styling */
     background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
-    border: 2px solid #3b82f6;
+    border: 2px solid #BEDC74;
     border-radius: 14px;
-    color: #1e40af;
+    color: #387F39;
     
     /* Typography */
     font-size: 14px;
@@ -165,7 +165,7 @@
 }
 
 .zakat-year-type-btn:hover:not(:disabled) {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    background:  #BEDC74 ;
     color: #ffffff;
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(59, 130, 246, 0.25);
@@ -181,9 +181,11 @@
 }
 
 .zakat-year-type-btn.selected {
-    background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+    border-color: #BEDC74;
+    background: #BEDC74;
+    
     color: #ffffff;
-    border-color: #1e40af;
+    border-color: #BEDC74;
 }
 
 /* Year Selection Buttons */
@@ -379,6 +381,52 @@
     margin-top: 20px;
     padding-top: 16px;
     border-top: 2px dashed rgba(93, 185, 150, 0.2);
+}
+
+/* Payment Button Styles */
+.btn-pay-zakat {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 20px;
+    gap: 8px;
+    
+    /* Positioning */
+    position: relative;
+    overflow: hidden;
+    
+    /* Styling */
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border: 2px solid #5DB996;
+    border-radius: 12px;
+    color: #157347;
+    
+    /* Typography */
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1;
+    white-space: nowrap;
+    
+    /* Effects */
+    box-shadow: 0 2px 8px rgba(93, 185, 150, 0.15);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Reset browser defaults */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    box-sizing: border-box;
+    margin: 0;
+
+}
+
+.btn-pay-zakat:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
 }
 
 /* Recalculate Button - FIXED CENTERING */

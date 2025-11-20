@@ -77,7 +77,7 @@ if (!window.ZakiaChatbot) {
                 <img src="zakia-avatar.png" alt="ZAKIA" class="widget-avatar">
                 <div class="widget-content">
                     <div class="widget-title">ZAKIA</div>
-                    <div class="widget-subtitle">Chat dengan kami</div>
+                    <div class="widget-subtitle">Nak tanya soalan?</div>
                 </div>
             `;
             
