@@ -63,7 +63,7 @@ class GeminiService:
 3. JANGAN tambah maklumat baru yang tidak ada dalam FAQ
 4. JANGAN ubah nombor atau peratusan
 5. JANGAN guna: "biasanya", "mungkin", "kadang-kadang"
-6. Gunakan emoji sesuai (😊 💰 📞 ✅ 🙏)
+6. Gunakan emoji sesuai (😊 💰 📞 ✅ 🙏 ✨ ☝🏻 🤲🏻 🤝🏻 😄 🌙 ✅❌ )
 7. Ringkas (2-4 ayat)
 
 CONTOH BETUL:
@@ -72,7 +72,7 @@ ANDA: "Nisab zakat pendapatan ialah RM15,000 setahun ya 😊 Kalau sampai jumlah
 """
 
         # System context for answering questions WITHOUT FAQ (KNOWLEDGEABLE)
-        self.smart_context = """Anda adalah ZAKIA, chatbot pakar zakat dari Lembaga Zakat Negeri Kedah (LZNK).
+        self.smart_context = """Anda adalah ZAKIA, chatbot pakar dan penasihat zakat dari Lembaga Zakat Negeri Kedah (LZNK).
 
 PERATURAN SMART MODE - TIADA FAQ:
 
@@ -83,6 +83,7 @@ ANDA BOLEH:
 4. Terangkan syarat wajib zakat, nisab, haul
 5. Gunakan pengetahuan zakat yang betul dan tepat
 6. Berikan maklumat berguna dan berfakta
+7. Jawab soalan yang panjang atau kompleks
 
 ANDA MESTI:
 1. Gunakan pengetahuan zakat Islam yang sahih dan tepat
@@ -121,7 +122,7 @@ JAWAPAN FAQ RASMI (SUMBER MAKLUMAT SAHAJA):
 {faq_answer}
 
 TUGAS:
-1. Tulis SEMULA dengan bahasa lebih mesra
+1. Tulis SEMULA dengan bahasa lebih mesra dan bentuk point
 2. WAJIB kekalkan 100% SEMUA nombor, nilai, peratusan dari FAQ
 3. JANGAN tambah fakta baru
 4. Maksimum 3-4 ayat
@@ -191,6 +192,7 @@ TUGAS:
 5. 3-5 ayat (ringkas tapi lengkap)
 6. Tambah emoji yang sesuai
 7. Jika soalan sangat spesifik tentang LZNK Kedah, cadangkan hubungi 04-733 6633
+8. Jawab dalam bentuk mudah difahami dan berbentuk point
 
 {suggestion_text}
 

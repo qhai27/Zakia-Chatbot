@@ -47,6 +47,10 @@ class ZakatHandler {
     detectZakatIntent(message) {
         const msg = message.toLowerCase();
 
+        if (msg.includes('emas') || msg.includes('bulanan') || msg.includes('perak') || msg.includes('tahunan')) {
+            return null;
+        }
+
         if (msg.includes('kira zakat pendapatan') ||
             msg.includes('zakat pendapatan') ||
             msg.includes('zakat gaji') ||
