@@ -424,9 +424,11 @@
 }
 
 .btn-pay-zakat:hover {
+    background: linear-gradient(135deg, #FFD95F 0%, #ffd95f 100%);
+    color: #8B4513;
+    border-color: #FFD95F;
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
-    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    box-shadow: 0 6px 16px rgba(255, 217, 95, 0.3);
 }
 
 /* Recalculate Button - FIXED CENTERING */
@@ -481,6 +483,15 @@
     transform: translateY(0);
     box-shadow: 0 2px 8px rgba(255, 217, 95, 0.2);
 }
+
+/* Stack buttons vertically */
+.vertical-stack {
+    display: flex;
+    flex-direction: column;   /* SUSUN MENEGAK */
+    gap: 12px;                /* Jarak antara butang */
+    width: 100%;            
+}
+
 
 /* Loading State */
 .zakat-calculating {

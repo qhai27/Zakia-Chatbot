@@ -47,7 +47,9 @@ class ZakatHandler {
     detectZakatIntent(message) {
         const msg = message.toLowerCase();
 
-        if (msg.includes('emas') || msg.includes('bulanan') || msg.includes('perak') || msg.includes('tahunan')) {
+        if (msg.includes('emas') || msg.includes('bulanan') || 
+            msg.includes('perak') || msg.includes('tahunan') ||
+            msg.includes('dikira')){
             return null;
         }
 

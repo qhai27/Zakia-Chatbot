@@ -63,7 +63,7 @@ class GeminiService:
 3. JANGAN tambah maklumat baru yang tidak ada dalam FAQ
 4. JANGAN ubah nombor atau peratusan
 5. JANGAN guna: "biasanya", "mungkin", "kadang-kadang"
-6. Gunakan emoji sesuai (😊 💰 📞 ✅ 🙏 ✨ ☝🏻 🤲🏻 🤝🏻 😄 🌙 ✅❌ )
+6. Gunakan emoji sesuai (😊 💰 📞 ✅ 🙏 ✨ ☝🏻 🤲🏻 🤝🏻 😄 🌙 ✅ ❌ 📝 💵)
 7. Ringkas (2-4 ayat)
 
 CONTOH BETUL:
