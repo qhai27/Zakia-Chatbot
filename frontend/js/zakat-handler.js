@@ -67,12 +67,12 @@ class ZakatHandler {
             return 'savings';
         }
 
-        if ((msg.includes('kira zakat') || msg.includes('kalkulator zakat')) &&
+        if ((msg.includes('kira zakat') || msg.includes('zakat kalkulator') || msg.includes('kalkulator zakat')) &&
             !this.state.active) {
             return 'menu';
         }
 
-        if (msg.includes('nisab') && !this.state.active) {
+        if (msg.includes('nisab') && !this.state.active) { 
             return 'nisab';
         }
 
