@@ -91,7 +91,7 @@ ANDA MESTI:
 3. Terang dengan jelas dan mudah faham
 4. Mesra, sopan, professional
 5. Ringkas tapi lengkap (3-5 ayat)
-6. Jika soalan sangat spesifik tentang LZNK Kedah, cadangkan hubungi: 04-733 6633
+6. Jika soalan sangat spesifik tentang LZNK Kedah, cadangkan hubungi: 1800-88-1740 ya
 
 CONTOH BETUL (Smart Mode):
 Soalan: "Apa itu haul dalam zakat?"
@@ -191,7 +191,7 @@ TUGAS:
 4. Mesra dan professional
 5. 3-5 ayat (ringkas tapi lengkap)
 6. Tambah emoji yang sesuai
-7. Jika soalan sangat spesifik tentang LZNK Kedah, cadangkan hubungi 04-733 6633
+7. Jika soalan sangat spesifik tentang LZNK Kedah, cadangkan hubungi Talian Bebas Tol : 1800-88-1740
 8. Jawab dalam bentuk mudah difahami dan berbentuk point
 
 {suggestion_text}
@@ -225,7 +225,7 @@ JAWAB SEKARANG (gunakan pengetahuan zakat anda):
             
             # Add LZNK contact if answer is very specific to procedures
             if 'lznk' not in answer.lower() and any(word in user_question.lower() for word in ['kedah', 'lznk', 'pejabat', 'tempat']):
-                answer += "\n\nUntuk maklumat lanjut tentang LZNK Kedah, hubungi 04-733 6633 ya! 📞"
+                answer += "\n\nUntuk maklumat lanjut tentang LZNK Kedah, hubungi 1800-88-1740 ya! 📞"
             
             return answer
 
@@ -243,7 +243,7 @@ JAWAB SEKARANG (gunakan pengetahuan zakat anda):
                 msg += f"{i}. {q}\n"
             msg += "\n"
         
-        msg += "Untuk maklumat tepat, sila hubungi LZNK di 04-733 6633 ya! 😊📞"
+        msg += "Untuk maklumat tepat, sila hubungi LZNK ! 😊📞"
         return msg
 
     def generate_conversational_response(self, user_message: str, context: str = None) -> str:
