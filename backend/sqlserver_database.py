@@ -76,11 +76,24 @@ class SQLServerDatabaseManager:
                     IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='users' AND xtype='U')
                     CREATE TABLE users (
                         id INT IDENTITY(1,1) PRIMARY KEY,
-                        session_id NVARCHAR(100) UNIQUE,
+                        session_id NVARCHAR(100) UNIQUE NOT NULL,
                         created_at DATETIME2 DEFAULT GETDATE(),
                         last_activity DATETIME2 DEFAULT GETDATE()
                     )
                 """))
+                
+                # Create indexes for users table
+                try:
+                    conn.execute(text("""
+                        IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name='idx_users_last_activity' AND object_id = OBJECT_ID('users'))
+                        CREATE INDEX idx_users_last_activity ON users(last_activity)
+                    """))
+                    conn.execute(text("""
+                        IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name='idx_users_created_at' AND object_id = OBJECT_ID('users'))
+                        CREATE INDEX idx_users_created_at ON users(created_at)
+                    """))
+                except:
+                    pass  # Indexes might already exist
                 
                 # Chat logs table
                 conn.execute(text("""
@@ -96,6 +109,27 @@ class SQLServerDatabaseManager:
                         FOREIGN KEY (session_id) REFERENCES users(session_id) ON DELETE SET NULL ON UPDATE CASCADE
                     )
                 """))
+                
+                # Create indexes for chat_logs table
+                try:
+                    conn.execute(text("""
+                        IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name='idx_chat_logs_user_id' AND object_id = OBJECT_ID('chat_logs'))
+                        CREATE INDEX idx_chat_logs_user_id ON chat_logs(user_id)
+                    """))
+                    conn.execute(text("""
+                        IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name='idx_chat_logs_session_id' AND object_id = OBJECT_ID('chat_logs'))
+                        CREATE INDEX idx_chat_logs_session_id ON chat_logs(session_id)
+                    """))
+                    conn.execute(text("""
+                        IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name='idx_chat_logs_created_at' AND object_id = OBJECT_ID('chat_logs'))
+                        CREATE INDEX idx_chat_logs_created_at ON chat_logs(created_at)
+                    """))
+                    conn.execute(text("""
+                        IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name='idx_chat_logs_user_created' AND object_id = OBJECT_ID('chat_logs'))
+                        CREATE INDEX idx_chat_logs_user_created ON chat_logs(user_id, created_at)
+                    """))
+                except:
+                    pass  # Indexes might already exist
                 
                 conn.commit()
                 print("Tables created successfully")
@@ -246,6 +280,46 @@ class SQLServerDatabaseManager:
             print(f"Error deleting FAQ: {e}")
             return False
     
+    def get_or_create_user(self, session_id):
+        """
+        Get or create a user by session_id.
+        Returns user_id if successful, None otherwise.
+        """
+        if not session_id or not self.engine:
+            return None
+            
+        try:
+            with self.engine.connect() as conn:
+                # Try to get existing user
+                result = conn.execute(text("SELECT id FROM users WHERE session_id = ?"), (session_id,))
+                user_row = result.fetchone()
+                
+                if user_row:
+                    # User exists, update last_activity and return id
+                    user_id = user_row[0]
+                    conn.execute(text("""
+                        UPDATE users 
+                        SET last_activity = GETDATE() 
+                        WHERE id = ?
+                    """), (user_id,))
+                    conn.commit()
+                    return user_id
+                else:
+                    # User doesn't exist, create new one
+                    result = conn.execute(text("""
+                        INSERT INTO users (session_id, created_at, last_activity)
+                        OUTPUT INSERTED.id
+                        VALUES (?, GETDATE(), GETDATE())
+                    """), (session_id,))
+                    user_id = result.fetchone()[0]
+                    conn.commit()
+                    print(f"✅ Created new user with session_id: {session_id[:8]}... (id: {user_id})")
+                    return user_id
+                    
+        except Exception as e:
+            print(f"Error getting/creating user: {e}")
+            return None
+    
     def log_chat(self, user_message, bot_response, session_id=None):
         """Log chat interaction"""
         if not self.engine:
@@ -253,16 +327,10 @@ class SQLServerDatabaseManager:
             
         try:
             with self.engine.connect() as conn:
-                # Get user_id from session_id if provided
+                # Get or create user by session_id
                 user_id = None
                 if session_id:
-                    try:
-                        result = conn.execute(text("SELECT id FROM users WHERE session_id = ?"), (session_id,))
-                        user_row = result.fetchone()
-                        if user_row:
-                            user_id = user_row[0]
-                    except Exception:
-                        pass  # Continue without user_id if lookup fails
+                    user_id = self.get_or_create_user(session_id)
                 
                 conn.execute(text("""
                     INSERT INTO chat_logs (user_id, user_message, bot_response, session_id) 
@@ -272,6 +340,236 @@ class SQLServerDatabaseManager:
                 return True
         except Exception as e:
             print(f"Error logging chat: {e}")
+            return False
+    
+    # -----------------------------------------------------------
+    # USER MANAGEMENT METHODS
+    # -----------------------------------------------------------
+    def get_user_by_id(self, user_id):
+        """Get user by ID"""
+        if not self.engine:
+            return None
+        try:
+            with self.engine.connect() as conn:
+                result = conn.execute(text("SELECT * FROM users WHERE id = ?"), (user_id,))
+                row = result.fetchone()
+                if row:
+                    return {
+                        'id': row[0],
+                        'session_id': row[1],
+                        'created_at': row[2],
+                        'last_activity': row[3]
+                    }
+                return None
+        except Exception as e:
+            print(f"Error getting user by ID: {e}")
+            return None
+
+    def get_user_by_session_id(self, session_id):
+        """Get user by session_id"""
+        if not self.engine:
+            return None
+        try:
+            with self.engine.connect() as conn:
+                result = conn.execute(text("SELECT * FROM users WHERE session_id = ?"), (session_id,))
+                row = result.fetchone()
+                if row:
+                    return {
+                        'id': row[0],
+                        'session_id': row[1],
+                        'created_at': row[2],
+                        'last_activity': row[3]
+                    }
+                return None
+        except Exception as e:
+            print(f"Error getting user by session_id: {e}")
+            return None
+
+    def list_users(self, limit=100, offset=0, order_by='last_activity', order_dir='DESC'):
+        """List users with pagination"""
+        if not self.engine:
+            return []
+        try:
+            # Validate order_by to prevent SQL injection
+            allowed_columns = ['id', 'session_id', 'created_at', 'last_activity']
+            if order_by not in allowed_columns:
+                order_by = 'last_activity'
+            
+            # Validate order direction
+            order_dir = 'DESC' if order_dir.upper() == 'DESC' else 'ASC'
+            
+            with self.engine.connect() as conn:
+                result = conn.execute(text(f"""
+                    SELECT * FROM users 
+                    ORDER BY {order_by} {order_dir}
+                    OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
+                """), (offset, limit))
+                
+                users = []
+                for row in result:
+                    users.append({
+                        'id': row[0],
+                        'session_id': row[1],
+                        'created_at': row[2],
+                        'last_activity': row[3]
+                    })
+                return users
+        except Exception as e:
+            print(f"Error listing users: {e}")
+            return []
+
+    def get_user_chat_history(self, user_id=None, session_id=None, limit=50):
+        """Get chat history for a user"""
+        if not self.engine:
+            return []
+        try:
+            with self.engine.connect() as conn:
+                if user_id:
+                    result = conn.execute(text("""
+                        SELECT TOP (?) * FROM chat_logs 
+                        WHERE user_id = ? 
+                        ORDER BY created_at DESC
+                    """), (limit, user_id))
+                elif session_id:
+                    result = conn.execute(text("""
+                        SELECT TOP (?) * FROM chat_logs 
+                        WHERE session_id = ? 
+                        ORDER BY created_at DESC
+                    """), (limit, session_id))
+                else:
+                    return []
+                
+                history = []
+                for row in result:
+                    history.append({
+                        'id': row[0],
+                        'user_id': row[1],
+                        'user_message': row[2],
+                        'bot_response': row[3],
+                        'session_id': row[4],
+                        'created_at': row[5]
+                    })
+                return history
+        except Exception as e:
+            print(f"Error getting chat history: {e}")
+            return []
+
+    def get_user_stats(self, user_id):
+        """Get statistics for a specific user"""
+        if not self.engine:
+            return None
+        try:
+            with self.engine.connect() as conn:
+                # Get user info
+                result = conn.execute(text("SELECT * FROM users WHERE id = ?"), (user_id,))
+                user_row = result.fetchone()
+                
+                if not user_row:
+                    return None
+                
+                user = {
+                    'id': user_row[0],
+                    'session_id': user_row[1],
+                    'created_at': user_row[2],
+                    'last_activity': user_row[3]
+                }
+                
+                # Get chat count
+                result = conn.execute(text("SELECT COUNT(*) as chat_count FROM chat_logs WHERE user_id = ?"), (user_id,))
+                chat_count = result.fetchone()[0]
+                
+                # Reminder count is no longer available since reminders don't have user_id
+                reminder_count = 0
+                
+                # Get first and last chat timestamps
+                result = conn.execute(text("""
+                    SELECT 
+                        MIN(created_at) as first_chat,
+                        MAX(created_at) as last_chat
+                    FROM chat_logs 
+                    WHERE user_id = ?
+                """), (user_id,))
+                chat_times = result.fetchone()
+                
+                return {
+                    'user': user,
+                    'chat_count': chat_count,
+                    'reminder_count': reminder_count,
+                    'first_chat': chat_times[0] if chat_times and chat_times[0] else None,
+                    'last_chat': chat_times[1] if chat_times and chat_times[1] else None
+                }
+        except Exception as e:
+            print(f"Error getting user stats: {e}")
+            return None
+
+    def get_total_users_count(self):
+        """Get total number of users"""
+        if not self.engine:
+            return 0
+        try:
+            with self.engine.connect() as conn:
+                result = conn.execute(text("SELECT COUNT(*) FROM users"))
+                count = result.fetchone()[0]
+                return count
+        except Exception as e:
+            print(f"Error getting users count: {e}")
+            return 0
+
+    def get_users_statistics(self):
+        """Get overall users statistics"""
+        if not self.engine:
+            return None
+        try:
+            with self.engine.connect() as conn:
+                # Total users
+                result = conn.execute(text("SELECT COUNT(*) as total FROM users"))
+                total = result.fetchone()[0]
+                
+                # Active users (active in last 7 days)
+                result = conn.execute(text("""
+                    SELECT COUNT(*) as active 
+                    FROM users 
+                    WHERE last_activity >= DATEADD(day, -7, GETDATE())
+                """))
+                active = result.fetchone()[0]
+                
+                # New users today
+                result = conn.execute(text("""
+                    SELECT COUNT(*) as new_today 
+                    FROM users 
+                    WHERE CAST(created_at AS DATE) = CAST(GETDATE() AS DATE)
+                """))
+                new_today = result.fetchone()[0]
+                
+                # Users with chats
+                result = conn.execute(text("""
+                    SELECT COUNT(DISTINCT user_id) as with_chats 
+                    FROM chat_logs 
+                    WHERE user_id IS NOT NULL
+                """))
+                with_chats = result.fetchone()[0]
+                
+                return {
+                    'total_users': total,
+                    'active_users_7d': active,
+                    'new_users_today': new_today,
+                    'users_with_chats': with_chats
+                }
+        except Exception as e:
+            print(f"Error getting users statistics: {e}")
+            return None
+
+    def delete_user(self, user_id):
+        """Delete a user (cascades to chat_logs and reminders due to foreign keys)"""
+        if not self.engine:
+            return False
+        try:
+            with self.engine.connect() as conn:
+                result = conn.execute(text("DELETE FROM users WHERE id = ?"), (user_id,))
+                conn.commit()
+                return result.rowcount > 0
+        except Exception as e:
+            print(f"Error deleting user: {e}")
             return False
     
     def close(self):

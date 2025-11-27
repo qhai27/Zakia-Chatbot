@@ -143,7 +143,7 @@
 
                 DOM.reminderTableBody.innerHTML = reminders.map(r => `
                     <tr>
-                        <td><span class="id-badge">#${r.id}</span></td>
+                        <td><span class="id-badge">#${r.id_reminder}</span></td>
                         <td><strong>${this.escapeHtml(r.name)}</strong></td>
                         <td><code>${this.formatIC(r.ic_number)}</code></td>
                         <td><code>${this.formatPhone(r.phone)}</code></td>
@@ -158,10 +158,10 @@
                         <td class="date-cell">${this.formatDate(r.created_at)}</td>
                         <td>
                             <div class="admin-actions">
-                                <button class="btn ghost btn-sm" data-action="view" data-id="${r.id}" title="View Details">
+                                <button class="btn ghost btn-sm" data-action="view" data-id="${r.id_reminder}" title="View Details">
                                     👁️ View
                                 </button>
-                                <button class="btn warn btn-sm" data-action="delete" data-id="${r.id}" title="Delete">
+                                <button class="btn warn btn-sm" data-action="delete" data-id="${r.id_reminder}" title="Delete">
                                     🗑️
                                 </button>
                             </div>
@@ -464,7 +464,7 @@
                         <div class="detail-grid">
                             <div class="detail-item">
                                 <label>ID:</label>
-                                <span class="id-badge">#${reminder.id}</span>
+                                <span class="id-badge">#${reminder.id_reminder}</span>
                             </div>
                             <div class="detail-item">
                                 <label>Nombor IC:</label>
@@ -509,7 +509,7 @@
 
                 const headers = ['ID', 'Name', 'IC Number', 'Phone', 'Jenis Zakat', 'Zakat Amount', 'Tahun', 'Tarikh Daftar'];
                 const rows = STATE.filteredReminders.map(r => [
-                    r.id,
+                    r.id_reminder,
                     r.name,
                     r.ic_number,
                     r.phone,
@@ -640,7 +640,7 @@
                             <tbody>
                                 ${reminders.map(r => `
                                     <tr>
-                                        <td>${r.id}</td>
+                                        <td>${r.id_reminder}</td>
                                         <td>${UIManager.escapeHtml(r.name)}</td>
                                         <td>${UIManager.formatIC(r.ic_number)}</td>
                                         <td>${UIManager.formatPhone(r.phone)}</td>
@@ -694,7 +694,7 @@
                             
                             <div class="detail-row">
                                 <span class="detail-label">Reminder ID:</span>
-                                <span class="detail-value">#${reminder.id}</span>
+                                <span class="detail-value">#${reminder.id_reminder}</span>
                             </div>
                             <div class="detail-row">
                                 <span class="detail-label">Full Name:</span>
@@ -786,7 +786,7 @@
 
                         const id = parseInt(btn.getAttribute('data-id'));
                         const action = btn.getAttribute('data-action');
-                        const reminder = STATE.reminders.find(r => r.id === id);
+                        const reminder = STATE.reminders.find(r => r.id_reminder === id);
 
                         if (action === 'view' && reminder) {
                             ReminderOperations.viewDetails(id);

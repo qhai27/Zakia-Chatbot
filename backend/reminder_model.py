@@ -1,6 +1,6 @@
 """
 User Reminder Model for Zakat Payment System
-Fixed version with proper year field handling
+
 """
 
 from typing import Optional, Dict, Any, List
@@ -12,8 +12,8 @@ class ReminderManager:
 
     TABLE_SQL = f"""
     CREATE TABLE IF NOT EXISTS {TABLE_NAME} (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        user_id INT NULL,
+        id_reminder INT AUTO_INCREMENT PRIMARY KEY,
+        id_user INT NULL,
         name VARCHAR(255) NOT NULL,
         ic_number VARCHAR(32) NOT NULL,
         phone VARCHAR(32) NOT NULL,
@@ -25,8 +25,8 @@ class ReminderManager:
         INDEX idx_ic (ic_number),
         INDEX idx_phone (phone),
         INDEX idx_created (created_at),
-        INDEX idx_user_id (user_id),
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL ON UPDATE CASCADE
+        INDEX idx_id_user (id_user),
+        FOREIGN KEY (id_user) REFERENCES users(id_user) ON DELETE SET NULL ON UPDATE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     """
 
@@ -161,16 +161,29 @@ class ReminderManager:
             if not zakat_type:
                 zakat_type = 'pendapatan'
             
+            # Get user_id from session_id if provided
+            user_id = None
+            session_id = payload.get('session_id')
+            if session_id:
+                user_id = self.db.get_or_create_user(session_id)
+                if user_id:
+                    print(f"💾 Linked reminder to user_id: {user_id} (session: {session_id[:8]}...)")
+                else:
+                    print(f"⚠️ Could not get/create user for session_id: {session_id[:8]}...")
+            else:
+                print("ℹ️ No session_id provided, reminder will not be linked to a user")
+            
             print(f"💾 Saving reminder - Name: {name}, IC: {ic_number}, Type: {zakat_type}, Year: {year}")
             
             # INSERT query
             sql = f"""
                 INSERT INTO {self.TABLE_NAME}
-                (name, ic_number, phone, zakat_type, zakat_amount, year, created_at, updated_at)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                (id_user, name, ic_number, phone, zakat_type, zakat_amount, year, created_at, updated_at)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
             
             values = (
+                user_id,
                 name,
                 ic_number,
                 phone,
@@ -313,7 +326,7 @@ class ReminderManager:
             self._ensure_table()
             
             cur = self.db.connection.cursor(dictionary=True)
-            cur.execute(f"SELECT * FROM {self.TABLE_NAME} WHERE id = %s", (reminder_id,))
+            cur.execute(f"SELECT * FROM {self.TABLE_NAME} WHERE id_reminder = %s", (reminder_id,))
             row = cur.fetchone()
             
             return row
@@ -342,7 +355,7 @@ class ReminderManager:
             self._ensure_table()
             
             cur = self.db.connection.cursor()
-            cur.execute(f"DELETE FROM {self.TABLE_NAME} WHERE id = %s", (reminder_id,))
+            cur.execute(f"DELETE FROM {self.TABLE_NAME} WHERE id_reminder = %s", (reminder_id,))
             self.db.connection.commit()
             affected = cur.rowcount
             

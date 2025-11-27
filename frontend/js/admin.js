@@ -206,7 +206,7 @@
             DOM.categoryInput.style.display = 'none';
             DOM.categoryInput.value = '';
           }
-          STATE.editingId = existing.id;
+          STATE.editingId = existing.id_faq;
         } else {
           CategoryManager.renderRadios(null);
           DOM.categoryInput.style.display = 'none';
@@ -309,7 +309,7 @@
         if (!DOM.tbody) return;
         DOM.tbody.innerHTML = items.map(f => `
           <tr>
-            <td><span class="id-badge">#${f.id}</span></td>
+            <td><span class="id-badge">#${f.id_faq}</span></td>
             <td>
               <div style="max-width: 500px;">
                 <div class="question-text">${this.escapeHtml(f.question)}</div>
@@ -325,8 +325,8 @@
             </td>
             <td>
               <div class="admin-actions">
-                <button class="btn ghost" data-action="edit" data-id="${f.id}" title="Edit FAQ">✏️ Edit</button>
-                <button class="btn warn" data-action="delete" data-id="${f.id}" title="Padam FAQ">🗑️ Padam</button>
+                <button class="btn ghost" data-action="edit" data-id="${f.id_faq}" title="Edit FAQ">✏️ Edit</button>
+                <button class="btn warn" data-action="delete" data-id="${f.id_faq}" title="Padam FAQ">🗑️ Padam</button>
               </div>
             </td>
           </tr>
@@ -650,7 +650,7 @@
             if (!btn || STATE.isLoading) return;
             const id = btn.getAttribute('data-id');
             const action = btn.getAttribute('data-action');
-            const row = STATE.faqs.find(x => String(x.id) === String(id));
+            const row = STATE.faqs.find(x => String(x.id_faq) === String(id));
             if (action === 'edit') {
               FormManager.show(true, row);
             } else if (action === 'delete') {

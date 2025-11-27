@@ -1,6 +1,6 @@
 """
-Enhanced Reminder Routes with Detailed Error Logging
-This version will show exactly what's going wrong
+Reminder Routes 
+
 """
 
 from flask import Blueprint, request, jsonify
@@ -44,8 +44,8 @@ def ensure_reminders_table():
         # Create table (won't error if exists due to IF NOT EXISTS)
         cur.execute("""
             CREATE TABLE IF NOT EXISTS reminders (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                user_id INT NULL,
+                id_reminder INT AUTO_INCREMENT PRIMARY KEY,
+                id_user INT NULL,
                 name VARCHAR(255) NOT NULL,
                 ic_number VARCHAR(32) NOT NULL,
                 phone VARCHAR(32) NOT NULL,
@@ -54,8 +54,11 @@ def ensure_reminders_table():
                 year VARCHAR(32),
                 created_at DATETIME NOT NULL,
                 updated_at DATETIME NOT NULL,
-                INDEX idx_user_id (user_id),
-                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL ON UPDATE CASCADE
+                INDEX idx_ic (ic_number),
+                INDEX idx_phone (phone),
+                INDEX idx_created (created_at),
+                INDEX idx_id_user (id_user),
+                FOREIGN KEY (id_user) REFERENCES users(id_user) ON DELETE SET NULL ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
         """)
         conn.commit()
@@ -118,12 +121,14 @@ def save_reminder():
         phone = (payload.get('phone') or '').strip()
         zakat_type = (payload.get('zakat_type') or '').strip().lower()
         year = (payload.get('year') or '').strip()
+        session_id = payload.get('session_id') or request.headers.get('X-Session-ID')
         
         print(f"   Name: '{name}'")
         print(f"   IC: '{ic_number}'")
         print(f"   Phone: '{phone}'")
         print(f"   Zakat Type: '{zakat_type}'")
         print(f"   Year: '{year}'")
+        print(f"   Session ID: '{session_id}'")
         
         # Parse zakat amount
         try:
@@ -205,6 +210,18 @@ def save_reminder():
         else:
             print(f"   ✅ Zakat type valid: '{zakat_type}'")
         
+        # Step 9.5: Get user_id from session_id
+        print("\n9️⃣.5️⃣ GETTING USER ID FROM SESSION")
+        user_id = None
+        if session_id:
+            user_id = db.get_or_create_user(session_id)
+            if user_id:
+                print(f"   ✅ Found user_id: {user_id} for session_id: {session_id[:8]}...")
+            else:
+                print(f"   ⚠️ Could not get/create user for session_id: {session_id[:8]}...")
+        else:
+            print("   ℹ️ No session_id provided, reminder will not be linked to a user")
+        
         # Step 10: Prepare SQL
         print("\n🔟 PREPARING SQL INSERT")
         conn = db.connection
@@ -213,11 +230,12 @@ def save_reminder():
         
         sql = """
             INSERT INTO reminders 
-            (name, ic_number, phone, zakat_type, zakat_amount, year, created_at, updated_at)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            (id_user, name, ic_number, phone, zakat_type, zakat_amount, year, created_at, updated_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         
         values = (
+            user_id,
             name,
             ic_clean,
             phone_clean,

@@ -176,7 +176,7 @@ class DatabaseManager:
 
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS faqs (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    id_faq INT AUTO_INCREMENT PRIMARY KEY,
                     question TEXT NOT NULL,
                     answer TEXT NOT NULL,
                     category VARCHAR(100),
@@ -188,26 +188,30 @@ class DatabaseManager:
 
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS users (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    session_id VARCHAR(100) UNIQUE,
+                    id_user INT AUTO_INCREMENT PRIMARY KEY,
+                    session_id VARCHAR(100) UNIQUE NOT NULL,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                    INDEX idx_last_activity (last_activity)
+                    INDEX idx_last_activity (last_activity),
+                    INDEX idx_created_at (created_at),
+                    INDEX idx_session_id (session_id)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """)
 
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS chat_logs (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    user_id INT,
+                    id_log INT AUTO_INCREMENT PRIMARY KEY,
+                    id_user INT,
                     user_message TEXT NOT NULL,
                     bot_response TEXT NOT NULL,
                     session_id VARCHAR(100),
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     INDEX idx_session (session_id),
                     INDEX idx_created (created_at),
-                    INDEX idx_user_id (user_id),
-                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL ON UPDATE CASCADE,
+                    INDEX idx_id_user (id_user),
+                    INDEX idx_user_created (id_user, created_at),
+                    INDEX idx_session_created (session_id, created_at),
+                    FOREIGN KEY (id_user) REFERENCES users(id_user) ON DELETE SET NULL ON UPDATE CASCADE,
                     FOREIGN KEY (session_id) REFERENCES users(session_id) ON DELETE SET NULL ON UPDATE CASCADE
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """)
@@ -239,39 +243,39 @@ class DatabaseManager:
             cursor = self.connection.cursor()
             
             # Check if foreign keys already exist and add them if not
-            # For chat_logs.user_id -> users.id
+            # For chat_logs.id_user -> users.id_user
             try:
                 cursor.execute("""
                     SELECT CONSTRAINT_NAME 
                     FROM information_schema.KEY_COLUMN_USAGE 
                     WHERE TABLE_SCHEMA = DATABASE() 
                     AND TABLE_NAME = 'chat_logs' 
-                    AND COLUMN_NAME = 'user_id' 
+                    AND COLUMN_NAME = 'id_user' 
                     AND REFERENCED_TABLE_NAME = 'users'
                 """)
                 if not cursor.fetchone():
-                    # Add user_id column if it doesn't exist
+                    # Add id_user column if it doesn't exist
                     try:
-                        cursor.execute("ALTER TABLE chat_logs ADD COLUMN user_id INT NULL AFTER id")
-                        cursor.execute("ALTER TABLE chat_logs ADD INDEX idx_user_id (user_id)")
+                        cursor.execute("ALTER TABLE chat_logs ADD COLUMN id_user INT NULL AFTER id_log")
+                        cursor.execute("ALTER TABLE chat_logs ADD INDEX idx_id_user (id_user)")
                     except Error as e:
                         if "Duplicate column name" not in str(e):
-                            print(f"⚠️ Could not add user_id column: {e}")
+                            print(f"⚠️ Could not add id_user column: {e}")
                     
                     # Add foreign key
                     try:
                         cursor.execute("""
                             ALTER TABLE chat_logs 
-                            ADD CONSTRAINT fk_chat_logs_user_id 
-                            FOREIGN KEY (user_id) REFERENCES users(id) 
+                            ADD CONSTRAINT fk_chat_logs_id_user 
+                            FOREIGN KEY (id_user) REFERENCES users(id_user) 
                             ON DELETE SET NULL ON UPDATE CASCADE
                         """)
-                        print("✅ Added foreign key: chat_logs.user_id -> users.id")
+                        print("✅ Added foreign key: chat_logs.id_user -> users.id_user")
                     except Error as e:
                         if "Duplicate foreign key" not in str(e) and "already exists" not in str(e):
-                            print(f"⚠️ Could not add foreign key for user_id: {e}")
+                            print(f"⚠️ Could not add foreign key for id_user: {e}")
             except Error as e:
-                print(f"⚠️ Error checking/adding user_id foreign key: {e}")
+                print(f"⚠️ Error checking/adding id_user foreign key: {e}")
             
             # For chat_logs.session_id -> users.session_id
             try:
@@ -284,6 +288,34 @@ class DatabaseManager:
                     AND REFERENCED_TABLE_NAME = 'users'
                 """)
                 if not cursor.fetchone():
+                    # First, create users for all existing session_ids in chat_logs that don't have a user
+                    print("📝 Migrating existing session_ids to users table...")
+                    cursor.execute("""
+                        INSERT INTO users (session_id, created_at, last_activity)
+                        SELECT DISTINCT session_id, MIN(created_at), MAX(created_at)
+                        FROM chat_logs
+                        WHERE session_id IS NOT NULL
+                        AND session_id NOT IN (SELECT session_id FROM users WHERE session_id IS NOT NULL)
+                        GROUP BY session_id
+                    """)
+                    migrated_count = cursor.rowcount
+                    if migrated_count > 0:
+                        print(f"✅ Created {migrated_count} users from existing chat_logs")
+                    
+                    # Update id_user in chat_logs for the newly created users
+                    cursor.execute("""
+                        UPDATE chat_logs cl
+                        INNER JOIN users u ON cl.session_id = u.session_id
+                        SET cl.id_user = u.id_user
+                        WHERE cl.id_user IS NULL
+                    """)
+                    updated_count = cursor.rowcount
+                    if updated_count > 0:
+                        print(f"✅ Updated {updated_count} chat_logs with user_id")
+                    
+                    self.connection.commit()
+                    
+                    # Now add the foreign key
                     cursor.execute("""
                         ALTER TABLE chat_logs 
                         ADD CONSTRAINT fk_chat_logs_session_id 
@@ -294,42 +326,10 @@ class DatabaseManager:
             except Error as e:
                 if "Duplicate foreign key" not in str(e) and "already exists" not in str(e):
                     print(f"⚠️ Could not add foreign key for session_id: {e}")
-            
-            # For reminders.user_id -> users.id
-            try:
-                cursor.execute("SHOW TABLES LIKE 'reminders'")
-                if cursor.fetchone():
-                    cursor.execute("""
-                        SELECT CONSTRAINT_NAME 
-                        FROM information_schema.KEY_COLUMN_USAGE 
-                        WHERE TABLE_SCHEMA = DATABASE() 
-                        AND TABLE_NAME = 'reminders' 
-                        AND COLUMN_NAME = 'user_id' 
-                        AND REFERENCED_TABLE_NAME = 'users'
-                    """)
-                    if not cursor.fetchone():
-                        # Add user_id column if it doesn't exist
-                        try:
-                            cursor.execute("ALTER TABLE reminders ADD COLUMN user_id INT NULL AFTER id")
-                            cursor.execute("ALTER TABLE reminders ADD INDEX idx_user_id (user_id)")
-                        except Error as e:
-                            if "Duplicate column name" not in str(e):
-                                print(f"⚠️ Could not add user_id column to reminders: {e}")
-                        
-                        # Add foreign key
-                        try:
-                            cursor.execute("""
-                                ALTER TABLE reminders 
-                                ADD CONSTRAINT fk_reminders_user_id 
-                                FOREIGN KEY (user_id) REFERENCES users(id) 
-                                ON DELETE SET NULL ON UPDATE CASCADE
-                            """)
-                            print("✅ Added foreign key: reminders.user_id -> users.id")
-                        except Error as e:
-                            if "Duplicate foreign key" not in str(e) and "already exists" not in str(e):
-                                print(f"⚠️ Could not add foreign key for reminders.user_id: {e}")
-            except Error as e:
-                print(f"⚠️ Error checking/adding reminders foreign key: {e}")
+                    # If foreign key fails, at least we've migrated the data
+                    if "1452" in str(e) or "Cannot add or update" in str(e):
+                        print("   ℹ️ Some session_ids in chat_logs may not have corresponding users")
+                        print("   ℹ️ You may need to clean up orphaned session_ids first")
             
             self.connection.commit()
             cursor.close()
@@ -408,7 +408,7 @@ class DatabaseManager:
             return None
         try:
             cursor = self.connection.cursor(dictionary=True)
-            cursor.execute("SELECT * FROM faqs WHERE id = %s", (faq_id,))
+            cursor.execute("SELECT * FROM faqs WHERE id_faq = %s", (faq_id,))
             faq = cursor.fetchone()
             cursor.close()
             return faq
@@ -442,7 +442,7 @@ class DatabaseManager:
             cursor = self.connection.cursor()
             cursor.execute("""
                 UPDATE faqs SET question=%s, answer=%s, category=%s
-                WHERE id=%s
+                WHERE id_faq=%s
             """, (q, a, c, faq_id))
             self.connection.commit()
             affected = cursor.rowcount
@@ -459,7 +459,7 @@ class DatabaseManager:
             return False
         try:
             cursor = self.connection.cursor()
-            cursor.execute("DELETE FROM faqs WHERE id=%s", (faq_id,))
+            cursor.execute("DELETE FROM faqs WHERE id_faq=%s", (faq_id,))
             self.connection.commit()
             affected = cursor.rowcount
             cursor.close()
@@ -471,7 +471,58 @@ class DatabaseManager:
             return False
 
     # -----------------------------------------------------------
-    # LOG CHAT (FIXED)
+    # USER MANAGEMENT
+    # -----------------------------------------------------------
+    def get_or_create_user(self, session_id):
+        """
+        Get or create a user by session_id.
+        Returns user_id if successful, None otherwise.
+        """
+        if not session_id:
+            return None
+            
+        if not self.ensure_connection():
+            print("⚠️ Cannot get/create user - no database connection")
+            return None
+            
+        try:
+            cursor = self.connection.cursor()
+            
+            # Try to get existing user
+            cursor.execute("SELECT id_user FROM users WHERE session_id = %s", (session_id,))
+            user_result = cursor.fetchone()
+            
+            if user_result:
+                # User exists, update last_activity and return id_user
+                user_id = user_result[0]
+                cursor.execute("""
+                    UPDATE users 
+                    SET last_activity = CURRENT_TIMESTAMP 
+                    WHERE id_user = %s
+                """, (user_id,))
+                self.connection.commit()
+                cursor.close()
+                return user_id
+            else:
+                # User doesn't exist, create new one
+                cursor.execute("""
+                    INSERT INTO users (session_id, created_at, last_activity)
+                    VALUES (%s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                """, (session_id,))
+                user_id = cursor.lastrowid
+                self.connection.commit()
+                cursor.close()
+                print(f"✅ Created new user with session_id: {session_id[:8]}... (id: {user_id})")
+                return user_id
+                
+        except Error as e:
+            print(f"❌ Error getting/creating user: {e}")
+            if self.connection:
+                self.connection.rollback()
+            return None
+
+    # -----------------------------------------------------------
+    # LOG CHAT (FIXED - Now creates users automatically)
     # -----------------------------------------------------------
     def log_chat(self, user_message, bot_response, session_id=None):
         if not self.ensure_connection():
@@ -480,20 +531,14 @@ class DatabaseManager:
         try:
             cursor = self.connection.cursor()
             
-            # Get user_id from session_id if provided
+            # Get or create user by session_id
             user_id = None
             if session_id:
-                try:
-                    cursor.execute("SELECT id FROM users WHERE session_id = %s", (session_id,))
-                    user_result = cursor.fetchone()
-                    if user_result:
-                        user_id = user_result[0]
-                except Error:
-                    pass  # Continue without user_id if lookup fails
+                user_id = self.get_or_create_user(session_id)
             
-            # Insert chat log with user_id if available
+            # Insert chat log with id_user if available
             cursor.execute("""
-                INSERT INTO chat_logs (user_id, user_message, bot_response, session_id)
+                INSERT INTO chat_logs (id_user, user_message, bot_response, session_id)
                 VALUES (%s, %s, %s, %s)
             """, (user_id, user_message, bot_response, session_id))
             self.connection.commit()
@@ -501,6 +546,292 @@ class DatabaseManager:
             return True
         except Error as e:
             print(f"❌ Chat log error: {e}")
+            if self.connection:
+                self.connection.rollback()
+            return False
+
+    # -----------------------------------------------------------
+    # DATA MIGRATION METHODS
+    # -----------------------------------------------------------
+    def migrate_chat_logs_to_users(self):
+        """
+        Migrate existing chat_logs session_ids to users table.
+        This fixes the foreign key constraint issue by creating users
+        for all existing session_ids in chat_logs.
+        """
+        if not self.ensure_connection():
+            return False
+        
+        try:
+            cursor = self.connection.cursor()
+            
+            print("🔄 Starting migration: chat_logs session_ids -> users table...")
+            
+            # Step 1: Create users for all unique session_ids in chat_logs
+            cursor.execute("""
+                INSERT INTO users (session_id, created_at, last_activity)
+                SELECT DISTINCT 
+                    session_id,
+                    MIN(created_at) as created_at,
+                    MAX(created_at) as last_activity
+                FROM chat_logs
+                WHERE session_id IS NOT NULL
+                AND session_id NOT IN (
+                    SELECT session_id FROM users WHERE session_id IS NOT NULL
+                )
+                GROUP BY session_id
+            """)
+            created_users = cursor.rowcount
+            print(f"✅ Created {created_users} users from existing chat_logs")
+            
+            # Step 2: Update id_user in chat_logs
+            cursor.execute("""
+                UPDATE chat_logs cl
+                INNER JOIN users u ON cl.session_id = u.session_id
+                SET cl.id_user = u.id_user
+                WHERE cl.id_user IS NULL AND cl.session_id IS NOT NULL
+            """)
+            updated_logs = cursor.rowcount
+            print(f"✅ Updated {updated_logs} chat_logs with user_id")
+            
+            # Step 3: Handle orphaned session_ids (set to NULL if they can't be migrated)
+            cursor.execute("""
+                SELECT COUNT(*) FROM chat_logs 
+                WHERE session_id IS NOT NULL 
+                AND session_id NOT IN (SELECT session_id FROM users WHERE session_id IS NOT NULL)
+            """)
+            orphaned_count = cursor.fetchone()[0]
+            
+            if orphaned_count > 0:
+                print(f"⚠️ Found {orphaned_count} chat_logs with orphaned session_ids")
+                print("   Setting orphaned session_ids to NULL...")
+                cursor.execute("""
+                    UPDATE chat_logs
+                    SET session_id = NULL
+                    WHERE session_id IS NOT NULL
+                    AND session_id NOT IN (SELECT session_id FROM users WHERE session_id IS NOT NULL)
+                """)
+                print(f"✅ Set {cursor.rowcount} orphaned session_ids to NULL")
+            
+            self.connection.commit()
+            cursor.close()
+            
+            print("✅ Migration completed successfully!")
+            return True
+            
+        except Error as e:
+            print(f"❌ Migration error: {e}")
+            if self.connection:
+                self.connection.rollback()
+            return False
+
+    # -----------------------------------------------------------
+    # USER MANAGEMENT METHODS
+    # -----------------------------------------------------------
+    def get_user_by_id(self, user_id):
+        """Get user by ID"""
+        if not self.ensure_connection():
+            return None
+        try:
+            cursor = self.connection.cursor(dictionary=True)
+            cursor.execute("SELECT * FROM users WHERE id_user = %s", (user_id,))
+            user = cursor.fetchone()
+            cursor.close()
+            return user
+        except Error as e:
+            print(f"❌ Error getting user by ID: {e}")
+            return None
+
+    def get_user_by_session_id(self, session_id):
+        """Get user by session_id"""
+        if not self.ensure_connection():
+            return None
+        try:
+            cursor = self.connection.cursor(dictionary=True)
+            cursor.execute("SELECT * FROM users WHERE session_id = %s", (session_id,))
+            user = cursor.fetchone()
+            cursor.close()
+            return user
+        except Error as e:
+            print(f"❌ Error getting user by session_id: {e}")
+            return None
+
+    def list_users(self, limit=100, offset=0, order_by='last_activity', order_dir='DESC'):
+        """List users with pagination"""
+        if not self.ensure_connection():
+            return []
+        try:
+            # Validate order_by to prevent SQL injection
+            allowed_columns = ['id_user', 'session_id', 'created_at', 'last_activity']
+            if order_by not in allowed_columns:
+                order_by = 'last_activity'
+            
+            # Validate order direction
+            order_dir = 'DESC' if order_dir.upper() == 'DESC' else 'ASC'
+            
+            cursor = self.connection.cursor(dictionary=True)
+            cursor.execute(f"""
+                SELECT * FROM users 
+                ORDER BY {order_by} {order_dir}
+                LIMIT %s OFFSET %s
+            """, (limit, offset))
+            users = cursor.fetchall()
+            cursor.close()
+            return users
+        except Error as e:
+            print(f"❌ Error listing users: {e}")
+            return []
+
+    def get_user_chat_history(self, user_id=None, session_id=None, limit=50):
+        """Get chat history for a user"""
+        if not self.ensure_connection():
+            return []
+        try:
+            cursor = self.connection.cursor(dictionary=True)
+            
+            if user_id:
+                cursor.execute("""
+                    SELECT * FROM chat_logs 
+                    WHERE id_user = %s 
+                    ORDER BY created_at DESC 
+                    LIMIT %s
+                """, (user_id, limit))
+            elif session_id:
+                cursor.execute("""
+                    SELECT * FROM chat_logs 
+                    WHERE session_id = %s 
+                    ORDER BY created_at DESC 
+                    LIMIT %s
+                """, (session_id, limit))
+            else:
+                return []
+            
+            history = cursor.fetchall()
+            cursor.close()
+            return history
+        except Error as e:
+            print(f"❌ Error getting chat history: {e}")
+            return []
+
+    def get_user_stats(self, user_id):
+        """Get statistics for a specific user"""
+        if not self.ensure_connection():
+            return None
+        try:
+            cursor = self.connection.cursor(dictionary=True)
+            
+            # Get user info
+            cursor.execute("SELECT * FROM users WHERE id_user = %s", (user_id,))
+            user = cursor.fetchone()
+            
+            if not user:
+                cursor.close()
+                return None
+            
+            # Get chat count
+            cursor.execute("SELECT COUNT(*) as chat_count FROM chat_logs WHERE id_user = %s", (user_id,))
+            chat_count = cursor.fetchone()['chat_count']
+            
+            # Reminder count is no longer available since reminders don't have user_id
+            reminder_count = 0
+            
+            # Get first and last chat timestamps
+            cursor.execute("""
+                SELECT 
+                    MIN(created_at) as first_chat,
+                    MAX(created_at) as last_chat
+                FROM chat_logs 
+                WHERE id_user = %s
+            """, (user_id,))
+            chat_times = cursor.fetchone()
+            
+            cursor.close()
+            
+            return {
+                'user': user,
+                'chat_count': chat_count,
+                'reminder_count': reminder_count,
+                'first_chat': chat_times['first_chat'] if chat_times else None,
+                'last_chat': chat_times['last_chat'] if chat_times else None
+            }
+        except Error as e:
+            print(f"❌ Error getting user stats: {e}")
+            return None
+
+    def get_total_users_count(self):
+        """Get total number of users"""
+        if not self.ensure_connection():
+            return 0
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute("SELECT COUNT(*) FROM users")
+            count = cursor.fetchone()[0]
+            cursor.close()
+            return count
+        except Error as e:
+            print(f"❌ Error getting users count: {e}")
+            return 0
+
+    def get_users_statistics(self):
+        """Get overall users statistics"""
+        if not self.ensure_connection():
+            return None
+        try:
+            cursor = self.connection.cursor(dictionary=True)
+            
+            # Total users
+            cursor.execute("SELECT COUNT(*) as total FROM users")
+            total = cursor.fetchone()['total']
+            
+            # Active users (active in last 7 days)
+            cursor.execute("""
+                SELECT COUNT(*) as active 
+                FROM users 
+                WHERE last_activity >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+            """)
+            active = cursor.fetchone()['active']
+            
+            # New users today
+            cursor.execute("""
+                SELECT COUNT(*) as new_today 
+                FROM users 
+                WHERE DATE(created_at) = CURDATE()
+            """)
+            new_today = cursor.fetchone()['new_today']
+            
+            # Users with chats
+            cursor.execute("""
+                SELECT COUNT(DISTINCT id_user) as with_chats 
+                FROM chat_logs 
+                WHERE id_user IS NOT NULL
+            """)
+            with_chats = cursor.fetchone()['with_chats']
+            
+            cursor.close()
+            
+            return {
+                'total_users': total,
+                'active_users_7d': active,
+                'new_users_today': new_today,
+                'users_with_chats': with_chats
+            }
+        except Error as e:
+            print(f"❌ Error getting users statistics: {e}")
+            return None
+
+    def delete_user(self, user_id):
+        """Delete a user (cascades to chat_logs and reminders due to foreign keys)"""
+        if not self.ensure_connection():
+            return False
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute("DELETE FROM users WHERE id_user = %s", (user_id,))
+            affected = cursor.rowcount
+            self.connection.commit()
+            cursor.close()
+            return affected > 0
+        except Error as e:
+            print(f"❌ Error deleting user: {e}")
             if self.connection:
                 self.connection.rollback()
             return False
