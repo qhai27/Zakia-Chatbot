@@ -187,18 +187,6 @@ class DatabaseManager:
             """)
 
             cursor.execute("""
-                CREATE TABLE IF NOT EXISTS chat_logs (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    user_message TEXT NOT NULL,
-                    bot_response TEXT NOT NULL,
-                    session_id VARCHAR(100),
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    INDEX idx_session (session_id),
-                    INDEX idx_created (created_at)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-            """)
-
-            cursor.execute("""
                 CREATE TABLE IF NOT EXISTS users (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     session_id VARCHAR(100) UNIQUE,
@@ -208,13 +196,147 @@ class DatabaseManager:
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """)
 
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS chat_logs (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT,
+                    user_message TEXT NOT NULL,
+                    bot_response TEXT NOT NULL,
+                    session_id VARCHAR(100),
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    INDEX idx_session (session_id),
+                    INDEX idx_created (created_at),
+                    INDEX idx_user_id (user_id),
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL ON UPDATE CASCADE,
+                    FOREIGN KEY (session_id) REFERENCES users(session_id) ON DELETE SET NULL ON UPDATE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            """)
+
             self.connection.commit()
             cursor.close()
+            
+            # Add foreign keys to existing tables if they don't exist
+            self.add_foreign_keys()
+            
             print("✅ All tables are ready")
             return True
 
         except Error as e:
             print(f"❌ Table creation error: {e}")
+            if self.connection:
+                self.connection.rollback()
+            return False
+
+    # -----------------------------------------------------------
+    # ADD FOREIGN KEYS (MIGRATION)
+    # -----------------------------------------------------------
+    def add_foreign_keys(self):
+        """Add foreign key constraints to existing tables if they don't exist"""
+        if not self.ensure_connection():
+            return False
+        
+        try:
+            cursor = self.connection.cursor()
+            
+            # Check if foreign keys already exist and add them if not
+            # For chat_logs.user_id -> users.id
+            try:
+                cursor.execute("""
+                    SELECT CONSTRAINT_NAME 
+                    FROM information_schema.KEY_COLUMN_USAGE 
+                    WHERE TABLE_SCHEMA = DATABASE() 
+                    AND TABLE_NAME = 'chat_logs' 
+                    AND COLUMN_NAME = 'user_id' 
+                    AND REFERENCED_TABLE_NAME = 'users'
+                """)
+                if not cursor.fetchone():
+                    # Add user_id column if it doesn't exist
+                    try:
+                        cursor.execute("ALTER TABLE chat_logs ADD COLUMN user_id INT NULL AFTER id")
+                        cursor.execute("ALTER TABLE chat_logs ADD INDEX idx_user_id (user_id)")
+                    except Error as e:
+                        if "Duplicate column name" not in str(e):
+                            print(f"⚠️ Could not add user_id column: {e}")
+                    
+                    # Add foreign key
+                    try:
+                        cursor.execute("""
+                            ALTER TABLE chat_logs 
+                            ADD CONSTRAINT fk_chat_logs_user_id 
+                            FOREIGN KEY (user_id) REFERENCES users(id) 
+                            ON DELETE SET NULL ON UPDATE CASCADE
+                        """)
+                        print("✅ Added foreign key: chat_logs.user_id -> users.id")
+                    except Error as e:
+                        if "Duplicate foreign key" not in str(e) and "already exists" not in str(e):
+                            print(f"⚠️ Could not add foreign key for user_id: {e}")
+            except Error as e:
+                print(f"⚠️ Error checking/adding user_id foreign key: {e}")
+            
+            # For chat_logs.session_id -> users.session_id
+            try:
+                cursor.execute("""
+                    SELECT CONSTRAINT_NAME 
+                    FROM information_schema.KEY_COLUMN_USAGE 
+                    WHERE TABLE_SCHEMA = DATABASE() 
+                    AND TABLE_NAME = 'chat_logs' 
+                    AND COLUMN_NAME = 'session_id' 
+                    AND REFERENCED_TABLE_NAME = 'users'
+                """)
+                if not cursor.fetchone():
+                    cursor.execute("""
+                        ALTER TABLE chat_logs 
+                        ADD CONSTRAINT fk_chat_logs_session_id 
+                        FOREIGN KEY (session_id) REFERENCES users(session_id) 
+                        ON DELETE SET NULL ON UPDATE CASCADE
+                    """)
+                    print("✅ Added foreign key: chat_logs.session_id -> users.session_id")
+            except Error as e:
+                if "Duplicate foreign key" not in str(e) and "already exists" not in str(e):
+                    print(f"⚠️ Could not add foreign key for session_id: {e}")
+            
+            # For reminders.user_id -> users.id
+            try:
+                cursor.execute("SHOW TABLES LIKE 'reminders'")
+                if cursor.fetchone():
+                    cursor.execute("""
+                        SELECT CONSTRAINT_NAME 
+                        FROM information_schema.KEY_COLUMN_USAGE 
+                        WHERE TABLE_SCHEMA = DATABASE() 
+                        AND TABLE_NAME = 'reminders' 
+                        AND COLUMN_NAME = 'user_id' 
+                        AND REFERENCED_TABLE_NAME = 'users'
+                    """)
+                    if not cursor.fetchone():
+                        # Add user_id column if it doesn't exist
+                        try:
+                            cursor.execute("ALTER TABLE reminders ADD COLUMN user_id INT NULL AFTER id")
+                            cursor.execute("ALTER TABLE reminders ADD INDEX idx_user_id (user_id)")
+                        except Error as e:
+                            if "Duplicate column name" not in str(e):
+                                print(f"⚠️ Could not add user_id column to reminders: {e}")
+                        
+                        # Add foreign key
+                        try:
+                            cursor.execute("""
+                                ALTER TABLE reminders 
+                                ADD CONSTRAINT fk_reminders_user_id 
+                                FOREIGN KEY (user_id) REFERENCES users(id) 
+                                ON DELETE SET NULL ON UPDATE CASCADE
+                            """)
+                            print("✅ Added foreign key: reminders.user_id -> users.id")
+                        except Error as e:
+                            if "Duplicate foreign key" not in str(e) and "already exists" not in str(e):
+                                print(f"⚠️ Could not add foreign key for reminders.user_id: {e}")
+            except Error as e:
+                print(f"⚠️ Error checking/adding reminders foreign key: {e}")
+            
+            self.connection.commit()
+            cursor.close()
+            return True
+            
+        except Error as e:
+            print(f"⚠️ Foreign key migration error: {e}")
             if self.connection:
                 self.connection.rollback()
             return False
@@ -357,10 +479,23 @@ class DatabaseManager:
             return False
         try:
             cursor = self.connection.cursor()
+            
+            # Get user_id from session_id if provided
+            user_id = None
+            if session_id:
+                try:
+                    cursor.execute("SELECT id FROM users WHERE session_id = %s", (session_id,))
+                    user_result = cursor.fetchone()
+                    if user_result:
+                        user_id = user_result[0]
+                except Error:
+                    pass  # Continue without user_id if lookup fails
+            
+            # Insert chat log with user_id if available
             cursor.execute("""
-                INSERT INTO chat_logs (user_message, bot_response, session_id)
-                VALUES (%s, %s, %s)
-            """, (user_message, bot_response, session_id))
+                INSERT INTO chat_logs (user_id, user_message, bot_response, session_id)
+                VALUES (%s, %s, %s, %s)
+            """, (user_id, user_message, bot_response, session_id))
             self.connection.commit()
             cursor.close()
             return True

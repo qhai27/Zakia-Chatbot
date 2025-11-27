@@ -13,6 +13,7 @@ class ReminderManager:
     TABLE_SQL = f"""
     CREATE TABLE IF NOT EXISTS {TABLE_NAME} (
         id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NULL,
         name VARCHAR(255) NOT NULL,
         ic_number VARCHAR(32) NOT NULL,
         phone VARCHAR(32) NOT NULL,
@@ -23,7 +24,9 @@ class ReminderManager:
         updated_at DATETIME NOT NULL,
         INDEX idx_ic (ic_number),
         INDEX idx_phone (phone),
-        INDEX idx_created (created_at)
+        INDEX idx_created (created_at),
+        INDEX idx_user_id (user_id),
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL ON UPDATE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     """
 

@@ -45,6 +45,7 @@ def ensure_reminders_table():
         cur.execute("""
             CREATE TABLE IF NOT EXISTS reminders (
                 id INT AUTO_INCREMENT PRIMARY KEY,
+                user_id INT NULL,
                 name VARCHAR(255) NOT NULL,
                 ic_number VARCHAR(32) NOT NULL,
                 phone VARCHAR(32) NOT NULL,
@@ -52,7 +53,9 @@ def ensure_reminders_table():
                 zakat_amount DECIMAL(12,2),
                 year VARCHAR(32),
                 created_at DATETIME NOT NULL,
-                updated_at DATETIME NOT NULL
+                updated_at DATETIME NOT NULL,
+                INDEX idx_user_id (user_id),
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
         """)
         conn.commit()

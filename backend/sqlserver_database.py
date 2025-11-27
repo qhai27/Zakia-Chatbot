@@ -71,19 +71,7 @@ class SQLServerDatabaseManager:
                     )
                 """))
                 
-                # Chat logs table
-                conn.execute(text("""
-                    IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='chat_logs' AND xtype='U')
-                    CREATE TABLE chat_logs (
-                        id INT IDENTITY(1,1) PRIMARY KEY,
-                        user_message NVARCHAR(MAX) NOT NULL,
-                        bot_response NVARCHAR(MAX) NOT NULL,
-                        session_id NVARCHAR(100),
-                        created_at DATETIME2 DEFAULT GETDATE()
-                    )
-                """))
-                
-                # Users table for session management
+                # Users table for session management (must be created first for foreign keys)
                 conn.execute(text("""
                     IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='users' AND xtype='U')
                     CREATE TABLE users (
@@ -91,6 +79,21 @@ class SQLServerDatabaseManager:
                         session_id NVARCHAR(100) UNIQUE,
                         created_at DATETIME2 DEFAULT GETDATE(),
                         last_activity DATETIME2 DEFAULT GETDATE()
+                    )
+                """))
+                
+                # Chat logs table
+                conn.execute(text("""
+                    IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='chat_logs' AND xtype='U')
+                    CREATE TABLE chat_logs (
+                        id INT IDENTITY(1,1) PRIMARY KEY,
+                        user_id INT NULL,
+                        user_message NVARCHAR(MAX) NOT NULL,
+                        bot_response NVARCHAR(MAX) NOT NULL,
+                        session_id NVARCHAR(100),
+                        created_at DATETIME2 DEFAULT GETDATE(),
+                        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL ON UPDATE CASCADE,
+                        FOREIGN KEY (session_id) REFERENCES users(session_id) ON DELETE SET NULL ON UPDATE CASCADE
                     )
                 """))
                 
@@ -250,10 +253,21 @@ class SQLServerDatabaseManager:
             
         try:
             with self.engine.connect() as conn:
+                # Get user_id from session_id if provided
+                user_id = None
+                if session_id:
+                    try:
+                        result = conn.execute(text("SELECT id FROM users WHERE session_id = ?"), (session_id,))
+                        user_row = result.fetchone()
+                        if user_row:
+                            user_id = user_row[0]
+                    except Exception:
+                        pass  # Continue without user_id if lookup fails
+                
                 conn.execute(text("""
-                    INSERT INTO chat_logs (user_message, bot_response, session_id) 
-                    VALUES (?, ?, ?)
-                """), (user_message, bot_response, session_id))
+                    INSERT INTO chat_logs (user_id, user_message, bot_response, session_id) 
+                    VALUES (?, ?, ?, ?)
+                """), (user_id, user_message, bot_response, session_id))
                 conn.commit()
                 return True
         except Exception as e:
