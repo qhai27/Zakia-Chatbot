@@ -49,7 +49,9 @@ class ZakatHandler {
 
         if (msg.includes('emas') || msg.includes('bulanan') || 
             msg.includes('perak') || msg.includes('tahunan') ||
-            msg.includes('dikira')){
+            msg.includes('dikira') || msg.includes('zakat perniagaan') ||
+            msg.includes('zakat ternakan') || msg.includes('zakat pertanian')||
+            msg.includes('pendapatan') || msg.includes(' pelaburan')) {
             return null;
         }
 
