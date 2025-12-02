@@ -341,3 +341,74 @@ def admin_stats():
             "success": False,
             "error": str(e)
         }), 500
+
+
+@admin_bp.route("/admin/chat-logs", methods=["GET"])
+def admin_chat_logs():
+    """List recent chat logs for admin page."""
+    try:
+        # Ensure database connection
+        if not db.connection or not db.connection.is_connected():
+            print("⚠️ Database not connected, reconnecting for chat logs...")
+            if not db.connect():
+                return jsonify({
+                    "success": False,
+                    "logs": [],
+                    "count": 0,
+                    "error": "Database connection failed"
+                }), 500
+
+        # Parse query params
+        try:
+            limit = int(request.args.get("limit", 100))
+            offset = int(request.args.get("offset", 0))
+        except ValueError:
+            limit = 100
+            offset = 0
+
+        cursor = db.connection.cursor(dictionary=True)
+
+        # Get total count
+        cursor.execute("SELECT COUNT(*) as total FROM chat_logs")
+        total = cursor.fetchone()["total"]
+
+        # Get rows
+        cursor.execute(
+            """
+            SELECT 
+                id_log,
+                id_user,
+                session_id,
+                user_message,
+                bot_response,
+                created_at
+            FROM chat_logs
+            ORDER BY created_at DESC
+            LIMIT %s OFFSET %s
+            """,
+            (limit, offset),
+        )
+        rows = cursor.fetchall()
+        cursor.close()
+
+        return jsonify(
+            {
+                "success": True,
+                "logs": rows,
+                "count": len(rows),
+                "total": total,
+            }
+        )
+    except Exception as e:
+        print(f"❌ Error listing chat logs: {e}")
+        import traceback
+
+        traceback.print_exc()
+        return jsonify(
+            {
+                "success": False,
+                "logs": [],
+                "count": 0,
+                "error": str(e),
+            }
+        ), 500

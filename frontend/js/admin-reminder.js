@@ -7,6 +7,7 @@
         const CONFIG = {
             API_BASE: 'http://127.0.0.1:5000/admin/reminders',
             STATS_API: 'http://127.0.0.1:5000/admin/reminders/stats',
+            CHATLOG_API: 'http://127.0.0.1:5000/admin/chat-logs',
             PAGE_SIZE: 20
         };
 
@@ -24,7 +25,12 @@
             statsTotalAmount: document.getElementById('statsTotalAmount'),
             statsPendapatan: document.getElementById('statsPendapatan'),
             statsSimpanan: document.getElementById('statsSimpanan'),
-            totalReminders: document.getElementById('totalReminders')
+            totalReminders: document.getElementById('totalReminders'),
+            // Chat log DOM elements
+            chatlogTableBody: document.getElementById('chatlogTableBody'),
+            chatlogEmptyState: document.getElementById('chatlogEmptyState'),
+            chatlogStatus: document.getElementById('chatlogStatus'),
+            refreshChatLogs: document.getElementById('refreshChatLogs')
         };
 
         let STATE = {
@@ -57,6 +63,9 @@
                     ReminderOperations.load();
                 } else if (section === 'faqs') {
                     document.getElementById('faqSection').style.display = 'block';
+                } else if (section === 'chatlog') {
+                    document.getElementById('chatlogSection').style.display = 'block';
+                    ChatLogOperations.load();
                 }
             });
         });
@@ -158,10 +167,10 @@
                         <td class="date-cell">${this.formatDate(r.created_at)}</td>
                         <td>
                             <div class="admin-actions">
-                                <button class="btn ghost btn-sm" data-action="view" data-id="${r.id_reminder}" title="View Details">
-                                    👁️ View
+                                <button class="btn ghost btn-sm" data-action="view" data-id="${r.id_reminder}" title="Papar Butiran">
+                                    👁️ Papar
                                 </button>
-                                <button class="btn warn btn-sm" data-action="delete" data-id="${r.id_reminder}" title="Delete">
+                                <button class="btn warn btn-sm" data-action="delete" data-id="${r.id_reminder}" title="Padam">
                                     🗑️
                                 </button>
                             </div>
@@ -264,6 +273,56 @@
             }
         };
 
+        const ChatLogUI = {
+            updateStatus(message, isError = false) {
+                if (DOM.chatlogStatus) {
+                    DOM.chatlogStatus.textContent = message;
+                    DOM.chatlogStatus.style.color = isError ? '#e53e3e' : '#718096';
+                }
+            },
+
+            renderLogs(logs) {
+                if (!DOM.chatlogTableBody) return;
+
+                if (!logs || logs.length === 0) {
+                    DOM.chatlogTableBody.innerHTML = '';
+                    if (DOM.chatlogEmptyState) DOM.chatlogEmptyState.style.display = 'block';
+                    return;
+                }
+
+                if (DOM.chatlogEmptyState) DOM.chatlogEmptyState.style.display = 'none';
+
+                DOM.chatlogTableBody.innerHTML = logs
+                    .map(log => {
+                        const created = log.created_at
+                            ? new Date(log.created_at).toLocaleString('ms-MY', {
+                                day: '2-digit',
+                                month: 'short',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            })
+                            : 'N/A';
+                        const session = log.session_id || '-';
+                        const userId = log.id_user != null ? `#${log.id_user}` : '-';
+                        const userMsg = (log.user_message || '').replace(/\s+/g, ' ').trim();
+                        const botMsg = (log.bot_response || '').replace(/\s+/g, ' ').trim();
+
+                        return `
+                            <tr>
+                                <td><span class="id-badge">#${log.id_log}</span></td>
+                                <td>${userId}</td>
+                                <td><code>${session}</code></td>
+                                <td class="chatlog-user">${UIManager.escapeHtml(userMsg)}</td>
+                                <td class="chatlog-bot">${UIManager.escapeHtml(botMsg)}</td>
+                                <td>${created}</td>
+                            </tr>
+                        `;
+                    })
+                    .join('');
+            }
+        };
+
         const APIService = {
             async fetchReminders(limit = 1000, offset = 0, search = '', zakatType = '') {
                 const params = new URLSearchParams({
@@ -331,6 +390,29 @@
                 const res = await fetch(`${CONFIG.API_BASE}/${id}`);
                 if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
                 return await res.json();
+            },
+
+            async fetchChatLogs(limit = 200, offset = 0) {
+                const params = new URLSearchParams({
+                    limit: limit.toString(),
+                    offset: offset.toString()
+                });
+
+                const res = await fetch(`${CONFIG.CHATLOG_API}?${params}`);
+
+                if (!res.ok) {
+                    const errorData = await res.json().catch(() => ({}));
+                    const errorMsg = errorData.error || `HTTP ${res.status}: ${res.statusText}`;
+                    throw new Error(errorMsg);
+                }
+
+                const data = await res.json();
+                if (!data.hasOwnProperty('logs')) {
+                    console.warn('Unexpected chat log response format:', data);
+                    return { logs: [], count: 0, total: 0 };
+                }
+
+                return data;
             }
         };
 
@@ -535,6 +617,25 @@
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
+            }
+        };
+
+        const ChatLogOperations = {
+            async load() {
+                try {
+                    ChatLogUI.updateStatus('⏳ Memuat chat log...');
+                    const data = await APIService.fetchChatLogs();
+                    ChatLogUI.renderLogs(data.logs || []);
+                    if (data.total !== undefined) {
+                        ChatLogUI.updateStatus(`✅ ${data.total} rekod chat log ditemui`);
+                    } else {
+                        ChatLogUI.updateStatus(`✅ ${data.logs?.length || 0} rekod chat log dimuatkan`);
+                    }
+                } catch (error) {
+                    console.error('Error loading chat logs:', error);
+                    ChatLogUI.updateStatus(`❌ Gagal memuat chat log: ${error.message}`, true);
+                    ChatLogUI.renderLogs([]);
+                }
             }
         };
 
