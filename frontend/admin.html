@@ -31,7 +31,7 @@
                     <span>Peringatan</span>
                 </a>
                 <a href="#" class="nav-item" data-section="chatlog">
-                    <span class="nav-icon">⌛</span>
+                    <span class="nav-icon">💬</span>
                     <span>Sejarah ChatLog</span>
                 </a>
             </nav>
@@ -49,6 +49,10 @@
                     <div class="stat-item">
                         <span class="stat-label">Peringatan</span>
                         <span id="totalReminders" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Chat Logs</span>
+                        <span id="totalChatLogs" class="stat-value">0</span>
                     </div>
                 </div>
             </div>
@@ -226,28 +230,61 @@
                 <div id="reminderPagination" class="pagination"></div>
             </div>
 
-            <!-- Chat Log Section -->
+            <!-- Chat Log Section - ENHANCED -->
             <div id="chatlogSection" class="content-section" style="display:none;">
                 <header class="content-header">
                     <div class="header-left">
-                        <h1>⌛ Sejarah ChatLog</h1>
+                        <h1>💬 Sejarah ChatLog</h1>
                         <div id="chatlogStatus" class="status-badge">Memuat chat log...</div>
                     </div>
                     <div class="header-actions">
-                        <button id="refreshChatLogs" class="btn ghost">🔄 Refresh</button>
+                        <button id="exportChatLogsBtn" class="btn ghost">📥 Export CSV</button>
+                        <button id="printChatLogsBtn" class="btn primary">🖨️ Print</button>
                     </div>
                 </header>
 
+                <!-- Chat Log Stats -->
+                <div class="chatlog-stats">
+                    <div class="chatlog-stat-card">
+                        <div class="chatlog-stat-icon">💬</div>
+                        <div class="chatlog-stat-content">
+                            <div class="chatlog-stat-label">Total Messages</div>
+                            <div id="statsChatTotal" class="chatlog-stat-value">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search and Filters -->
+                <div class="toolbar">
+                    <input id="chatlogSearch" class="admin-input search"
+                        placeholder="🔍 Cari pesanan, session ID, atau user ID..." />
+                    <button id="refreshChatLogs" class="btn ghost">🔄 Refresh</button>
+                </div>
+
+                <!-- Bulk Actions -->
+                <div class="bulk-actions">
+                    <label>
+                        <input type="checkbox" id="selectAllCheckbox" />
+                        <span>Pilih Semua</span>
+                    </label>
+                    <button id="bulkDeleteBtn" class="btn warn" disabled>🗑️ Padam (0)</button>
+                </div>
+
+                <!-- Chat Log Table -->
                 <div class="table-container">
                     <table class="table">
                         <thead>
                             <tr>
+                                <th style="width:50px;">
+                                    <input type="checkbox" id="selectAllCheckboxHeader" style="display:none;" />
+                                </th>
                                 <th style="width:70px;">ID</th>
                                 <th style="width:90px;">User ID</th>
-                                <th style="width:140px;">Session ID</th>
-                                <th>Pesanan Pengguna</th>
-                                <th>Respon Bot</th>
+                                <th style="width:120px;">Session ID</th>
+                                <th style="width:280px;">Pesanan Pengguna</th>
+                                <th style="width:280px;">Respon Bot</th>
                                 <th style="width:160px;">Tarikh</th>
+                                <th style="width:140px;">Tindakan</th>
                             </tr>
                         </thead>
                         <tbody id="chatlogTableBody"></tbody>
@@ -255,8 +292,12 @@
                     <div id="chatlogEmptyState" class="empty-state" style="display:none;">
                         <div class="empty-icon">💬</div>
                         <p>Tiada chat log ditemui</p>
+                        <small style="color: #9ca3af;">Chat logs akan muncul di sini apabila pengguna berinteraksi dengan chatbot</small>
                     </div>
                 </div>
+
+                <!-- Pagination -->
+                <div id="chatlogPagination" class="pagination"></div>
             </div>
         </main>
     </div>
@@ -309,9 +350,23 @@
         </div>
     </div>
 
-    <!-- Print Template (Hidden) -->
-    <div id="printTemplate" style="display:none;">
-        <!-- Will be populated dynamically -->
+    <!-- Chat Log Detail Modal -->
+    <div id="chatlogDetailModal" class="modal" style="display:none;">
+        <div class="modal-overlay"></div>
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3>💬 Chat Log Details</h3>
+                <button class="btn-close"
+                    onclick="document.getElementById('chatlogDetailModal').style.display='none'">✖</button>
+            </div>
+            <div class="modal-body">
+                <!-- Content loaded dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn ghost"
+                    onclick="document.getElementById('chatlogDetailModal').style.display='none'">Tutup</button>
+            </div>
+        </div>
     </div>
 </body>
 
