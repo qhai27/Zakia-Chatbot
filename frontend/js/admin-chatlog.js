@@ -1,5 +1,5 @@
 // =========================
-// ADMIN CHAT LOG HANDLER - ENHANCED
+// ADMIN CHAT LOG HANDLER - UPDATED (FIXED DELETE + BULK DELETE + TIMEZONE)
 // =========================
 
 (function () {
@@ -55,10 +55,16 @@
                     .replaceAll('>', '&gt;');
             },
 
+            // Timezone fix for MySQL timestamp (format B: "YYYY-MM-DD HH:MM:SS")
             formatDate(dateStr) {
                 if (!dateStr) return 'N/A';
-                const date = new Date(dateStr);
+
+                // Convert "YYYY-MM-DD HH:MM:SS" -> "YYYY-MM-DDTHH:MM:SSZ" to force UTC parsing
+                const fixedStr = dateStr.includes('T') ? dateStr : dateStr.replace(' ', 'T') + 'Z';
+                const date = new Date(fixedStr);
+
                 return date.toLocaleString('ms-MY', {
+                    timeZone: 'Asia/Kuala_Lumpur',
                     day: '2-digit',
                     month: 'short',
                     year: 'numeric',
@@ -486,8 +492,14 @@
                 try {
                     UIManager.showLoading(true);
                     await APIService.deleteChatLog(id);
+
+                    // REMOVE from STATE without full reload
+                    STATE.logs = STATE.logs.filter(l => l.id_log !== id);
+                    STATE.selectedLogs.delete(id);
+
+                    // Re-apply filters + render current page
+                    this.applyFilters();
                     UIManager.updateStatus('✅ Chat log berjaya dipadam');
-                    await this.load();
                 } catch (error) {
                     console.error('Delete error:', error);
                     UIManager.updateStatus(`❌ Gagal memadam: ${error.message}`, true);
@@ -508,14 +520,15 @@
                     UIManager.showLoading(true);
                     const ids = Array.from(STATE.selectedLogs);
                     
-                    // Delete one by one (fallback if bulk endpoint not available)
-                    for (const id of ids) {
-                        await APIService.deleteChatLog(id);
-                    }
+                    // Use bulk endpoint when available
+                    await APIService.bulkDeleteChatLogs(ids);
                     
-                    UIManager.updateStatus(`✅ ${ids.length} chat logs berjaya dipadam`);
+                    // REMOVE from STATE without full reload
+                    STATE.logs = STATE.logs.filter(l => !ids.includes(l.id_log));
                     STATE.selectedLogs.clear();
-                    await this.load();
+
+                    this.applyFilters();
+                    UIManager.updateStatus(`✅ ${ids.length} chat logs berjaya dipadam`);
                 } catch (error) {
                     console.error('Bulk delete error:', error);
                     UIManager.updateStatus(`❌ Gagal memadam: ${error.message}`, true);
@@ -733,5 +746,8 @@
 
         // Make available globally
         window.ChatLogOperations = ChatLogOperations;
+
+        // Initial load
+        ChatLogOperations.load();
     });
 })();
