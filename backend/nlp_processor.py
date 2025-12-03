@@ -97,6 +97,7 @@ class NLPProcessor:
             'perbezaan': ['perbezaan', 'bezanya', 'difference', 'distinction', 'variety', 'beza'],
             'apakah' : ['apakah','apa itu','what is','define','meaning of', 'apa itu', 'maksud'],
             'apa itu' : ['apa itu','apakah','what is','define','meaning of', 'maksud'],
+            'telefon' : ['telefon','no telefon','nombor telefon','phone','phone number','contact number','telefon bimbit','no tel'],
         }
         
         # Optional Gemini integration

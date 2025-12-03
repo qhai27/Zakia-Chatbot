@@ -7,7 +7,6 @@
         const CONFIG = {
             API_BASE: 'http://127.0.0.1:5000/admin/reminders',
             STATS_API: 'http://127.0.0.1:5000/admin/reminders/stats',
-            CHATLOG_API: 'http://127.0.0.1:5000/admin/chat-logs',
             PAGE_SIZE: 20
         };
 
@@ -25,12 +24,7 @@
             statsTotalAmount: document.getElementById('statsTotalAmount'),
             statsPendapatan: document.getElementById('statsPendapatan'),
             statsSimpanan: document.getElementById('statsSimpanan'),
-            totalReminders: document.getElementById('totalReminders'),
-            // Chat log DOM elements
-            chatlogTableBody: document.getElementById('chatlogTableBody'),
-            chatlogEmptyState: document.getElementById('chatlogEmptyState'),
-            chatlogStatus: document.getElementById('chatlogStatus'),
-            refreshChatLogs: document.getElementById('refreshChatLogs')
+            totalReminders: document.getElementById('totalReminders')
         };
 
         let STATE = {
@@ -42,18 +36,16 @@
             stats: null
         };
 
-        // Navigation Handler
+        // Navigation Handler (chatlog removed)
         const navItems = document.querySelectorAll('.nav-item');
         navItems.forEach(item => {
             item.addEventListener('click', (e) => {
                 e.preventDefault();
                 const section = item.getAttribute('data-section');
 
-                // Update active nav
                 navItems.forEach(nav => nav.classList.remove('active'));
                 item.classList.add('active');
 
-                // Show appropriate section
                 document.querySelectorAll('.content-section').forEach(sec => {
                     sec.style.display = 'none';
                 });
@@ -63,9 +55,6 @@
                     ReminderOperations.load();
                 } else if (section === 'faqs') {
                     document.getElementById('faqSection').style.display = 'block';
-                } else if (section === 'chatlog') {
-                    document.getElementById('chatlogSection').style.display = 'block';
-                    ChatLogOperations.load();
                 }
             });
         });
@@ -110,7 +99,6 @@
 
             formatIC(ic) {
                 if (!ic) return '';
-                // Format IC as 123456-12-1234
                 if (ic.length === 12) {
                     return `${ic.substr(0, 6)}-${ic.substr(6, 2)}-${ic.substr(8, 4)}`;
                 }
@@ -119,7 +107,6 @@
 
             formatPhone(phone) {
                 if (!phone) return '';
-                // Format phone as 012-345 6789
                 if (phone.length >= 10) {
                     return `${phone.substr(0, 3)}-${phone.substr(3, 3)} ${phone.substr(6)}`;
                 }
@@ -128,14 +115,11 @@
 
             formatZakatType(zakatType) {
                 if (!zakatType) return 'N/A';
-                // Capitalize first letter: pendapatan -> Pendapatan, simpanan -> Simpanan
                 return zakatType.charAt(0).toUpperCase() + zakatType.slice(1).toLowerCase();
             },
 
             formatYear(year) {
                 if (!year) return 'N/A';
-                // Year should already be in format "2025 Masihi" or "1446 Hijrah"
-                // Just return it as is, or format if needed
                 return year.trim();
             },
 
@@ -216,7 +200,6 @@
                     </div>
                 `;
 
-                // Attach pagination listeners
                 DOM.reminderPagination.querySelectorAll('.page-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         const page = parseInt(btn.getAttribute('data-page'));
@@ -228,98 +211,24 @@
             updateStats(stats) {
                 if (!stats) return;
 
-                // Update total reminders
-                if (DOM.statsTotal) {
-                    DOM.statsTotal.textContent = stats.total || 0;
-                }
-                if (DOM.totalReminders) {
-                    DOM.totalReminders.textContent = stats.total || 0;
-                }
+                if (DOM.statsTotal) DOM.statsTotal.textContent = stats.total || 0;
+                if (DOM.totalReminders) DOM.totalReminders.textContent = stats.total || 0;
 
-                // Update total amount
                 if (DOM.statsTotalAmount) {
                     DOM.statsTotalAmount.textContent = this.formatAmount(stats.total_amount);
                 }
 
-                // Update by type
                 const byType = stats.by_type || [];
                 let pendapatanCount = 0;
                 let simpananCount = 0;
 
                 byType.forEach(item => {
-                    if (item.zakat_type === 'pendapatan') {
-                        pendapatanCount = item.count;
-                    } else if (item.zakat_type === 'simpanan') {
-                        simpananCount = item.count;
-                    }
+                    if (item.zakat_type === 'pendapatan') pendapatanCount = item.count;
+                    if (item.zakat_type === 'simpanan') simpananCount = item.count;
                 });
 
-                if (DOM.statsPendapatan) {
-                    DOM.statsPendapatan.textContent = pendapatanCount;
-                }
-                if (DOM.statsSimpanan) {
-                    DOM.statsSimpanan.textContent = simpananCount;
-                }
-
-                // Animate stats
-                [DOM.statsTotal, DOM.statsTotalAmount, DOM.statsPendapatan, DOM.statsSimpanan].forEach(el => {
-                    if (el) {
-                        el.style.transform = 'scale(1.15)';
-                        setTimeout(() => {
-                            el.style.transform = 'scale(1)';
-                        }, 200);
-                    }
-                });
-            }
-        };
-
-        const ChatLogUI = {
-            updateStatus(message, isError = false) {
-                if (DOM.chatlogStatus) {
-                    DOM.chatlogStatus.textContent = message;
-                    DOM.chatlogStatus.style.color = isError ? '#e53e3e' : '#718096';
-                }
-            },
-
-            renderLogs(logs) {
-                if (!DOM.chatlogTableBody) return;
-
-                if (!logs || logs.length === 0) {
-                    DOM.chatlogTableBody.innerHTML = '';
-                    if (DOM.chatlogEmptyState) DOM.chatlogEmptyState.style.display = 'block';
-                    return;
-                }
-
-                if (DOM.chatlogEmptyState) DOM.chatlogEmptyState.style.display = 'none';
-
-                DOM.chatlogTableBody.innerHTML = logs
-                    .map(log => {
-                        const created = log.created_at
-                            ? new Date(log.created_at).toLocaleString('ms-MY', {
-                                day: '2-digit',
-                                month: 'short',
-                                year: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                            })
-                            : 'N/A';
-                        const session = log.session_id || '-';
-                        const userId = log.id_user != null ? `#${log.id_user}` : '-';
-                        const userMsg = (log.user_message || '').replace(/\s+/g, ' ').trim();
-                        const botMsg = (log.bot_response || '').replace(/\s+/g, ' ').trim();
-
-                        return `
-                            <tr>
-                                <td><span class="id-badge">#${log.id_log}</span></td>
-                                <td>${userId}</td>
-                                <td><code>${session}</code></td>
-                                <td class="chatlog-user">${UIManager.escapeHtml(userMsg)}</td>
-                                <td class="chatlog-bot">${UIManager.escapeHtml(botMsg)}</td>
-                                <td>${created}</td>
-                            </tr>
-                        `;
-                    })
-                    .join('');
+                if (DOM.statsPendapatan) DOM.statsPendapatan.textContent = pendapatanCount;
+                if (DOM.statsSimpanan) DOM.statsSimpanan.textContent = simpananCount;
             }
         };
 
@@ -342,8 +251,6 @@
                 }
 
                 const data = await res.json();
-
-                // Ensure response has expected structure
                 if (!data.hasOwnProperty('reminders')) {
                     console.warn('Unexpected response format:', data);
                     return { reminders: [], count: 0 };
@@ -363,25 +270,21 @@
                     }
 
                     const data = await res.json();
-
-                    // Ensure response has expected structure
                     if (!data.hasOwnProperty('stats')) {
                         console.warn('Unexpected stats response format:', data);
                         return { stats: null };
                     }
 
                     return data;
+
                 } catch (error) {
                     console.error('Error fetching stats:', error);
-                    // Return default stats instead of throwing
                     return { stats: { total: 0, total_amount: 0, by_type: [] } };
                 }
             },
 
             async deleteReminder(id) {
-                const res = await fetch(`${CONFIG.API_BASE}/${id}`, {
-                    method: 'DELETE'
-                });
+                const res = await fetch(`${CONFIG.API_BASE}/${id}`, { method: 'DELETE' });
                 if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
                 return await res.json();
             },
@@ -390,29 +293,6 @@
                 const res = await fetch(`${CONFIG.API_BASE}/${id}`);
                 if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
                 return await res.json();
-            },
-
-            async fetchChatLogs(limit = 200, offset = 0) {
-                const params = new URLSearchParams({
-                    limit: limit.toString(),
-                    offset: offset.toString()
-                });
-
-                const res = await fetch(`${CONFIG.CHATLOG_API}?${params}`);
-
-                if (!res.ok) {
-                    const errorData = await res.json().catch(() => ({}));
-                    const errorMsg = errorData.error || `HTTP ${res.status}: ${res.statusText}`;
-                    throw new Error(errorMsg);
-                }
-
-                const data = await res.json();
-                if (!data.hasOwnProperty('logs')) {
-                    console.warn('Unexpected chat log response format:', data);
-                    return { logs: [], count: 0, total: 0 };
-                }
-
-                return data;
             }
         };
 
@@ -422,7 +302,6 @@
                     UIManager.showLoading(true);
                     UIManager.updateStatus('⏳ Memuat reminders...');
 
-                    // Load reminders and stats separately to handle partial failures
                     let reminderData = { reminders: [], count: 0 };
                     let statsData = { stats: null };
 
@@ -437,7 +316,6 @@
                         statsData = await APIService.fetchStats();
                     } catch (statsError) {
                         console.error('Error fetching stats:', statsError);
-                        // Stats error is less critical, just log it
                     }
 
                     STATE.reminders = reminderData.reminders || [];
@@ -449,8 +327,9 @@
                     if (STATE.reminders.length > 0) {
                         UIManager.updateStatus(`✅ ${STATE.reminders.length} reminders loaded`);
                     } else {
-                        UIManager.updateStatus('ℹ️ Tiada reminders ditemui', false);
+                        UIManager.updateStatus('ℹ️ Tiada reminders ditemui');
                     }
+
                 } catch (error) {
                     console.error('Error loading reminders:', error);
                     UIManager.updateStatus(`❌ Error: ${error.message}`, true);
@@ -473,7 +352,6 @@
                         (r.phone && r.phone.includes(search));
 
                     const matchesType = !zakatType || r.zakat_type === zakatType;
-
                     return matchesSearch && matchesType;
                 });
 
@@ -485,6 +363,7 @@
             renderCurrentPage() {
                 const startIdx = (STATE.currentPage - 1) * CONFIG.PAGE_SIZE;
                 const endIdx = startIdx + CONFIG.PAGE_SIZE;
+
                 const pageReminders = STATE.filteredReminders.slice(startIdx, endIdx);
 
                 UIManager.renderReminders(pageReminders);
@@ -577,8 +456,6 @@
                 `;
 
                 modal.style.display = 'flex';
-
-                // Print single reminder
                 const printBtn = document.getElementById('printSingleReminder');
                 printBtn.onclick = () => PrintManager.printSingle(reminder);
             },
@@ -589,7 +466,17 @@
                     return;
                 }
 
-                const headers = ['ID', 'Name', 'IC Number', 'Phone', 'Jenis Zakat', 'Zakat Amount', 'Tahun', 'Tarikh Daftar'];
+                const headers = [
+                    'ID',
+                    'Name',
+                    'IC Number',
+                    'Phone',
+                    'Jenis Zakat',
+                    'Zakat Amount',
+                    'Tahun',
+                    'Tarikh Daftar'
+                ];
+
                 const rows = STATE.filteredReminders.map(r => [
                     r.id_reminder,
                     r.name,
@@ -620,300 +507,5 @@
             }
         };
 
-        const ChatLogOperations = {
-            async load() {
-                try {
-                    ChatLogUI.updateStatus('⏳ Memuat chat log...');
-                    const data = await APIService.fetchChatLogs();
-                    ChatLogUI.renderLogs(data.logs || []);
-                    if (data.total !== undefined) {
-                        ChatLogUI.updateStatus(`✅ ${data.total} rekod chat log ditemui`);
-                    } else {
-                        ChatLogUI.updateStatus(`✅ ${data.logs?.length || 0} rekod chat log dimuatkan`);
-                    }
-                } catch (error) {
-                    console.error('Error loading chat logs:', error);
-                    ChatLogUI.updateStatus(`❌ Gagal memuat chat log: ${error.message}`, true);
-                    ChatLogUI.renderLogs([]);
-                }
-            }
-        };
-
-        const PrintManager = {
-            printAll() {
-                if (STATE.filteredReminders.length === 0) {
-                    alert('No reminders to print');
-                    return;
-                }
-
-                const printWindow = window.open('', '_blank');
-                const content = this.generatePrintContent(STATE.filteredReminders, STATE.stats);
-
-                printWindow.document.write(content);
-                printWindow.document.close();
-                printWindow.focus();
-
-                setTimeout(() => {
-                    printWindow.print();
-                }, 500);
-            },
-
-            printSingle(reminder) {
-                const printWindow = window.open('', '_blank');
-                const content = this.generateSinglePrintContent(reminder);
-
-                printWindow.document.write(content);
-                printWindow.document.close();
-                printWindow.focus();
-
-                setTimeout(() => {
-                    printWindow.print();
-                }, 500);
-            },
-
-            generatePrintContent(reminders, stats) {
-                const now = new Date().toLocaleString('ms-MY');
-                const totalAmount = reminders.reduce((sum, r) => sum + (parseFloat(r.zakat_amount) || 0), 0);
-
-                return `
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <title>Reminder Report - LZNK</title>
-                        <style>
-                            body { font-family: Arial, sans-serif; margin: 20px; }
-                            .header { text-align: center; margin-bottom: 30px; border-bottom: 3px solid #006a4e; padding-bottom: 15px; }
-                            .header h1 { color: #006a4e; margin: 0; }
-                            .header p { color: #666; margin: 5px 0; }
-                            .stats { margin: 20px 0; padding: 15px; background: #f0f0f0; border-radius: 8px; }
-                            .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
-                            .stat-box { text-align: center; }
-                            .stat-label { font-size: 12px; color: #666; }
-                            .stat-value { font-size: 24px; font-weight: bold; color: #006a4e; }
-                            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                            th { background: #006a4e; color: white; padding: 10px; text-align: left; }
-                            td { padding: 8px; border-bottom: 1px solid #ddd; }
-                            tr:nth-child(even) { background: #f9f9f9; }
-                            .footer { margin-top: 30px; text-align: center; color: #666; font-size: 12px; }
-                            @media print {
-                                body { margin: 0; }
-                                .no-print { display: none; }
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="header">
-                            <h1>🔔 Zakat Reminder Report</h1>
-                            <p>Lembaga Zakat Negeri Kedah (LZNK)</p>
-                            <p>Generated: ${now}</p>
-                        </div>
-
-                        <div class="stats">
-                            <div class="stats-grid">
-                                <div class="stat-box">
-                                    <div class="stat-label">Total Reminders</div>
-                                    <div class="stat-value">${reminders.length}</div>
-                                </div>
-                                <div class="stat-box">
-                                    <div class="stat-label">Total Zakat Amount</div>
-                                    <div class="stat-value">RM ${totalAmount.toFixed(2)}</div>
-                                </div>
-                                <div class="stat-box">
-                                    <div class="stat-label">Report Date</div>
-                                    <div class="stat-value">${new Date().toLocaleDateString('ms-MY')}</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Name</th>
-                                    <th>IC Number</th>
-                                    <th>Phone</th>
-                                    <th>Zakat Type</th>
-                                    <th>Amount (RM)</th>
-                                    <th>Tahun</th>
-                                    <th>Tarikh Daftar</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${reminders.map(r => `
-                                    <tr>
-                                        <td>${r.id_reminder}</td>
-                                        <td>${UIManager.escapeHtml(r.name)}</td>
-                                        <td>${UIManager.formatIC(r.ic_number)}</td>
-                                        <td>${UIManager.formatPhone(r.phone)}</td>
-                                        <td>${UIManager.escapeHtml(UIManager.formatZakatType(r.zakat_type))}</td>
-                                        <td>${UIManager.formatAmount(r.zakat_amount)}</td>
-                                        <td>${UIManager.escapeHtml(UIManager.formatYear(r.year))}</td>
-                                        <td>${UIManager.formatDate(r.created_at)}</td>
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-
-                        <div class="footer">
-                            <p>© ${new Date().getFullYear()} Lembaga Zakat Negeri Kedah. All rights reserved.</p>
-                            <p>This is a computer-generated report.</p>
-                        </div>
-                    </body>
-                    </html>
-                `;
-            },
-
-            generateSinglePrintContent(reminder) {
-                const now = new Date().toLocaleString('ms-MY');
-
-                return `
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <title>Reminder Details - ${reminder.name}</title>
-                        <style>
-                            body { font-family: Arial, sans-serif; margin: 40px; }
-                            .header { text-align: center; margin-bottom: 30px; border-bottom: 3px solid #006a4e; padding-bottom: 15px; }
-                            .header h1 { color: #006a4e; margin: 0; }
-                            .detail-card { border: 2px solid #006a4e; border-radius: 12px; padding: 30px; margin-top: 20px; }
-                            .detail-row { display: flex; margin-bottom: 15px; padding: 10px; border-bottom: 1px solid #eee; }
-                            .detail-label { font-weight: bold; width: 180px; color: #666; }
-                            .detail-value { flex: 1; color: #333; }
-                            .highlight { background: #f0f9f5; padding: 15px; margin: 20px 0; border-left: 4px solid #006a4e; }
-                            .footer { margin-top: 40px; text-align: center; color: #666; font-size: 12px; }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="header">
-                            <h1>🔔 Zakat Reminder Details</h1>
-                            <p>Lembaga Zakat Negeri Kedah (LZNK)</p>
-                            <p>Generated: ${now}</p>
-                        </div>
-
-                        <div class="detail-card">
-                            <h2>${UIManager.escapeHtml(reminder.name)}</h2>
-                            
-                            <div class="detail-row">
-                                <span class="detail-label">Reminder ID:</span>
-                                <span class="detail-value">#${reminder.id_reminder}</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Full Name:</span>
-                                <span class="detail-value">${UIManager.escapeHtml(reminder.name)}</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">IC Number:</span>
-                                <span class="detail-value">${UIManager.formatIC(reminder.ic_number)}</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Phone Number:</span>
-                                <span class="detail-value">${UIManager.formatPhone(reminder.phone)}</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Zakat Type:</span>
-                                <span class="detail-value">${UIManager.escapeHtml(UIManager.formatZakatType(reminder.zakat_type))}</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Tahun:</span>
-                                <span class="detail-value">${UIManager.escapeHtml(UIManager.formatYear(reminder.year))}</span>
-                            </div>
-                            
-                            <div class="highlight">
-                                <div class="detail-row" style="border: none; margin: 0;">
-                                    <span class="detail-label">Zakat Amount:</span>
-                                    <span class="detail-value" style="font-size: 24px; font-weight: bold; color: #006a4e;">
-                                        ${UIManager.formatAmount(reminder.zakat_amount)}
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div class="detail-row">
-                                <span class="detail-label">Registration Date:</span>
-                                <span class="detail-value">${UIManager.formatDate(reminder.created_at)}</span>
-                            </div>
-                        </div>
-
-                        <div class="footer">
-                            <p>© ${new Date().getFullYear()} Lembaga Zakat Negeri Kedah. All rights reserved.</p>
-                            <p>This is a computer-generated document.</p>
-                        </div>
-                    </body>
-                    </html>
-                `;
-            }
-        };
-
-        // Event Handlers
-        const EventHandlers = {
-            init() {
-                // Search and filters
-                if (DOM.reminderSearch) {
-                    DOM.reminderSearch.addEventListener('input', () => {
-                        ReminderOperations.applyFilters();
-                    });
-                }
-
-                if (DOM.zakatTypeFilter) {
-                    DOM.zakatTypeFilter.addEventListener('change', () => {
-                        ReminderOperations.applyFilters();
-                    });
-                }
-
-                // Refresh
-                if (DOM.refreshReminders) {
-                    DOM.refreshReminders.addEventListener('click', () => {
-                        ReminderOperations.load();
-                    });
-                }
-
-                // Print and Export
-                if (DOM.printRemindersBtn) {
-                    DOM.printRemindersBtn.addEventListener('click', () => {
-                        PrintManager.printAll();
-                    });
-                }
-
-                if (DOM.exportRemindersBtn) {
-                    DOM.exportRemindersBtn.addEventListener('click', () => {
-                        ReminderOperations.exportCSV();
-                    });
-                }
-
-                // Table actions
-                if (DOM.reminderTableBody) {
-                    DOM.reminderTableBody.addEventListener('click', (e) => {
-                        const btn = e.target.closest('button');
-                        if (!btn || STATE.isLoading) return;
-
-                        const id = parseInt(btn.getAttribute('data-id'));
-                        const action = btn.getAttribute('data-action');
-                        const reminder = STATE.reminders.find(r => r.id_reminder === id);
-
-                        if (action === 'view' && reminder) {
-                            ReminderOperations.viewDetails(id);
-                        } else if (action === 'delete' && reminder) {
-                            ReminderOperations.delete(id, reminder.name);
-                        }
-                    });
-                }
-
-                // Modal close
-                const modal = document.getElementById('reminderDetailModal');
-                if (modal) {
-                    const overlay = modal.querySelector('.modal-overlay');
-                    if (overlay) {
-                        overlay.addEventListener('click', () => {
-                            modal.style.display = 'none';
-                        });
-                    }
-                }
-            }
-        };
-
-        // Initialize
-        EventHandlers.init();
-
-        // Make functions available globally for inline handlers
-        window.ReminderOperations = ReminderOperations;
     });
 })();
