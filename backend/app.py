@@ -1,6 +1,6 @@
 """
-ZAKIA Chatbot - Main Application
-Bulletproof version with comprehensive error handling
+ZAKIA Chatbot - Main Application (FIXED)
+With proper chat log routes and real-time support
 """
 
 from flask import Flask
@@ -216,6 +216,239 @@ except ImportError as e:
         failed_blueprints.append(f"❌ Inline admin reminder routes: {e}")
         print(f"❌ Failed to create inline admin reminder routes: {e}")
 
+# Import and register admin chat log routes (FIX FOR 404 ERROR)
+try:
+    from routes.admin_chatlog_routes import admin_chatlog_bp
+    app.register_blueprint(admin_chatlog_bp)
+    loaded_blueprints.append("✅ Admin chat log routes")
+    print("✅ Admin chat log routes loaded successfully")
+except ImportError as e:
+    print(f"⚠️ Failed to load admin chat log routes from file: {e}")
+    print("⚠️ Creating inline admin chat log routes as fallback...")
+    
+    # Create inline admin chat log routes
+    try:
+        from flask import Blueprint, request, jsonify
+        from database import DatabaseManager
+        import pytz
+        from datetime import datetime
+        
+        admin_chatlog_bp = Blueprint('admin_chatlog', __name__, url_prefix='/admin/chat-logs')
+        db_chatlog = DatabaseManager()
+        
+        # Timezone for Malaysia
+        MALAYSIA_TZ = pytz.timezone('Asia/Kuala_Lumpur')
+        
+        def format_timestamp(dt):
+            """Format timestamp to Malaysia timezone"""
+            if dt is None:
+                return None
+            
+            # If datetime is naive (no timezone), assume it's UTC
+            if dt.tzinfo is None:
+                dt = pytz.utc.localize(dt)
+            
+            # Convert to Malaysia timezone
+            malaysia_time = dt.astimezone(MALAYSIA_TZ)
+            return malaysia_time.strftime('%Y-%m-%d %H:%M:%S')
+        
+        @admin_chatlog_bp.route('', methods=['GET'])
+        def list_chat_logs():
+            try:
+                limit = int(request.args.get('limit', 100))
+                offset = int(request.args.get('offset', 0))
+                search = request.args.get('search', '').strip()
+                
+                if not db_chatlog.connection or not db_chatlog.connection.is_connected():
+                    db_chatlog.connect()
+                
+                cursor = db_chatlog.connection.cursor(dictionary=True)
+                
+                # Build WHERE clause for search
+                where_clause = ""
+                params = []
+                
+                if search:
+                    where_clause = """
+                        WHERE user_message LIKE %s 
+                        OR bot_response LIKE %s 
+                        OR session_id LIKE %s
+                        OR CAST(id_user AS CHAR) LIKE %s
+                    """
+                    search_param = f"%{search}%"
+                    params = [search_param, search_param, search_param, search_param]
+                
+                # Get total count
+                count_query = f"SELECT COUNT(*) as total FROM chat_logs {where_clause}"
+                cursor.execute(count_query, params)
+                total = cursor.fetchone()['total']
+                
+                # Get paginated results
+                query = f"""
+                    SELECT 
+                        id_log,
+                        id_user,
+                        session_id,
+                        user_message,
+                        bot_response,
+                        created_at
+                    FROM chat_logs
+                    {where_clause}
+                    ORDER BY created_at DESC
+                    LIMIT %s OFFSET %s
+                """
+                
+                cursor.execute(query, params + [limit, offset])
+                rows = cursor.fetchall()
+                
+                # Format timestamps
+                logs = []
+                for row in rows:
+                    log = dict(row)
+                    if log.get('created_at'):
+                        log['created_at'] = format_timestamp(log['created_at'])
+                    logs.append(log)
+                
+                cursor.close()
+                
+                return jsonify({
+                    "success": True,
+                    "logs": logs,
+                    "count": len(logs),
+                    "total": total
+                })
+                
+            except Exception as e:
+                print(f"❌ Error listing chat logs: {e}")
+                import traceback
+                traceback.print_exc()
+                return jsonify({
+                    "success": False,
+                    "logs": [],
+                    "count": 0,
+                    "total": 0,
+                    "error": str(e)
+                }), 500
+        
+        @admin_chatlog_bp.route('/<int:log_id>', methods=['DELETE'])
+        def delete_chat_log(log_id):
+            try:
+                if not db_chatlog.connection or not db_chatlog.connection.is_connected():
+                    db_chatlog.connect()
+                
+                cursor = db_chatlog.connection.cursor()
+                
+                # Check if log exists
+                cursor.execute("SELECT id_log FROM chat_logs WHERE id_log = %s", (log_id,))
+                if not cursor.fetchone():
+                    cursor.close()
+                    return jsonify({"success": False, "error": "Chat log not found"}), 404
+                
+                # Delete the log
+                cursor.execute("DELETE FROM chat_logs WHERE id_log = %s", (log_id,))
+                db_chatlog.connection.commit()
+                cursor.close()
+                
+                print(f"✅ Successfully deleted chat log {log_id}")
+                
+                return jsonify({
+                    "success": True,
+                    "deleted": True,
+                    "id": log_id
+                })
+                
+            except Exception as e:
+                print(f"❌ Error deleting chat log {log_id}: {e}")
+                if db_chatlog.connection:
+                    db_chatlog.connection.rollback()
+                return jsonify({"success": False, "error": str(e)}), 500
+        
+        @admin_chatlog_bp.route('/bulk-delete', methods=['POST'])
+        def bulk_delete_chat_logs():
+            try:
+                data = request.get_json() or {}
+                ids = data.get('ids', [])
+                
+                if not ids or not isinstance(ids, list):
+                    return jsonify({
+                        "success": False,
+                        "error": "Invalid or empty 'ids' array"
+                    }), 400
+                
+                if not db_chatlog.connection or not db_chatlog.connection.is_connected():
+                    db_chatlog.connect()
+                
+                cursor = db_chatlog.connection.cursor()
+                
+                deleted_count = 0
+                failed = []
+                
+                for log_id in ids:
+                    try:
+                        cursor.execute("DELETE FROM chat_logs WHERE id_log = %s", (log_id,))
+                        if cursor.rowcount > 0:
+                            deleted_count += 1
+                        else:
+                            failed.append({"id": log_id, "reason": "Not found"})
+                    except Exception as e:
+                        failed.append({"id": log_id, "reason": str(e)})
+                
+                db_chatlog.connection.commit()
+                cursor.close()
+                
+                return jsonify({
+                    "success": True,
+                    "deleted_count": deleted_count,
+                    "failed": failed
+                })
+                
+            except Exception as e:
+                print(f"❌ Error in bulk delete: {e}")
+                if db_chatlog.connection:
+                    db_chatlog.connection.rollback()
+                return jsonify({"success": False, "error": str(e)}), 500
+        
+        @admin_chatlog_bp.route('/stats', methods=['GET'])
+        def get_chat_stats():
+            try:
+                if not db_chatlog.connection or not db_chatlog.connection.is_connected():
+                    db_chatlog.connect()
+                
+                cursor = db_chatlog.connection.cursor(dictionary=True)
+                
+                # Total logs
+                cursor.execute("SELECT COUNT(*) as total FROM chat_logs")
+                total_logs = cursor.fetchone()['total']
+                
+                # Unique users
+                cursor.execute("SELECT COUNT(DISTINCT id_user) as total FROM chat_logs WHERE id_user IS NOT NULL")
+                total_users = cursor.fetchone()['total']
+                
+                # Unique sessions
+                cursor.execute("SELECT COUNT(DISTINCT session_id) as total FROM chat_logs")
+                total_sessions = cursor.fetchone()['total']
+                
+                cursor.close()
+                
+                stats = {
+                    "total_logs": total_logs,
+                    "total_users": total_users,
+                    "total_sessions": total_sessions
+                }
+                
+                return jsonify({"success": True, "stats": stats})
+                
+            except Exception as e:
+                print(f"❌ Error getting chat stats: {e}")
+                return jsonify({"success": False, "error": str(e)}), 500
+        
+        app.register_blueprint(admin_chatlog_bp)
+        loaded_blueprints.append("✅ Admin chat log routes (inline)")
+        print("✅ Inline admin chat log routes created successfully")
+    except Exception as e:
+        failed_blueprints.append(f"❌ Inline admin chat log routes: {e}")
+        print(f"❌ Failed to create inline admin chat log routes: {e}")
+
 print("=" * 60)
 
 # Summary
@@ -273,6 +506,8 @@ if __name__ == "__main__":
             print("   👨‍💼 Admin FAQs: GET /admin/faqs")
             print("   👨‍💼 Admin Reminders: GET /admin/reminders")
             print("   📊 Reminder Stats: GET /admin/reminders/stats")
+            print("   💬 Admin Chat Logs: GET /admin/chat-logs")
+            print("   📊 Chat Log Stats: GET /admin/chat-logs/stats")
             print("   ❤️ Health Check: GET /health")
             print("=" * 60 + "\n")
             

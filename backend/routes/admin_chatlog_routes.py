@@ -1,14 +1,15 @@
 """
-Fixed Admin Chat Log Routes with Delete & Real-time Support
-Handles chat log management with proper timezone handling
+Fixed Admin Chat Log Routes with Real-time Support & Proper Delete Handling
+Handles chat log management with timezone handling from database
 """
 
 from flask import Blueprint, request, jsonify
+from flask_cors import cross_origin
 from database import DatabaseManager
 from datetime import datetime
 import pytz
 
-# Create blueprint
+# Create blueprint with explicit URL prefix
 admin_chatlog_bp = Blueprint('admin_chatlog', __name__, url_prefix='/admin/chat-logs')
 
 # Initialize database
@@ -17,8 +18,14 @@ db = DatabaseManager()
 # Timezone for Malaysia
 MALAYSIA_TZ = pytz.timezone('Asia/Kuala_Lumpur')
 
+print("\n" + "="*60)
+print("📋 ADMIN CHATLOG ROUTES LOADED")
+print("   Blueprint: admin_chatlog")
+print("   URL Prefix: /admin/chat-logs")
+print("="*60 + "\n")
+
 def format_timestamp(dt):
-    """Format timestamp to Malaysia timezone"""
+    """Format timestamp to Malaysia timezone string"""
     if dt is None:
         return None
     
@@ -28,14 +35,16 @@ def format_timestamp(dt):
     
     # Convert to Malaysia timezone
     malaysia_time = dt.astimezone(MALAYSIA_TZ)
+    
+    # Return formatted string: "YYYY-MM-DD HH:MM:SS"
     return malaysia_time.strftime('%Y-%m-%d %H:%M:%S')
 
 @admin_chatlog_bp.route('', methods=['GET'])
 def list_chat_logs():
     """
-    List all chat logs with pagination
+    List all chat logs with pagination and real-time support
     Query params:
-    - limit: number of records (default: 100)
+    - limit: number of records (default: 10000 for full sync)
     - offset: starting position (default: 0)
     - search: search term for messages, session_id, or user_id
     
@@ -49,7 +58,7 @@ def list_chat_logs():
     """
     try:
         # Parse query parameters
-        limit = int(request.args.get('limit', 100))
+        limit = int(request.args.get('limit', 10000))
         offset = int(request.args.get('offset', 0))
         search = request.args.get('search', '').strip()
         
@@ -79,16 +88,17 @@ def list_chat_logs():
                 OR bot_response LIKE %s 
                 OR session_id LIKE %s
                 OR CAST(id_user AS CHAR) LIKE %s
+                OR CAST(id_log AS CHAR) LIKE %s
             """
             search_param = f"%{search}%"
-            params = [search_param, search_param, search_param, search_param]
+            params = [search_param, search_param, search_param, search_param, search_param]
         
         # Get total count
         count_query = f"SELECT COUNT(*) as total FROM chat_logs {where_clause}"
         cursor.execute(count_query, params)
         total = cursor.fetchone()['total']
         
-        # Get paginated results
+        # Get paginated results - order by created_at DESC for most recent first
         query = f"""
             SELECT 
                 id_log,
@@ -106,7 +116,7 @@ def list_chat_logs():
         cursor.execute(query, params + [limit, offset])
         rows = cursor.fetchall()
         
-        # Format timestamps
+        # Format timestamps using Malaysia timezone
         logs = []
         for row in rows:
             log = dict(row)
@@ -211,7 +221,8 @@ def get_chat_log(log_id):
             "error": str(e)
         }), 500
 
-@admin_chatlog_bp.route('/<int:log_id>', methods=['DELETE'])
+@admin_chatlog_bp.route('/<int:log_id>', methods=['DELETE', 'OPTIONS'])
+@cross_origin()
 def delete_chat_log(log_id):
     """
     Delete a chat log by ID
@@ -226,54 +237,103 @@ def delete_chat_log(log_id):
         "id": 123
     }
     """
+    # Handle OPTIONS request for CORS preflight
+    if request.method == 'OPTIONS':
+        return '', 204
+    
+    print(f"\n{'='*60}")
+    print(f"🗑️ DELETE REQUEST for chat log: {log_id}")
+    print(f"   Method: {request.method}")
+    print(f"   Origin: {request.headers.get('Origin', 'N/A')}")
+    print(f"{'='*60}")
+    
     try:
         # Ensure database connection
         if not db.connection or not db.connection.is_connected():
+            print("⚠️ Database not connected, reconnecting...")
             if not db.connect():
+                print("❌ Database connection failed")
                 return jsonify({
                     "success": False,
                     "error": "Database connection failed"
                 }), 500
+            print("✅ Database connected")
         
         cursor = db.connection.cursor()
         
-        # Check if log exists
+        # Check if log exists first
+        print(f"1️⃣ Checking if log {log_id} exists...")
         cursor.execute("SELECT id_log FROM chat_logs WHERE id_log = %s", (log_id,))
-        if not cursor.fetchone():
+        existing = cursor.fetchone()
+        
+        if not existing:
             cursor.close()
+            print(f"❌ Chat log {log_id} NOT FOUND in database")
             return jsonify({
                 "success": False,
                 "error": "Chat log not found"
             }), 404
         
+        print(f"✅ Chat log {log_id} exists: {existing}")
+        
         # Delete the log
+        print(f"2️⃣ Deleting chat log {log_id}...")
         cursor.execute("DELETE FROM chat_logs WHERE id_log = %s", (log_id,))
+        deleted_rows = cursor.rowcount
+        
+        print(f"   Rows affected: {deleted_rows}")
+        
+        # Commit the transaction
+        print(f"3️⃣ Committing transaction...")
         db.connection.commit()
+        print("✅ Transaction committed")
+        
         cursor.close()
         
-        print(f"✅ Successfully deleted chat log {log_id}")
-        
-        return jsonify({
-            "success": True,
-            "deleted": True,
-            "id": log_id
-        })
+        if deleted_rows > 0:
+            print(f"✅ Successfully deleted chat log {log_id}")
+            print(f"{'='*60}\n")
+            
+            return jsonify({
+                "success": True,
+                "deleted": True,
+                "id": log_id
+            }), 200
+        else:
+            print(f"⚠️ No rows deleted for log {log_id} (rowcount=0)")
+            print(f"{'='*60}\n")
+            
+            return jsonify({
+                "success": False,
+                "error": "Failed to delete chat log (no rows affected)"
+            }), 500
         
     except Exception as e:
-        print(f"❌ Error deleting chat log {log_id}: {e}")
+        print(f"❌ ERROR deleting chat log {log_id}:")
+        print(f"   Error type: {type(e).__name__}")
+        print(f"   Error message: {str(e)}")
+        
         import traceback
+        print("   Full traceback:")
         traceback.print_exc()
         
         # Rollback on error
         if db.connection:
-            db.connection.rollback()
+            try:
+                db.connection.rollback()
+                print("🔄 Transaction rolled back")
+            except Exception as rollback_error:
+                print(f"⚠️ Rollback failed: {rollback_error}")
+        
+        print(f"{'='*60}\n")
         
         return jsonify({
             "success": False,
             "error": str(e)
         }), 500
 
-@admin_chatlog_bp.route('/bulk-delete', methods=['POST'])
+@admin_chatlog_bp.route('/bulk-delete', methods=['POST', 'OPTIONS'])
+@cross_origin()
 def bulk_delete_chat_logs():
     """
     Delete multiple chat logs
@@ -302,6 +362,7 @@ def bulk_delete_chat_logs():
         
         # Ensure database connection
         if not db.connection or not db.connection.is_connected():
+            print("⚠️ Database not connected, reconnecting...")
             if not db.connect():
                 return jsonify({
                     "success": False,
@@ -313,6 +374,7 @@ def bulk_delete_chat_logs():
         deleted_count = 0
         failed = []
         
+        # Delete each log
         for log_id in ids:
             try:
                 cursor.execute("DELETE FROM chat_logs WHERE id_log = %s", (log_id,))
@@ -323,6 +385,7 @@ def bulk_delete_chat_logs():
             except Exception as e:
                 failed.append({"id": log_id, "reason": str(e)})
         
+        # Commit all deletes
         db.connection.commit()
         cursor.close()
         
@@ -341,7 +404,11 @@ def bulk_delete_chat_logs():
         
         # Rollback on error
         if db.connection:
-            db.connection.rollback()
+            try:
+                db.connection.rollback()
+                print("🔄 Transaction rolled back")
+            except:
+                pass
         
         return jsonify({
             "success": False,
@@ -434,73 +501,6 @@ def get_chat_stats():
         print(f"❌ Error getting chat stats: {e}")
         import traceback
         traceback.print_exc()
-        return jsonify({
-            "success": False,
-            "error": str(e)
-        }), 500
-
-@admin_chatlog_bp.route('/clear-old', methods=['POST'])
-def clear_old_logs():
-    """
-    Clear chat logs older than specified days
-    
-    Request body:
-    {
-        "days": 30
-    }
-    
-    Returns:
-    {
-        "success": true,
-        "deleted_count": 50
-    }
-    """
-    try:
-        data = request.get_json() or {}
-        days = int(data.get('days', 30))
-        
-        if days < 1:
-            return jsonify({
-                "success": False,
-                "error": "Days must be at least 1"
-            }), 400
-        
-        # Ensure database connection
-        if not db.connection or not db.connection.is_connected():
-            if not db.connect():
-                return jsonify({
-                    "success": False,
-                    "error": "Database connection failed"
-                }), 500
-        
-        cursor = db.connection.cursor()
-        
-        # Delete old logs
-        cursor.execute("""
-            DELETE FROM chat_logs 
-            WHERE created_at < DATE_SUB(NOW(), INTERVAL %s DAY)
-        """, (days,))
-        
-        deleted_count = cursor.rowcount
-        db.connection.commit()
-        cursor.close()
-        
-        print(f"✅ Cleared {deleted_count} logs older than {days} days")
-        
-        return jsonify({
-            "success": True,
-            "deleted_count": deleted_count
-        })
-        
-    except Exception as e:
-        print(f"❌ Error clearing old logs: {e}")
-        import traceback
-        traceback.print_exc()
-        
-        # Rollback on error
-        if db.connection:
-            db.connection.rollback()
-        
         return jsonify({
             "success": False,
             "error": str(e)

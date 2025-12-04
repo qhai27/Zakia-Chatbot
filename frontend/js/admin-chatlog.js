@@ -1,12 +1,13 @@
 // =========================
-// ADMIN CHAT LOG HANDLER - UPDATED (FIXED DELETE + BULK DELETE + TIMEZONE)
+// ADMIN CHAT LOG HANDLER - FIXED (Real-time + Delete + Timezone)
 // =========================
 
 (function () {
     document.addEventListener('DOMContentLoaded', () => {
         const CONFIG = {
             API_BASE: 'http://127.0.0.1:5000/admin/chat-logs',
-            PAGE_SIZE: 50
+            PAGE_SIZE: 50,
+            AUTO_REFRESH_INTERVAL: 30000 // Auto-refresh every 30 seconds
         };
 
         const DOM = {
@@ -18,9 +19,10 @@
             chatlogPagination: document.getElementById('chatlogPagination'),
             exportChatLogsBtn: document.getElementById('exportChatLogsBtn'),
             printChatLogsBtn: document.getElementById('printChatLogsBtn'),
-            clearAllLogsBtn: document.getElementById('clearAllLogsBtn'),
             statsTotal: document.getElementById('statsChatTotal'),
-            totalChatLogs: document.getElementById('totalChatLogs')
+            totalChatLogs: document.getElementById('totalChatLogs'),
+            selectAllCheckbox: document.getElementById('selectAllCheckbox'),
+            bulkDeleteBtn: document.getElementById('bulkDeleteBtn')
         };
 
         let STATE = {
@@ -29,7 +31,8 @@
             currentPage: 1,
             totalPages: 1,
             isLoading: false,
-            selectedLogs: new Set()
+            selectedLogs: new Set(),
+            autoRefreshTimer: null
         };
 
         const UIManager = {
@@ -55,23 +58,32 @@
                     .replaceAll('>', '&gt;');
             },
 
-            // Timezone fix for MySQL timestamp (format B: "YYYY-MM-DD HH:MM:SS")
+            // Fix timezone formatting for MySQL timestamp from backend
             formatDate(dateStr) {
                 if (!dateStr) return 'N/A';
-
-                // Convert "YYYY-MM-DD HH:MM:SS" -> "YYYY-MM-DDTHH:MM:SSZ" to force UTC parsing
-                const fixedStr = dateStr.includes('T') ? dateStr : dateStr.replace(' ', 'T') + 'Z';
-                const date = new Date(fixedStr);
-
-                return date.toLocaleString('ms-MY', {
-                    timeZone: 'Asia/Kuala_Lumpur',
-                    day: '2-digit',
-                    month: 'short',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit'
-                });
+                
+                try {
+                    // Backend already returns formatted Malaysia time string
+                    // Format: "YYYY-MM-DD HH:MM:SS"
+                    // Just parse and display nicely
+                    const parts = dateStr.match(/(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})/);
+                    if (parts) {
+                        const [, year, month, day, hour, min, sec] = parts;
+                        
+                        // Create readable format
+                        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                                          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                        const monthName = monthNames[parseInt(month) - 1];
+                        
+                        return `${day} ${monthName} ${year}, ${hour}:${min}:${sec}`;
+                    }
+                    
+                    // Fallback: return as is
+                    return dateStr;
+                } catch (e) {
+                    console.error('Date formatting error:', e);
+                    return dateStr || 'N/A';
+                }
             },
 
             truncateText(text, maxLength = 80) {
@@ -137,7 +149,6 @@
                     </tr>
                 `}).join('');
 
-                // Attach checkbox listeners
                 this.attachCheckboxListeners();
             },
 
@@ -162,22 +173,19 @@
             },
 
             updateBulkActions() {
-                const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
-                const selectAllCheckbox = document.getElementById('selectAllCheckbox');
-                
-                if (bulkDeleteBtn) {
-                    bulkDeleteBtn.disabled = STATE.selectedLogs.size === 0;
-                    bulkDeleteBtn.innerHTML = `🗑️ Padam (${STATE.selectedLogs.size})`;
+                if (DOM.bulkDeleteBtn) {
+                    DOM.bulkDeleteBtn.disabled = STATE.selectedLogs.size === 0;
+                    DOM.bulkDeleteBtn.innerHTML = `🗑️ Padam (${STATE.selectedLogs.size})`;
                 }
                 
-                if (selectAllCheckbox) {
+                if (DOM.selectAllCheckbox) {
                     const visibleLogs = STATE.filteredLogs.slice(
                         (STATE.currentPage - 1) * CONFIG.PAGE_SIZE,
                         STATE.currentPage * CONFIG.PAGE_SIZE
                     );
                     const allSelected = visibleLogs.length > 0 && 
                         visibleLogs.every(log => STATE.selectedLogs.has(log.id_log));
-                    selectAllCheckbox.checked = allSelected;
+                    DOM.selectAllCheckbox.checked = allSelected;
                 }
             },
 
@@ -196,28 +204,23 @@
                     startPage = Math.max(1, endPage - maxVisible + 1);
                 }
 
-                // First page button
                 if (startPage > 1) {
                     pages.push(`<button class="page-btn" data-page="1">« First</button>`);
                 }
 
-                // Previous button
                 if (currentPage > 1) {
                     pages.push(`<button class="page-btn" data-page="${currentPage - 1}">‹ Prev</button>`);
                 }
 
-                // Page numbers
                 for (let i = startPage; i <= endPage; i++) {
                     const active = i === currentPage ? 'active' : '';
                     pages.push(`<button class="page-btn ${active}" data-page="${i}">${i}</button>`);
                 }
 
-                // Next button
                 if (currentPage < totalPages) {
                     pages.push(`<button class="page-btn" data-page="${currentPage + 1}">Next ›</button>`);
                 }
 
-                // Last page button
                 if (endPage < totalPages) {
                     pages.push(`<button class="page-btn" data-page="${totalPages}">Last »</button>`);
                 }
@@ -235,37 +238,14 @@
                     <div class="pagination-buttons">
                         ${pages.join('')}
                     </div>
-                    <div class="pagination-jump">
-                        <label for="pageJump">Go to page:</label>
-                        <input type="number" id="pageJump" min="1" max="${totalPages}" value="${currentPage}" />
-                        <button class="btn ghost btn-sm" id="jumpToPage">Go</button>
-                    </div>
                 `;
 
-                // Attach page button listeners
                 DOM.chatlogPagination.querySelectorAll('.page-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         const page = parseInt(btn.getAttribute('data-page'));
                         ChatLogOperations.changePage(page);
                     });
                 });
-
-                // Attach jump to page listener
-                const jumpBtn = document.getElementById('jumpToPage');
-                const pageJumpInput = document.getElementById('pageJump');
-                if (jumpBtn && pageJumpInput) {
-                    jumpBtn.addEventListener('click', () => {
-                        const page = parseInt(pageJumpInput.value);
-                        if (page >= 1 && page <= totalPages) {
-                            ChatLogOperations.changePage(page);
-                        }
-                    });
-                    pageJumpInput.addEventListener('keypress', (e) => {
-                        if (e.key === 'Enter') {
-                            jumpBtn.click();
-                        }
-                    });
-                }
             },
 
             updateStats() {
@@ -310,8 +290,14 @@
             },
 
             async deleteChatLog(id) {
-                const res = await fetch(`${CONFIG.API_BASE}/${id}`, { method: 'DELETE' });
-                if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                const res = await fetch(`${CONFIG.API_BASE}/${id}`, { 
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                if (!res.ok) {
+                    const errorData = await res.json().catch(() => ({}));
+                    throw new Error(errorData.error || `HTTP ${res.status}: ${res.statusText}`);
+                }
                 return await res.json();
             },
 
@@ -321,16 +307,21 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ ids })
                 });
-                if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                if (!res.ok) {
+                    const errorData = await res.json().catch(() => ({}));
+                    throw new Error(errorData.error || `HTTP ${res.status}: ${res.statusText}`);
+                }
                 return await res.json();
             }
         };
 
         const ChatLogOperations = {
-            async load() {
+            async load(silent = false) {
                 try {
-                    UIManager.showLoading(true);
-                    UIManager.updateStatus('⏳ Memuat chat logs...');
+                    if (!silent) {
+                        UIManager.showLoading(true);
+                        UIManager.updateStatus('⏳ Memuat chat logs...');
+                    }
 
                     const data = await APIService.fetchChatLogs();
                     STATE.logs = data.logs || [];
@@ -350,7 +341,9 @@
                     STATE.logs = [];
                     this.applyFilters();
                 } finally {
-                    UIManager.showLoading(false);
+                    if (!silent) {
+                        UIManager.showLoading(false);
+                    }
                 }
             },
 
@@ -482,27 +475,62 @@
 
             async delete(id) {
                 const log = STATE.logs.find(l => l.id_log === id);
-                if (!log) return;
+                if (!log) {
+                    console.error('Log not found in STATE:', id);
+                    alert('Chat log tidak ditemui');
+                    return;
+                }
 
                 const confirmed = confirm(
                     `⚠️ Padam chat log #${id}?\n\nUser: ${log.user_message?.substring(0, 50)}...\n\nTindakan ini tidak boleh dibatalkan.`
                 );
                 if (!confirmed) return;
 
+                console.log('Deleting chat log:', id);
+                
                 try {
                     UIManager.showLoading(true);
-                    await APIService.deleteChatLog(id);
+                    UIManager.updateStatus(`⏳ Memadam chat log #${id}...`);
+                    
+                    const result = await APIService.deleteChatLog(id);
+                    
+                    console.log('Delete result:', result);
 
-                    // REMOVE from STATE without full reload
-                    STATE.logs = STATE.logs.filter(l => l.id_log !== id);
-                    STATE.selectedLogs.delete(id);
+                    if (result && result.success && result.deleted) {
+                        console.log('✅ Delete successful, removing from UI');
+                        
+                        // Remove from STATE
+                        const beforeCount = STATE.logs.length;
+                        STATE.logs = STATE.logs.filter(l => l.id_log !== id);
+                        const afterCount = STATE.logs.length;
+                        
+                        console.log(`Removed from STATE: ${beforeCount} -> ${afterCount}`);
+                        
+                        STATE.selectedLogs.delete(id);
 
-                    // Re-apply filters + render current page
-                    this.applyFilters();
-                    UIManager.updateStatus('✅ Chat log berjaya dipadam');
+                        // Re-apply filters and render
+                        this.applyFilters();
+                        UIManager.updateStatus(`✅ Chat log #${id} berjaya dipadam`);
+                        UIManager.updateStats();
+                    } else {
+                        console.error('Delete failed - invalid response:', result);
+                        throw new Error(result?.error || 'Delete operation failed');
+                    }
                 } catch (error) {
-                    console.error('Delete error:', error);
+                    console.error('❌ Delete error:', error);
+                    console.error('Error details:', {
+                        message: error.message,
+                        stack: error.stack
+                    });
+                    
                     UIManager.updateStatus(`❌ Gagal memadam: ${error.message}`, true);
+                    
+                    // Show detailed error to user
+                    alert(`Gagal memadam chat log:\n${error.message}\n\nSila semak console untuk maklumat lanjut.`);
+                    
+                    // Reload to sync with server
+                    console.log('Reloading data to sync with server...');
+                    await this.load();
                 } finally {
                     UIManager.showLoading(false);
                 }
@@ -520,35 +548,39 @@
                     UIManager.showLoading(true);
                     const ids = Array.from(STATE.selectedLogs);
                     
-                    // Use bulk endpoint when available
-                    await APIService.bulkDeleteChatLogs(ids);
+                    const result = await APIService.bulkDeleteChatLogs(ids);
                     
-                    // REMOVE from STATE without full reload
-                    STATE.logs = STATE.logs.filter(l => !ids.includes(l.id_log));
-                    STATE.selectedLogs.clear();
+                    if (result.success) {
+                        // Remove from STATE
+                        STATE.logs = STATE.logs.filter(l => !ids.includes(l.id_log));
+                        STATE.selectedLogs.clear();
 
-                    this.applyFilters();
-                    UIManager.updateStatus(`✅ ${ids.length} chat logs berjaya dipadam`);
+                        this.applyFilters();
+                        UIManager.updateStatus(`✅ ${result.deleted_count} chat logs berjaya dipadam`);
+                        UIManager.updateStats();
+                    } else {
+                        throw new Error('Bulk delete failed');
+                    }
                 } catch (error) {
                     console.error('Bulk delete error:', error);
                     UIManager.updateStatus(`❌ Gagal memadam: ${error.message}`, true);
+                    // Reload to sync with server
+                    await this.load();
                 } finally {
                     UIManager.showLoading(false);
                 }
             },
 
             toggleSelectAll() {
-                const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+                const selectAllCheckbox = DOM.selectAllCheckbox;
                 const visibleLogs = STATE.filteredLogs.slice(
                     (STATE.currentPage - 1) * CONFIG.PAGE_SIZE,
                     STATE.currentPage * CONFIG.PAGE_SIZE
                 );
 
                 if (selectAllCheckbox.checked) {
-                    // Select all visible
                     visibleLogs.forEach(log => STATE.selectedLogs.add(log.id_log));
                 } else {
-                    // Deselect all visible
                     visibleLogs.forEach(log => STATE.selectedLogs.delete(log.id_log));
                 }
 
@@ -587,6 +619,25 @@
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
+            },
+
+            startAutoRefresh() {
+                // Clear existing timer
+                if (STATE.autoRefreshTimer) {
+                    clearInterval(STATE.autoRefreshTimer);
+                }
+
+                // Set up auto-refresh
+                STATE.autoRefreshTimer = setInterval(() => {
+                    this.load(true); // Silent reload
+                }, CONFIG.AUTO_REFRESH_INTERVAL);
+            },
+
+            stopAutoRefresh() {
+                if (STATE.autoRefreshTimer) {
+                    clearInterval(STATE.autoRefreshTimer);
+                    STATE.autoRefreshTimer = null;
+                }
             }
         };
 
@@ -707,17 +758,15 @@
                 }
 
                 // Select All
-                const selectAllCheckbox = document.getElementById('selectAllCheckbox');
-                if (selectAllCheckbox) {
-                    selectAllCheckbox.addEventListener('change', () => {
+                if (DOM.selectAllCheckbox) {
+                    DOM.selectAllCheckbox.addEventListener('change', () => {
                         ChatLogOperations.toggleSelectAll();
                     });
                 }
 
                 // Bulk Delete
-                const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
-                if (bulkDeleteBtn) {
-                    bulkDeleteBtn.addEventListener('click', () => {
+                if (DOM.bulkDeleteBtn) {
+                    DOM.bulkDeleteBtn.addEventListener('click', () => {
                         ChatLogOperations.bulkDelete();
                     });
                 }
@@ -738,6 +787,38 @@
                         }
                     });
                 }
+
+                // Navigation handler - start auto-refresh when chatlog section is active
+                const navItems = document.querySelectorAll('.nav-item');
+                navItems.forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        const section = item.getAttribute('data-section');
+                        
+                        if (section === 'chatlog') {
+                            // Load chat logs when section is opened
+                            setTimeout(() => {
+                                ChatLogOperations.load();
+                                ChatLogOperations.startAutoRefresh();
+                            }, 100);
+                        } else {
+                            // Stop auto-refresh when leaving chatlog section
+                            ChatLogOperations.stopAutoRefresh();
+                        }
+                    });
+                });
+
+                // Stop auto-refresh when page is hidden
+                document.addEventListener('visibilitychange', () => {
+                    if (document.hidden) {
+                        ChatLogOperations.stopAutoRefresh();
+                    } else {
+                        // Restart if chatlog section is active
+                        const chatlogSection = document.getElementById('chatlogSection');
+                        if (chatlogSection && chatlogSection.style.display !== 'none') {
+                            ChatLogOperations.startAutoRefresh();
+                        }
+                    }
+                });
             }
         };
 
@@ -747,7 +828,11 @@
         // Make available globally
         window.ChatLogOperations = ChatLogOperations;
 
-        // Initial load
-        ChatLogOperations.load();
+        // Check if chatlog section is initially active
+        const chatlogSection = document.getElementById('chatlogSection');
+        if (chatlogSection && chatlogSection.style.display !== 'none') {
+            ChatLogOperations.load();
+            ChatLogOperations.startAutoRefresh();
+        }
     });
 })();
