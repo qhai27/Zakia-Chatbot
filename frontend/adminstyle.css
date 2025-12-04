@@ -1058,7 +1058,7 @@ mark {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--lznk-green);
+    background: linear-gradient(135deg, #2db760 20%, #1d7b41 100%);
     color: white;
     border-radius: 12px;
     font-size: 24px;

@@ -18,7 +18,7 @@
   <div class="chatbox" role="region" aria-label="ZAKIA Chatbot">
     <div class="header">
       <div class="header-left">
-        <img src="zakia-avatar.png" class="avatar" alt="ZAKIA">
+        <img src="images/zakia-avatar.png" class="avatar" alt="ZAKIA">
         <div class="header-text">
           <h3>ZAKIA</h3>
           <p>LZNK Chat Support</p>
@@ -28,8 +28,15 @@
     </div>
 
     <div class="end-chat-section">
-      <button id="endChat" class="btn-end" title="End Chat">End Chat</button>
-    </div>
+    <h5 class="end-chat-text">
+        Perbualan anda mungkin direkod dan disimpan bagi tujuan pemantauan kualiti perkhidmatan dan penambahbaikan sistem.
+    </h5>
+
+    <button id="endChat" class="btn-end" title="End Chat">
+        <img src="images/endchat.png" alt="End Chat" class="end-chat-icon">
+    </button>
+  </div>
+
 
     <div class="chat-container">
       <div class="date-indicator">
@@ -38,7 +45,7 @@
 
       <div id="messages" class="messages" aria-live="polite" aria-relevant="additions">
         <div class="msg bot">
-          <img src="zakia-avatar.png" class="msg-avatar" alt="ZAKIA">
+          <img src="images/zakia-avatar.png" class="msg-avatar" alt="ZAKIA">
           <div class="bubble bot-bubble">
             <p>Assalamualaikum dan salam sejahtera! 👋 Saya Zakia, pembantu maya dari Lembaga Zakat Negeri Kedah (LZNK).</p>
             <p>Saya boleh membantu anda dengan:</p>
@@ -51,7 +58,7 @@
       </div>
 
       <div id="typing" class="typing hidden">
-        <img src="zakia-avatar.png" class="msg-avatar" alt="ZAKIA">
+        <img src="images/zakia-avatar.png" class="msg-avatar" alt="ZAKIA">
         <div class="typing-bubble">
           <span class="dot"></span><span class="dot"></span><span class="dot"></span>
         </div>
@@ -68,7 +75,7 @@
     <div class="input-area">
       <textarea id="userInput" rows="1" placeholder="Tulis mesej anda… (Contoh: 'kira zakat pendapatan')" autocomplete="off"></textarea>
       <button id="sendBtn" class="btn-send" aria-label="Hantar" title="Hantar">
-        <img src="buttonsend.png" alt="Hantar" class="send-icon">
+        <img src="images/buttonsend.png" alt="Hantar" class="send-icon">
       </button>
     </div>
   </div>

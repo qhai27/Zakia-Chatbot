@@ -74,7 +74,7 @@ if (!window.ZakiaChatbot) {
             const widget = document.createElement('div');
             widget.id = 'chatWidget';
             widget.innerHTML = `
-                <img src="zakia-avatar.png" alt="ZAKIA" class="widget-avatar">
+                <img src="images/zakia-avatar.png" alt="ZAKIA" class="widget-avatar">
                 <div class="widget-content">
                     <div class="widget-title">ZAKIA</div>
                     <div class="widget-subtitle">Nak tanya soalan?</div>
@@ -106,7 +106,7 @@ if (!window.ZakiaChatbot) {
 
             if (sender === 'bot') {
                 msg.innerHTML = `
-                    <img src="zakia-avatar.png" class="msg-avatar" alt="ZAKIA">
+                    <img src="images/zakia-avatar.png" class="msg-avatar" alt="ZAKIA">
                     <div class="bubble-container">
                         <div class="bubble bot-bubble">${content}</div>
                         <div class="msg-time">${timeString}</div>
