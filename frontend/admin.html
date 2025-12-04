@@ -2,40 +2,47 @@
 <html lang="ms">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Admin - FAQ & Reminder Manager</title>
-    <link rel="stylesheet" href="adminstyle.css" />
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="adminstyle.css">
+
+    <!-- Scripts -->
     <script src="js/admin-faq.js" defer></script>
     <script src="js/admin-reminder.js" defer></script>
     <script src="js/admin-chatlog.js" defer></script>
 </head>
 
 <body>
+
     <div class="admin-layout">
-        <!-- Sidebar -->
+
+        <!-- ======================= SIDEBAR ======================= -->
         <aside class="sidebar">
+
+            <!-- Sidebar Header -->
             <div class="sidebar-header">
-                <img src="images/zakia-avatar.png" alt="ZAKIA" class="sidebar-logo" />
+                <img src="images/zakia-avatar.png" alt="ZAKIA" class="sidebar-logo">
                 <h2>ZAKIA Admin</h2>
                 <p>Management Panel</p>
             </div>
 
+            <!-- Sidebar Menu -->
             <nav class="sidebar-nav">
                 <a href="#" class="nav-item active" data-section="faqs">
-                    <span class="nav-icon">📋</span>
-                    <span> Senarai FAQ</span>
+                    <span class="nav-icon">📋</span> <span>Senarai FAQ</span>
                 </a>
                 <a href="#" class="nav-item" data-section="reminders">
-                    <span class="nav-icon">🔔</span>
-                    <span>Peringatan</span>
+                    <span class="nav-icon">🔔</span> <span>Peringatan</span>
                 </a>
                 <a href="#" class="nav-item" data-section="chatlog">
-                    <span class="nav-icon">💬</span>
-                    <span>Sejarah ChatLog</span>
+                    <span class="nav-icon">💬</span> <span>Sejarah ChatLog</span>
                 </a>
             </nav>
 
+            <!-- Sidebar Stats -->
             <div class="sidebar-footer">
                 <div class="stats-box">
                     <div class="stat-item">
@@ -56,12 +63,19 @@
                     </div>
                 </div>
             </div>
-        </aside>
 
-        <!-- Main Content -->
+        </aside>
+        <!-- ===================== END SIDEBAR ====================== -->
+
+
+        <!-- ====================== MAIN CONTENT ===================== -->
         <main class="main-content">
-            <!-- FAQ Section -->
-            <div id="faqSection" class="content-section active">
+
+
+            <!-- ====================== FAQ SECTION ======================= -->
+            <section id="faqSection" class="content-section active">
+
+                <!-- Header -->
                 <header class="content-header">
                     <div class="header-left">
                         <h1>FAQ Manager</h1>
@@ -72,24 +86,30 @@
                     </div>
                 </header>
 
+                <!-- Toolbar -->
                 <div class="toolbar">
-                    <input id="search" class="admin-input search" placeholder="🔍 Cari soalan atau kategori..." />
+                    <input id="search" class="admin-input search" placeholder="🔍 Cari soalan atau kategori...">
                     <button id="refresh" class="btn ghost">🔄 Refresh</button>
                     <button id="editCategoriesBtn" class="btn ghost">✏️ Edit Kategori</button>
                 </div>
 
+                <!-- Add/Edit Form -->
                 <div id="formSection" class="form-section" style="display:none;">
+
+                    <!-- Form Header -->
                     <div class="form-header">
                         <h3 id="formTitle">Tambah FAQ</h3>
-                        <button id="cancelForm" class="btn-close" title="Tutup">✖</button>
+                        <button id="cancelForm" class="btn-close">✖</button>
                     </div>
 
+                    <!-- Form Body -->
                     <div class="form-body">
+
                         <div class="form-row">
                             <div class="form-group">
                                 <label>Soalan <span class="required">*</span></label>
-                                <textarea id="question" class="admin-textarea" placeholder="Masukkan soalan di sini..."
-                                    rows="3"></textarea>
+                                <textarea id="question" class="admin-textarea" rows="3"
+                                    placeholder="Masukkan soalan di sini..."></textarea>
                             </div>
                         </div>
 
@@ -97,8 +117,8 @@
                             <div class="form-group">
                                 <label>Kategori</label>
                                 <div id="categoryRadios" class="category-pills"></div>
-                                <input id="category" class="admin-input" placeholder="Masukkan kategori baru..."
-                                    style="display:none;margin-top:8px;" />
+                                <input id="category" class="admin-input" style="display:none;margin-top:8px;"
+                                    placeholder="Masukkan kategori baru...">
                             </div>
                         </div>
 
@@ -106,25 +126,28 @@
                             <div class="form-group">
                                 <label>
                                     Jawapan <span class="required">*</span>
-                                    <button id="addLinkBtn" type="button" class="btn-link-tool" title="Tambah pautan">🔗
-                                        Tambah Pautan</button>
+                                    <button id="addLinkBtn" type="button" class="btn-link-tool">🔗 Tambah Pautan</button>
                                 </label>
-                                <textarea id="answer" class="admin-textarea"
-                                    placeholder="Masukkan jawapan yang lengkap dan jelas..." rows="6"></textarea>
-                                <small class="form-hint">Tip: Gunakan butang "Tambah Pautan" untuk memasukkan URL ke
-                                    dalam jawapan.</small>
+                                <textarea id="answer" class="admin-textarea" rows="6"
+                                    placeholder="Masukkan jawapan yang lengkap dan jelas..."></textarea>
+                                <small class="form-hint">
+                                    Tip: Gunakan butang "Tambah Pautan" untuk memasukkan URL ke dalam jawapan.
+                                </small>
                             </div>
                         </div>
 
                         <div id="formHint" class="form-message"></div>
                     </div>
 
+                    <!-- Form Footer -->
                     <div class="form-footer">
                         <button id="cancelFormBtn" class="btn ghost">✖️ Batal</button>
                         <button id="saveFaq" class="btn primary">💾 Simpan</button>
                     </div>
+
                 </div>
 
+                <!-- FAQ Table -->
                 <div class="table-container">
                     <table class="table">
                         <thead>
@@ -137,17 +160,24 @@
                         </thead>
                         <tbody id="faqTableBody"></tbody>
                     </table>
+
                     <div id="emptyState" class="empty-state" style="display:none;">
                         <div class="empty-icon">📭</div>
                         <p>Tiada rekod ditemui</p>
-                        <button class="btn primary" onclick="document.getElementById('newFaqBtn').click()">Tambah FAQ
-                            Pertama</button>
+                        <button class="btn primary" onclick="document.getElementById('newFaqBtn').click()">
+                            Tambah FAQ Pertama
+                        </button>
                     </div>
                 </div>
-            </div>
 
-            <!-- Reminders Section -->
-            <div id="remindersSection" class="content-section" style="display:none;">
+            </section>
+            <!-- ==================== END FAQ SECTION ==================== -->
+
+
+            <!-- =================== REMINDERS SECTION ==================== -->
+            <section id="remindersSection" class="content-section" style="display:none;">
+
+                <!-- Header -->
                 <header class="content-header">
                     <div class="header-left">
                         <h1>🔔 Reminder Management</h1>
@@ -159,42 +189,136 @@
                     </div>
                 </header>
 
-                <!-- Reminder Stats Cards -->
-                <div class="stats-cards">
-                    <div class="stat-card">
-                        <div class="stat-card-icon">👥</div>
-                        <div class="stat-card-content">
-                            <div class="stat-card-label">Total Reminders</div>
-                            <div id="statsTotal" class="stat-card-value">0</div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card-icon">💰</div>
-                        <div class="stat-card-content">
-                            <div class="stat-card-label">Total Zakat Amount</div>
-                            <div id="statsTotalAmount" class="stat-card-value">RM 0.00</div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card-icon">💼</div>
-                        <div class="stat-card-content">
-                            <div class="stat-card-label">Pendapatan</div>
-                            <div id="statsPendapatan" class="stat-card-value">0</div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card-icon">🏦</div>
-                        <div class="stat-card-content">
-                            <div class="stat-card-label">Simpanan</div>
-                            <div id="statsSimpanan" class="stat-card-value">0</div>
-                        </div>
-                    </div>
-                </div>
+            <!-- Reminder Stats Cards -->
+            <div class="stats-cards">
 
-                <!-- Reminder Filters -->
+            <!-- Total Reminders -->
+            <div class="stat-card">
+                <div class="stat-card-icon">
+                    <img src="images/jumlah.png" alt="Jumlah Peringatan">
+                </div>
+                <div class="stat-card-content">
+                    <div class="stat-card-label">Jumlah Peringatan</div>
+                    <div id="statsTotal" class="stat-card-value">0</div>
+                </div>
+            </div>
+
+            <!-- Total Zakat Amount -->
+            <div class="stat-card">
+                <div class="stat-card-icon">
+                    <img src="images/kalkulator.png" alt="Jumlah Amaun">
+                </div>
+                <div class="stat-card-content">
+                    <div class="stat-card-label">Jumlah Amaun</div>
+                    <div id="statsTotalAmount" class="stat-card-value">RM 0.00</div>
+                </div>
+            </div>
+
+            <!-- Pendapatan -->
+            <div class="stat-card">
+                <div class="stat-card-icon">
+                    <img src="images/pendapatan.png" alt="Pendapatan">
+                </div>
+                <div class="stat-card-content">
+                    <div class="stat-card-label">Pendapatan</div>
+                    <div id="statsPendapatan" class="stat-card-value">0</div>
+                </div>
+            </div>
+
+            <!-- Simpanan -->
+            <div class="stat-card">
+                <div class="stat-card-icon">
+                    <img src="images/simpanan.png" alt="Simpanan">
+                </div>
+                <div class="stat-card-content">
+                    <div class="stat-card-label">Simpanan</div>
+                    <div id="statsSimpanan" class="stat-card-value">0</div>
+                </div>
+            </div>
+
+            <!-- Emas -->
+            <div class="stat-card">
+                <div class="stat-card-icon">
+                    <img src="images/emas.png" alt="Emas">
+                </div>
+                <div class="stat-card-content">
+                    <div class="stat-card-label">Emas</div>
+                    <div id="statsEmas" class="stat-card-value">0</div>
+                </div>
+            </div>
+
+            <!-- Perak -->
+            <div class="stat-card">
+                <div class="stat-card-icon">
+                    <img src="images/silver.png" alt="Perak">
+                </div>
+                <div class="stat-card-content">
+                    <div class="stat-card-label">Perak</div>
+                    <div id="statsPerak" class="stat-card-value">0</div>
+                </div>
+            </div>
+
+            <!-- Saham -->
+            <div class="stat-card">
+                <div class="stat-card-icon">
+                    <img src="images/saham.png" alt="Saham">
+                </div>
+                <div class="stat-card-content">
+                    <div class="stat-card-label">Saham</div>
+                    <div id="statsSaham" class="stat-card-value">0</div>
+                </div>
+            </div>
+
+            <!-- Padi -->
+            <div class="stat-card">
+                <div class="stat-card-icon">
+                    <img src="images/padi.png" alt="Padi">
+                </div>
+                <div class="stat-card-content">
+                    <div class="stat-card-label">Padi</div>
+                    <div id="statsPadi" class="stat-card-value">0</div>
+                </div>
+            </div>
+
+            <!-- Ternakan -->
+            <div class="stat-card">
+                <div class="stat-card-icon">
+                    <img src="images/ternakan.png" alt="Ternakan">
+                </div>
+                <div class="stat-card-content">
+                    <div class="stat-card-label">Ternakan</div>
+                    <div id="statsTernakan" class="stat-card-value">0</div>
+                </div>
+            </div>
+
+            <!-- Galian -->
+            <div class="stat-card">
+                <div class="stat-card-icon">
+                    <img src="images/galian.png" alt="Galian">
+                </div>
+                <div class="stat-card-content">
+                    <div class="stat-card-label">Galian</div>
+                    <div id="statsGalian" class="stat-card-value">0</div>
+                </div>
+            </div>
+
+            <!-- Perniagaan -->
+            <div class="stat-card">
+                <div class="stat-card-icon">
+                    <img src="images/perniagaan.png" alt="Perniagaan">
+                </div>
+                <div class="stat-card-content">
+                    <div class="stat-card-label">Perniagaan</div>
+                    <div id="statsPerniagaan" class="stat-card-value">0</div>
+                </div>
+            </div>
+
+        </div>
+
+
+                <!-- Filters -->
                 <div class="toolbar">
-                    <input id="reminderSearch" class="admin-input search"
-                        placeholder="🔍 Cari nama, IC, atau telefon..." />
+                    <input id="reminderSearch" class="admin-input search" placeholder="🔍 Cari nama, IC, atau telefon...">
                     <select id="zakatTypeFilter" class="admin-select">
                         <option value="">Semua Jenis Zakat</option>
                         <option value="pendapatan">Pendapatan</option>
@@ -203,6 +327,7 @@
                     <button id="refreshReminders" class="btn ghost">🔄 Refresh</button>
                 </div>
 
+                <!-- Table -->
                 <div class="table-container">
                     <table class="table">
                         <thead>
@@ -220,6 +345,7 @@
                         </thead>
                         <tbody id="reminderTableBody"></tbody>
                     </table>
+
                     <div id="reminderEmptyState" class="empty-state" style="display:none;">
                         <div class="empty-icon">🔔</div>
                         <p>Tiada reminder ditemui</p>
@@ -228,22 +354,27 @@
 
                 <!-- Pagination -->
                 <div id="reminderPagination" class="pagination"></div>
-            </div>
 
-            <!-- Chat Log Section - -->
-            <div id="chatlogSection" class="content-section" style="display:none;">
+            </section>
+            <!-- ================= END REMINDERS SECTION ================= -->
+
+
+            <!-- ==================== CHATLOG SECTION ===================== -->
+            <section id="chatlogSection" class="content-section" style="display:none;">
+
+                <!-- Header -->
                 <header class="content-header">
                     <div class="header-left">
                         <h1>💬 Sejarah ChatLog</h1>
                         <div id="chatlogStatus" class="status-badge">Memuat chat log...</div>
                     </div>
                     <div class="header-actions">
-                        <button id="printChatLogsBtn" class="btn primary">🖨️ Cetak </button>
+                        <button id="printChatLogsBtn" class="btn primary">🖨️ Cetak</button>
                         <button id="exportChatLogsBtn" class="btn ghost">📥 Eksport CSV</button>
                     </div>
                 </header>
 
-                <!-- Chat Log Stats -->
+                <!-- Stats -->
                 <div class="chatlog-stats">
                     <div class="chatlog-stat-card">
                         <div class="chatlog-stat-icon">💬</div>
@@ -254,29 +385,29 @@
                     </div>
                 </div>
 
-                <!-- Search and Filters -->
+                <!-- Toolbar -->
                 <div class="toolbar">
                     <input id="chatlogSearch" class="admin-input search"
-                        placeholder="🔍 Cari pesanan, session ID, atau user ID..." />
+                        placeholder="🔍 Cari pesanan, session ID, atau user ID...">
                     <button id="refreshChatLogs" class="btn ghost">🔄 Refresh</button>
                 </div>
 
                 <!-- Bulk Actions -->
                 <div class="bulk-actions">
                     <label>
-                        <input type="checkbox" id="selectAllCheckbox" />
+                        <input type="checkbox" id="selectAllCheckbox">
                         <span>Pilih Semua</span>
                     </label>
                     <button id="bulkDeleteBtn" class="btn warn" disabled>🗑️ Padam (0)</button>
                 </div>
 
-                <!-- Chat Log Table -->
+                <!-- Table -->
                 <div class="table-container">
                     <table class="table">
                         <thead>
                             <tr>
                                 <th style="width:50px;">
-                                    <input type="checkbox" id="selectAllCheckboxHeader" style="display:none;" />
+                                    <input type="checkbox" id="selectAllCheckboxHeader" style="display:none;">
                                 </th>
                                 <th style="width:70px;">ID</th>
                                 <th style="width:90px;">User ID</th>
@@ -289,44 +420,61 @@
                         </thead>
                         <tbody id="chatlogTableBody"></tbody>
                     </table>
+
                     <div id="chatlogEmptyState" class="empty-state" style="display:none;">
                         <div class="empty-icon">💬</div>
                         <p>Tiada chat log ditemui</p>
-                        <small style="color: #9ca3af;">Chat logs akan muncul di sini apabila pengguna berinteraksi dengan chatbot</small>
+                        <small style="color:#9ca3af;">
+                            Chat logs akan muncul di sini apabila pengguna berinteraksi dengan chatbot
+                        </small>
                     </div>
                 </div>
 
                 <!-- Pagination -->
                 <div id="chatlogPagination" class="pagination"></div>
-            </div>
+
+            </section>
+            <!-- ================= END CHATLOG SECTION ================== -->
+
         </main>
+        <!-- =================== END MAIN CONTENT ====================== -->
+
     </div>
 
-    <!-- Link Modal -->
+
+    <!-- ========================= MODALS ============================ -->
+
+    <!-- Insert Link Modal -->
     <div id="linkModal" class="modal" style="display:none;">
         <div class="modal-overlay"></div>
         <div class="modal-content">
+
             <div class="modal-header">
                 <h3>Tambah Pautan</h3>
-                <button class="btn-close" onclick="document.getElementById('linkModal').style.display='none'">✖</button>
+                <button class="btn-close"
+                    onclick="document.getElementById('linkModal').style.display='none'">✖</button>
             </div>
+
             <div class="modal-body">
                 <div class="form-group">
                     <label>URL <span class="required">*</span></label>
-                    <input id="linkUrl" type="text" class="admin-input" placeholder="https://example.com" />
+                    <input id="linkUrl" class="admin-input" placeholder="https://example.com">
                     <small class="form-hint">Masukkan URL lengkap (contoh: https://lznk.gov.my)</small>
                 </div>
+
                 <div class="form-group">
                     <label>Teks Pautan</label>
-                    <input id="linkText" type="text" class="admin-input" placeholder="Klik di sini" />
+                    <input id="linkText" class="admin-input" placeholder="Klik di sini">
                     <small class="form-hint">Kosongkan untuk gunakan domain sebagai teks</small>
                 </div>
             </div>
+
             <div class="modal-footer">
                 <button class="btn ghost"
                     onclick="document.getElementById('linkModal').style.display='none'">Batal</button>
                 <button id="insertLinkBtn" class="btn primary">Masukkan Pautan</button>
             </div>
+
         </div>
     </div>
 
@@ -334,19 +482,23 @@
     <div id="reminderDetailModal" class="modal" style="display:none;">
         <div class="modal-overlay"></div>
         <div class="modal-content modal-large">
+
             <div class="modal-header">
                 <h3>📋 Reminder Details</h3>
                 <button class="btn-close"
                     onclick="document.getElementById('reminderDetailModal').style.display='none'">✖</button>
             </div>
-            <div class="modal-body" id="reminderDetailBody">
-                <!-- Content loaded dynamically -->
+
+            <div id="reminderDetailBody" class="modal-body">
+                <!-- Loaded dynamically -->
             </div>
+
             <div class="modal-footer">
                 <button class="btn ghost"
                     onclick="document.getElementById('reminderDetailModal').style.display='none'">Tutup</button>
                 <button id="printSingleReminder" class="btn primary">🖨️ Print</button>
             </div>
+
         </div>
     </div>
 
@@ -354,20 +506,27 @@
     <div id="chatlogDetailModal" class="modal" style="display:none;">
         <div class="modal-overlay"></div>
         <div class="modal-content modal-large">
+
             <div class="modal-header">
                 <h3>💬 Chat Log Details</h3>
                 <button class="btn-close"
                     onclick="document.getElementById('chatlogDetailModal').style.display='none'">✖</button>
             </div>
+
             <div class="modal-body">
-                <!-- Content loaded dynamically -->
+                <!-- Loaded dynamically -->
             </div>
+
             <div class="modal-footer">
                 <button class="btn ghost"
                     onclick="document.getElementById('chatlogDetailModal').style.display='none'">Tutup</button>
             </div>
+
         </div>
     </div>
+
+    <!-- ======================= END MODALS ========================== -->
+
 </body>
 
 </html>

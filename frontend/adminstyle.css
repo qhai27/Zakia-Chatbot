@@ -1033,6 +1033,7 @@ mark {
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 16px;
     margin-bottom: 24px;
+    
 }
 
 .stat-card {
@@ -1053,16 +1054,22 @@ mark {
 }
 
 .stat-card-icon {
-    width: 48px;
-    height: 48px;
+    width: 50px;
+    height: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #2db760 20%, #1d7b41 100%);
-    color: white;
+
+    background: #e7f5ee; /* optional soft background */
     border-radius: 12px;
-    font-size: 24px;
 }
+
+.stat-card-icon img {
+    width: 40px;
+    height: 40 px;
+    object-fit: contain;
+}
+
 
 .stat-card-content {
     flex: 1;
