@@ -123,10 +123,10 @@ class ZakatHandler {
                     <p style="margin: 0;"><strong>Kaedah B:</strong> Pengiraan dengan tolakan perbelanjaan asas</p>
                 </div>
                 <div class="zakat-buttons">
-                    <button class="zakat-type-btn" data-method="kaedah_a">
+                    <button class="zakat-method-btn" data-method="kaedah_a">
                         📋 Kaedah A (Tanpa Tolakan)
                     </button>
-                    <button class="zakat-type-btn" data-method="kaedah_b">
+                    <button class="zakat-method-btn" data-method="kaedah_b">
                         📊 Kaedah B (Dengan Tolakan)
                     </button>
                     <button class="zakat-cancel-btn">
@@ -141,7 +141,7 @@ class ZakatHandler {
     }
 
     attachMethodMenuListeners() {
-        const buttons = document.querySelectorAll('.zakat-type-btn[data-method]');
+        const buttons = document.querySelectorAll('.zakat-method-btn');
         const cancelBtns = document.querySelectorAll('.zakat-cancel-btn');
 
         buttons.forEach(btn => {
@@ -436,36 +436,23 @@ class ZakatHandler {
         let shouldResetState = true;
 
         try {
-            let payload = {};
+            const payload = {
+                year: this.state.year,
+                year_type: this.state.yearType
+            };
 
-            // Build payload based on zakat type - backend expects specific parameter names
+            // Determine calculation type and payload structure
             if (this.state.type === 'income_kaedah_a') {
-                payload = {
-                    type: 'income_kaedah_a',
-                    gross_income: this.state.data.amount,
-                    year: this.state.year,
-                    year_type: this.state.yearType
-                };
+                payload.type = 'income_kaedah_a';
+                payload.amount = this.state.data.amount;
             } else if (this.state.type === 'income_kaedah_b') {
-                payload = {
-                    type: 'income_kaedah_b',
-                    annual_income: this.state.data.amount,
-                    annual_expenses: this.state.data.expenses,
-                    year: this.state.year,
-                    year_type: this.state.yearType
-                };
+                payload.type = 'income_kaedah_b';
+                payload.amount = this.state.data.amount;
+                payload.expenses = this.state.data.expenses;
             } else if (this.state.type === 'savings') {
-                payload = {
-                    type: 'savings',
-                    savings_amount: this.state.data.amount,
-                    year: this.state.year,
-                    year_type: this.state.yearType
-                };
-            } else {
-                throw new Error('Jenis zakat tidak dikenali');
+                payload.type = 'savings';
+                payload.amount = this.state.data.amount;
             }
-
-            console.log('Sending payload:', payload); // Debug log
 
             const response = await fetch(`${window.CONFIG.API_BASE_URL}/api/calculate-zakat`, {
                 method: 'POST',
@@ -474,7 +461,6 @@ class ZakatHandler {
             });
 
             const data = await response.json();
-            console.log('Received response:', data); // Debug log
 
             if (data.success) {
                 const zakatType = this.state.type;

@@ -1,5 +1,5 @@
 // =========================
-// ADMIN CHAT LOG HANDLER - FIXED (Real-time + Delete + Timezone)
+// ADMIN CHAT LOG HANDLER - WITH DATE FILTER FOR PRINT
 // =========================
 
 (function () {
@@ -7,7 +7,7 @@
         const CONFIG = {
             API_BASE: 'http://127.0.0.1:5000/admin/chat-logs',
             PAGE_SIZE: 50,
-            AUTO_REFRESH_INTERVAL: 30000 // Auto-refresh every 30 seconds
+            AUTO_REFRESH_INTERVAL: 30000
         };
 
         const DOM = {
@@ -58,27 +58,18 @@
                     .replaceAll('>', '&gt;');
             },
 
-            // Fix timezone formatting for MySQL timestamp from backend
             formatDate(dateStr) {
                 if (!dateStr) return 'N/A';
                 
                 try {
-                    // Backend already returns formatted Malaysia time string
-                    // Format: "YYYY-MM-DD HH:MM:SS"
-                    // Just parse and display nicely
                     const parts = dateStr.match(/(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})/);
                     if (parts) {
                         const [, year, month, day, hour, min, sec] = parts;
-                        
-                        // Create readable format
                         const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
                                           'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
                         const monthName = monthNames[parseInt(month) - 1];
-                        
                         return `${day} ${monthName} ${year}, ${hour}:${min}:${sec}`;
                     }
-                    
-                    // Fallback: return as is
                     return dateStr;
                 } catch (e) {
                     console.error('Date formatting error:', e);
@@ -499,7 +490,6 @@
                     if (result && result.success && result.deleted) {
                         console.log('✅ Delete successful, removing from UI');
                         
-                        // Remove from STATE
                         const beforeCount = STATE.logs.length;
                         STATE.logs = STATE.logs.filter(l => l.id_log !== id);
                         const afterCount = STATE.logs.length;
@@ -508,7 +498,6 @@
                         
                         STATE.selectedLogs.delete(id);
 
-                        // Re-apply filters and render
                         this.applyFilters();
                         UIManager.updateStatus(`✅ Chat log #${id} berjaya dipadam`);
                         UIManager.updateStats();
@@ -524,11 +513,8 @@
                     });
                     
                     UIManager.updateStatus(`❌ Gagal memadam: ${error.message}`, true);
-                    
-                    // Show detailed error to user
                     alert(`Gagal memadam chat log:\n${error.message}\n\nSila semak console untuk maklumat lanjut.`);
                     
-                    // Reload to sync with server
                     console.log('Reloading data to sync with server...');
                     await this.load();
                 } finally {
@@ -551,7 +537,6 @@
                     const result = await APIService.bulkDeleteChatLogs(ids);
                     
                     if (result.success) {
-                        // Remove from STATE
                         STATE.logs = STATE.logs.filter(l => !ids.includes(l.id_log));
                         STATE.selectedLogs.clear();
 
@@ -564,7 +549,6 @@
                 } catch (error) {
                     console.error('Bulk delete error:', error);
                     UIManager.updateStatus(`❌ Gagal memadam: ${error.message}`, true);
-                    // Reload to sync with server
                     await this.load();
                 } finally {
                     UIManager.showLoading(false);
@@ -622,14 +606,12 @@
             },
 
             startAutoRefresh() {
-                // Clear existing timer
                 if (STATE.autoRefreshTimer) {
                     clearInterval(STATE.autoRefreshTimer);
                 }
 
-                // Set up auto-refresh
                 STATE.autoRefreshTimer = setInterval(() => {
-                    this.load(true); // Silent reload
+                    this.load(true);
                 }, CONFIG.AUTO_REFRESH_INTERVAL);
             },
 
@@ -641,15 +623,179 @@
             }
         };
 
+        const DateFilterModal = {
+            show() {
+                // Create modal if doesn't exist
+                let modal = document.getElementById('printDateFilterModal');
+                if (!modal) {
+                    modal = this.createModal();
+                    document.body.appendChild(modal);
+                }
+
+                // Populate year and month options
+                this.populateYearOptions();
+                this.populateMonthOptions();
+
+                modal.style.display = 'flex';
+            },
+
+            createModal() {
+                const modal = document.createElement('div');
+                modal.id = 'printDateFilterModal';
+                modal.className = 'modal';
+                modal.innerHTML = `
+                    <div class="modal-overlay"></div>
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>🖨️ Pilih Tarikh untuk Cetak</h3>
+                            <button class="btn-close" id="closeDateFilterModal">✖</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="filterYear">Tahun:</label>
+                                <select id="filterYear" class="admin-select"></select>
+                            </div>
+                            <div class="form-group">
+                                <label for="filterMonth">Bulan:</label>
+                                <select id="filterMonth" class="admin-select">
+                                    <option value="">Semua Bulan</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="filterAllTime">
+                                    <span>Cetak semua rekod (abaikan tarikh)</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn ghost" id="cancelDateFilter">Batal</button>
+                            <button class="btn primary" id="confirmPrintWithFilter">🖨️ Cetak</button>
+                        </div>
+                    </div>
+                `;
+
+                // Attach event listeners
+                const closeBtn = modal.querySelector('#closeDateFilterModal');
+                const cancelBtn = modal.querySelector('#cancelDateFilter');
+                const confirmBtn = modal.querySelector('#confirmPrintWithFilter');
+                const overlay = modal.querySelector('.modal-overlay');
+                const allTimeCheckbox = modal.querySelector('#filterAllTime');
+                const yearSelect = modal.querySelector('#filterYear');
+                const monthSelect = modal.querySelector('#filterMonth');
+
+                const closeModal = () => {
+                    modal.style.display = 'none';
+                };
+
+                closeBtn.addEventListener('click', closeModal);
+                cancelBtn.addEventListener('click', closeModal);
+                overlay.addEventListener('click', closeModal);
+
+                // Toggle date inputs based on "all time" checkbox
+                allTimeCheckbox.addEventListener('change', (e) => {
+                    yearSelect.disabled = e.target.checked;
+                    monthSelect.disabled = e.target.checked;
+                });
+
+                confirmBtn.addEventListener('click', () => {
+                    const allTime = allTimeCheckbox.checked;
+                    const year = yearSelect.value;
+                    const month = monthSelect.value;
+
+                    if (!allTime && !year) {
+                        alert('Sila pilih tahun atau pilih "Cetak semua rekod"');
+                        return;
+                    }
+
+                    PrintManager.printWithFilter(year, month, allTime);
+                    closeModal();
+                });
+
+                return modal;
+            },
+
+            populateYearOptions() {
+                const yearSelect = document.getElementById('filterYear');
+                if (!yearSelect) return;
+
+                // Get unique years from logs
+                const years = new Set();
+                STATE.logs.forEach(log => {
+                    if (log.created_at) {
+                        const match = log.created_at.match(/(\d{4})/);
+                        if (match) {
+                            years.add(match[1]);
+                        }
+                    }
+                });
+
+                const sortedYears = Array.from(years).sort((a, b) => b - a);
+
+                yearSelect.innerHTML = '<option value="">Pilih Tahun</option>' +
+                    sortedYears.map(year => `<option value="${year}">${year}</option>`).join('');
+
+                // Set current year as default
+                const currentYear = new Date().getFullYear().toString();
+                if (sortedYears.includes(currentYear)) {
+                    yearSelect.value = currentYear;
+                }
+            },
+
+            populateMonthOptions() {
+                const monthSelect = document.getElementById('filterMonth');
+                if (!monthSelect) return;
+
+                const months = [
+                    'Januari', 'Februari', 'Mac', 'April', 'Mei', 'Jun',
+                    'Julai', 'Ogos', 'September', 'Oktober', 'November', 'Disember'
+                ];
+
+                monthSelect.innerHTML = '<option value="">Semua Bulan</option>' +
+                    months.map((month, idx) => 
+                        `<option value="${(idx + 1).toString().padStart(2, '0')}">${month}</option>`
+                    ).join('');
+            }
+        };
+
         const PrintManager = {
-            printAll() {
-                if (STATE.filteredLogs.length === 0) {
+            printWithFilter(year, month, allTime) {
+                let filteredLogs = STATE.filteredLogs;
+
+                if (!allTime) {
+                    filteredLogs = STATE.filteredLogs.filter(log => {
+                        if (!log.created_at) return false;
+
+                        const dateMatch = log.created_at.match(/(\d{4})-(\d{2})-(\d{2})/);
+                        if (!dateMatch) return false;
+
+                        const [, logYear, logMonth] = dateMatch;
+
+                        if (year && logYear !== year) return false;
+                        if (month && logMonth !== month) return false;
+
+                        return true;
+                    });
+                }
+
+                if (filteredLogs.length === 0) {
+                    alert('Tiada rekod ditemui untuk tarikh yang dipilih');
+                    return;
+                }
+
+                this.printAll(filteredLogs, year, month, allTime);
+            },
+
+            printAll(logs = null, filterYear = null, filterMonth = null, allTime = false) {
+                const logsToPrint = logs || STATE.filteredLogs;
+
+                if (logsToPrint.length === 0) {
                     alert('No chat logs to print');
                     return;
                 }
 
                 const printWindow = window.open('', '_blank');
-                const content = this.generatePrintContent(STATE.filteredLogs);
+                const content = this.generatePrintContent(logsToPrint, filterYear, filterMonth, allTime);
 
                 printWindow.document.write(content);
                 printWindow.document.close();
@@ -660,8 +806,26 @@
                 }, 500);
             },
 
-            generatePrintContent(logs) {
+            generatePrintContent(logs, filterYear, filterMonth, allTime) {
                 const now = new Date().toLocaleString('ms-MY');
+                
+                // Format filter info
+                let filterInfo = '';
+                if (!allTime) {
+                    const monthNames = [
+                        'Januari', 'Februari', 'Mac', 'April', 'Mei', 'Jun',
+                        'Julai', 'Ogos', 'September', 'Oktober', 'November', 'Disember'
+                    ];
+                    
+                    if (filterYear && filterMonth) {
+                        const monthName = monthNames[parseInt(filterMonth) - 1];
+                        filterInfo = `${monthName} ${filterYear}`;
+                    } else if (filterYear) {
+                        filterInfo = `Tahun ${filterYear}`;
+                    }
+                } else {
+                    filterInfo = 'Semua Rekod';
+                }
 
                 return `
                     <!DOCTYPE html>
@@ -673,15 +837,48 @@
                             .header { text-align: center; margin-bottom: 30px; border-bottom: 3px solid #006a4e; padding-bottom: 15px; }
                             .header h1 { color: #006a4e; margin: 0; }
                             .header p { color: #666; margin: 5px 0; }
-                            .log-item { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; page-break-inside: avoid; }
-                            .log-header { display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee; }
+                            .filter-info { 
+                                background: #f0f9ff; 
+                                padding: 12px; 
+                                border-left: 4px solid #006a4e; 
+                                margin-bottom: 20px;
+                                font-weight: 600;
+                            }
+                            .log-item { 
+                                margin: 20px 0; 
+                                padding: 15px; 
+                                border: 1px solid #ddd; 
+                                border-radius: 8px; 
+                                page-break-inside: avoid; 
+                            }
+                            .log-header { 
+                                display: flex; 
+                                justify-content: space-between; 
+                                margin-bottom: 10px; 
+                                padding-bottom: 10px; 
+                                border-bottom: 1px solid #eee; 
+                            }
                             .log-id { font-weight: bold; color: #006a4e; }
                             .log-date { color: #666; font-size: 12px; }
                             .message-section { margin: 10px 0; }
                             .message-label { font-weight: bold; color: #333; margin-bottom: 5px; }
-                            .user-message { background: #f0f9ff; padding: 10px; border-radius: 6px; margin-bottom: 10px; }
-                            .bot-message { background: #f0fdf4; padding: 10px; border-radius: 6px; }
-                            .footer { margin-top: 30px; text-align: center; color: #666; font-size: 12px; }
+                            .user-message { 
+                                background: #f0f9ff; 
+                                padding: 10px; 
+                                border-radius: 6px; 
+                                margin-bottom: 10px; 
+                            }
+                            .bot-message { 
+                                background: #f0fdf4; 
+                                padding: 10px; 
+                                border-radius: 6px; 
+                            }
+                            .footer { 
+                                margin-top: 30px; 
+                                text-align: center; 
+                                color: #666; 
+                                font-size: 12px; 
+                            }
                             @media print {
                                 body { margin: 0; }
                                 .no-print { display: none; }
@@ -694,6 +891,10 @@
                             <p>Lembaga Zakat Negeri Kedah (LZNK)</p>
                             <p>Generated: ${now}</p>
                             <p>Total Logs: ${logs.length}</p>
+                        </div>
+
+                        <div class="filter-info">
+                            📅 Tempoh: ${filterInfo}
                         </div>
 
                         ${logs.map(log => `
@@ -750,10 +951,10 @@
                     });
                 }
 
-                // Print
+                // Print - now shows date filter modal
                 if (DOM.printChatLogsBtn) {
                     DOM.printChatLogsBtn.addEventListener('click', () => {
-                        PrintManager.printAll();
+                        DateFilterModal.show();
                     });
                 }
 
@@ -788,20 +989,18 @@
                     });
                 }
 
-                // Navigation handler - start auto-refresh when chatlog section is active
+                // Navigation handler
                 const navItems = document.querySelectorAll('.nav-item');
                 navItems.forEach(item => {
                     item.addEventListener('click', (e) => {
                         const section = item.getAttribute('data-section');
                         
                         if (section === 'chatlog') {
-                            // Load chat logs when section is opened
                             setTimeout(() => {
                                 ChatLogOperations.load();
                                 ChatLogOperations.startAutoRefresh();
                             }, 100);
                         } else {
-                            // Stop auto-refresh when leaving chatlog section
                             ChatLogOperations.stopAutoRefresh();
                         }
                     });
@@ -812,7 +1011,6 @@
                     if (document.hidden) {
                         ChatLogOperations.stopAutoRefresh();
                     } else {
-                        // Restart if chatlog section is active
                         const chatlogSection = document.getElementById('chatlogSection');
                         if (chatlogSection && chatlogSection.style.display !== 'none') {
                             ChatLogOperations.startAutoRefresh();

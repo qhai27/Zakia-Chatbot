@@ -17,6 +17,48 @@
     margin-top: 12px;
 }
 
+/* Method Info Box */
+.zakat-method-info {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    font-size: 0.9em;
+    border: 2px solid #5DB996;
+    box-shadow: 0 2px 8px rgba(93, 185, 150, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.zakat-method-info::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.zakat-method-info p {
+    margin: 0 0 10px 0;
+    line-height: 1.6;
+    color: #1f2937;
+    position: relative;
+    z-index: 1;
+}
+
+.zakat-method-info p:last-child {
+    margin-bottom: 0;
+}
+
+.zakat-method-info strong {
+    color: #157347;
+    font-weight: 700;
+    font-size: 1.05em;
+}
+
 /* Main Zakat Type Buttons */
 .zakat-type-btn {
     /* Layout & Sizing */
@@ -598,6 +640,11 @@
     
     .btn-recalculate {
         width: 100%;
+    }
+    
+    .zakat-method-info {
+        padding: 12px;
+        font-size: 0.85em;
     }
 }
 

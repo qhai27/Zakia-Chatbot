@@ -65,16 +65,10 @@ class ReminderHandler {
     showPermissionPrompt() {
         const html = `
             <div class="reminder-prompt">
-                <p style="margin-bottom: 16px; font-weight: 600; color: #2d3748;">
-                    ${this.prompts.permission}
-                </p>
+                <p>${this.prompts.permission}</p>
                 <div class="reminder-buttons">
-                    <button class="reminder-btn yes-btn" data-answer="yes">
-                        ✅ Ya, saya mahu peringatan
-                    </button>
-                    <button class="reminder-btn no-btn" data-answer="no">
-                        ❌ Tidak, terima kasih
-                    </button>
+                    <button class="reminder-btn yes-btn" data-answer="yes"> ✅ Ya, saya mahu peringatan </button>
+                    <button class="reminder-btn no-btn" data-answer="no"> ❌ Tidak, terima kasih </button>
                 </div>
             </div>
         `;

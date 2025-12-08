@@ -1,10 +1,20 @@
-/* Reminder Flow Styles - Add to your existing CSS */
+/* Reminder Flow Styles */
 
 .reminder-prompt {
     padding: 16px;
     background: linear-gradient(135deg, #f6f8fb 0%, #ffffff 100%);
     border-radius: 12px;
     border: 1px solid #e2e8f0;
+    display: grid;
+}
+
+.reminder-prompt p {
+
+    justify-content: center;
+    text-align: center;
+    font-weight: 600; 
+    color: #0e5b2bff;
+    margin: 0;
 }
 
 .reminder-buttons {
