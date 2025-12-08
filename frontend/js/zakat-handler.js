@@ -118,10 +118,39 @@ class ZakatHandler {
         const menuHTML = `
             <div class="zakat-menu">
                 <p style="margin-bottom: 16px; font-weight: 600;">💼 Pilih kaedah pengiraan zakat pendapatan:</p>
-                <div class="zakat-method-info" style="background: #f0f9ff; padding: 12px; border-radius: 8px; margin-bottom: 12px; font-size: 0.9em;">
-                    <p style="margin: 0 0 8px 0;"><strong>Kaedah A:</strong> Pengiraan tanpa tolakan perbelanjaan (pendapatan kasar)</p>
-                    <p style="margin: 0;"><strong>Kaedah B:</strong> Pengiraan dengan tolakan perbelanjaan asas</p>
-                </div>
+                
+                
+<div class="zakat-method-info" style="background:#f3f7f4; padding:8px; border-radius:6px; font-size:1em; color:#1a1a1a; line-height:1.2; display:inline-block;">
+
+    <!-- Kaedah A -->
+    <strong>Kaedah A (Disyorkan) ⭐</strong><br>
+    📌 Pengiraan tanpa tolakan (pendapatan kasar)<br>
+    <span style="font-size:0.95em;">
+        • ⚡ Mudah & cepat  
+        • 🛡️ Kurang risiko silap  
+        • 📘 Selaras majoriti fatwa
+    </span><br>
+    <span style="font-size:0.95em;"><strong>Formula:</strong> (Pendapatan Kasar Tahunan × 2.5%)</span>
+
+    <div style="border-top:1px solid #c5d3c7; margin:4px 0;"></div>
+
+    <!-- Kaedah B -->
+    <strong>Kaedah B 🧮</strong><br>
+    📌 Selepas tolak perbelanjaan asas<br>
+    <span style="font-size:0.95em;">
+        • 👍 Sesuai jika perbelanjaan asas tinggi  
+        • 📌 Perlu teliti antara keperluan & kehendak
+    </span><br>
+    <span style="font-size:0.95em;"><strong>Formula:</strong> (Pendapatan – Perbelanjaan Asas) × 2.5%</span>
+
+    <!-- Cadangan -->
+    <div style="margin-top:4px; padding:6px; background:#e1f0e5; border-radius:4px; border-left:4px solid #2f6b3a; font-size:0.95em; color:#10391e; font-weight:600; line-height:1.2;">
+        💡 <strong>Cadangan:</strong> Pilih <strong>Kaedah A</strong> untuk kiraan paling stabil, tepat & selamat.
+    </div>
+
+</div>
+
+
                 <div class="zakat-buttons">
                     <button class="zakat-type-btn" data-method="kaedah_a">
                         📋 Kaedah A (Tanpa Tolakan)
