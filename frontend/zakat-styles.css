@@ -232,72 +232,71 @@
 }
 
 /* Year Selection Buttons */
+/* Year Selection Buttons — LZNK Theme */
 .zakat-year-btn {
-    /* Layout & Sizing */
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
     padding: 14px 20px;
     gap: 8px;
-    
-    /* Positioning */
     position: relative;
     overflow: hidden;
-    
-    /* Styling */
-    background: linear-gradient(135deg, #ffffff 0%, #fef3c7 100%);
-    border: 2px solid #fbbf24;
+
+    /* LZNK color theme */
+    background: linear-gradient(135deg, #e9f6ef 0%, #d9efe4 100%);
+    border: 2px solid #0B5C3B; /* LZNK Green */
     border-radius: 14px;
-    color: #92400e;
-    
-    /* Typography */
+    color: #0B5C3B;
+
     font-size: 14px;
     font-weight: 600;
     text-align: center;
-    line-height: 1;
     white-space: nowrap;
-    
-    /* Effects */
-    box-shadow: 0 2px 6px rgba(251, 191, 36, 0.1);
+    line-height: 1.2;
+
+    box-shadow: 0 2px 6px rgba(11, 92, 59, 0.18);
     cursor: pointer;
     transition: all 0.3s ease;
-    
-    /* Reset browser defaults */
-    -webkit-appearance: none;
-    -moz-appearance: none;
+
     appearance: none;
     box-sizing: border-box;
     margin: 0;
 }
 
-/* Remove any default spacing */
+/* Reset spacing */
 .zakat-year-btn * {
     margin: 0;
     padding: 0;
 }
 
+/* Hover (gold accent + deep green) */
 .zakat-year-btn:hover:not(:disabled) {
-    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-    color: #ffffff;
+    background: linear-gradient(135deg, #0B5C3B 0%, #0A4A30 100%);
+    color: #FFD95F; /* Soft gold text */
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(251, 191, 36, 0.25);
+    box-shadow: 0 6px 18px rgba(11, 92, 59, 0.32);
 }
 
+/* Active */
 .zakat-year-btn:active:not(:disabled) {
     transform: translateY(0);
 }
 
+/* Disabled */
 .zakat-year-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
 
+/* Selected (solid LZNK Green + gold outline effect) */
 .zakat-year-btn.selected {
-    background: linear-gradient(135deg, #92400e 0%, #78350f 100%);
-    color: #ffffff;
-    border-color: #92400e;
+    background: linear-gradient(135deg, #0A4A30 0%, #073722 100%);
+    color: #FFD95F;
+    border-color: #D4AF37; /* Gold border */
+    box-shadow: 0 4px 14px rgba(212, 175, 55, 0.35);
 }
+
 
 /* Cancel Button */
 .zakat-cancel-btn {
