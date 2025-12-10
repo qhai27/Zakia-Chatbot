@@ -7,7 +7,7 @@
         const CONFIG = {
             API_BASE: 'http://127.0.0.1:5000/admin/reminders',
             STATS_API: 'http://127.0.0.1:5000/admin/reminders/stats',
-            CHATLOG_API: 'http://127.0.0.1:5000/admin/chat-logs', 
+            CHATLOG_API: 'http://127.0.0.1:5000/admin/chat-logs',
             PAGE_SIZE: 20
         };
 
@@ -25,6 +25,10 @@
             statsTotalAmount: document.getElementById('statsTotalAmount'),
             statsPendapatan: document.getElementById('statsPendapatan'),
             statsSimpanan: document.getElementById('statsSimpanan'),
+            statsPadi: document.getElementById('statsPadi'),
+            statsSaham: document.getElementById('statsSaham'),
+            statsPerak: document.getElementById('statsPerak'),
+            statsKwsp: document.getElementById('statsKwsp'),
             totalReminders: document.getElementById('totalReminders'),
             // Chat log DOM elements
             chatlogTableBody: document.getElementById('chatlogTableBody'),
@@ -128,8 +132,50 @@
 
             formatZakatType(zakatType) {
                 if (!zakatType) return 'N/A';
-                // Capitalize first letter: pendapatan -> Pendapatan, simpanan -> Simpanan
-                return zakatType.charAt(0).toUpperCase() + zakatType.slice(1).toLowerCase();
+
+                // Map zakat types to display names
+                const typeMap = {
+                    'pendapatan': 'Pendapatan',
+                    'income_kaedah_a': 'Pendapatan (Kaedah A)',
+                    'income_kaedah_b': 'Pendapatan (Kaedah B)',
+                    'simpanan': 'Simpanan',
+                    'savings': 'Simpanan',
+                    'padi': 'Padi',
+                    'saham': 'Saham',
+                    'perak': 'Perak',
+                    'kwsp': 'KWSP',
+                    'umum': 'Umum'
+                };
+
+                // Check if we have a mapped name
+                if (typeMap[zakatType]) {
+                    return typeMap[zakatType];
+                }
+
+                // Fallback: capitalize first letter and handle underscores
+                return zakatType
+                    .split('_')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                    .join(' ');
+            },
+
+            getZakatTypeIcon(zakatType) {
+                if (!zakatType) return '💰';
+
+                const iconMap = {
+                    'pendapatan': '💼',
+                    'income_kaedah_a': '💼',
+                    'income_kaedah_b': '💼',
+                    'simpanan': '🏦',
+                    'savings': '🏦',
+                    'padi': '🌾',
+                    'saham': '📈',
+                    'perak': '🥈',
+                    'kwsp': '💼',
+                    'umum': '💰'
+                };
+
+                return iconMap[zakatType] || '💰';
             },
 
             formatYear(year) {
@@ -158,7 +204,7 @@
                         <td><code>${this.formatPhone(r.phone)}</code></td>
                         <td>
                             <span class="zakat-type-badge ${r.zakat_type || 'umum'}">
-                                ${r.zakat_type === 'pendapatan' ? '💼' : '🏦'} 
+                                ${this.getZakatTypeIcon(r.zakat_type)} 
                                 ${this.escapeHtml(this.formatZakatType(r.zakat_type))}
                             </span>
                         </td>
@@ -245,12 +291,26 @@
                 const byType = stats.by_type || [];
                 let pendapatanCount = 0;
                 let simpananCount = 0;
+                let padiCount = 0;
+                let sahamCount = 0;
+                let perakCount = 0;
+                let kwspCount = 0;
 
                 byType.forEach(item => {
-                    if (item.zakat_type === 'pendapatan') {
-                        pendapatanCount = item.count;
-                    } else if (item.zakat_type === 'simpanan') {
-                        simpananCount = item.count;
+                    const type = item.zakat_type || '';
+                    const count = item.count || 0;
+                    if (type === 'pendapatan') {
+                        pendapatanCount = count;
+                    } else if (type === 'simpanan') {
+                        simpananCount = count;
+                    } else if (type === 'padi') {
+                        padiCount = count;
+                    } else if (type === 'saham') {
+                        sahamCount = count;
+                    } else if (type === 'perak') {
+                        perakCount = count;
+                    } else if (type === 'kwsp') {
+                        kwspCount = count;
                     }
                 });
 
@@ -260,9 +320,22 @@
                 if (DOM.statsSimpanan) {
                     DOM.statsSimpanan.textContent = simpananCount;
                 }
+                if (DOM.statsPadi) {
+                    DOM.statsPadi.textContent = padiCount;
+                }
+                if (DOM.statsSaham) {
+                    DOM.statsSaham.textContent = sahamCount;
+                }
+                if (DOM.statsPerak) {
+                    DOM.statsPerak.textContent = perakCount;
+                }
+                if (DOM.statsKwsp) {
+                    DOM.statsKwsp.textContent = kwspCount;
+                }
 
                 // Animate stats
-                [DOM.statsTotal, DOM.statsTotalAmount, DOM.statsPendapatan, DOM.statsSimpanan].forEach(el => {
+                [DOM.statsTotal, DOM.statsTotalAmount, DOM.statsPendapatan, DOM.statsSimpanan,
+                DOM.statsPadi, DOM.statsSaham, DOM.statsPerak, DOM.statsKwsp].forEach(el => {
                     if (el) {
                         el.style.transform = 'scale(1.15)';
                         setTimeout(() => {
@@ -472,7 +545,21 @@
                         (r.ic_number && r.ic_number.includes(search)) ||
                         (r.phone && r.phone.includes(search));
 
-                    const matchesType = !zakatType || r.zakat_type === zakatType;
+                    // Normalize zakat types for matching
+                    const normalizeType = (type) => {
+                        if (!type) return '';
+                        // Map variations to standard types for filtering
+                        const typeMap = {
+                            'income_kaedah_a': 'pendapatan',
+                            'income_kaedah_b': 'pendapatan',
+                            'savings': 'simpanan'
+                        };
+                        return typeMap[type] || type;
+                    };
+
+                    const reminderType = normalizeType(r.zakat_type);
+                    const filterType = normalizeType(zakatType);
+                    const matchesType = !zakatType || reminderType === filterType || r.zakat_type === zakatType;
 
                     return matchesSearch && matchesType;
                 });
@@ -538,7 +625,7 @@
                         <div class="detail-header">
                             <h2>${UIManager.escapeHtml(reminder.name)}</h2>
                             <span class="zakat-type-badge ${reminder.zakat_type}">
-                                ${reminder.zakat_type === 'pendapatan' ? '💼' : '💰'} 
+                                ${UIManager.getZakatTypeIcon(reminder.zakat_type)} 
                                 ${UIManager.escapeHtml(UIManager.formatZakatType(reminder.zakat_type))}
                             </span>
                         </div>

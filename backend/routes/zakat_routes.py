@@ -1,13 +1,20 @@
+"""
+Extended Zakat Routes for Padi, Saham, Perak, KWSP
+Follows identical pattern as existing zakat routes
+"""
+
 from flask import Blueprint, request, jsonify
 from zakat_calculator import ZakatCalculator
 
+# Create blueprint - export as zakat_bp for app.py compatibility
 zakat_bp = Blueprint('zakat', __name__)
+zakat_extended_bp = zakat_bp  # Alias for backward compatibility
 calculator = ZakatCalculator()
 
 
 @zakat_bp.route("/api/calculate-zakat", methods=["POST"])
 def calculate_zakat():
-    """Calculate zakat based on type (income_kaedah_a, income_kaedah_b, or savings)"""
+    """Main zakat calculation endpoint for income and savings"""
     try:
         data = request.get_json()
         
@@ -17,41 +24,26 @@ def calculate_zakat():
                 'error': 'Tiada data diterima'
             }), 400
         
-        zakat_type = data.get('type', '').lower()
+        zakat_type = data.get('type')
         year = data.get('year', '1447')
         year_type = data.get('year_type', 'H')
         
-        # Validate required fields
-        if not zakat_type:
-            return jsonify({
-                'success': False,
-                'error': 'Jenis zakat tidak dinyatakan'
-            }), 400
-        
-        if not year:
-            return jsonify({
-                'success': False,
-                'error': 'Tahun tidak dinyatakan'
-            }), 400
-        
-        # Route to appropriate calculation method
         result = None
         
+        # Handle different zakat types
         if zakat_type == 'income_kaedah_a':
             gross_income = data.get('gross_income')
-            
             if gross_income is None:
                 return jsonify({
                     'success': False,
-                    'error': 'Pendapatan kasar tidak dinyatakan'
+                    'error': 'Jumlah pendapatan kasar diperlukan'
                 }), 400
-            
             try:
                 gross_income = float(gross_income)
             except (ValueError, TypeError):
                 return jsonify({
                     'success': False,
-                    'error': 'Nilai pendapatan tidak sah'
+                    'error': 'Nilai tidak sah'
                 }), 400
             
             result = calculator.calculate_income_zakat_kaedah_a(
@@ -63,40 +55,11 @@ def calculate_zakat():
         elif zakat_type == 'income_kaedah_b':
             annual_income = data.get('annual_income')
             annual_expenses = data.get('annual_expenses')
-            
             if annual_income is None or annual_expenses is None:
                 return jsonify({
                     'success': False,
-                    'error': 'Pendapatan atau perbelanjaan tidak dinyatakan'
+                    'error': 'Jumlah pendapatan dan perbelanjaan diperlukan'
                 }), 400
-            
-            try:
-                annual_income = float(annual_income)
-                annual_expenses = float(annual_expenses)
-            except (ValueError, TypeError):
-                return jsonify({
-                    'success': False,
-                    'error': 'Nilai pendapatan atau perbelanjaan tidak sah'
-                }), 400
-            
-            result = calculator.calculate_income_zakat_kaedah_b(
-                annual_income=annual_income,
-                annual_expenses=annual_expenses,
-                year=str(year),
-                year_type=year_type
-            )
-            
-        elif zakat_type == 'income':
-            # Legacy support for old 'income' type (treats as Kaedah B)
-            annual_income = data.get('amount')
-            annual_expenses = data.get('expenses', 0)
-            
-            if annual_income is None:
-                return jsonify({
-                    'success': False,
-                    'error': 'Jumlah pendapatan tidak dinyatakan'
-                }), 400
-            
             try:
                 annual_income = float(annual_income)
                 annual_expenses = float(annual_expenses)
@@ -115,23 +78,17 @@ def calculate_zakat():
             
         elif zakat_type == 'savings':
             savings_amount = data.get('savings_amount')
-            
-            # Fallback to 'amount' for backward compatibility
-            if savings_amount is None:
-                savings_amount = data.get('amount')
-            
             if savings_amount is None:
                 return jsonify({
                     'success': False,
-                    'error': 'Jumlah simpanan tidak dinyatakan'
+                    'error': 'Jumlah simpanan diperlukan'
                 }), 400
-            
             try:
                 savings_amount = float(savings_amount)
             except (ValueError, TypeError):
                 return jsonify({
                     'success': False,
-                    'error': 'Nilai simpanan tidak sah'
+                    'error': 'Nilai tidak sah'
                 }), 400
             
             result = calculator.calculate_savings_zakat(
@@ -139,21 +96,18 @@ def calculate_zakat():
                 year=str(year),
                 year_type=year_type
             )
-            
         else:
             return jsonify({
                 'success': False,
-                'error': f'Jenis zakat tidak sah: {zakat_type}'
+                'error': f'Jenis zakat tidak dikenali: {zakat_type}'
             }), 400
         
-        # Check if calculation was successful
         if not result or not result.get('success'):
             return jsonify({
                 'success': False,
                 'error': result.get('error', 'Ralat pengiraan') if result else 'Ralat pengiraan'
             }), 400
         
-        # Return successful result
         return jsonify({
             'success': True,
             'reply': result.get('message', ''),
@@ -162,7 +116,7 @@ def calculate_zakat():
                 'zakatable_amount': result.get('zakatable_amount', 0),
                 'reaches_nisab': result.get('reaches_nisab', False),
                 'nisab_value': result.get('nisab_value', 0),
-                'type': result.get('type', zakat_type),
+                'type': zakat_type,
                 'year': result.get('year', year),
                 'year_type': result.get('year_type', year_type),
                 'details': result.get('details', {})
@@ -170,7 +124,7 @@ def calculate_zakat():
         }), 200
         
     except Exception as e:
-        print(f"Error in calculate_zakat route: {e}")
+        print(f"Error in calculate_zakat: {e}")
         import traceback
         traceback.print_exc()
         return jsonify({
@@ -179,20 +133,371 @@ def calculate_zakat():
         }), 500
 
 
-@zakat_bp.route("/api/zakat/nisab-info", methods=["GET"])
-def nisab_info():
-    """Get nisab information for a specific year"""
+# Both endpoint patterns supported
+@zakat_bp.route("/zakat-calculator/padi", methods=["POST"])
+@zakat_extended_bp.route("/api/calculate-zakat-padi", methods=["POST"])
+def calculate_zakat_padi():
+    """Calculate zakat for padi (rice)"""
     try:
-        year = request.args.get('year', '1447')
-        year_type = request.args.get('type', 'H')
+        data = request.get_json()
         
-        if not year:
+        if not data:
             return jsonify({
                 'success': False,
-                'error': 'Tahun tidak dinyatakan'
+                'error': 'Tiada data diterima'
             }), 400
         
-        result = calculator.get_nisab_info(year=str(year), year_type=year_type)
+        # Get inputs
+        hasil_padi_kg = data.get('hasil_padi_kg')
+        harga_beras_kg = data.get('harga_beras_kg')
+        year = data.get('year', '1447')
+        year_type = data.get('year_type', 'H')
+        
+        # Validate
+        if hasil_padi_kg is None or harga_beras_kg is None:
+            return jsonify({
+                'success': False,
+                'error': 'Hasil padi dan harga beras diperlukan'
+            }), 400
+        
+        try:
+            hasil_padi_kg = float(hasil_padi_kg)
+            harga_beras_kg = float(harga_beras_kg)
+        except (ValueError, TypeError):
+            return jsonify({
+                'success': False,
+                'error': 'Nilai tidak sah'
+            }), 400
+        
+        # Calculate
+        result = calculator.calculate_padi_zakat(
+            hasil_padi_kg=hasil_padi_kg,
+            harga_beras_kg=harga_beras_kg,
+            year=str(year),
+            year_type=year_type
+        )
+        
+        if not result or not result.get('success'):
+            return jsonify({
+                'success': False,
+                'error': result.get('error', 'Ralat pengiraan') if result else 'Ralat pengiraan'
+            }), 400
+        
+        return jsonify({
+            'success': True,
+            'reply': result.get('message', ''),
+            'data': {
+                'zakat_amount': result.get('zakat_amount', 0),
+                'zakatable_amount': result.get('zakatable_amount', 0),
+                'reaches_nisab': result.get('reaches_nisab', False),
+                'nisab_value': result.get('nisab_value', 0),
+                'type': 'padi',
+                'year': result.get('year', year),
+                'year_type': result.get('year_type', year_type),
+                'details': result.get('details', {})
+            }
+        }), 200
+        
+    except Exception as e:
+        print(f"Error in calculate_zakat_padi: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'error': 'Ralat sistem. Sila cuba lagi.'
+        }), 500
+
+
+# Both endpoint patterns supported
+@zakat_bp.route("/zakat-calculator/saham", methods=["POST"])
+@zakat_extended_bp.route("/api/calculate-zakat-saham", methods=["POST"])
+def calculate_zakat_saham():
+    """Calculate zakat for saham (shares/stocks)"""
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({
+                'success': False,
+                'error': 'Tiada data diterima'
+            }), 400
+        
+        # Get inputs
+        nilai_portfolio = data.get('nilai_portfolio')
+        hutang_saham = data.get('hutang_saham', 0)
+        year = data.get('year', '1447')
+        year_type = data.get('year_type', 'H')
+        
+        # Validate
+        if nilai_portfolio is None:
+            return jsonify({
+                'success': False,
+                'error': 'Nilai portfolio diperlukan'
+            }), 400
+        
+        try:
+            nilai_portfolio = float(nilai_portfolio)
+            hutang_saham = float(hutang_saham)
+        except (ValueError, TypeError):
+            return jsonify({
+                'success': False,
+                'error': 'Nilai tidak sah'
+            }), 400
+        
+        # Calculate
+        result = calculator.calculate_saham_zakat(
+            nilai_portfolio=nilai_portfolio,
+            hutang_saham=hutang_saham,
+            year=str(year),
+            year_type=year_type
+        )
+        
+        if not result or not result.get('success'):
+            return jsonify({
+                'success': False,
+                'error': result.get('error', 'Ralat pengiraan') if result else 'Ralat pengiraan'
+            }), 400
+        
+        return jsonify({
+            'success': True,
+            'reply': result.get('message', ''),
+            'data': {
+                'zakat_amount': result.get('zakat_amount', 0),
+                'zakatable_amount': result.get('zakatable_amount', 0),
+                'reaches_nisab': result.get('reaches_nisab', False),
+                'nisab_value': result.get('nisab_value', 0),
+                'type': 'saham',
+                'year': result.get('year', year),
+                'year_type': result.get('year_type', year_type),
+                'details': result.get('details', {})
+            }
+        }), 200
+        
+    except Exception as e:
+        print(f"Error in calculate_zakat_saham: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'error': 'Ralat sistem. Sila cuba lagi.'
+        }), 500
+
+
+# Both endpoint patterns supported
+@zakat_bp.route("/zakat-calculator/perak", methods=["POST"])
+@zakat_extended_bp.route("/api/calculate-zakat-perak", methods=["POST"])
+def calculate_zakat_perak():
+    """Calculate zakat for perak (silver)"""
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({
+                'success': False,
+                'error': 'Tiada data diterima'
+            }), 400
+        
+        # Get inputs
+        berat_perak_g = data.get('berat_perak_g')
+        harga_per_gram = data.get('harga_per_gram')
+        year = data.get('year', '1447')
+        year_type = data.get('year_type', 'H')
+        
+        # Validate
+        if berat_perak_g is None or harga_per_gram is None:
+            return jsonify({
+                'success': False,
+                'error': 'Berat perak dan harga per gram diperlukan'
+            }), 400
+        
+        try:
+            berat_perak_g = float(berat_perak_g)
+            harga_per_gram = float(harga_per_gram)
+        except (ValueError, TypeError):
+            return jsonify({
+                'success': False,
+                'error': 'Nilai tidak sah'
+            }), 400
+        
+        # Calculate
+        result = calculator.calculate_perak_zakat(
+            berat_perak_g=berat_perak_g,
+            harga_per_gram=harga_per_gram,
+            year=str(year),
+            year_type=year_type
+        )
+        
+        if not result or not result.get('success'):
+            return jsonify({
+                'success': False,
+                'error': result.get('error', 'Ralat pengiraan') if result else 'Ralat pengiraan'
+            }), 400
+        
+        return jsonify({
+            'success': True,
+            'reply': result.get('message', ''),
+            'data': {
+                'zakat_amount': result.get('zakat_amount', 0),
+                'zakatable_amount': result.get('zakatable_amount', 0),
+                'reaches_nisab': result.get('reaches_nisab', False),
+                'nisab_value': result.get('nisab_value', 0),
+                'type': 'perak',
+                'year': result.get('year', year),
+                'year_type': result.get('year_type', year_type),
+                'details': result.get('details', {})
+            }
+        }), 200
+        
+    except Exception as e:
+        print(f"Error in calculate_zakat_perak: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'error': 'Ralat sistem. Sila cuba lagi.'
+        }), 500
+
+
+# Both endpoint patterns supported
+@zakat_bp.route("/zakat-calculator/kwsp", methods=["POST"])
+@zakat_extended_bp.route("/api/calculate-zakat-kwsp", methods=["POST"])
+def calculate_zakat_kwsp():
+    """Calculate zakat for KWSP (EPF)"""
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({
+                'success': False,
+                'error': 'Tiada data diterima'
+            }), 400
+        
+        # Get inputs
+        jumlah_akaun_1 = data.get('jumlah_akaun_1')
+        jumlah_akaun_2 = data.get('jumlah_akaun_2')
+        jumlah_pengeluaran = data.get('jumlah_pengeluaran', 0)
+        year = data.get('year', '1447')
+        year_type = data.get('year_type', 'H')
+        
+        # Validate
+        if jumlah_akaun_1 is None or jumlah_akaun_2 is None:
+            return jsonify({
+                'success': False,
+                'error': 'Jumlah Akaun 1 dan Akaun 2 diperlukan'
+            }), 400
+        
+        try:
+            jumlah_akaun_1 = float(jumlah_akaun_1)
+            jumlah_akaun_2 = float(jumlah_akaun_2)
+            jumlah_pengeluaran = float(jumlah_pengeluaran)
+        except (ValueError, TypeError):
+            return jsonify({
+                'success': False,
+                'error': 'Nilai tidak sah'
+            }), 400
+        
+        # Calculate
+        result = calculator.calculate_kwsp_zakat(
+            jumlah_akaun_1=jumlah_akaun_1,
+            jumlah_akaun_2=jumlah_akaun_2,
+            jumlah_pengeluaran=jumlah_pengeluaran,
+            year=str(year),
+            year_type=year_type
+        )
+        
+        if not result or not result.get('success'):
+            return jsonify({
+                'success': False,
+                'error': result.get('error', 'Ralat pengiraan') if result else 'Ralat pengiraan'
+            }), 400
+        
+        return jsonify({
+            'success': True,
+            'reply': result.get('message', ''),
+            'data': {
+                'zakat_amount': result.get('zakat_amount', 0),
+                'zakatable_amount': result.get('zakatable_amount', 0),
+                'reaches_nisab': result.get('reaches_nisab', False),
+                'nisab_value': result.get('nisab_value', 0),
+                'type': 'kwsp',
+                'year': result.get('year', year),
+                'year_type': result.get('year_type', year_type),
+                'details': result.get('details', {})
+            }
+        }), 200
+        
+    except Exception as e:
+        print(f"Error in calculate_zakat_kwsp: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'error': 'Ralat sistem. Sila cuba lagi.'
+        }), 500
+
+
+@zakat_bp.route("/api/zakat/years", methods=["GET"])
+def get_zakat_years():
+    """Get available years for zakat calculation"""
+    try:
+        year_type = request.args.get('type', 'H')  # H for Hijrah, M for Masihi
+        
+        # Validate year_type
+        if year_type not in ['H', 'M']:
+            year_type = 'H'
+        
+        result = calculator.fetch_available_years(year_type=year_type)
+        
+        if result.get('success'):
+            return jsonify({
+                'success': True,
+                'years': result.get('years', [])
+            }), 200
+        else:
+            # Return default years if API fails
+            if year_type == 'H':
+                default_years = [str(1447 - i) for i in range(10)]  # Last 10 Hijrah years
+            else:
+                default_years = [str(2024 - i) for i in range(10)]  # Last 10 Masihi years
+            
+            return jsonify({
+                'success': True,
+                'years': default_years,
+                'fallback': True
+            }), 200
+            
+    except Exception as e:
+        print(f"Error in get_zakat_years: {e}")
+        import traceback
+        traceback.print_exc()
+        
+        # Return default years on error
+        year_type = request.args.get('type', 'H')
+        if year_type == 'H':
+            default_years = [str(1447 - i) for i in range(10)]
+        else:
+            default_years = [str(2024 - i) for i in range(10)]
+        
+        return jsonify({
+            'success': True,
+            'years': default_years,
+            'fallback': True
+        }), 200
+
+
+@zakat_extended_bp.route("/api/zakat/nisab-extended", methods=["GET"])
+def get_nisab_extended():
+    """Get nisab info for extended zakat types"""
+    try:
+        zakat_type = request.args.get('type', 'padi')
+        year = request.args.get('year', '1447')
+        year_type = request.args.get('year_type', 'H')
+        
+        result = calculator.get_nisab_extended(
+            zakat_type=zakat_type,
+            year=str(year),
+            year_type=year_type
+        )
         
         if result.get('success'):
             return jsonify({
@@ -207,46 +512,8 @@ def nisab_info():
             }), 500
             
     except Exception as e:
-        print(f"Error in nisab_info: {e}")
+        print(f"Error in get_nisab_extended: {e}")
         return jsonify({
             'success': False,
             'error': 'Ralat sistem'
-        }), 500
-
-
-@zakat_bp.route('/api/zakat/years', methods=['GET'])
-def get_years():
-    """
-    GET /api/zakat/years?type=H
-    Returns list of years for Hijrah (H) or Masihi (M)
-    """
-    try:
-        year_type = (request.args.get('type') or 'H').upper()
-        
-        if year_type not in ('H', 'M'):
-            return jsonify({
-                'success': False,
-                'error': 'Invalid type parameter. Use H or M.'
-            }), 400
-
-        result = calculator.fetch_available_years(year_type)
-        
-        # result may not include 'year_type' key — be defensive
-        years = result.get('years') if isinstance(result, dict) else None
-        years = years or []
-        year_type_label = 'Hijrah' if year_type == 'H' else 'Masihi'
-
-        return jsonify({
-            'success': bool(result.get('success', True)),
-            'years': years,
-            'year_type': year_type_label,
-            'raw': result.get('raw') if isinstance(result, dict) else None,
-            'error': result.get('error') if isinstance(result, dict) else None
-        }), 200
-        
-    except Exception as e:
-        print(f"Error in get_years: {e}")
-        return jsonify({
-            'success': False,
-            'error': str(e)
         }), 500

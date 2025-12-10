@@ -4,6 +4,7 @@
  */
 
 class ZakatHandler {
+
     constructor(chatbot) {
         this.chatbot = chatbot;
         this.state = {
@@ -51,6 +52,51 @@ class ZakatHandler {
                     year: 'Sila pilih tahun:',
                     amount: '💰 Sila masukkan jumlah simpanan anda (RM):'
                 }
+            },
+            padi: {
+                name: 'Zakat Padi',
+                icon: '🌾',
+                steps: ['year_type', 'year', 'hasil_padi_kg', 'harga_beras_kg'],
+                prompts: {
+                    year_type: 'Sila pilih jenis tahun:',
+                    year: 'Sila pilih tahun:',
+                    hasil_padi_kg: '🌾 Sila masukkan hasil padi anda (kg):',
+                    harga_beras_kg: '💰 Sila masukkan harga beras per kg (RM):'
+                }
+            },
+            saham: {
+                name: 'Zakat Saham',
+                icon: '📈',
+                steps: ['year_type', 'year', 'nilai_portfolio', 'hutang_saham'],
+                prompts: {
+                    year_type: 'Sila pilih jenis tahun:',
+                    year: 'Sila pilih tahun:',
+                    nilai_portfolio: '📈 Sila masukkan nilai portfolio saham anda (RM):',
+                    hutang_saham: '💳 Sila masukkan hutang saham (RM) [kosongkan jika tiada]:'
+                }
+            },
+            perak: {
+                name: 'Zakat Perak',
+                icon: '🥈',
+                steps: ['year_type', 'year', 'berat_perak_g', 'harga_per_gram'],
+                prompts: {
+                    year_type: 'Sila pilih jenis tahun:',
+                    year: 'Sila pilih tahun:',
+                    berat_perak_g: '🥈 Sila masukkan berat perak anda (gram):',
+                    harga_per_gram: '💰 Sila masukkan harga perak per gram (RM):'
+                }
+            },
+            kwsp: {
+                name: 'Zakat KWSP',
+                icon: '💼',
+                steps: ['year_type', 'year', 'jumlah_akaun_1', 'jumlah_akaun_2', 'jumlah_pengeluaran'],
+                prompts: {
+                    year_type: 'Sila pilih jenis tahun:',
+                    year: 'Sila pilih tahun:',
+                    jumlah_akaun_1: '💼 Sila masukkan jumlah Akaun 1 (RM):',
+                    jumlah_akaun_2: '💼 Sila masukkan jumlah Akaun 2 (RM):',
+                    jumlah_pengeluaran: '💳 Sila masukkan jumlah pengeluaran (RM) [kosongkan jika tiada]:'
+                }
             }
         };
     }
@@ -58,10 +104,10 @@ class ZakatHandler {
     detectZakatIntent(message) {
         const msg = message.toLowerCase();
 
-        if (msg.includes('emas') || msg.includes('bulanan') || 
+        if (msg.includes('emas') || msg.includes('bulanan') ||
             msg.includes('perak') || msg.includes('tahunan') ||
             msg.includes('dikira') || msg.includes('zakat perniagaan') ||
-            msg.includes('zakat ternakan') || msg.includes('zakat pertanian')||
+            msg.includes('zakat ternakan') || msg.includes('zakat pertanian') ||
             msg.includes('pelaburan')) {
             return null;
         }
@@ -80,17 +126,42 @@ class ZakatHandler {
             return 'savings';
         }
 
+        if (msg.includes('kira zakat padi') ||
+            msg.includes('zakat padi') ||
+            msg.includes('zakat beras')) {
+            return 'padi';
+        }
+
+        if (msg.includes('kira zakat saham') ||
+            msg.includes('zakat saham') ||
+            msg.includes('zakat portfolio')) {
+            return 'saham';
+        }
+
+        if (msg.includes('kira zakat perak') ||
+            msg.includes('zakat perak') ||
+            msg.includes('zakat silver')) {
+            return 'perak';
+        }
+
+        if (msg.includes('kira zakat kwsp') ||
+            msg.includes('zakat kwsp') ||
+            msg.includes('zakat epf')) {
+            return 'kwsp';
+        }
+
         if ((msg.includes('kira zakat') || msg.includes('zakat kalkulator') || msg.includes('kalkulator zakat')) &&
             !this.state.active) {
             return 'menu';
         }
 
-        if (msg.includes('nisab') && !this.state.active) { 
+        if (msg.includes('nisab') && !this.state.active) {
             return 'nisab';
         }
 
         return null;
     }
+
 
     showZakatMenu() {
         const menuHTML = `
@@ -103,14 +174,17 @@ class ZakatHandler {
                     <button class="zakat-type-btn" data-type="savings">
                         🏦 Zakat Simpanan
                     </button>
-                    <button class="zakat-type-btn" data-type="zakat_kwsp">
-                        🧾 Zakat KWSP
+                    <button class="zakat-type-btn" data-type="kwsp">
+                        💼 Zakat KWSP
                     </button>
-                    <button class="zakat-type-btn" data-type="zakat_perak">
+                    <button class="zakat-type-btn" data-type="saham">
+                        📈 Zakat Saham
+                    </button>
+                    <button class="zakat-type-btn" data-type="perak">
                         🥈 Zakat Perak
                     </button>
-                    <button class="zakat-type-btn" data-type="zakat_padi">
-                        🌾Zakat Padi
+                    <button class="zakat-type-btn" data-type="padi">
+                        🌾 Zakat Padi
                     </button>
                     <button class="zakat-type-btn" data-type="nisab">
                         📊 Maklumat Nisab
@@ -128,36 +202,36 @@ class ZakatHandler {
             <div class="zakat-menu">
                 <p style="margin-bottom: 16px; font-weight: 600;">💼 Pilih kaedah pengiraan zakat pendapatan:</p>
                 
-                
-<div class="zakat-method-info" style="background:#f3f7f4; padding:8px; border-radius:6px; font-size:1em; color:#1a1a1a; line-height:1.2; display:inline-block;">
+                            
+            <div class="zakat-method-info" style="background:#f3f7f4; padding:8px; border-radius:6px; font-size:1em; color:#1a1a1a; line-height:1.2; display:inline-block;">
 
-    <!-- Kaedah A -->
-    <strong>Kaedah A (Disyorkan) ⭐</strong><br>
-    📌 Pengiraan tanpa tolakan (pendapatan kasar)<br>
-    <span style="font-size:0.95em;">
-        • ⚡ Mudah & cepat  
-        • 🛡️ Kurang risiko silap  
-        • 📘 Selaras majoriti fatwa
-    </span><br>
-    <span style="font-size:0.95em;"><strong>Formula:</strong> (Pendapatan Kasar Tahunan × 2.5%)</span>
+                <!-- Kaedah A -->
+                <strong>Kaedah A (Disyorkan) ⭐</strong><br>
+                📌 Pengiraan tanpa tolakan (pendapatan kasar)<br>
+                <span style="font-size:0.95em;">
+                    • ⚡ Mudah & cepat  
+                    • 🛡️ Kurang risiko silap  
+                    • 📘 Selaras majoriti fatwa
+                </span><br>
+                <span style="font-size:0.95em;"><strong>Formula:</strong> (Pendapatan Kasar Tahunan × 2.5%)</span>
 
-    <div style="border-top:1px solid #c5d3c7; margin:4px 0;"></div>
+                <div style="border-top:1px solid #c5d3c7; margin:4px 0;"></div>
 
-    <!-- Kaedah B -->
-    <strong>Kaedah B 🧮</strong><br>
-    📌 Selepas tolak perbelanjaan asas<br>
-    <span style="font-size:0.95em;">
-        • 👍 Sesuai jika perbelanjaan asas tinggi  
-        • 📌 Perlu teliti antara keperluan & kehendak
-    </span><br>
-    <span style="font-size:0.95em;"><strong>Formula:</strong> (Pendapatan – Perbelanjaan Asas) × 2.5%</span>
+                <!-- Kaedah B -->
+                <strong>Kaedah B 🧮</strong><br>
+                📌 Selepas tolak perbelanjaan asas<br>
+                <span style="font-size:0.95em;">
+                    • 👍 Sesuai jika perbelanjaan asas tinggi  
+                    • 📌 Perlu teliti antara keperluan & kehendak
+                </span><br>
+                <span style="font-size:0.95em;"><strong>Formula:</strong> (Pendapatan – Perbelanjaan Asas) × 2.5%</span>
 
-    <!-- Cadangan -->
-    <div style="margin-top:4px; padding:6px; background:#e1f0e5; border-radius:4px; border-left:4px solid #2f6b3a; font-size:0.95em; color:#10391e; font-weight:600; line-height:1.2;">
-        💡 <strong>Cadangan:</strong> Pilih <strong>Kaedah A</strong> untuk kiraan paling stabil, tepat & selamat.
-    </div>
+                <!-- Cadangan -->
+                <div style="margin-top:4px; padding:6px; background:#e1f0e5; border-radius:4px; border-left:4px solid #2f6b3a; font-size:0.95em; color:#10391e; font-weight:600; line-height:1.2;">
+                    💡 <strong>Cadangan:</strong> Pilih <strong>Kaedah A</strong> untuk kiraan paling stabil, tepat & selamat.
+                </div>
 
-</div>
+            </div>
 
 
                 <div class="zakat-buttons">
@@ -459,7 +533,14 @@ class ZakatHandler {
     }
 
     validateInput(message, stepName) {
+        // Allow empty for optional fields
         const cleaned = message.replace(/[RM,\s]/gi, '').trim();
+
+        // Optional fields: hutang_saham, jumlah_pengeluaran
+        if ((stepName === 'hutang_saham' || stepName === 'jumlah_pengeluaran') && cleaned === '') {
+            return 0; // Default to 0 for optional fields
+        }
+
         const number = parseFloat(cleaned);
 
         if (isNaN(number) || number < 0) {
@@ -499,13 +580,48 @@ class ZakatHandler {
                     year: this.state.year,
                     year_type: this.state.yearType
                 };
+            } else if (this.state.type === 'padi') {
+                payload = {
+                    hasil_padi_kg: this.state.data.hasil_padi_kg,
+                    harga_beras_kg: this.state.data.harga_beras_kg,
+                    year: this.state.year,
+                    year_type: this.state.yearType
+                };
+            } else if (this.state.type === 'saham') {
+                payload = {
+                    nilai_portfolio: this.state.data.nilai_portfolio,
+                    hutang_saham: this.state.data.hutang_saham || 0,
+                    year: this.state.year,
+                    year_type: this.state.yearType
+                };
+            } else if (this.state.type === 'perak') {
+                payload = {
+                    berat_perak_g: this.state.data.berat_perak_g,
+                    harga_per_gram: this.state.data.harga_per_gram,
+                    year: this.state.year,
+                    year_type: this.state.yearType
+                };
+            } else if (this.state.type === 'kwsp') {
+                payload = {
+                    jumlah_akaun_1: this.state.data.jumlah_akaun_1,
+                    jumlah_akaun_2: this.state.data.jumlah_akaun_2,
+                    jumlah_pengeluaran: this.state.data.jumlah_pengeluaran || 0,
+                    year: this.state.year,
+                    year_type: this.state.yearType
+                };
             } else {
                 throw new Error('Jenis zakat tidak dikenali');
             }
 
             console.log('Sending payload:', payload); // Debug log
 
-            const response = await fetch(`${window.CONFIG.API_BASE_URL}/api/calculate-zakat`, {
+            // Determine API endpoint based on zakat type
+            let apiEndpoint = '/api/calculate-zakat';
+            if (['padi', 'saham', 'perak', 'kwsp'].includes(this.state.type)) {
+                apiEndpoint = `/zakat-calculator/${this.state.type}`;
+            }
+
+            const response = await fetch(`${window.CONFIG.API_BASE_URL}${apiEndpoint}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -515,7 +631,8 @@ class ZakatHandler {
             console.log('Received response:', data); // Debug log
 
             if (data.success) {
-                const zakatType = this.state.type;
+                // Use type from response data if available, otherwise use state type
+                const zakatType = data.data.type || this.state.type;
                 const year = this.state.year;
                 const yearType = this.state.yearType;
 
@@ -553,6 +670,601 @@ class ZakatHandler {
         }
     }
 
+    /**
+ * Attach listeners to extended zakat type buttons
+ */
+    attachExtendedTypeListeners() {
+        const buttons = document.querySelectorAll('.zakat-type-btn');
+        const cancelBtn = document.querySelector('.zakat-cancel-btn');
+
+        buttons.forEach(btn => {
+            if (btn.dataset._zakatAttached) return;
+            btn.dataset._zakatAttached = '1';
+
+            btn.addEventListener('click', (e) => {
+                const type = e.currentTarget.getAttribute('data-type');
+
+                // Disable all buttons
+                buttons.forEach(b => b.disabled = true);
+                e.currentTarget.classList.add('selected');
+
+                this.state.zakatType = type;
+
+                setTimeout(() => {
+                    this.askYearSelection(type);
+                }, 500);
+            });
+        });
+
+        if (cancelBtn && !cancelBtn.dataset._zakatAttached) {
+            cancelBtn.dataset._zakatAttached = '1';
+            cancelBtn.addEventListener('click', () => {
+                this.cancel();
+            });
+        }
+    }
+
+    /**
+     * Show input form for Padi
+     */
+    showPadiForm(year, yearType) {
+        this.state.year = year;
+        this.state.yearType = yearType;
+        this.state.waitingFor = 'padi_calculation';
+
+        const html = `
+        <div class="zakat-input-form">
+            <p style="font-weight: 600; color: #157347; margin-bottom: 16px;">
+                🌾 Kalkulator Zakat Padi
+            </p>
+            
+            <div class="zakat-method-info">
+                <p><strong>Formula:</strong> Zakat = Hasil Padi (kg) × Harga Beras (RM/kg) × 10%</p>
+                <p><strong>Nisab:</strong> 1,300 kg padi</p>
+            </div>
+            
+            <div class="form-group">
+                <label>Hasil Padi (kg) <span style="color: red;">*</span></label>
+                <input type="number" 
+                       id="hasil_padi_kg" 
+                       class="zakat-input" 
+                       placeholder="Contoh: 2000"
+                       min="0"
+                       step="0.01">
+            </div>
+            
+            <div class="form-group">
+                <label>Harga Beras (RM/kg) <span style="color: red;">*</span></label>
+                <input type="number" 
+                       id="harga_beras_kg" 
+                       class="zakat-input" 
+                       placeholder="Contoh: 3.50"
+                       min="0"
+                       step="0.01">
+            </div>
+            
+            <div class="zakat-buttons">
+                <button class="zakat-type-btn" data-action="calculate-padi">
+                    🧮 Kira Zakat
+                </button>
+                <button class="zakat-cancel-btn" data-action="cancel">
+                    ❌ Batal
+                </button>
+            </div>
+        </div>
+    `;
+
+        this.chatbot.appendMessage(html, 'bot', true);
+        this.attachPadiFormListeners();
+    }
+
+    /**
+     * Attach listeners to Padi form
+     */
+    attachPadiFormListeners() {
+        const calculateBtn = document.querySelector('[data-action="calculate-padi"]');
+        const cancelBtn = document.querySelector('[data-action="cancel"]');
+
+        if (calculateBtn && !calculateBtn.dataset._attached) {
+            calculateBtn.dataset._attached = '1';
+            calculateBtn.addEventListener('click', async () => {
+                await this.calculatePadi();
+            });
+        }
+
+        if (cancelBtn && !cancelBtn.dataset._attached) {
+            cancelBtn.dataset._attached = '1';
+            cancelBtn.addEventListener('click', () => {
+                this.cancel();
+            });
+        }
+    }
+
+    /**
+     * Calculate Padi Zakat
+     */
+    async calculatePadi() {
+        const hasilInput = document.getElementById('hasil_padi_kg');
+        const hargaInput = document.getElementById('harga_beras_kg');
+
+        if (!hasilInput || !hargaInput) return;
+
+        const hasil = parseFloat(hasilInput.value);
+        const harga = parseFloat(hargaInput.value);
+
+        // Validation
+        if (!hasil || hasil <= 0) {
+            this.chatbot.appendMessage('⚠️ Sila masukkan hasil padi yang sah.', 'bot');
+            return;
+        }
+
+        if (!harga || harga <= 0) {
+            this.chatbot.appendMessage('⚠️ Sila masukkan harga beras yang sah.', 'bot');
+            return;
+        }
+
+        // Show calculating message
+        this.chatbot.setTyping(true);
+        this.chatbot.appendMessage('Mengira zakat padi...', 'bot');
+
+        try {
+            const response = await fetch(`${window.CONFIG.API_BASE_URL}/api/calculate-zakat-padi`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    hasil_padi_kg: hasil,
+                    harga_beras_kg: harga,
+                    year: this.state.year,
+                    year_type: this.state.yearType
+                })
+            });
+
+            const data = await response.json();
+
+            setTimeout(() => {
+                this.chatbot.setTyping(false);
+
+                if (data.success && data.data) {
+                    this.showResultCard(data.data, data.reply);
+                } else {
+                    this.chatbot.appendMessage(
+                        `❌ ${data.error || 'Ralat pengiraan. Sila cuba lagi.'}`,
+                        'bot'
+                    );
+                }
+            }, 800);
+
+        } catch (error) {
+            console.error('Error calculating padi zakat:', error);
+            this.chatbot.setTyping(false);
+            this.chatbot.appendMessage('❌ Ralat sistem. Sila cuba lagi.', 'bot');
+        }
+    }
+
+    /**
+     * Show input form for Saham
+     */
+    showSahamForm(year, yearType) {
+        this.state.year = year;
+        this.state.yearType = yearType;
+        this.state.waitingFor = 'saham_calculation';
+
+        const html = `
+        <div class="zakat-input-form">
+            <p style="font-weight: 600; color: #157347; margin-bottom: 16px;">
+                📈 Kalkulator Zakat Saham
+            </p>
+            
+            <div class="zakat-method-info">
+                <p><strong>Formula:</strong> Zakat = (Nilai Portfolio - Hutang) × 2.5%</p>
+                <p><strong>Nisab:</strong> 85 gram emas</p>
+            </div>
+            
+            <div class="form-group">
+                <label>Nilai Portfolio (RM) <span style="color: red;">*</span></label>
+                <input type="number" 
+                       id="nilai_portfolio" 
+                       class="zakat-input" 
+                       placeholder="Contoh: 50000"
+                       min="0"
+                       step="0.01">
+            </div>
+            
+            <div class="form-group">
+                <label>Hutang Saham (RM)</label>
+                <input type="number" 
+                       id="hutang_saham" 
+                       class="zakat-input" 
+                       placeholder="Contoh: 0"
+                       min="0"
+                       step="0.01"
+                       value="0">
+            </div>
+            
+            <div class="zakat-buttons">
+                <button class="zakat-type-btn" data-action="calculate-saham">
+                    🧮 Kira Zakat
+                </button>
+                <button class="zakat-cancel-btn" data-action="cancel">
+                    ❌ Batal
+                </button>
+            </div>
+        </div>
+    `;
+
+        this.chatbot.appendMessage(html, 'bot', true);
+        this.attachSahamFormListeners();
+    }
+
+    /**
+     * Attach listeners to Saham form
+     */
+    attachSahamFormListeners() {
+        const calculateBtn = document.querySelector('[data-action="calculate-saham"]');
+        const cancelBtn = document.querySelector('[data-action="cancel"]');
+
+        if (calculateBtn && !calculateBtn.dataset._attached) {
+            calculateBtn.dataset._attached = '1';
+            calculateBtn.addEventListener('click', async () => {
+                await this.calculateSaham();
+            });
+        }
+
+        if (cancelBtn && !cancelBtn.dataset._attached) {
+            cancelBtn.dataset._attached = '1';
+            cancelBtn.addEventListener('click', () => {
+                this.cancel();
+            });
+        }
+    }
+
+    /**
+     * Calculate Saham Zakat
+     */
+    async calculateSaham() {
+        const portfolioInput = document.getElementById('nilai_portfolio');
+        const hutangInput = document.getElementById('hutang_saham');
+
+        if (!portfolioInput) return;
+
+        const portfolio = parseFloat(portfolioInput.value);
+        const hutang = hutangInput ? parseFloat(hutangInput.value) || 0 : 0;
+
+        // Validation
+        if (!portfolio || portfolio <= 0) {
+            this.chatbot.appendMessage('⚠️ Sila masukkan nilai portfolio yang sah.', 'bot');
+            return;
+        }
+
+        // Show calculating message
+        this.chatbot.setTyping(true);
+        this.chatbot.appendMessage('Mengira zakat saham...', 'bot');
+
+        try {
+            const response = await fetch(`${window.CONFIG.API_BASE_URL}/api/calculate-zakat-saham`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    nilai_portfolio: portfolio,
+                    hutang_saham: hutang,
+                    year: this.state.year,
+                    year_type: this.state.yearType
+                })
+            });
+
+            const data = await response.json();
+
+            setTimeout(() => {
+                this.chatbot.setTyping(false);
+
+                if (data.success && data.data) {
+                    this.showResultCard(data.data, data.reply);
+                } else {
+                    this.chatbot.appendMessage(
+                        `❌ ${data.error || 'Ralat pengiraan. Sila cuba lagi.'}`,
+                        'bot'
+                    );
+                }
+            }, 800);
+
+        } catch (error) {
+            console.error('Error calculating saham zakat:', error);
+            this.chatbot.setTyping(false);
+            this.chatbot.appendMessage('❌ Ralat sistem. Sila cuba lagi.', 'bot');
+        }
+    }
+
+    /**
+     * Show input form for Perak
+     */
+    showPerakForm(year, yearType) {
+        this.state.year = year;
+        this.state.yearType = yearType;
+        this.state.waitingFor = 'perak_calculation';
+
+        const html = `
+        <div class="zakat-input-form">
+            <p style="font-weight: 600; color: #157347; margin-bottom: 16px;">
+                🥈 Kalkulator Zakat Perak
+            </p>
+            
+            <div class="zakat-method-info">
+                <p><strong>Formula:</strong> Zakat = (Berat × Harga) × 2.5%</p>
+                <p><strong>Nisab:</strong> 595 gram perak</p>
+            </div>
+            
+            <div class="form-group">
+                <label>Berat Perak (gram) <span style="color: red;">*</span></label>
+                <input type="number" 
+                       id="berat_perak_g" 
+                       class="zakat-input" 
+                       placeholder="Contoh: 600"
+                       min="0"
+                       step="0.01">
+            </div>
+            
+            <div class="form-group">
+                <label>Harga Per Gram (RM) <span style="color: red;">*</span></label>
+                <input type="number" 
+                       id="harga_per_gram" 
+                       class="zakat-input" 
+                       placeholder="Contoh: 3.50"
+                       min="0"
+                       step="0.01">
+            </div>
+            
+            <div class="zakat-buttons">
+                <button class="zakat-type-btn" data-action="calculate-perak">
+                    🧮 Kira Zakat
+                </button>
+                <button class="zakat-cancel-btn" data-action="cancel">
+                    ❌ Batal
+                </button>
+            </div>
+        </div>
+    `;
+
+        this.chatbot.appendMessage(html, 'bot', true);
+        this.attachPerakFormListeners();
+    }
+
+    /**
+     * Attach listeners to Perak form
+     */
+    attachPerakFormListeners() {
+        const calculateBtn = document.querySelector('[data-action="calculate-perak"]');
+        const cancelBtn = document.querySelector('[data-action="cancel"]');
+
+        if (calculateBtn && !calculateBtn.dataset._attached) {
+            calculateBtn.dataset._attached = '1';
+            calculateBtn.addEventListener('click', async () => {
+                await this.calculatePerak();
+            });
+        }
+
+        if (cancelBtn && !cancelBtn.dataset._attached) {
+            cancelBtn.dataset._attached = '1';
+            cancelBtn.addEventListener('click', () => {
+                this.cancel();
+            });
+        }
+    }
+
+    /**
+     * Calculate Perak Zakat
+     */
+    async calculatePerak() {
+        const beratInput = document.getElementById('berat_perak_g');
+        const hargaInput = document.getElementById('harga_per_gram');
+
+        if (!beratInput || !hargaInput) return;
+
+        const berat = parseFloat(beratInput.value);
+        const harga = parseFloat(hargaInput.value);
+
+        // Validation
+        if (!berat || berat <= 0) {
+            this.chatbot.appendMessage('⚠️ Sila masukkan berat perak yang sah.', 'bot');
+            return;
+        }
+
+        if (!harga || harga <= 0) {
+            this.chatbot.appendMessage('⚠️ Sila masukkan harga per gram yang sah.', 'bot');
+            return;
+        }
+
+        // Show calculating message
+        this.chatbot.setTyping(true);
+        this.chatbot.appendMessage('Mengira zakat perak...', 'bot');
+
+        try {
+            const response = await fetch(`${window.CONFIG.API_BASE_URL}/api/calculate-zakat-perak`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    berat_perak_g: berat,
+                    harga_per_gram: harga,
+                    year: this.state.year,
+                    year_type: this.state.yearType
+                })
+            });
+
+            const data = await response.json();
+
+            setTimeout(() => {
+                this.chatbot.setTyping(false);
+
+                if (data.success && data.data) {
+                    this.showResultCard(data.data, data.reply);
+                } else {
+                    this.chatbot.appendMessage(
+                        `❌ ${data.error || 'Ralat pengiraan. Sila cuba lagi.'}`,
+                        'bot'
+                    );
+                }
+            }, 800);
+
+        } catch (error) {
+            console.error('Error calculating perak zakat:', error);
+            this.chatbot.setTyping(false);
+            this.chatbot.appendMessage('❌ Ralat sistem. Sila cuba lagi.', 'bot');
+        }
+    }
+
+    /**
+     * Show input form for KWSP
+     */
+    showKWSPForm(year, yearType) {
+        this.state.year = year;
+        this.state.yearType = yearType;
+        this.state.waitingFor = 'kwsp_calculation';
+
+        const html = `
+        <div class="zakat-input-form">
+            <p style="font-weight: 600; color: #157347; margin-bottom: 16px;">
+                💼 Kalkulator Zakat KWSP
+            </p>
+            
+            <div class="zakat-method-info">
+                <p><strong>Formula:</strong></p>
+                <p>• Jika ada pengeluaran: Zakat = Pengeluaran × 2.5%</p>
+                <p>• Jika tiada pengeluaran: Zakat = (Akaun 1 + Akaun 2) × 2.5%</p>
+                <p><strong>Nisab:</strong> 85 gram emas</p>
+            </div>
+            
+            <div class="form-group">
+                <label>Jumlah Akaun 1 (RM) <span style="color: red;">*</span></label>
+                <input type="number" 
+                       id="jumlah_akaun_1" 
+                       class="zakat-input" 
+                       placeholder="Contoh: 50000"
+                       min="0"
+                       step="0.01">
+            </div>
+            
+            <div class="form-group">
+                <label>Jumlah Akaun 2 (RM) <span style="color: red;">*</span></label>
+                <input type="number" 
+                       id="jumlah_akaun_2" 
+                       class="zakat-input" 
+                       placeholder="Contoh: 30000"
+                       min="0"
+                       step="0.01">
+            </div>
+            
+            <div class="form-group">
+                <label>Jumlah Pengeluaran (RM)</label>
+                <input type="number" 
+                       id="jumlah_pengeluaran" 
+                       class="zakat-input" 
+                       placeholder="Contoh: 0 (jika tiada)"
+                       min="0"
+                       step="0.01"
+                       value="0">
+                <small style="color: #666; font-size: 12px;">*Kosongkan jika tiada pengeluaran</small>
+            </div>
+            
+            <div class="zakat-buttons">
+                <button class="zakat-type-btn" data-action="calculate-kwsp">
+                    🧮 Kira Zakat
+                </button>
+                <button class="zakat-cancel-btn" data-action="cancel">
+                    ❌ Batal
+                </button>
+            </div>
+        </div>
+    `;
+
+        this.chatbot.appendMessage(html, 'bot', true);
+        this.attachKWSPFormListeners();
+    }
+
+    /**
+     * Attach listeners to KWSP form
+     */
+    attachKWSPFormListeners() {
+        const calculateBtn = document.querySelector('[data-action="calculate-kwsp"]');
+        const cancelBtn = document.querySelector('[data-action="cancel"]');
+
+        if (calculateBtn && !calculateBtn.dataset._attached) {
+            calculateBtn.dataset._attached = '1';
+            calculateBtn.addEventListener('click', async () => {
+                await this.calculateKWSP();
+            });
+        }
+
+        if (cancelBtn && !cancelBtn.dataset._attached) {
+            cancelBtn.dataset._attached = '1';
+            cancelBtn.addEventListener('click', () => {
+                this.cancel();
+            });
+        }
+    }
+
+    /**
+     * Calculate KWSP Zakat
+     */
+    async calculateKWSP() {
+        const akaun1Input = document.getElementById('jumlah_akaun_1');
+        const akaun2Input = document.getElementById('jumlah_akaun_2');
+        const pengeluaranInput = document.getElementById('jumlah_pengeluaran');
+
+        if (!akaun1Input || !akaun2Input) return;
+
+        const akaun1 = parseFloat(akaun1Input.value);
+        const akaun2 = parseFloat(akaun2Input.value);
+        const pengeluaran = pengeluaranInput ? parseFloat(pengeluaranInput.value) || 0 : 0;
+
+        // Validation
+        if (!akaun1 || akaun1 < 0) {
+            this.chatbot.appendMessage('⚠️ Sila masukkan jumlah Akaun 1 yang sah.', 'bot');
+            return;
+        }
+
+        if (!akaun2 || akaun2 < 0) {
+            this.chatbot.appendMessage('⚠️ Sila masukkan jumlah Akaun 2 yang sah.', 'bot');
+            return;
+        }
+
+        // Show calculating message
+        this.chatbot.setTyping(true);
+        this.chatbot.appendMessage('Mengira zakat KWSP...', 'bot');
+
+        try {
+            const response = await fetch(`${window.CONFIG.API_BASE_URL}/api/calculate-zakat-kwsp`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    jumlah_akaun_1: akaun1,
+                    jumlah_akaun_2: akaun2,
+                    jumlah_pengeluaran: pengeluaran,
+                    year: this.state.year,
+                    year_type: this.state.yearType
+                })
+            });
+
+            const data = await response.json();
+
+            setTimeout(() => {
+                this.chatbot.setTyping(false);
+
+                if (data.success && data.data) {
+                    this.showResultCard(data.data, data.reply);
+                } else {
+                    this.chatbot.appendMessage(
+                        `❌ ${data.error || 'Ralat pengiraan. Sila cuba lagi.'}`,
+                        'bot'
+                    );
+                }
+            }, 800);
+
+        } catch (error) {
+            console.error('Error calculating KWSP zakat:', error);
+            this.chatbot.setTyping(false);
+            this.chatbot.appendMessage('❌ Ralat sistem. Sila cuba lagi.', 'bot');
+        }
+    }
+
     displayResult(message, data) {
         const resultHTML = `
             <div class="zakat-result-card ${data.reaches_nisab ? 'success' : ''}">
@@ -581,7 +1293,7 @@ class ZakatHandler {
                 💳 Bayar Zakat
             </button>
         ` : '';
-        
+
         return `
             <div class="zakat-action-buttons vertical-stack">
                 ${paymentButton}
@@ -615,10 +1327,17 @@ class ZakatHandler {
             'savings': 'simpanan'
         };
 
+        // Valid zakat types for reminders
+        const validZakatTypes = [
+            'pendapatan', 'simpanan', 'padi', 'saham', 'perak', 'kwsp',
+            'income_kaedah_a', 'income_kaedah_b', 'savings', 'umum'
+        ];
+
         const stateType = zakatTypeFromState !== null ? zakatTypeFromState : this.state.type;
         let zakatType = zakatTypeMap[stateType] || stateType;
 
-        if (!zakatType || (zakatType !== 'pendapatan' && zakatType !== 'simpanan')) {
+        // Validate zakat type
+        if (!zakatType || !validZakatTypes.includes(zakatType)) {
             console.warn('Invalid zakat type, defaulting to pendapatan:', zakatType);
             zakatType = 'pendapatan';
         }
@@ -676,7 +1395,7 @@ class ZakatHandler {
     openPaymentPage() {
         const paymentUrl = 'https://jom.zakatkedah.com.my';
         window.open(paymentUrl, '_blank', 'noopener,noreferrer');
-        
+
         this.chatbot.appendMessage(
             '✅ Halaman pembayaran JomZakat telah dibuka. Sila lengkapkan pembayaran zakat anda di tab baru. 🙏',
             'bot'
@@ -709,6 +1428,7 @@ class ZakatHandler {
     isBusy() {
         return this.state.active || (this.reminderHandler && this.reminderHandler.isActive());
     }
+
 }
 
 window.ZakatHandler = ZakatHandler;

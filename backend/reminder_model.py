@@ -153,7 +153,11 @@ class ReminderManager:
             zakat_type = payload.get('zakat_type', '').strip().lower()
             
             # Validate zakat_type one more time before insert
-            if zakat_type and zakat_type not in ['pendapatan', 'simpanan']:
+            valid_zakat_types = [
+                'pendapatan', 'simpanan', 'padi', 'saham', 'perak', 'kwsp',
+                'income_kaedah_a', 'income_kaedah_b', 'savings', 'umum'
+            ]
+            if zakat_type and zakat_type not in valid_zakat_types:
                 print(f"❌ Invalid zakat_type: {zakat_type}")
                 return {'success': False, 'error': f'Jenis zakat tidak sah: {zakat_type}'}
             

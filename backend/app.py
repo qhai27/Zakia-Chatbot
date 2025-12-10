@@ -11,8 +11,9 @@ app = Flask(__name__)
 CORS(app, 
      origins="*",
      methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-     allow_headers=["Content-Type", "Authorization"],
-     supports_credentials=False)
+     allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
+     supports_credentials=False,
+     max_age=3600)
 
 print("🚀 Starting ZAKIA Chatbot...")
 print("=" * 60)
