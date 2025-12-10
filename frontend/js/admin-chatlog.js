@@ -1,5 +1,5 @@
 // =========================
-// ADMIN CHAT LOG HANDLER - WITH DATE FILTER FOR PRINT
+// ADMIN CHAT LOG HANDLER 
 // =========================
 
 (function () {
@@ -7,7 +7,8 @@
         const CONFIG = {
             API_BASE: 'http://127.0.0.1:5000/admin/chat-logs',
             PAGE_SIZE: 50,
-            AUTO_REFRESH_INTERVAL: 30000
+            AUTO_REFRESH_INTERVAL: 10000,
+            FORCE_NO_CACHE: true 
         };
 
         const DOM = {
@@ -26,13 +27,15 @@
         };
 
         let STATE = {
-            logs: [],
-            filteredLogs: [],
-            currentPage: 1,
-            totalPages: 1,
-            isLoading: false,
-            selectedLogs: new Set(),
-            autoRefreshTimer: null
+        logs: [],
+        filteredLogs: [],
+        currentPage: 1,
+        totalPages: 1,
+        isLoading: false,
+        selectedLogs: new Set(),
+        autoRefreshTimer: null,
+        lastFetchTime: null, // NEW
+        isSectionActive: false // NEW
         };
 
         const UIManager = {
@@ -251,12 +254,23 @@
 
         const APIService = {
             async fetchChatLogs(limit = 10000, offset = 0) {
+                // Add timestamp to URL to prevent caching
+                const timestamp = Date.now();
                 const params = new URLSearchParams({
                     limit: limit.toString(),
-                    offset: offset.toString()
+                    offset: offset.toString(),
+                    _t: timestamp.toString()
                 });
 
-                const res = await fetch(`${CONFIG.API_BASE}?${params}`);
+                console.log(`[API] Fetching chat logs: ${CONFIG.API_BASE}?${params}`);
+
+                // Simple fetch without cache-control headers
+                const res = await fetch(`${CONFIG.API_BASE}?${params}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
 
                 if (!res.ok) {
                     const errorData = await res.json().catch(() => ({}));
@@ -271,9 +285,9 @@
                     return { logs: [], count: 0, total: 0 };
                 }
 
+                console.log(`[API] Received ${data.logs.length} logs (total: ${data.total})`);
                 return data;
             },
-
             async getChatLog(id) {
                 const res = await fetch(`${CONFIG.API_BASE}/${id}`);
                 if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
@@ -314,20 +328,36 @@
                         UIManager.updateStatus('⏳ Memuat chat logs...');
                     }
 
+                    const previousCount = STATE.logs.length;
                     const data = await APIService.fetchChatLogs();
-                    STATE.logs = data.logs || [];
-                    STATE.selectedLogs.clear();
+                    const newLogs = data.logs || [];
+                    
+                    // NEW: Detect new entries
+                    const newCount = newLogs.length - previousCount;
+                    
+                    STATE.logs = newLogs;
+                    STATE.lastFetchTime = new Date(); // NEW
+                    
+                    // Clear selected logs that no longer exist
+                    const existingIds = new Set(STATE.logs.map(l => l.id_log));
+                    STATE.selectedLogs = new Set([...STATE.selectedLogs].filter(id => existingIds.has(id)));
 
                     this.applyFilters();
                     UIManager.updateStats();
 
                     if (STATE.logs.length > 0) {
-                        UIManager.updateStatus(`✅ ${STATE.logs.length} chat logs loaded`);
+                        const statusMsg = `✅ ${STATE.logs.length} chat logs loaded`;
+                        UIManager.updateStatus(statusMsg);
+                        
+                        // NEW: Show indicator for new data
+                        if (silent && newCount > 0) {
+                            console.log(`[AUTO-REFRESH] Found ${newCount} new logs`);
+                        }
                     } else {
                         UIManager.updateStatus('ℹ️ Tiada chat logs ditemui', false);
                     }
                 } catch (error) {
-                    console.error('Error loading chat logs:', error);
+                    console.error('[ERROR] Loading chat logs:', error);
                     UIManager.updateStatus(`❌ Error: ${error.message}`, true);
                     STATE.logs = [];
                     this.applyFilters();
@@ -488,72 +518,70 @@
                     console.log('Delete result:', result);
 
                     if (result && result.success && result.deleted) {
-                        console.log('✅ Delete successful, removing from UI');
-                        
-                        const beforeCount = STATE.logs.length;
-                        STATE.logs = STATE.logs.filter(l => l.id_log !== id);
-                        const afterCount = STATE.logs.length;
-                        
-                        console.log(`Removed from STATE: ${beforeCount} -> ${afterCount}`);
-                        
-                        STATE.selectedLogs.delete(id);
-
-                        this.applyFilters();
+                        console.log('✅ Delete successful, reloading data');
+                        await this.load();
                         UIManager.updateStatus(`✅ Chat log #${id} berjaya dipadam`);
-                        UIManager.updateStats();
                     } else {
                         console.error('Delete failed - invalid response:', result);
                         throw new Error(result?.error || 'Delete operation failed');
                     }
                 } catch (error) {
                     console.error('❌ Delete error:', error);
-                    console.error('Error details:', {
-                        message: error.message,
-                        stack: error.stack
-                    });
                     
-                    UIManager.updateStatus(`❌ Gagal memadam: ${error.message}`, true);
-                    alert(`Gagal memadam chat log:\n${error.message}\n\nSila semak console untuk maklumat lanjut.`);
-                    
-                    console.log('Reloading data to sync with server...');
-                    await this.load();
+                    // NEW: Check if error is 404 (record already deleted)
+                    if (error.message.includes('404') || error.message.includes('not found')) {
+                        console.log('⚠️ Record already deleted or does not exist, refreshing data...');
+                        UIManager.updateStatus(`⚠️ Rekod sudah dipadam sebelum ini. Menyegarkan data...`);
+                        
+                        // Force reload to sync with server
+                        await this.load();
+                    } else {
+                        UIManager.updateStatus(`❌ Gagal memadam: ${error.message}`, true);
+                        alert(`Gagal memadam chat log:\n${error.message}`);
+                        await this.load();
+                    }
                 } finally {
                     UIManager.showLoading(false);
                 }
             },
+
 
             async bulkDelete() {
                 if (STATE.selectedLogs.size === 0) return;
 
                 const confirmed = confirm(
-                    `⚠️ Padam ${STATE.selectedLogs.size} chat logs?\n\nTindakan ini tidak boleh dibatalkan.`
+                    `⚠️ Padam ${STATE.selectedLogs.size} chat logs?`
                 );
                 if (!confirmed) return;
 
                 try {
                     UIManager.showLoading(true);
+
                     const ids = Array.from(STATE.selectedLogs);
-                    
                     const result = await APIService.bulkDeleteChatLogs(ids);
-                    
+
                     if (result.success) {
+
+                        // Remove from local state
                         STATE.logs = STATE.logs.filter(l => !ids.includes(l.id_log));
                         STATE.selectedLogs.clear();
 
+                        // Refilter without resetting page
                         this.applyFilters();
-                        UIManager.updateStatus(`✅ ${result.deleted_count} chat logs berjaya dipadam`);
+
                         UIManager.updateStats();
+                        UIManager.updateStatus(`✅ ${result.deleted_count} chat logs dipadam`);
                     } else {
-                        throw new Error('Bulk delete failed');
+                        throw new Error("Bulk delete failed");
                     }
-                } catch (error) {
-                    console.error('Bulk delete error:', error);
-                    UIManager.updateStatus(`❌ Gagal memadam: ${error.message}`, true);
+                } catch (e) {
+                    UIManager.updateStatus(`❌ Gagal: ${e.message}`, true);
                     await this.load();
                 } finally {
                     UIManager.showLoading(false);
                 }
             },
+
 
             toggleSelectAll() {
                 const selectAllCheckbox = DOM.selectAllCheckbox;
@@ -605,21 +633,32 @@
                 document.body.removeChild(link);
             },
 
-            startAutoRefresh() {
-                if (STATE.autoRefreshTimer) {
-                    clearInterval(STATE.autoRefreshTimer);
-                }
+           startAutoRefresh() {
+                console.log('[AUTO-REFRESH] Starting auto-refresh');
+                
+                // Clear any existing timer
+                this.stopAutoRefresh();
+                
+                STATE.isSectionActive = true; // NEW
 
+                // Set up new interval
                 STATE.autoRefreshTimer = setInterval(() => {
-                    this.load(true);
+                    if (STATE.isSectionActive && !STATE.isLoading) { // CHANGED: Check if active
+                        console.log('[AUTO-REFRESH] Refreshing data...');
+                        this.load(true); // Silent refresh
+                    }
                 }, CONFIG.AUTO_REFRESH_INTERVAL);
+                
+                console.log(`[AUTO-REFRESH] Timer set to ${CONFIG.AUTO_REFRESH_INTERVAL}ms`);
             },
 
             stopAutoRefresh() {
                 if (STATE.autoRefreshTimer) {
+                    console.log('[AUTO-REFRESH] Stopping auto-refresh');
                     clearInterval(STATE.autoRefreshTimer);
                     STATE.autoRefreshTimer = null;
                 }
+                STATE.isSectionActive = false; // NEW
             }
         };
 
@@ -1007,17 +1046,26 @@
                 });
 
                 // Stop auto-refresh when page is hidden
+                // Force reload when page becomes visible (prevent stale data)
                 document.addEventListener('visibilitychange', () => {
-                    if (document.hidden) {
-                        ChatLogOperations.stopAutoRefresh();
-                    } else {
+                    if (!document.hidden) {
                         const chatlogSection = document.getElementById('chatlogSection');
                         if (chatlogSection && chatlogSection.style.display !== 'none') {
-                            ChatLogOperations.startAutoRefresh();
+                            console.log('[VISIBILITY] Page visible again, force reloading data...');
+                            ChatLogOperations.load(true); // Silent reload
                         }
                     }
                 });
-            }
+
+                // NEW: Force reload on window focus
+                window.addEventListener('focus', () => {
+                    const chatlogSection = document.getElementById('chatlogSection');
+                    if (chatlogSection && chatlogSection.style.display !== 'none' && !STATE.isLoading) {
+                        console.log('[FOCUS] Window focused, checking for updates...');
+                        ChatLogOperations.load(true);
+                    }
+                });
+                            }
         };
 
         // Initialize

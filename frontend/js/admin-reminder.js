@@ -7,6 +7,7 @@
         const CONFIG = {
             API_BASE: 'http://127.0.0.1:5000/admin/reminders',
             STATS_API: 'http://127.0.0.1:5000/admin/reminders/stats',
+            CHATLOG_API: 'http://127.0.0.1:5000/admin/chat-logs', 
             PAGE_SIZE: 20
         };
 
@@ -157,7 +158,7 @@
                         <td><code>${this.formatPhone(r.phone)}</code></td>
                         <td>
                             <span class="zakat-type-badge ${r.zakat_type || 'umum'}">
-                                ${r.zakat_type === 'pendapatan' ? '💼' : '💰'} 
+                                ${r.zakat_type === 'pendapatan' ? '💼' : '🏦'} 
                                 ${this.escapeHtml(this.formatZakatType(r.zakat_type))}
                             </span>
                         </td>

@@ -222,20 +222,10 @@ def get_chat_log(log_id):
         }), 500
 
 @admin_chatlog_bp.route('/<int:log_id>', methods=['DELETE', 'OPTIONS'])
-@cross_origin()
+@cross_origin(origins="*", methods=['DELETE', 'OPTIONS'])
 def delete_chat_log(log_id):
     """
     Delete a chat log by ID
-    
-    Args:
-        log_id: The ID of the chat log to delete
-    
-    Returns:
-    {
-        "success": true,
-        "deleted": true,
-        "id": 123
-    }
     """
     # Handle OPTIONS request for CORS preflight
     if request.method == 'OPTIONS':
@@ -245,6 +235,7 @@ def delete_chat_log(log_id):
     print(f"🗑️ DELETE REQUEST for chat log: {log_id}")
     print(f"   Method: {request.method}")
     print(f"   Origin: {request.headers.get('Origin', 'N/A')}")
+    print(f"   Content-Type: {request.headers.get('Content-Type', 'N/A')}")
     print(f"{'='*60}")
     
     try:

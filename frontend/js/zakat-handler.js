@@ -101,7 +101,16 @@ class ZakatHandler {
                         💼 Zakat Pendapatan
                     </button>
                     <button class="zakat-type-btn" data-type="savings">
-                        💰 Zakat Simpanan
+                        🏦 Zakat Simpanan
+                    </button>
+                    <button class="zakat-type-btn" data-type="zakat_kwsp">
+                        🧾 Zakat KWSP
+                    </button>
+                    <button class="zakat-type-btn" data-type="zakat_perak">
+                        🥈 Zakat Perak
+                    </button>
+                    <button class="zakat-type-btn" data-type="zakat_padi">
+                        🌾Zakat Padi
                     </button>
                     <button class="zakat-type-btn" data-type="nisab">
                         📊 Maklumat Nisab
