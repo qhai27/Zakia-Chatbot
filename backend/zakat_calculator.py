@@ -690,10 +690,12 @@ class ZakatCalculator:
 
 
     def calculate_padi_zakat(self, hasil_padi_kg: float, harga_beras_kg: float,
-                            year: str, year_type: str = 'H') -> Dict:
+                             year: str, year_type: str = 'H') -> Dict:
         """
         Calculate zakat for padi (rice)
-        Formula: zakat = hasil_padi_kg × harga_beras_kg × 0.10
+        Correct formula:
+            zakat_kg = hasil × 10%
+            zakat_rm = zakat_kg × harga_beras_kg
         """
         try:
             hasil = float(hasil_padi_kg)
@@ -709,29 +711,34 @@ class ZakatCalculator:
                     'type': 'padi'
                 }
             
-            # Fetch nisab
+            # Fetch nisab padi
             nisab_result = self.fetch_nisab_extended('padi', year, year_type)
             nisab_kg = nisab_result.get('nisab', 1300.0)
             
-            # Calculate total value
-            total_value = hasil * harga
+            # Total value in RM (for display only)
+            total_value_rm = hasil * harga
             
             # Check nisab
             reaches_nisab = hasil >= nisab_kg
-            zakat_amount = total_value * 0.10 if reaches_nisab else 0.0
             
-            # Generate message
+            # Correct zakat formula
+            zakat_kg = hasil * 0.10 if reaches_nisab else 0
+            zakat_rm = zakat_kg * harga if reaches_nisab else 0
+            
+            # Build message
             if reaches_nisab:
                 message = (
                     f"✅ **Hasil padi anda mencapai nisab**\n\n"
-                    f"💰 **Jumlah Zakat: RM{zakat_amount:,.2f}**\n\n"
+                    f"💰 **Jumlah Zakat: RM{zakat_rm:,.2f}**\n\n"
                     f"📊 **Butiran Pengiraan:**\n"
                     f"• Hasil padi: {hasil:,.2f} kg\n"
                     f"• Harga beras: RM{harga:,.2f}/kg\n"
-                    f"• Nilai hasil: RM{total_value:,.2f}\n"
+                    f"• Nilai hasil: RM{total_value_rm:,.2f}\n"
                     f"• Nisab ({year} {year_type}): {nisab_kg:,.2f} kg\n"
-                    f"• Kadar zakat: 10%\n\n"
-                    f"ℹ️ Zakat padi dikira berdasarkan hasil selepas kos pengeluaran"
+                    f"• Kadar zakat: 10% daripada hasil\n"
+                    f"• Zakat (kg): {zakat_kg:,.2f} kg\n"
+                    f"• Zakat (RM): RM{zakat_rm:,.2f}\n\n"
+                    f"ℹ️ Zakat padi dikira berdasarkan jumlah hasil keseluruhan."
                 )
             else:
                 shortfall = nisab_kg - hasil
@@ -741,13 +748,14 @@ class ZakatCalculator:
                     f"📊 **Butiran:**\n"
                     f"• Hasil padi: {hasil:,.2f} kg\n"
                     f"• Nisab ({year} {year_type}): {nisab_kg:,.2f} kg\n"
-                    f"• Kekurangan: {shortfall:,.2f} kg"
+                    f"• Kekurangan: RM{shortfall:,.2f} kg"
                 )
-            
+
             return {
                 'success': True,
-                'zakat_amount': round(zakat_amount, 2),
-                'zakatable_amount': round(total_value, 2),
+                'zakat_amount': round(zakat_rm, 2),
+                'zakatable_amount': round(total_value_rm, 2),
+                'zakat_kg': round(zakat_kg, 2),
                 'reaches_nisab': reaches_nisab,
                 'nisab_value': nisab_kg,
                 'message': message,
@@ -757,12 +765,14 @@ class ZakatCalculator:
                 'details': {
                     'hasil_padi_kg': round(hasil, 2),
                     'harga_beras_kg': round(harga, 2),
-                    'total_value': round(total_value, 2),
+                    'total_value_rm': round(total_value_rm, 2),
+                    'zakat_rm': round(zakat_rm, 2),
+                    'zakat_kg': round(zakat_kg, 2),
                     'rate': 0.10,
                     'shortfall': round(nisab_kg - hasil, 2) if not reaches_nisab else 0
                 }
             }
-            
+
         except Exception as e:
             print(f"Error in calculate_padi_zakat: {e}")
             import traceback
@@ -773,9 +783,8 @@ class ZakatCalculator:
                 'type': 'padi'
             }
 
-
     def calculate_saham_zakat(self, nilai_portfolio: float, hutang_saham: float,
-                             year: str, year_type: str = 'H') -> Dict:
+                              year: str, year_type: str = 'H') -> Dict:
         """
         Calculate zakat for saham (shares/stocks)
         Formula: zakat = (nilai_portfolio - hutang_saham) × 0.025
@@ -970,17 +979,11 @@ class ZakatCalculator:
 
     def calculate_kwsp_zakat(self, jumlah_akaun_1: float, jumlah_akaun_2: float,
                             jumlah_pengeluaran: float, year: str, year_type: str = 'H') -> Dict:
-        """
-        Calculate zakat for KWSP (EPF)
-        Logic:
-        - If jumlah_pengeluaran > 0: zakat = jumlah_pengeluaran × 0.025
-        - Else: zakat = (jumlah_akaun_1 + jumlah_akaun_2) × 0.025
-        """
         try:
             akaun_1 = float(jumlah_akaun_1)
             akaun_2 = float(jumlah_akaun_2)
             pengeluaran = float(jumlah_pengeluaran)
-            
+
             if akaun_1 < 0 or akaun_2 < 0 or pengeluaran < 0:
                 return {
                     'success': True,
@@ -990,73 +993,62 @@ class ZakatCalculator:
                     'message': '❌ Nilai tidak sah.',
                     'type': 'kwsp'
                 }
-            
-            # Fetch nisab (85g emas)
+
+            # Nisab emas
             nisab_result = self.fetch_nisab_extended('kwsp', year, year_type)
             nisab_emas_g = nisab_result.get('nisab', 85.0)
-            
-            # Get nisab value in RM
+
+            # Nisab value in RM
             nisab_data_result = self.fetch_nisab_data(year, year_type)
             if nisab_data_result.get('success'):
-                nisab_data = nisab_data_result.get('data', {})
-                nisab_value = nisab_data.get('nisab_simpanan', 22000)
+                nisab_value = nisab_data_result.get('data', {}).get('nisab_simpanan', 22000)
             else:
                 nisab_value = 22000.0
-            
-            # Calculate simpanan sedia ada
+
+            # Total savings
             simpanan_sedia_ada = akaun_1 + akaun_2
-            
-            # Determine zakatable amount based on KWSP logic
-            if pengeluaran > 0:
+
+            # Step 1 — check nisab using TOTAL savings (not pengeluaran)
+            reaches_nisab = simpanan_sedia_ada >= nisab_value
+
+            # Step 2 — zakat only on withdrawn amount
+            if reaches_nisab and pengeluaran > 0:
                 zakatable = pengeluaran
-                calculation_basis = "pengeluaran"
+                zakat_amount = pengeluaran * 0.02577
             else:
-                zakatable = simpanan_sedia_ada
-                calculation_basis = "simpanan sedia ada"
-            
-            # Check nisab
-            reaches_nisab = zakatable >= nisab_value
-            zakat_amount = zakatable * 0.025 if reaches_nisab else 0.0
-            
-            # Generate message
+                zakatable = 0
+                zakat_amount = 0.0
+
+            # Build message
             if reaches_nisab:
-                message = (
-                    f"✅ **KWSP anda mencapai nisab**\n\n"
-                    f"💰 **Jumlah Zakat: RM{zakat_amount:,.2f}**\n\n"
-                    f"📊 **Butiran Pengiraan:**\n"
-                    f"• Akaun 1: RM{akaun_1:,.2f}\n"
-                    f"• Akaun 2: RM{akaun_2:,.2f}\n"
-                    f"• Simpanan sedia ada: RM{simpanan_sedia_ada:,.2f}\n"
-                )
-                
                 if pengeluaran > 0:
-                    message += f"• Pengeluaran: RM{pengeluaran:,.2f}\n"
-                    message += f"• Asas pengiraan: Pengeluaran\n"
+                    message = (
+                        f"✅ **KWSP anda mencapai nisab**\n\n"
+                        f"💰 **Jumlah Zakat: RM{zakat_amount:,.2f}**\n\n"
+                        f"📊 **Butiran Pengiraan:**\n"
+                        f"• Akaun 1: RM{akaun_1:,.2f}\n"
+                        f"• Akaun 2: RM{akaun_2:,.2f}\n"
+                        f"• Jumlah Simpanan: RM{simpanan_sedia_ada:,.2f}\n"
+                        f"• Pengeluaran: RM{pengeluaran:,.2f}\n"
+                        f"• Kadar zakat: 2.577%\n"
+                    )
                 else:
-                    message += f"• Asas pengiraan: Simpanan sedia ada\n"
-                
-                message += (
-                    f"• Nisab ({year} {year_type}): RM{nisab_value:,.2f} (85g emas)\n"
-                    f"• Kadar zakat: 2.5%\n\n"
-                    f"ℹ️ Zakat KWSP dikira berdasarkan {calculation_basis}"
-                )
+                    message = (
+                        f"ℹ️ **KWSP anda mencapai nisab tetapi tiada pengeluaran dibuat.**\n\n"
+                        f"Tiada zakat dikenakan sehingga pengeluaran dilakukan.\n\n"
+                        f"📊 **Maklumat:**\n"
+                        f"• Simpanan: RM{simpanan_sedia_ada:,.2f}\n"
+                        f"• Nisab: RM{nisab_value:,.2f}\n"
+                    )
             else:
-                shortfall = nisab_value - zakatable
                 message = (
                     f"ℹ️ **KWSP anda belum mencapai nisab**\n\n"
-                    f"Tiada zakat perlu dibayar pada masa ini.\n\n"
-                    f"📊 **Butiran:**\n"
-                    f"• Simpanan sedia ada: RM{simpanan_sedia_ada:,.2f}\n"
+                    f"Tiada zakat dikenakan.\n\n"
+                    f"📊 **Maklumat:**\n"
+                    f"• Simpanan: RM{simpanan_sedia_ada:,.2f}\n"
+                    f"• Nisab: RM{nisab_value:,.2f}\n"
                 )
-                
-                if pengeluaran > 0:
-                    message += f"• Pengeluaran: RM{pengeluaran:,.2f}\n"
-                
-                message += (
-                    f"• Nisab ({year} {year_type}): RM{nisab_value:,.2f}\n"
-                    f"• Kekurangan: RM{shortfall:,.2f}"
-                )
-            
+
             return {
                 'success': True,
                 'zakat_amount': round(zakat_amount, 2),
@@ -1072,12 +1064,10 @@ class ZakatCalculator:
                     'akaun_2': round(akaun_2, 2),
                     'simpanan_sedia_ada': round(simpanan_sedia_ada, 2),
                     'pengeluaran': round(pengeluaran, 2),
-                    'calculation_basis': calculation_basis,
-                    'rate': 0.025,
-                    'shortfall': round(nisab_value - zakatable, 2) if not reaches_nisab else 0
+                    'rate': 0.02577
                 }
             }
-            
+
         except Exception as e:
             print(f"Error in calculate_kwsp_zakat: {e}")
             import traceback
@@ -1087,7 +1077,6 @@ class ZakatCalculator:
                 'error': 'Ralat pengiraan',
                 'type': 'kwsp'
             }
-
 
     def get_nisab_extended(self, zakat_type: str, year: str, year_type: str = 'H') -> Dict:
         """Get nisab info for extended zakat types"""
@@ -1120,11 +1109,12 @@ class ZakatCalculator:
             type_name = type_names.get(zakat_type, zakat_type.capitalize())
             unit = type_units.get(zakat_type, '')
             
+            rate_str = '10%' if zakat_type == 'padi' else '2.5%'
             reply = (
                 f"📊 Maklumat Nisab {type_name} - Tahun {year} "
                 f"({'Hijrah' if year_type=='H' else 'Masihi'})\n\n"
                 f"• Nisab: {nisab_value:,.2f} {unit}\n"
-                f"• Kadar Zakat: 2.5%" if zakat_type != 'padi' else f"• Kadar Zakat: 10%"
+                f"• Kadar Zakat: {rate_str}"
             )
             
             return {

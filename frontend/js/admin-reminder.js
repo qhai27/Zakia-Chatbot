@@ -166,12 +166,12 @@
                     'pendapatan': '💼',
                     'income_kaedah_a': '💼',
                     'income_kaedah_b': '💼',
-                    'simpanan': '🏦',
-                    'savings': '🏦',
+                    'simpanan': '💰',
+                    'savings': '💰',
                     'padi': '🌾',
                     'saham': '📈',
                     'perak': '🥈',
-                    'kwsp': '💼',
+                    'kwsp': '🏦',
                     'umum': '💰'
                 };
 

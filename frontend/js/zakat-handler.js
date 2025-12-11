@@ -88,7 +88,7 @@ class ZakatHandler {
             },
             kwsp: {
                 name: 'Zakat KWSP',
-                icon: '💼',
+                icon: '🏦',
                 steps: ['year_type', 'year', 'jumlah_akaun_1', 'jumlah_akaun_2', 'jumlah_pengeluaran'],
                 prompts: {
                     year_type: 'Sila pilih jenis tahun:',
@@ -166,16 +166,16 @@ class ZakatHandler {
     showZakatMenu() {
         const menuHTML = `
             <div class="zakat-menu">
-                <p style="margin-bottom: 16px; font-weight: 600;">💰 Pilih jenis zakat yang ingin dikira:</p>
+                <p style="margin-bottom: 16px; font-weight: 600;">Pilih jenis zakat yang ingin dikira:</p>
                 <div class="zakat-buttons">
                     <button class="zakat-type-btn" data-type="income_menu">
                         💼 Zakat Pendapatan
                     </button>
                     <button class="zakat-type-btn" data-type="savings">
-                        🏦 Zakat Simpanan
+                        💰 Zakat Simpanan
                     </button>
                     <button class="zakat-type-btn" data-type="kwsp">
-                        💼 Zakat KWSP
+                        🏦Zakat KWSP
                     </button>
                     <button class="zakat-type-btn" data-type="saham">
                         📈 Zakat Saham
