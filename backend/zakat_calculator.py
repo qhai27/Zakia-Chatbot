@@ -689,100 +689,86 @@ class ZakatCalculator:
             }
 
 
-    def calculate_padi_zakat(self, hasil_padi_kg: float, harga_beras_kg: float,
-                             year: str, year_type: str = 'H') -> Dict:
-        """
-        Calculate zakat for padi (rice)
-        Correct formula:
-            zakat_kg = hasil × 10%
-            zakat_rm = zakat_kg × harga_beras_kg
-        """
-        try:
-            hasil = float(hasil_padi_kg)
-            harga = float(harga_beras_kg)
-            
-            if hasil <= 0 or harga <= 0:
+    def calculate_padi_zakat(self, jumlah_hasil_rm: float, year: str, year_type: str = 'H') -> Dict:
+            """
+            Calculate zakat for padi (rice)
+            Simplified formula:
+                If jumlah_hasil_rm >= nisab_rm:
+                    zakat = jumlah_hasil_rm × 10%
+            """
+            try:
+                jumlah_hasil = float(jumlah_hasil_rm)
+                
+                if jumlah_hasil <= 0:
+                    return {
+                        'success': True,
+                        'zakat_amount': 0.0,
+                        'zakatable_amount': 0.0,
+                        'reaches_nisab': False,
+                        'message': '❌ Nilai tidak sah. Sila masukkan nilai yang betul.',
+                        'type': 'padi'
+                    }
+                
+                # Fetch nisab padi (convert to RM if needed)
+                nisab_result = self.fetch_nisab_extended('padi', year, year_type)
+                nisab_rm = 3900.0  # Default nisab value in RM
+                
+                # Check nisab
+                reaches_nisab = jumlah_hasil >= nisab_rm
+                
+                # Calculate zakat: 10% of total harvest value
+                zakat_rm = jumlah_hasil * 0.10 if reaches_nisab else 0
+                
+                # Build message
+                if reaches_nisab:
+                    message = (
+                        f"✅ **Hasil padi anda mencapai nisab**\n\n"
+                        f"💰 **Jumlah Zakat: RM{zakat_rm:,.2f}**\n\n"
+                        f"📊 **Butiran Pengiraan:**\n"
+                        f"• Jumlah hasil: RM{jumlah_hasil:,.2f}\n"
+                        f"• Nisab ({year} {year_type}): RM{nisab_rm:,.2f}\n"
+                        f"• Kadar zakat: 10%\n\n"
+                        f"ℹ️ Zakat padi dikira sebanyak 10% daripada jumlah hasil."
+                    )
+                else:
+                    shortfall = nisab_rm - jumlah_hasil
+                    message = (
+                        f"ℹ️ **Hasil padi anda belum mencapai nisab**\n\n"
+                        f"Tiada zakat perlu dibayar pada masa ini.\n\n"
+                        f"📊 **Butiran:**\n"
+                        f"• Jumlah hasil: RM{jumlah_hasil:,.2f}\n"
+                        f"• Nisab ({year} {year_type}): RM{nisab_rm:,.2f}\n"
+                        f"• Kekurangan: RM{shortfall:,.2f}"
+                    )
+
                 return {
                     'success': True,
-                    'zakat_amount': 0.0,
-                    'zakatable_amount': 0.0,
-                    'reaches_nisab': False,
-                    'message': '❌ Nilai tidak sah. Sila masukkan nilai yang betul.',
+                    'zakat_amount': round(zakat_rm, 2),
+                    'zakatable_amount': round(jumlah_hasil, 2),
+                    'reaches_nisab': reaches_nisab,
+                    'nisab_value': nisab_rm,
+                    'message': message,
+                    'type': 'padi',
+                    'year': year,
+                    'year_type': 'Hijrah' if year_type == 'H' else 'Masihi',
+                    'details': {
+                        'jumlah_hasil_rm': round(jumlah_hasil, 2),
+                        'zakat_rm': round(zakat_rm, 2),
+                        'rate': 0.10,
+                        'shortfall': round(nisab_rm - jumlah_hasil, 2) if not reaches_nisab else 0
+                    }
+                }
+
+            except Exception as e:
+                print(f"Error in calculate_padi_zakat: {e}")
+                import traceback
+                traceback.print_exc()
+                return {
+                    'success': False,
+                    'error': 'Ralat pengiraan',
                     'type': 'padi'
                 }
-            
-            # Fetch nisab padi
-            nisab_result = self.fetch_nisab_extended('padi', year, year_type)
-            nisab_kg = nisab_result.get('nisab', 1300.0)
-            
-            # Total value in RM (for display only)
-            total_value_rm = hasil * harga
-            
-            # Check nisab
-            reaches_nisab = hasil >= nisab_kg
-            
-            # Correct zakat formula
-            zakat_kg = hasil * 0.10 if reaches_nisab else 0
-            zakat_rm = zakat_kg * harga if reaches_nisab else 0
-            
-            # Build message
-            if reaches_nisab:
-                message = (
-                    f"✅ **Hasil padi anda mencapai nisab**\n\n"
-                    f"💰 **Jumlah Zakat: RM{zakat_rm:,.2f}**\n\n"
-                    f"📊 **Butiran Pengiraan:**\n"
-                    f"• Hasil padi: {hasil:,.2f} kg\n"
-                    f"• Harga beras: RM{harga:,.2f}/kg\n"
-                    f"• Nilai hasil: RM{total_value_rm:,.2f}\n"
-                    f"• Nisab ({year} {year_type}): {nisab_kg:,.2f} kg\n"
-                    f"• Kadar zakat: 10% daripada hasil\n"
-                    f"• Zakat (kg): {zakat_kg:,.2f} kg\n"
-                    f"• Zakat (RM): RM{zakat_rm:,.2f}\n\n"
-                    f"ℹ️ Zakat padi dikira berdasarkan jumlah hasil keseluruhan."
-                )
-            else:
-                shortfall = nisab_kg - hasil
-                message = (
-                    f"ℹ️ **Hasil padi anda belum mencapai nisab**\n\n"
-                    f"Tiada zakat perlu dibayar pada masa ini.\n\n"
-                    f"📊 **Butiran:**\n"
-                    f"• Hasil padi: {hasil:,.2f} kg\n"
-                    f"• Nisab ({year} {year_type}): {nisab_kg:,.2f} kg\n"
-                    f"• Kekurangan: RM{shortfall:,.2f} kg"
-                )
-
-            return {
-                'success': True,
-                'zakat_amount': round(zakat_rm, 2),
-                'zakatable_amount': round(total_value_rm, 2),
-                'zakat_kg': round(zakat_kg, 2),
-                'reaches_nisab': reaches_nisab,
-                'nisab_value': nisab_kg,
-                'message': message,
-                'type': 'padi',
-                'year': year,
-                'year_type': 'Hijrah' if year_type == 'H' else 'Masihi',
-                'details': {
-                    'hasil_padi_kg': round(hasil, 2),
-                    'harga_beras_kg': round(harga, 2),
-                    'total_value_rm': round(total_value_rm, 2),
-                    'zakat_rm': round(zakat_rm, 2),
-                    'zakat_kg': round(zakat_kg, 2),
-                    'rate': 0.10,
-                    'shortfall': round(nisab_kg - hasil, 2) if not reaches_nisab else 0
-                }
-            }
-
-        except Exception as e:
-            print(f"Error in calculate_padi_zakat: {e}")
-            import traceback
-            traceback.print_exc()
-            return {
-                'success': False,
-                'error': 'Ralat pengiraan',
-                'type': 'padi'
-            }
-
+        
     def calculate_saham_zakat(self, nilai_portfolio: float, hutang_saham: float,
                               year: str, year_type: str = 'H') -> Dict:
         """

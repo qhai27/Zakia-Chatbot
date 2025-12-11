@@ -56,12 +56,11 @@ class ZakatHandler {
             padi: {
                 name: 'Zakat Padi',
                 icon: '🌾',
-                steps: ['year_type', 'year', 'hasil_padi_kg', 'harga_beras_kg'],
+                steps: ['year_type', 'year', 'jumlah_hasil_rm'],
                 prompts: {
                     year_type: 'Sila pilih jenis tahun:',
                     year: 'Sila pilih tahun:',
-                    hasil_padi_kg: '🌾 Sila masukkan hasil padi anda (kg):',
-                    harga_beras_kg: '💰 Sila masukkan harga beras per kg (RM):'
+                    jumlah_hasil_rm: '🌾 Sila masukkan jumlah hasil padi anda dalam RM:'
                 }
             },
             saham: {
@@ -581,9 +580,9 @@ class ZakatHandler {
                     year_type: this.state.yearType
                 };
             } else if (this.state.type === 'padi') {
+                // padi now accepts jumlah_rm (total value in RM)
                 payload = {
-                    hasil_padi_kg: this.state.data.hasil_padi_kg,
-                    harga_beras_kg: this.state.data.harga_beras_kg,
+                    jumlah_rm: Number(this.state.data.jumlah_hasil_rm) || 0,
                     year: this.state.year,
                     year_type: this.state.yearType
                 };

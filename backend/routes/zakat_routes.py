@@ -1,9 +1,8 @@
 """
-Extended Zakat Routes for Padi, Saham, Perak, KWSP
-Follows identical pattern as existing zakat routes
+Zakat Routes - Handles API endpoints for zakat calculations
 """
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from zakat_calculator import ZakatCalculator
 
 # Create blueprint - export as zakat_bp for app.py compatibility
@@ -134,78 +133,39 @@ def calculate_zakat():
 
 
 # Both endpoint patterns supported
-@zakat_bp.route("/zakat-calculator/padi", methods=["POST"])
-@zakat_extended_bp.route("/api/calculate-zakat-padi", methods=["POST"])
-def calculate_zakat_padi():
-    """Calculate zakat for padi (rice)"""
+@zakat_bp.route('/zakat-calculator/padi', methods=['POST'])
+def calculate_padi_zakat_api():
+    """Calculate zakat for padi (accepts jumlah_rm in RM)"""
     try:
-        data = request.get_json()
-        
-        if not data:
+        payload = request.get_json() or {}
+        jumlah_rm = float(payload.get('jumlah_rm') or 0)
+        year = payload.get('year', '')
+        year_type = payload.get('year_type', 'M')
+
+        if jumlah_rm <= 0:
             return jsonify({
                 'success': False,
-                'error': 'Tiada data diterima'
+                'error': 'Jumlah hasil diperlukan dan mesti lebih daripada 0'
             }), 400
-        
-        # Get inputs
-        hasil_padi_kg = data.get('hasil_padi_kg')
-        harga_beras_kg = data.get('harga_beras_kg')
-        year = data.get('year', '1447')
-        year_type = data.get('year_type', 'H')
-        
-        # Validate
-        if hasil_padi_kg is None or harga_beras_kg is None:
+
+        calc = ZakatCalculator()
+        result = calc.calculate_padi_zakat(jumlah_rm, year, year_type)
+
+        if result['success']:
+            return jsonify({
+                'success': True,
+                'reply': result['message'],
+                'data': result
+            })
+        else:
             return jsonify({
                 'success': False,
-                'error': 'Hasil padi dan harga beras diperlukan'
+                'error': result.get('error', 'Ralat pengiraan')
             }), 400
-        
-        try:
-            hasil_padi_kg = float(hasil_padi_kg)
-            harga_beras_kg = float(harga_beras_kg)
-        except (ValueError, TypeError):
-            return jsonify({
-                'success': False,
-                'error': 'Nilai tidak sah'
-            }), 400
-        
-        # Calculate
-        result = calculator.calculate_padi_zakat(
-            hasil_padi_kg=hasil_padi_kg,
-            harga_beras_kg=harga_beras_kg,
-            year=str(year),
-            year_type=year_type
-        )
-        
-        if not result or not result.get('success'):
-            return jsonify({
-                'success': False,
-                'error': result.get('error', 'Ralat pengiraan') if result else 'Ralat pengiraan'
-            }), 400
-        
-        return jsonify({
-            'success': True,
-            'reply': result.get('message', ''),
-            'data': {
-                'zakat_amount': result.get('zakat_amount', 0),
-                'zakatable_amount': result.get('zakatable_amount', 0),
-                'reaches_nisab': result.get('reaches_nisab', False),
-                'nisab_value': result.get('nisab_value', 0),
-                'type': 'padi',
-                'year': result.get('year', year),
-                'year_type': result.get('year_type', year_type),
-                'details': result.get('details', {})
-            }
-        }), 200
-        
+
     except Exception as e:
-        print(f"Error in calculate_zakat_padi: {e}")
-        import traceback
-        traceback.print_exc()
-        return jsonify({
-            'success': False,
-            'error': 'Ralat sistem. Sila cuba lagi.'
-        }), 500
+        current_app.logger.exception("calculate_padi_zakat_api error")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 # Both endpoint patterns supported
