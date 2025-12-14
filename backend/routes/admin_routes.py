@@ -343,9 +343,9 @@ def admin_stats():
         }), 500
 
 
-@admin_bp.route("/admin/chat-logs", methods=["GET"])
-def admin_chat_logs():
-    """List recent chat logs for admin page."""
+@admin_bp.route("/admin/chat-logs-OLD-DISABLED", methods=["GET"])
+def admin_chat_logs_old_disabled():
+    """DISABLED: Use admin_chatlog_routes.py instead - List recent chat logs for admin page."""
     try:
         # Ensure database connection
         if not db.connection or not db.connection.is_connected():

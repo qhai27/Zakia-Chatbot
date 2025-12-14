@@ -6,8 +6,8 @@ Handles chat log management with timezone handling from database
 from flask import Blueprint, request, jsonify
 from flask_cors import cross_origin
 from database import DatabaseManager
-from datetime import datetime
-import pytz
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
 # Create blueprint with explicit URL prefix
 admin_chatlog_bp = Blueprint('admin_chatlog', __name__, url_prefix='/admin/chat-logs')
@@ -16,7 +16,7 @@ admin_chatlog_bp = Blueprint('admin_chatlog', __name__, url_prefix='/admin/chat-
 db = DatabaseManager()
 
 # Timezone for Malaysia
-MALAYSIA_TZ = pytz.timezone('Asia/Kuala_Lumpur')
+MALAYSIA_TZ = ZoneInfo('Asia/Kuala_Lumpur')
 
 print("\n" + "="*60)
 print("📋 ADMIN CHATLOG ROUTES LOADED")
@@ -31,7 +31,7 @@ def format_timestamp(dt):
     
     # If datetime is naive (no timezone), assume it's UTC
     if dt.tzinfo is None:
-        dt = pytz.utc.localize(dt)
+        dt = dt.replace(tzinfo=timezone.utc)
     
     # Convert to Malaysia timezone
     malaysia_time = dt.astimezone(MALAYSIA_TZ)
@@ -64,9 +64,9 @@ def list_chat_logs():
         
         # Ensure database connection
         if not db.connection or not db.connection.is_connected():
-            print("⚠️ Database not connected, attempting to connect...")
+            print("⚠️ Database not connected, reconnecting...")
             if not db.connect():
-                print("❌ Database connection failed")
+                print("❌ Failed to establish database connection")
                 return jsonify({
                     "success": False,
                     "logs": [],
@@ -74,7 +74,8 @@ def list_chat_logs():
                     "total": 0,
                     "error": "Database connection failed"
                 }), 500
-            print("✅ Database connected successfully")
+        
+        print("✅ Database connection ready, executing query...")
         
         cursor = db.connection.cursor(dictionary=True)
         
@@ -93,14 +94,24 @@ def list_chat_logs():
             search_param = f"%{search}%"
             params = [search_param, search_param, search_param, search_param, search_param]
         
-        # Get total count
-        count_query = f"SELECT COUNT(*) as total FROM chat_logs {where_clause}"
+        # CACHE BUSTER: Add timestamp parameter to force query re-execution
+        # This prevents MySQL query cache from returning stale results
+        cache_buster_param = datetime.now().timestamp()
+        print(f"[CACHE BUSTER] Using timestamp: {cache_buster_param}")
+        
+        # Get total count - use separate query to ensure fresh read
+        print("[QUERY] Executing COUNT query...")
+        # Use SQL_NO_CACHE to prevent MySQL query cache from returning stale results
+        count_query = f"SELECT SQL_NO_CACHE COUNT(*) as total FROM chat_logs {where_clause}"
         cursor.execute(count_query, params)
-        total = cursor.fetchone()['total']
+        count_result = cursor.fetchone()
+        total = count_result['total'] if count_result else 0
+        print(f"[RESULT] COUNT result: {total}")
         
         # Get paginated results - order by created_at DESC for most recent first
+        print("[QUERY] Executing SELECT query...")
         query = f"""
-            SELECT 
+            SELECT SQL_NO_CACHE
                 id_log,
                 id_user,
                 session_id,
@@ -115,6 +126,7 @@ def list_chat_logs():
         
         cursor.execute(query, params + [limit, offset])
         rows = cursor.fetchall()
+        print(f"[RESULT] SELECT returned {len(rows)} rows")
         
         # Format timestamps using Malaysia timezone
         logs = []
@@ -240,7 +252,10 @@ def delete_chat_log(log_id):
     
     try:
         # Ensure database connection
-        if not db.connection or not db.connection.is_connected():
+        try:
+            if not db.connection or not db.connection.is_connected():
+                raise Exception("Connection not valid")
+        except:
             print("⚠️ Database not connected, reconnecting...")
             if not db.connect():
                 print("❌ Database connection failed")

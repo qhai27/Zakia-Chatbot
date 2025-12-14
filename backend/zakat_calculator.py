@@ -170,28 +170,45 @@ class ZakatCalculator:
         headers = {'User-Agent': 'ZAKIA/1.0'}
         
         try:
+            if self.DEBUG:
+                print(f"[DEBUG] Fetching main nisab from: {url} with params {params}")
+            
             resp = requests.get(url, params=params, headers=headers, timeout=12)
             resp.raise_for_status()
             text = resp.text or ''
+            
+            if self.DEBUG:
+                print(f"[DEBUG] API Response received (text length: {len(text)})")
             
             # Try JSON first
             parsed = None
             try:
                 parsed = resp.json()
+                if self.DEBUG:
+                    print(f"[DEBUG] Successfully parsed JSON response (type: {type(parsed).__name__})")
             except ValueError:
+                if self.DEBUG:
+                    print(f"[DEBUG] Response not valid JSON, will try text parsing")
                 parsed = None
 
-            # Normalize JSON response
+            # Normalize JSON response - handle both list and dict
             data = {}
             if isinstance(parsed, dict):
                 data = parsed
             elif isinstance(parsed, list) and parsed and isinstance(parsed[0], dict):
                 data = parsed[0]
+                if self.DEBUG:
+                    print(f"[DEBUG] Extracted dict from list (list length: {len(parsed)})")
+            
+            if self.DEBUG and data:
+                print(f"[DEBUG] Normalized data keys: {list(data.keys())}")
 
             # Extract key values with fallback
             def pick(d, keys):
                 for k in keys:
                     if k in d and d[k] not in (None, ''):
+                        if self.DEBUG:
+                            print(f"[DEBUG] Found '{k}' = {d[k]}")
                         return d[k]
                 return None
 
@@ -221,6 +238,9 @@ class ZakatCalculator:
                 'nisab_simpanan': float(nisab_simpanan),
                 'kadar_zakat': float(kadar)
             }
+
+            if self.DEBUG:
+                print(f"[DEBUG] Final nisab data: {normalized}")
 
             self.current_nisab_data = normalized
             return {'success': True, 'data': normalized, 'raw': parsed if parsed else text}
@@ -273,50 +293,103 @@ class ZakatCalculator:
     def fetch_nisab_extended(self, zakat_type: str, year: str, year_type: str = 'H') -> Dict:
         """
         Fetch nisab for extended zakat types (padi, saham, perak, kwsp)
-        Uses JomZakat API with fallback defaults
+        Uses JomZakat main API endpoint: /koding/kalkulator.php?mode=semakHaul&haul=<year>
+        This endpoint returns all nisab values in one response
+        Falls back to defaults if API fails
         """
-        url = f"{self.BASE_API_URL}/public/nisab"
-        params = {'type': zakat_type, 'haul': year}
+        # Use the main API endpoint which contains all nisab data
+        url = f"{self.BASE_API_URL}/koding/kalkulator.php"
+        params = {'mode': 'semakHaul', 'haul': year}
         headers = {'User-Agent': 'ZAKIA/1.0'}
         
+        # Map zakat types to API response field names
+        field_map = {
+            'padi': 'NISABPADI',
+            'saham': 'NISABEMAS',      # Using gold (emas) as equiv for saham
+            'perak': 'NISABPERAK',
+            'kwsp': 'NISABEMAS'         # Using gold (emas) as equiv for kwsp
+        }
+        
         defaults = {
-            'padi': 1300.0,   # kg
-            'saham': 85.0,    # gram emas
-            'perak': 595.0,   # gram perak
-            'kwsp': 85.0      # gram emas
+            'padi': 1300.49,      # Rm/kg
+            'saham': 38618.66,       # (equivalent RM value)
+            'perak': 595.0,      # gram perak
+            'kwsp': 38618.66         # (equivalent RM value)
         }
         
         try:
+            if self.DEBUG:
+                print(f"[DEBUG] Fetching {zakat_type} nisab from: {url} with params {params}")
+            
             resp = requests.get(url, params=params, headers=headers, timeout=12)
             resp.raise_for_status()
+            text = resp.text or ''
             
+            # Try to parse JSON
             try:
                 data = resp.json()
+                if self.DEBUG:
+                    print(f"[DEBUG] API Response type: {type(data).__name__}")
+                
+                # Handle both list and dict responses
+                if isinstance(data, list) and data and isinstance(data[0], dict):
+                    data = data[0]
+                    if self.DEBUG:
+                        print(f"[DEBUG] Extracted dict from list")
+                
                 if isinstance(data, dict):
-                    nisab_map = {
-                        'padi': data.get('nisab_padi'),
-                        'saham': data.get('nisab_emas'),
-                        'perak': data.get('nisab_perak'),
-                        'kwsp': data.get('nisab_emas')
+                    # Get the field for this zakat type
+                    field_name = field_map.get(zakat_type)
+                    nisab_value = data.get(field_name) if field_name else None
+                    
+                    if self.DEBUG:
+                        print(f"[DEBUG] Looking for field '{field_name}' in keys: {list(data.keys())}")
+                    
+                    if nisab_value:
+                        nisab_float = self._parse_amount(str(nisab_value))
+                        if nisab_float > 0:
+                            if self.DEBUG:
+                                print(f"[DEBUG] Found {zakat_type} nisab: {nisab_float} (from {field_name})")
+                            return {
+                                'success': True,
+                                'nisab': nisab_float,
+                                'raw': data,
+                                'source': 'jomzakat_api',
+                                'api_field': field_name
+                            }
+            except (ValueError, json.JSONDecodeError):
+                # Not JSON, try text parsing as fallback
+                if self.DEBUG:
+                    print(f"[DEBUG] Response not valid JSON, trying text parsing: {text[:200]}...")
+                nisab_value = self._parse_amount(text)
+                if nisab_value > 0:
+                    return {
+                        'success': True,
+                        'nisab': nisab_value,
+                        'source': 'jomzakat_api_text'
                     }
-                    nisab = nisab_map.get(zakat_type) or defaults.get(zakat_type, 0)
-                    return {'success': True, 'nisab': float(nisab), 'raw': data}
-            except ValueError:
-                pass
             
             # Fallback to default
-            return {
-                'success': True,
-                'nisab': defaults.get(zakat_type, 0),
-                'fallback': True
-            }
+            if self.DEBUG:
+                print(f"[DEBUG] Using default nisab for {zakat_type}: {defaults.get(zakat_type, 0)}")
             
-        except requests.RequestException as e:
             return {
                 'success': True,
                 'nisab': defaults.get(zakat_type, 0),
                 'fallback': True,
-                'error': str(e)
+                'reason': 'API did not return valid nisab value for field: ' + field_map.get(zakat_type, 'unknown')
+            }
+            
+        except requests.RequestException as e:
+            if self.DEBUG:
+                print(f"[DEBUG] API request failed: {str(e)}")
+            
+            return {
+                'success': True,
+                'nisab': defaults.get(zakat_type, 0),
+                'fallback': True,
+                'error': str(e),
+                'reason': 'API request failed'
             }
 
 
@@ -744,29 +817,48 @@ class ZakatCalculator:
             print(f"Error in calculate_saham_zakat: {e}")
             return {'success': False, 'error': 'Ralat pengiraan', 'type': 'saham'}
 
-    def calculate_perak_zakat(self, berat_perak_g: float, harga_per_gram: float,
-                             year: str, year_type: str = 'H') -> Dict:
-        """Calculate zakat for perak (silver)"""
+    def calculate_perak_zakat(self, berat_perak_g: float, year: str, year_type: str = 'H') -> Dict:
+        """Calculate zakat for perak (silver)
+        
+        Fetches perak price (RM per gram) from JomZakat API
+        User only needs to input: berat_perak_g (weight in grams)
+        
+        Calculation: if (weight >= nisab): (weight × price_per_gram) × 2.577%
+        """
         try:
             berat = self._safe_float(berat_perak_g)
-            harga = self._safe_float(harga_per_gram)
             
-            if berat <= 0 or harga <= 0:
+            if berat <= 0:
                 return {
                     'success': True,
                     'zakat_amount': 0.0,
                     'zakatable_amount': 0.0,
                     'reaches_nisab': False,
-                    'message': '❌ Nilai tidak sah.',
+                    'message': '❌ Nilai berat tidak sah. Sila masukkan nilai yang betul.',
                     'type': 'perak'
                 }
             
-            # Get nisab (595g perak)
-            nisab_result = self.fetch_nisab_extended('perak', year, year_type)
-            nisab_g = self._safe_float(nisab_result.get('nisab', 595.0))
+            # Fetch nisab data (which includes price per gram)
+            nisab_result = self.fetch_nisab_data(year, year_type)
+            if not nisab_result.get('success'):
+                return {'success': False, 'error': 'Gagal mendapatkan data nisab dari API', 'type': 'perak'}
+            
+            # Extract nisab and price from API response
+            api_data = nisab_result.get('raw', {})
+            if isinstance(api_data, list) and api_data:
+                api_data = api_data[0]
+            
+            # Perak nisab is FIXED at 595 grams (Islamic standard)
+            nisab_g = 595.0
+            
+            # Get perak price per gram (RM) from API - NILAIPERAK field
+            harga_per_gram = self._safe_float(api_data.get('NILAIPERAK', 2.32))
+            
+            if self.DEBUG:
+                print(f"[DEBUG] Perak nisab: {nisab_g}g, Price per gram: RM{harga_per_gram}")
             
             # Calculate value
-            total_value = berat * harga
+            total_value = berat * harga_per_gram
             
             # Check nisab & calculate zakat (2.577%)
             reaches_nisab = berat >= nisab_g
@@ -779,10 +871,11 @@ class ZakatCalculator:
                     f"💰 **Jumlah Zakat: RM{zakat_amount:,.2f}**\n\n"
                     f"📊 **Butiran Pengiraan:**\n"
                     f"• Berat perak: {berat:,.2f} gram\n"
-                    f"• Harga per gram: RM{harga:,.2f}\n"
+                    f"• Harga per gram: RM{harga_per_gram:,.2f}\n"
                     f"• Nilai perak: RM{total_value:,.2f}\n"
-                    f"• Nisab ({year} {year_type}): {nisab_g:,.2f} gram\n"
-                    f"• Kadar zakat: 2.5%"
+                    f"• Nisab ({year} {'Hijrah' if year_type == 'H' else 'Masihi'}): {nisab_g:,.2f} gram\n"
+                    f"• Kadar zakat: 2.577%\n\n"
+                    f"Formula: ({berat} × RM{harga_per_gram}) × 2.577% = RM{zakat_amount:,.2f}"
                 )
             else:
                 shortfall = nisab_g - berat
@@ -791,8 +884,8 @@ class ZakatCalculator:
                     f"Tiada zakat perlu dibayar pada masa ini.\n\n"
                     f"📊 **Butiran:**\n"
                     f"• Berat perak: {berat:,.2f} gram\n"
-                    f"• Nisab ({year} {year_type}): {nisab_g:,.2f} gram\n"
-                    f"• Kekurangan: RM{shortfall:,.2f} gram"
+                    f"• Nisab ({year} {'Hijrah' if year_type == 'H' else 'Masihi'}): {nisab_g:,.2f} gram\n"
+                    f"• Kekurangan: {shortfall:,.2f} gram"
                 )
             
             return {
@@ -807,9 +900,10 @@ class ZakatCalculator:
                 'year_type': 'Hijrah' if year_type == 'H' else 'Masihi',
                 'details': {
                     'berat_perak_g': round(berat, 2),
-                    'harga_per_gram': round(harga, 2),
+                    'harga_per_gram': round(harga_per_gram, 2),
+                    'harga_source': 'jomzakat_api',
                     'total_value': round(total_value, 2),
-                    'rate': 0.025,
+                    'rate': 0.02577,
                     'shortfall': round(nisab_g - berat, 2) if not reaches_nisab else 0
                 }
             }

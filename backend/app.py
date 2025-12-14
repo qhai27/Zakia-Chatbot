@@ -231,14 +231,14 @@ except ImportError as e:
     try:
         from flask import Blueprint, request, jsonify
         from database import DatabaseManager
-        import pytz
-        from datetime import datetime
+        from zoneinfo import ZoneInfo
+        from datetime import datetime, timezone
         
         admin_chatlog_bp = Blueprint('admin_chatlog', __name__, url_prefix='/admin/chat-logs')
         db_chatlog = DatabaseManager()
         
         # Timezone for Malaysia
-        MALAYSIA_TZ = pytz.timezone('Asia/Kuala_Lumpur')
+        MALAYSIA_TZ = ZoneInfo('Asia/Kuala_Lumpur')
         
         def format_timestamp(dt):
             """Format timestamp to Malaysia timezone"""
@@ -247,7 +247,7 @@ except ImportError as e:
             
             # If datetime is naive (no timezone), assume it's UTC
             if dt.tzinfo is None:
-                dt = pytz.utc.localize(dt)
+                dt = dt.replace(tzinfo=timezone.utc)
             
             # Convert to Malaysia timezone
             malaysia_time = dt.astimezone(MALAYSIA_TZ)

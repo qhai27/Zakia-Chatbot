@@ -321,7 +321,7 @@
         };
 
         const ChatLogOperations = {
-            async load(silent = false) {
+            async load(silent = false, retryCount = 0) {
                 try {
                     if (!silent) {
                         UIManager.showLoading(true);
@@ -332,11 +332,14 @@
                     const data = await APIService.fetchChatLogs();
                     const newLogs = data.logs || [];
                     
-                    // NEW: Detect new entries
-                    const newCount = newLogs.length - previousCount;
+                    // IMPORTANT: Detect if data truly changed
+                    const newCount = newLogs.length;
+                    const countChanged = newCount !== previousCount;
+                    
+                    console.log(`[LOAD] Previous: ${previousCount}, New: ${newCount}, Changed: ${countChanged}`);
                     
                     STATE.logs = newLogs;
-                    STATE.lastFetchTime = new Date(); // NEW
+                    STATE.lastFetchTime = new Date();
                     
                     // Clear selected logs that no longer exist
                     const existingIds = new Set(STATE.logs.map(l => l.id_log));
@@ -348,19 +351,40 @@
                     if (STATE.logs.length > 0) {
                         const statusMsg = `✅ ${STATE.logs.length} chat logs loaded`;
                         UIManager.updateStatus(statusMsg);
-                        
-                        // NEW: Show indicator for new data
-                        if (silent && newCount > 0) {
-                            console.log(`[AUTO-REFRESH] Found ${newCount} new logs`);
-                        }
                     } else {
                         UIManager.updateStatus('ℹ️ Tiada chat logs ditemui', false);
                     }
+                    
+                    // Reset retry counter on success
+                    return true;
                 } catch (error) {
-                    console.error('[ERROR] Loading chat logs:', error);
-                    UIManager.updateStatus(`❌ Error: ${error.message}`, true);
-                    STATE.logs = [];
-                    this.applyFilters();
+                    console.error(`[ERROR] Loading chat logs (attempt ${retryCount + 1}):`, error);
+                    
+                    // IMPORTANT: Retry logic for connection errors
+                    const isConnectionError = error.message.includes('Failed to fetch') || 
+                                            error.message.includes('ERR_CONNECTION') ||
+                                            error.message.includes('500');
+                    
+                    if (isConnectionError && retryCount < 3) {
+                        console.warn(`⚠️ Connection error, retrying in ${(retryCount + 1) * 1000}ms...`);
+                        UIManager.updateStatus(`⚠️ Sambungan terputus, mencuba semula...`, true);
+                        
+                        // Wait before retry (exponential backoff: 1s, 2s, 3s)
+                        await new Promise(resolve => setTimeout(resolve, (retryCount + 1) * 1000));
+                        
+                        // Recursive retry
+                        return this.load(silent, retryCount + 1);
+                    }
+                    
+                    // If no retry or retries exhausted, show error
+                    UIManager.updateStatus(`❌ Gagal memuatkan: ${error.message}`, true);
+                    
+                    // Keep existing data if available (don't wipe out)
+                    if (STATE.logs.length === 0) {
+                        this.applyFilters();
+                    }
+                    
+                    return false;
                 } finally {
                     if (!silent) {
                         UIManager.showLoading(false);
@@ -513,14 +537,28 @@
                     UIManager.showLoading(true);
                     UIManager.updateStatus(`⏳ Memadam chat log #${id}...`);
                     
+                    // Remove from UI state immediately (optimistic update)
+                    // This ensures UI stays in sync even if backend is slow or has cache issues
+                    const indexInState = STATE.logs.findIndex(l => l.id_log === id);
+                    if (indexInState >= 0) {
+                        STATE.logs.splice(indexInState, 1);
+                        console.log(`✅ Removed from UI state. Remaining: ${STATE.logs.length}`);
+                    }
+                    
                     const result = await APIService.deleteChatLog(id);
                     
                     console.log('Delete result:', result);
 
                     if (result && result.success && result.deleted) {
-                        console.log('✅ Delete successful, reloading data');
-                        await this.load();
+                        console.log('✅ Delete successful on backend, updating UI...');
+                        // Re-render table to reflect removal
+                        console.log(`[DEBUG] Calling applyFilters with ${STATE.logs.length} remaining logs`);
+                        this.applyFilters();
+                        UIManager.updateStats();
                         UIManager.updateStatus(`✅ Chat log #${id} berjaya dipadam`);
+                        console.log(`[DEBUG] Table rendered, scheduling full refresh in 2 seconds...`);
+                        // After 2 seconds, force full refresh to ensure DB sync
+                        setTimeout(() => this.load(), 2000);
                     } else {
                         console.error('Delete failed - invalid response:', result);
                         throw new Error(result?.error || 'Delete operation failed');
@@ -528,17 +566,22 @@
                 } catch (error) {
                     console.error('❌ Delete error:', error);
                     
-                    // NEW: Check if error is 404 (record already deleted)
+                    // Check if error is 404 (record already deleted)
                     if (error.message.includes('404') || error.message.includes('not found')) {
-                        console.log('⚠️ Record already deleted or does not exist, refreshing data...');
+                        console.log('⚠️ Record already deleted, syncing UI with server...');
                         UIManager.updateStatus(`⚠️ Rekod sudah dipadam sebelum ini. Menyegarkan data...`);
-                        
-                        // Force reload to sync with server
+                        // Force full reload to sync
                         await this.load();
                     } else {
+                        console.error(`Server error: ${error.message}`);
+                        // If delete failed on backend, restore to UI state
+                        if (!STATE.logs.find(l => l.id_log === id)) {
+                            // Reload to restore deleted item
+                            console.log('⚠️ Delete failed, restoring data from server...');
+                            await this.load();
+                        }
                         UIManager.updateStatus(`❌ Gagal memadam: ${error.message}`, true);
                         alert(`Gagal memadam chat log:\n${error.message}`);
-                        await this.load();
                     }
                 } finally {
                     UIManager.showLoading(false);

@@ -1,3 +1,7 @@
 {
-  "python.analysis.extraPaths": ["./backend/routes"]
+  "python.analysis.extraPaths": [
+    "./backend/routes",
+    "./backend"
+  ],
+  "claudeCodeChat.permissions.yoloMode": true
 }

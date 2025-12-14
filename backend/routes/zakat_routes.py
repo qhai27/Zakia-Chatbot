@@ -181,21 +181,23 @@ def calculate_zakat_saham():
 
 @zakat_bp.route("/zakat-calculator/perak", methods=["POST"])
 def calculate_zakat_perak():
-    """Calculate zakat for perak (silver)"""
+    """Calculate zakat for perak (silver)
+    
+    Fetches perak price from JomZakat API - user only inputs weight
+    """
     try:
         data = request.get_json() or {}
-        is_valid, error = validate_input(data, ['berat_perak_g', 'harga_per_gram'])
+        is_valid, error = validate_input(data, ['berat_perak_g'])
         if not is_valid:
             return jsonify({'success': False, 'error': error}), 400
 
         berat_perak_g = safe_float(data.get('berat_perak_g'))
-        harga_per_gram = safe_float(data.get('harga_per_gram'))
         year = data.get('year', '1447')
         year_type = data.get('year_type', 'H')
 
+        # Price is now fetched from JomZakat API inside calculator
         result = calculator.calculate_perak_zakat(
             berat_perak_g=berat_perak_g,
-            harga_per_gram=harga_per_gram,
             year=str(year),
             year_type=year_type
         )
@@ -335,13 +337,13 @@ def nisab_info():
             f"   • Nisab: {nisab_padi:,.2f} kg",
             f"   • Kadar: 10%\n",
             "📈 **Zakat Saham:**",
-            f"   • Nisab: {nisab_saham:,.2f} gram emas",
+            f"   • Nisab: RM{nisab_saham:,.2f}",
             f"   • Kadar: 2.5%\n",
             "🥈 **Zakat Perak:**",
             f"   • Nisab: {nisab_perak:,.2f} gram",
             f"   • Kadar: 2.577%\n",
             "🏦 **Zakat KWSP:**",
-            f"   • Nisab: {nisab_kwsp:,.2f} gram emas",
+            f"   • Nisab: RM{nisab_kwsp:,.2f}",
             f"   • Kadar: 2.577%"
         ]
 
@@ -352,9 +354,9 @@ def nisab_info():
                 'pendapatan': {'nisab': nisab_pendapatan, 'kadar': kadar, 'unit': 'RM'},
                 'simpanan': {'nisab': nisab_simpanan, 'kadar': kadar, 'unit': 'RM'},
                 'padi': {'nisab': nisab_padi, 'kadar': 0.10, 'unit': 'kg'},
-                'saham': {'nisab': nisab_saham, 'kadar': 0.025, 'unit': 'gram emas'},
+                'saham': {'nisab': nisab_saham, 'kadar': 0.025, 'unit': 'RM'},
                 'perak': {'nisab': nisab_perak, 'kadar': 0.02577, 'unit': 'gram'},
-                'kwsp': {'nisab': nisab_kwsp, 'kadar': 0.02577, 'unit': 'gram emas'}
+                'kwsp': {'nisab': nisab_kwsp, 'kadar': 0.02577, 'unit': 'RM'}
             },
             'year': year,
             'year_type': year_label
