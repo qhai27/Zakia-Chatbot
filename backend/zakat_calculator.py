@@ -648,9 +648,11 @@ class ZakatCalculator:
         except Exception as e:
             print(f"Error in calculate_savings_zakat: {e}")
             return {'success': False, 'error': 'Ralat pengiraan', 'type': 'savings'}
+        
 
     def calculate_padi_zakat(self, jumlah_rm: float, year: str, year_type: str = 'H') -> Dict:
-        """Calculate zakat for padi (rice) - input total value in RM"""
+        """Calculate zakat for padi (rice) - input total value in RM
+        """
         try:
             total_value = self._safe_float(jumlah_rm)
             
@@ -664,30 +666,31 @@ class ZakatCalculator:
                     'type': 'padi'
                 }
             
-            # Get nisab in RM (default 3900 RM for padi)
-            nisab_rm = 3900.0
-            try:
-                nisab_res = self.fetch_nisab_data(year, year_type)
-                if nisab_res.get('success'):
-                    nisab_rm = self._safe_float(
-                        nisab_res['data'].get('nisab_simpanan', nisab_rm),
-                        nisab_rm
-                    )
-            except Exception:
-                pass
+            # FIXED: Get padi nisab from JomZakat API (NISABPADI field)
+            print(f"[PADI] Fetching nisab for year {year} ({year_type})")
+            nisab_result = self.fetch_nisab_extended('padi', year, year_type)
+            
+            # Extract nisab value (default to 1300.49 RM if API fails)
+            nisab_rm = self._safe_float(nisab_result.get('nisab', 1300.49))
+            
+            if self.DEBUG:
+                print(f"[DEBUG] Padi nisab for year {year}: RM{nisab_rm}")
+                print(f"[DEBUG] Nisab source: {nisab_result.get('source', 'unknown')}")
             
             # Check nisab & calculate zakat (10%)
             reaches_nisab = total_value >= nisab_rm
             zakat_amount = total_value * 0.10 if reaches_nisab else 0.0
             
             # Build message
+            year_label = 'Hijrah' if year_type == 'H' else 'Masihi'
+            
             if reaches_nisab:
                 message = (
                     f"✅ **Hasil padi anda mencapai nisab**\n\n"
                     f"💰 **Jumlah Zakat: RM{zakat_amount:,.2f}**\n\n"
                     f"📊 **Butiran Pengiraan:**\n"
                     f"• Jumlah hasil: RM{total_value:,.2f}\n"
-                    f"• Nisab ({year} {year_type}): RM{nisab_rm:,.2f}\n"
+                    f"• Nisab ({year} {year_label}): RM{nisab_rm:,.2f}\n"
                     f"• Kadar zakat: 10%\n\n"
                     f"ℹ️ Zakat padi dikira sebanyak 10% daripada jumlah hasil."
                 )
@@ -698,7 +701,7 @@ class ZakatCalculator:
                     f"Tiada zakat perlu dibayar pada masa ini.\n\n"
                     f"📊 **Butiran:**\n"
                     f"• Jumlah hasil: RM{total_value:,.2f}\n"
-                    f"• Nisab ({year} {year_type}): RM{nisab_rm:,.2f}\n"
+                    f"• Nisab ({year} {year_label}): RM{nisab_rm:,.2f}\n"
                     f"• Kekurangan: RM{shortfall:,.2f}"
                 )
 
@@ -707,21 +710,31 @@ class ZakatCalculator:
                 'zakat_amount': round(zakat_amount, 2),
                 'zakatable_amount': round(total_value, 2),
                 'reaches_nisab': reaches_nisab,
-                'nisab_value': nisab_rm,
+                'nisab_value': round(nisab_rm, 2),
                 'message': message,
                 'type': 'padi',
                 'year': year,
-                'year_type': 'Hijrah' if year_type == 'H' else 'Masihi',
+                'year_type': year_label,
                 'details': {
                     'total_value_rm': round(total_value, 2),
+                    'nisab_rm': round(nisab_rm, 2),
                     'rate': 0.10,
-                    'shortfall': round(nisab_rm - total_value, 2) if not reaches_nisab else 0
+                    'rate_percent': 10.0,
+                    'shortfall': round(nisab_rm - total_value, 2) if not reaches_nisab else 0,
+                    'nisab_source': nisab_result.get('source', 'fallback'),
+                    'api_fallback': nisab_result.get('fallback', False)
                 }
             }
 
         except Exception as e:
-            print(f"Error in calculate_padi_zakat: {e}")
-            return {'success': False, 'error': 'Ralat pengiraan', 'type': 'padi'}
+            print(f"❌ Error in calculate_padi_zakat: {e}")
+            import traceback
+            traceback.print_exc()
+            return {
+                'success': False,
+                'error': f'Ralat pengiraan zakat padi: {str(e)}',
+                'type': 'padi'
+            }
         
     def calculate_saham_zakat(self, nilai_portfolio: float, hutang_saham: float,
                               year: str, year_type: str = 'H') -> Dict:
@@ -823,7 +836,7 @@ class ZakatCalculator:
         Fetches perak price (RM per gram) from JomZakat API
         User only needs to input: berat_perak_g (weight in grams)
         
-        Calculation: if (weight >= nisab): (weight × price_per_gram) × 2.577%
+        Calculation: if (weight >= nisab in g): (weight × price_per_gram) × 2.577%
         """
         try:
             berat = self._safe_float(berat_perak_g)
@@ -858,60 +871,42 @@ class ZakatCalculator:
                 print(f"[DEBUG] Perak nisab: {nisab_g}g, Price per gram: RM{harga_per_gram}")
             
             # Calculate value
-            total_value = berat * harga_per_gram
-            
-            # Check nisab & calculate zakat (2.577%)
-            reaches_nisab = berat >= nisab_g
-            zakat_amount = total_value * 0.02577 if reaches_nisab else 0.0
-            
-            # Build message
-            if reaches_nisab:
-                message = (
+                total_value = berat * harga_per_gram
+
+            zakat_amount = total_value * 0.02577
+
+            return {
+                'success': True,
+                'zakat_amount': round(zakat_amount, 2),
+                'zakatable_amount': round(total_value, 2),
+                'reaches_nisab': True,
+                'nisab_value': nisab_g,
+                'message': (
                     f"✅ **Perak anda mencapai nisab**\n\n"
                     f"💰 **Jumlah Zakat: RM{zakat_amount:,.2f}**\n\n"
                     f"📊 **Butiran Pengiraan:**\n"
                     f"• Berat perak: {berat:,.2f} gram\n"
                     f"• Harga per gram: RM{harga_per_gram:,.2f}\n"
                     f"• Nilai perak: RM{total_value:,.2f}\n"
-                    f"• Nisab ({year} {'Hijrah' if year_type == 'H' else 'Masihi'}): {nisab_g:,.2f} gram\n"
+                    f"• Nisab: {nisab_g:,.2f} gram\n"
                     f"• Kadar zakat: 2.577%\n\n"
-                    f"Formula: ({berat} × RM{harga_per_gram}) × 2.577% = RM{zakat_amount:,.2f}"
-                )
-            else:
-                shortfall = nisab_g - berat
-                message = (
-                    f"ℹ️ **Perak anda belum mencapai nisab**\n\n"
-                    f"Tiada zakat perlu dibayar pada masa ini.\n\n"
-                    f"📊 **Butiran:**\n"
-                    f"• Berat perak: {berat:,.2f} gram\n"
-                    f"• Nisab ({year} {'Hijrah' if year_type == 'H' else 'Masihi'}): {nisab_g:,.2f} gram\n"
-                    f"• Kekurangan: {shortfall:,.2f} gram"
-                )
-            
-            return {
-                'success': True,
-                'zakat_amount': round(zakat_amount, 2),
-                'zakatable_amount': round(total_value, 2),
-                'reaches_nisab': reaches_nisab,
-                'nisab_value': nisab_g,
-                'message': message,
+                    f"Formula:\n"
+                    f"({berat} × RM{harga_per_gram}) × 2.577%"
+                ),
                 'type': 'perak',
-                'year': year,
-                'year_type': 'Hijrah' if year_type == 'H' else 'Masihi',
                 'details': {
                     'berat_perak_g': round(berat, 2),
                     'harga_per_gram': round(harga_per_gram, 2),
-                    'harga_source': 'jomzakat_api',
                     'total_value': round(total_value, 2),
                     'rate': 0.02577,
-                    'shortfall': round(nisab_g - berat, 2) if not reaches_nisab else 0
+                    'harga_source': 'jomzakat_api'
                 }
             }
-            
+
         except Exception as e:
             print(f"Error in calculate_perak_zakat: {e}")
-            return {'success': False, 'error': 'Ralat pengiraan', 'type': 'perak'}
-
+        return {'success': False, 'error': 'Ralat pengiraan', 'type': 'perak'}
+    
     def calculate_kwsp_zakat(self, jumlah_akaun_1: float, jumlah_akaun_2: float,
                             jumlah_pengeluaran: float, year: str, year_type: str = 'H') -> Dict:
         """Calculate zakat for KWSP (EPF)"""

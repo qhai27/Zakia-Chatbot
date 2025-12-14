@@ -639,6 +639,8 @@ class ZakatHandler {
                 const year = this.state.year;
                 const yearType = this.state.yearType;
 
+                console.log('[CALCULATE] Current zakat type:', zakatType); // Debug log
+
                 if (data.data.reaches_nisab && data.data.zakat_amount > 0) {
                     shouldResetState = false;
                 }
@@ -1038,61 +1040,48 @@ class ZakatHandler {
     /**
      * Calculate Perak Zakat
      */
-    async calculatePerak() {
+        async calculatePerak() {
         const beratInput = document.getElementById('berat_perak_g');
-        const hargaInput = document.getElementById('harga_per_gram');
-
-        if (!beratInput || !hargaInput) return;
+        if (!beratInput) return;
 
         const berat = parseFloat(beratInput.value);
-        const harga = parseFloat(hargaInput.value);
 
-        // Validation
         if (!berat || berat <= 0) {
             this.chatbot.appendMessage('⚠️ Sila masukkan berat perak yang sah.', 'bot');
             return;
         }
 
-        if (!harga || harga <= 0) {
-            this.chatbot.appendMessage('⚠️ Sila masukkan harga per gram yang sah.', 'bot');
-            return;
-        }
-
-        // Show calculating message
         this.chatbot.setTyping(true);
         this.chatbot.appendMessage('Mengira zakat perak...', 'bot');
 
         try {
-            const response = await fetch(`${window.CONFIG.API_BASE_URL}/api/calculate-zakat-perak`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    berat_perak_g: berat,
-                    harga_per_gram: harga,
-                    year: this.state.year,
-                    year_type: this.state.yearType
-                })
-            });
+            const response = await fetch(
+                `${window.CONFIG.API_BASE_URL}/zakat-calculator/perak`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        berat_perak_g: berat,
+                        year: this.state.year,
+                        year_type: this.state.yearType // H atau M sahaja
+                    })
+                }
+            );
 
             const data = await response.json();
 
-            setTimeout(() => {
-                this.chatbot.setTyping(false);
-
-                if (data.success && data.data) {
-                    this.showResultCard(data.data, data.reply);
-                } else {
-                    this.chatbot.appendMessage(
-                        `❌ ${data.error || 'Ralat pengiraan. Sila cuba lagi.'}`,
-                        'bot'
-                    );
-                }
-            }, 800);
-
-        } catch (error) {
-            console.error('Error calculating perak zakat:', error);
             this.chatbot.setTyping(false);
-            this.chatbot.appendMessage('❌ Ralat sistem. Sila cuba lagi.', 'bot');
+
+            if (data.success) {
+                this.chatbot.appendMessage(data.message, 'bot');
+            } else {
+                this.chatbot.appendMessage(`❌ ${data.error}`, 'bot');
+            }
+
+        } catch (err) {
+            console.error(err);
+            this.chatbot.setTyping(false);
+            this.chatbot.appendMessage('❌ Ralat sistem.', 'bot');
         }
     }
 
@@ -1306,38 +1295,71 @@ class ZakatHandler {
     }
 
     offerReminder(zakatData, zakatTypeFromState = null, yearFromState = null, yearTypeFromState = null) {
-        const zakatTypeMap = {
-            'income_kaedah_a': 'pendapatan',
-            'income_kaedah_b': 'pendapatan',
-            'savings': 'simpanan'
-        };
+    // STEP 1: Get the zakat type (prioritize parameter over internal state)
+    const stateType = zakatTypeFromState !== null ? zakatTypeFromState : this.state.type;
+    
+    // Debug logging
+    console.log('═══════════════════════════════════════');
+    console.log('📋 OFFER REMINDER DEBUG');
+    console.log('═══════════════════════════════════════');
+    console.log('Raw type received:', stateType);
+    console.log('Parameter zakatTypeFromState:', zakatTypeFromState);
+    console.log('Internal state type:', this.state.type);
+    console.log('Zakat amount:', zakatData.zakat_amount);
+    
+    // STEP 2: Map zakat types
+    const zakatTypeMap = {
+        'income_kaedah_a': 'pendapatan',
+        'income_kaedah_b': 'pendapatan',
+        'savings': 'simpanan',
+        'padi': 'padi',       
+        'saham': 'saham',      
+        'perak': 'perak',     
+        'kwsp': 'kwsp'         
+    };
 
-        const stateType = zakatTypeFromState !== null ? zakatTypeFromState : this.state.type;
-        let zakatType = zakatTypeMap[stateType] || stateType;
+    let zakatType = zakatTypeMap[stateType] || stateType;
+    
+    console.log('Mapped type:', zakatType);
 
-        if (!zakatType || (zakatType !== 'pendapatan' && zakatType !== 'simpanan')) {
-            console.warn('Invalid zakat type, defaulting to pendapatan:', zakatType);
-            zakatType = 'pendapatan';
-        }
-
-        const year = yearFromState !== null ? yearFromState : (this.state.year || '');
-        const yearType = yearTypeFromState !== null ? yearTypeFromState : (this.state.yearType || 'M');
-
-        if (this.reminderHandler) {
-            this.reminderHandler.startReminderFlow(
-                zakatType,
-                zakatData.zakat_amount,
-                year,
-                yearType
-            );
-
-            setTimeout(() => {
-                this.resetState();
-            }, 100);
-        } else {
-            this.resetState();
-        }
+    // STEP 3: Validate
+    const validTypes = ['pendapatan', 'simpanan', 'padi', 'saham', 'perak', 'kwsp'];
+    
+    if (!zakatType || !validTypes.includes(zakatType)) {
+        console.error('❌ Invalid zakat type:', zakatType);
+        console.warn('⚠️ Defaulting to pendapatan');
+        zakatType = 'pendapatan';
     }
+
+    // STEP 4: Get year info
+    const year = yearFromState !== null ? yearFromState : (this.state.year || '');
+    const yearType = yearTypeFromState !== null ? yearTypeFromState : (this.state.yearType || 'M');
+
+    console.log('Final values:', {
+        zakatType,
+        amount: zakatData.zakat_amount,
+        year,
+        yearType
+    });
+    console.log('═══════════════════════════════════════\n');
+
+    // STEP 5: Start reminder flow
+    if (this.reminderHandler) {
+        this.reminderHandler.startReminderFlow(
+            zakatType,
+            zakatData.zakat_amount,
+            year,
+            yearType
+        );
+
+        setTimeout(() => {
+            this.resetState();
+        }, 100);
+    } else {
+        console.error('❌ ReminderHandler not initialized');
+        this.resetState();
+    }
+}
 
     async fetchNisabInfo() {
         if (this.state.year && this.state.yearType) {

@@ -195,15 +195,20 @@ def save_reminder():
             print(f"   Converted from 60: '{phone_clean}'")
         
         # Step 9: Validate zakat type
+        # Step 9: Validate zakat type
         print("\n9️⃣ VALIDATING ZAKAT TYPE")
-        if zakat_type and zakat_type not in ['pendapatan', 'simpanan']:
-            error_msg = f'Jenis zakat tidak sah: "{zakat_type}". Mesti "pendapatan" atau "simpanan".'
+
+        # FIXED: Accept all zakat types
+        valid_zakat_types = ['pendapatan', 'simpanan', 'padi', 'saham', 'perak', 'kwsp']
+
+        if zakat_type and zakat_type not in valid_zakat_types:
+            error_msg = f'Jenis zakat tidak sah: "{zakat_type}". Mesti salah satu daripada: {", ".join(valid_zakat_types)}'
             print(f"   ❌ {error_msg}")
             return jsonify({
                 'success': False,
                 'error': error_msg
             }), 400
-        
+
         if not zakat_type:
             zakat_type = 'pendapatan'
             print(f"   ℹ️ Empty zakat_type, defaulting to: '{zakat_type}'")
