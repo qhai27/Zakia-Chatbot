@@ -848,8 +848,8 @@ class ZakatCalculator:
             if isinstance(api_data, list) and api_data:
                 api_data = api_data[0]
             
-            # Perak nisab is FIXED at 595 grams (Islamic standard)
-            nisab_g = 595.0
+            # Get perak nisab (default 595g)
+            nisab_g = self._safe_float(api_data.get('NISABPERAK', 595.0))
             
             # Get perak price per gram (RM) from API - NILAIPERAK field
             harga_per_gram = self._safe_float(api_data.get('NILAIPERAK', 2.32))
