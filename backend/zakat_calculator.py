@@ -106,33 +106,41 @@ class ZakatCalculator:
     def _build_nisab_message(self, nisab_data: Dict, year: str, year_type: str, zakat_type: str = None) -> str:
         """Build formatted nisab info message"""
         year_label = 'Hijrah' if year_type == 'H' else 'Masihi'
+
+        # Helper to format based on unit (RM vs other units)
+        def fmt_nisab(n, unit, is_money=False):
+            if unit and unit.upper() == 'RM':
+                return f"RM{float(n):,.2f}"
+            return f"{float(n):,.2f} {unit or ('kg' if zakat_type=='padi' else 'gram emas')}"
         
         if zakat_type == 'padi':
             nisab = nisab_data.get('nisab', 1300.0)
             return (
                 f"📊 Maklumat Nisab Padi - Tahun {year} ({year_label})\n"
-                f"• Nisab: {nisab:,.2f} kg\n"
+                f"• Nisab: {fmt_nisab(nisab, nisab_data.get('unit','kg'))}\n"
                 f"• Kadar Zakat: 10%"
             )
         elif zakat_type == 'saham':
             nisab = nisab_data.get('nisab', 85.0)
+            unit = nisab_data.get('unit', 'RM')  # prefer RM for saham when available
             return (
                 f"📊 Maklumat Nisab Saham - Tahun {year} ({year_label})\n"
-                f"• Nisab: {nisab:,.2f} gram emas\n"
+                f"• Nisab: {fmt_nisab(nisab, unit)}\n"
                 f"• Kadar Zakat: 2.5%"
             )
         elif zakat_type == 'perak':
             nisab = nisab_data.get('nisab', 595.0)
             return (
                 f"📊 Maklumat Nisab Perak - Tahun {year} ({year_label})\n"
-                f"• Nisab: {nisab:,.2f} gram\n"
+                f"• Nisab: {fmt_nisab(nisab, nisab_data.get('unit','gram'))}\n"
                 f"• Kadar Zakat: 2.577%"
             )
         elif zakat_type == 'kwsp':
-            nisab = nisab_data.get('nisab', 85.0)
+            nisab = nisab_data.get('nisab', nisab_data.get('nisab_simpanan', 22000.0))
+            unit = nisab_data.get('unit', 'RM')  # KWSP should be shown in RM
             return (
                 f"📊 Maklumat Nisab KWSP - Tahun {year} ({year_label})\n"
-                f"• Nisab: {nisab:,.2f} gram emas\n"
+                f"• Nisab: {fmt_nisab(nisab, unit)}\n"
                 f"• Kadar Zakat: 2.577%"
             )
         else:
@@ -784,7 +792,7 @@ class ZakatCalculator:
                     f"📊 **Butiran:**\n"
                     f"• Berat perak: {berat:,.2f} gram\n"
                     f"• Nisab ({year} {year_type}): {nisab_g:,.2f} gram\n"
-                    f"• Kekurangan: {shortfall:,.2f} gram"
+                    f"• Kekurangan: RM{shortfall:,.2f} gram"
                 )
             
             return {
@@ -953,11 +961,12 @@ class ZakatCalculator:
                 return {'success': False, 'error': 'Gagal mendapatkan data nisab'}
             
             nisab_value = nisab_result.get('nisab', 0)
+            unit = nisab_result.get('unit', '')
             type_info = {
                 'padi': {'unit': 'kg', 'rate': '10%'},
-                'saham': {'unit': 'gram emas', 'rate': '2.5%'},
+                'saham': {'unit': unit or 'RM', 'rate': '2.5%'},
                 'perak': {'unit': 'gram', 'rate': '2.577%'},
-                'kwsp': {'unit': 'gram emas', 'rate': '2.577%'}
+                'kwsp': {'unit': unit or 'RM', 'rate': '2.577%'}
             }
             
             info = type_info.get(zakat_type, {'unit': '', 'rate': '2.5%'})

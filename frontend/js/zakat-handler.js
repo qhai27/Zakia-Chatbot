@@ -56,11 +56,12 @@ class ZakatHandler {
             padi: {
                 name: 'Zakat Padi',
                 icon: '🌾',
-                steps: ['year_type', 'year', 'jumlah_hasil_rm'],
+                steps: ['year_type', 'year', 'hasil_padi_kg', 'harga_beras_kg'],
                 prompts: {
                     year_type: 'Sila pilih jenis tahun:',
                     year: 'Sila pilih tahun:',
-                    jumlah_hasil_rm: '🌾 Sila masukkan jumlah hasil padi anda dalam RM:'
+                    hasil_padi_kg: '🌾 Sila masukkan hasil padi anda (kg):',
+                    harga_beras_kg: '💰 Sila masukkan harga beras per kg (RM):'
                 }
             },
             saham: {
@@ -87,7 +88,7 @@ class ZakatHandler {
             },
             kwsp: {
                 name: 'Zakat KWSP',
-                icon: '🏦',
+                icon: '💼',
                 steps: ['year_type', 'year', 'jumlah_akaun_1', 'jumlah_akaun_2', 'jumlah_pengeluaran'],
                 prompts: {
                     year_type: 'Sila pilih jenis tahun:',
@@ -165,16 +166,16 @@ class ZakatHandler {
     showZakatMenu() {
         const menuHTML = `
             <div class="zakat-menu">
-                <p style="margin-bottom: 16px; font-weight: 600;">Pilih jenis zakat yang ingin dikira:</p>
+                <p style="margin-bottom: 16px; font-weight: 600;">💰 Pilih jenis zakat yang ingin dikira:</p>
                 <div class="zakat-buttons">
                     <button class="zakat-type-btn" data-type="income_menu">
                         💼 Zakat Pendapatan
                     </button>
                     <button class="zakat-type-btn" data-type="savings">
-                        💰 Zakat Simpanan
+                        🏦 Zakat Simpanan
                     </button>
                     <button class="zakat-type-btn" data-type="kwsp">
-                        🏦Zakat KWSP
+                        💼 Zakat KWSP
                     </button>
                     <button class="zakat-type-btn" data-type="saham">
                         📈 Zakat Saham
@@ -580,9 +581,9 @@ class ZakatHandler {
                     year_type: this.state.yearType
                 };
             } else if (this.state.type === 'padi') {
-                // padi now accepts jumlah_rm (total value in RM)
                 payload = {
-                    jumlah_rm: Number(this.state.data.jumlah_hasil_rm) || 0,
+                    hasil_padi_kg: this.state.data.hasil_padi_kg,
+                    harga_beras_kg: this.state.data.harga_beras_kg,
                     year: this.state.year,
                     year_type: this.state.yearType
                 };
@@ -630,8 +631,7 @@ class ZakatHandler {
             console.log('Received response:', data); // Debug log
 
             if (data.success) {
-                // Use type from response data if available, otherwise use state type
-                const zakatType = data.data.type || this.state.type;
+                const zakatType = this.state.type;
                 const year = this.state.year;
                 const yearType = this.state.yearType;
 
@@ -1326,17 +1326,10 @@ class ZakatHandler {
             'savings': 'simpanan'
         };
 
-        // Valid zakat types for reminders
-        const validZakatTypes = [
-            'pendapatan', 'simpanan', 'padi', 'saham', 'perak', 'kwsp',
-            'income_kaedah_a', 'income_kaedah_b', 'savings', 'umum'
-        ];
-
         const stateType = zakatTypeFromState !== null ? zakatTypeFromState : this.state.type;
         let zakatType = zakatTypeMap[stateType] || stateType;
 
-        // Validate zakat type
-        if (!zakatType || !validZakatTypes.includes(zakatType)) {
+        if (!zakatType || (zakatType !== 'pendapatan' && zakatType !== 'simpanan')) {
             console.warn('Invalid zakat type, defaulting to pendapatan:', zakatType);
             zakatType = 'pendapatan';
         }
