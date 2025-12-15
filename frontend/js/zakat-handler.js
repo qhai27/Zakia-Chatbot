@@ -63,15 +63,17 @@ class ZakatHandler {
                     jumlah_nilai_rm: '🌾 Sila masukkan jumlah nilai hasil padi (RM):'
                 }
             },
+           // In the constructor, replace the 'saham' definition:
             saham: {
                 name: 'Zakat Saham',
                 icon: '📈',
-                steps: ['year_type', 'year', 'nilai_portfolio', 'hutang_saham'],
+                steps: ['year_type', 'year', 'nama_saham', 'bilangan_unit', 'harga_seunit'],
                 prompts: {
                     year_type: 'Sila pilih jenis tahun:',
                     year: 'Sila pilih tahun:',
-                    nilai_portfolio: '📈 Sila masukkan nilai portfolio saham anda (RM):',
-                    hutang_saham: '💳 Sila masukkan hutang saham (RM) [kosongkan jika tiada]:'
+                    nama_saham: '📈 Nama Saham:',
+                    bilangan_unit: '📊 Bilangan Unit:',
+                    harga_seunit: '💰 Harga Seunit (RM):'
                 }
             },
             perak: {
@@ -531,22 +533,21 @@ class ZakatHandler {
     }
 
     validateInput(message, stepName) {
-        // Allow empty for optional fields
-        const cleaned = message.replace(/[RM,\s]/gi, '').trim();
-
-        // Optional fields: hutang_saham, jumlah_pengeluaran
-        if ((stepName === 'hutang_saham' || stepName === 'jumlah_pengeluaran') && cleaned === '') {
-            return 0; // Default to 0 for optional fields
-        }
-
-        const number = parseFloat(cleaned);
-
-        if (isNaN(number) || number < 0) {
-            return null;
-        }
-
-        return number;
+    // Allow empty for optional fields
+    const cleaned = message.replace(/[RM,\s]/gi, '').trim();
+    if ((stepName === 'nama_saham' || stepName === 'jumlah_pengeluaran') && cleaned === '') {
+        return stepName === 'nama_saham' ? '' : 0; // Return empty string for nama, 0 for numbers
     }
+    // For nama_saham, return the original message (allow text)
+    if (stepName === 'nama_saham') {
+        return message.trim();
+    }
+    const number = parseFloat(cleaned);
+    if (isNaN(number) || number < 0) {
+        return null;
+    }
+    return number;
+}
 
     async calculateZakat() {
         this.chatbot.setTyping(true);
@@ -584,10 +585,12 @@ class ZakatHandler {
                     year: this.state.year,
                     year_type: this.state.yearType
                 };
-            } else if (this.state.type === 'saham') {
+            }
+            else if (this.state.type === 'saham') {
                 payload = {
-                    nilai_portfolio: this.state.data.nilai_portfolio,
-                    hutang_saham: this.state.data.hutang_saham || 0,
+                    nama_saham: this.state.data.nama_saham || '',
+                    bilangan_unit: this.state.data.bilangan_unit,
+                    harga_seunit: this.state.data.harga_seunit,
                     year: this.state.year,
                     year_type: this.state.yearType
                 };

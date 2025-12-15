@@ -156,18 +156,20 @@ def calculate_zakat_saham():
     """Calculate zakat for saham (shares/stocks)"""
     try:
         data = request.get_json() or {}
-        is_valid, error = validate_input(data, ['nilai_portfolio'])
+        is_valid, error = validate_input(data, ['bilangan_unit', 'harga_seunit'])
         if not is_valid:
             return jsonify({'success': False, 'error': error}), 400
 
-        nilai_portfolio = safe_float(data.get('nilai_portfolio'))
-        hutang_saham = safe_float(data.get('hutang_saham'), 0)
+        nama_saham = data.get('nama_saham', '')
+        bilangan_unit = safe_float(data.get('bilangan_unit'))
+        harga_seunit = safe_float(data.get('harga_seunit'))
         year = data.get('year', '1447')
         year_type = data.get('year_type', 'H')
 
         result = calculator.calculate_saham_zakat(
-            nilai_portfolio=nilai_portfolio,
-            hutang_saham=hutang_saham,
+            nama_saham=nama_saham,
+            bilangan_unit=bilangan_unit,
+            harga_seunit=harga_seunit,
             year=str(year),
             year_type=year_type
         )
@@ -177,8 +179,7 @@ def calculate_zakat_saham():
     except Exception as e:
         current_app.logger.exception("calculate_zakat_saham error")
         return jsonify({'success': False, 'error': 'Ralat sistem. Sila cuba lagi.'}), 500
-
-
+    
 @zakat_bp.route("/zakat-calculator/perak", methods=["POST"])
 def calculate_zakat_perak():
     """Calculate zakat for perak (silver)
@@ -329,18 +330,18 @@ def nisab_info():
             f"📊 **Maklumat Nisab Lengkap - Tahun {year} ({year_label})**\n",
             "💼 **Zakat Pendapatan:**",
             f"   • Nisab: RM{nisab_pendapatan:,.2f}",
-            f"   • Kadar: {kadar*100:.2f}%\n",
+            f"   • Kadar: 2.577%\n",
             "💰 **Zakat Simpanan:**",
             f"   • Nisab: RM{nisab_simpanan:,.2f}",
-            f"   • Kadar: {kadar*100:.2f}%\n",
+            f"   • Kadar: 2.577%\n",
             "🌾 **Zakat Padi:**",
-            f"   • Nisab: {nisab_padi:,.2f} kg",
+            f"   • Nisab: RM{nisab_padi:,.2f}/kg",
             f"   • Kadar: 10%\n",
             "📈 **Zakat Saham:**",
             f"   • Nisab: RM{nisab_saham:,.2f}",
-            f"   • Kadar: 2.5%\n",
+            f"   • Kadar: 2.577%\n",
             "🥈 **Zakat Perak:**",
-            f"   • Nisab: {nisab_perak:,.2f} gram",
+            f"   • Nisab: RM{nisab_perak:,.2f} / 595 gram",
             f"   • Kadar: 2.577%\n",
             "🏦 **Zakat KWSP:**",
             f"   • Nisab: RM{nisab_kwsp:,.2f}",
