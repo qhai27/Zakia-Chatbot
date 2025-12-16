@@ -1042,10 +1042,9 @@
                 // Export
                 if (DOM.exportChatLogsBtn) {
                     DOM.exportChatLogsBtn.addEventListener('click', () => {
-                        ChatLogOperations.exportCSV();
+                        ChatLogExportManager.showExportModal();
                     });
                 }
-
                 // Print - now shows date filter modal
                 if (DOM.printChatLogsBtn) {
                     DOM.printChatLogsBtn.addEventListener('click', () => {
@@ -1101,6 +1100,305 @@
                     });
                 });
 
+                const ChatLogExportManager = {
+                    showExportModal() {
+                        // Create modal if doesn't exist
+                        let modal = document.getElementById('exportChatLogModal');
+                        if (!modal) {
+                            modal = this.createExportModal();
+                            document.body.appendChild(modal);
+                        }
+
+                        // Populate filter options
+                        this.populateYearOptions();
+                        this.populateMonthOptions();
+
+                        modal.style.display = 'flex';
+                    },
+
+                    createExportModal() {
+                        const modal = document.createElement('div');
+                        modal.id = 'exportChatLogModal';
+                        modal.className = 'modal';
+                        modal.innerHTML = `
+                            <div class="modal-overlay"></div>
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h3>📥 Eksport Chat Log ke CSV</h3>
+                                    <button class="btn-close" id="closeExportChatLogModal">✖</button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label for="exportChatLogYear">Tahun:</label>
+                                        <select id="exportChatLogYear" class="admin-select">
+                                            <option value="">Semua Tahun</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="exportChatLogMonth">Bulan:</label>
+                                        <select id="exportChatLogMonth" class="admin-select">
+                                            <option value="">Semua Bulan</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>
+                                            <input type="checkbox" id="exportChatLogAllTime">
+                                            <span>Eksport semua rekod (abaikan tarikh)</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button class="btn ghost" id="cancelExportChatLog">Batal</button>
+                                    <button class="btn primary" id="confirmExportChatLog">📥 Eksport CSV</button>
+                                </div>
+                            </div>
+                        `;
+
+                        // Attach event listeners
+                        const closeBtn = modal.querySelector('#closeExportChatLogModal');
+                        const cancelBtn = modal.querySelector('#cancelExportChatLog');
+                        const confirmBtn = modal.querySelector('#confirmExportChatLog');
+                        const overlay = modal.querySelector('.modal-overlay');
+                        const allTimeCheckbox = modal.querySelector('#exportChatLogAllTime');
+                        const yearSelect = modal.querySelector('#exportChatLogYear');
+                        const monthSelect = modal.querySelector('#exportChatLogMonth');
+
+                        const closeModal = () => {
+                            modal.style.display = 'none';
+                        };
+
+                        closeBtn.addEventListener('click', closeModal);
+                        cancelBtn.addEventListener('click', closeModal);
+                        overlay.addEventListener('click', closeModal);
+
+                        // Toggle date inputs based on "all time" checkbox
+                        allTimeCheckbox.addEventListener('change', (e) => {
+                            yearSelect.disabled = e.target.checked;
+                            monthSelect.disabled = e.target.checked;
+                        });
+
+                        confirmBtn.addEventListener('click', () => {
+                            const allTime = allTimeCheckbox.checked;
+                            const year = yearSelect.value;
+                            const month = monthSelect.value;
+
+                            this.exportWithFilter(year, month, allTime);
+                            closeModal();
+                        });
+
+                        return modal;
+                    },
+
+                    populateYearOptions() {
+                        const yearSelect = document.getElementById('exportChatLogYear');
+                        if (!yearSelect) return;
+
+                        // Get unique years from logs
+                        const years = new Set();
+                        STATE.logs.forEach(log => {
+                            if (log.created_at) {
+                                try {
+                                    // Parse date using Date object (handles GMT format)
+                                    const dateObj = new Date(log.created_at);
+                                    if (!isNaN(dateObj.getTime())) {
+                                        years.add(dateObj.getFullYear().toString());
+                                    }
+                                } catch (e) {
+                                    // Fallback to regex
+                                    const dateStr = String(log.created_at);
+                                    const match = dateStr.match(/(\d{4})/);
+                                    if (match) {
+                                        years.add(match[1]);
+                                    }
+                                }
+                            }
+                        });
+
+                        const sortedYears = Array.from(years).sort((a, b) => b - a);
+
+                        // If no years found, add current year
+                        if (sortedYears.length === 0) {
+                            sortedYears.push(new Date().getFullYear().toString());
+                        }
+
+                        yearSelect.innerHTML = '<option value="">Semua Tahun</option>' +
+                            sortedYears.map(year => `<option value="${year}">${year}</option>`).join('');
+
+                        // Set current year as default
+                        const currentYear = new Date().getFullYear().toString();
+                        if (sortedYears.includes(currentYear)) {
+                            yearSelect.value = currentYear;
+                        }
+                    },
+
+                    populateMonthOptions() {
+                        const monthSelect = document.getElementById('exportChatLogMonth');
+                        if (!monthSelect) return;
+
+                        const months = [
+                            'Januari', 'Februari', 'Mac', 'April', 'Mei', 'Jun',
+                            'Julai', 'Ogos', 'September', 'Oktober', 'November', 'Disember'
+                        ];
+
+                        monthSelect.innerHTML = '<option value="">Semua Bulan</option>' +
+                            months.map((month, idx) => 
+                                `<option value="${(idx + 1).toString().padStart(2, '0')}">${month}</option>`
+                            ).join('');
+                    },
+
+                    exportWithFilter(year, month, allTime) {
+                        console.log('=== CHATLOG EXPORT WITH FILTER DEBUG ===');
+                        console.log('Total logs in STATE:', STATE.logs.length);
+                        console.log('Filtered logs before export:', STATE.filteredLogs.length);
+                        console.log('Filters:', { year, month, allTime });
+
+                        // Start with currently filtered logs
+                        let filteredLogs = [...STATE.filteredLogs];
+                        
+                        console.log('Starting with filtered logs:', filteredLogs.length);
+
+                        // Apply date filter only if not "all time"
+                        if (!allTime && (year || month)) {
+                            console.log('Applying date filter. Year:', year, 'Month:', month);
+                            
+                            const beforeCount = filteredLogs.length;
+                            filteredLogs = filteredLogs.filter(log => {
+                                if (!log.created_at) {
+                                    console.log('No created_at for log:', log.id_log);
+                                    return false;
+                                }
+
+                                const dateStr = String(log.created_at);
+                                console.log('Processing date:', dateStr, 'for log', log.id_log);
+
+                                let logYear, logMonth;
+
+                                // Try to parse as Date object first (handles GMT format)
+                                try {
+                                    const dateObj = new Date(dateStr);
+                                    if (!isNaN(dateObj.getTime())) {
+                                        logYear = dateObj.getFullYear().toString();
+                                        logMonth = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+                                        console.log('Parsed via Date object:', { logYear, logMonth });
+                                    } else {
+                                        throw new Error('Invalid date');
+                                    }
+                                } catch (e) {
+                                    // Fallback to regex patterns
+                                    let dateMatch = dateStr.match(/(\d{4})-(\d{2})-(\d{2})/);
+                                    
+                                    if (!dateMatch) {
+                                        dateMatch = dateStr.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+                                        if (dateMatch) {
+                                            dateMatch = [dateMatch[0], dateMatch[3], dateMatch[2], dateMatch[1]];
+                                        }
+                                    }
+
+                                    if (!dateMatch) {
+                                        console.log('Could not parse date:', dateStr);
+                                        return false;
+                                    }
+
+                                    [, logYear, logMonth] = dateMatch;
+                                    console.log('Parsed via regex:', { logYear, logMonth });
+                                }
+
+                                // Check year match - ONLY if year filter is provided
+                                if (year && year.trim() !== '') {
+                                    if (logYear !== year) {
+                                        console.log('Year mismatch:', logYear, '!==', year);
+                                        return false;
+                                    }
+                                }
+
+                                // Check month match - ONLY if month filter is provided
+                                if (month && month.trim() !== '') {
+                                    if (logMonth !== month) {
+                                        console.log('Month mismatch:', logMonth, '!==', month);
+                                        return false;
+                                    }
+                                }
+
+                                console.log('Date matches!');
+                                return true;
+                            });
+                            
+                            console.log('After date filter:', beforeCount, '->', filteredLogs.length);
+                        } else if (allTime) {
+                            console.log('All time selected - skipping date filter');
+                        }
+
+                        console.log('Final filtered count:', filteredLogs.length);
+                        console.log('=== END DEBUG ===');
+
+                        // Show alert if no records
+                        if (filteredLogs.length === 0) {
+                            alert('Tiada rekod ditemui untuk penapis yang dipilih.\n\nSila semak:\n- Adakah data wujud untuk penapis tersebut?\n- Cuba pilih "Eksport semua rekod"');
+                            return;
+                        }
+
+                        // Export to CSV
+                        this.exportToCSV(filteredLogs, year, month, allTime);
+                    },
+
+                    exportToCSV(logs, filterYear, filterMonth, allTime) {
+                        // FIXED: Correct column headers
+                        const headers = ['ID Log', 'ID Pengguna', 'ID Sesi', 'Pesanan Pengguna', 'Respon Bot', 'Masa'];
+                        
+                        const rows = logs.map(log => [
+                            log.id_log || '',
+                            log.id_user || '',
+                            log.session_id || '',
+                            (log.user_message || '').replace(/\n/g, ' ').replace(/"/g, '""'),
+                            (log.bot_response || '').replace(/\n/g, ' ').replace(/"/g, '""'),
+                            log.created_at ? UIManager.formatDate(log.created_at) : ''
+                        ]);
+
+                        // Build filter info for filename
+                        let filterInfo = [];
+                        if (!allTime) {
+                            const monthNames = [
+                                'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+                            ];
+                            
+                            if (filterYear && filterMonth) {
+                                const monthName = monthNames[parseInt(filterMonth) - 1];
+                                filterInfo.push(`${monthName}-${filterYear}`);
+                            } else if (filterYear) {
+                                filterInfo.push(filterYear);
+                            } else if (filterMonth) {
+                                const monthName = monthNames[parseInt(filterMonth) - 1];
+                                filterInfo.push(`Month-${monthName}`);
+                            }
+                        }
+
+                        const filterSuffix = filterInfo.length > 0 ? `_${filterInfo.join('_')}` : '';
+                        const filename = `chat_logs${filterSuffix}_${new Date().toISOString().split('T')[0]}.csv`;
+
+                        // Create CSV content with UTF-8 BOM for proper Excel display
+                        const csvContent = '\uFEFF' + [
+                            headers.join(','),
+                            ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+                        ].join('\n');
+
+                        // Download
+                        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                        const link = document.createElement('a');
+                        const url = URL.createObjectURL(blob);
+
+                        link.setAttribute('href', url);
+                        link.setAttribute('download', filename);
+                        link.style.visibility = 'hidden';
+
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+
+                        console.log(`✅ Exported ${logs.length} chat logs to ${filename}`);
+                    }
+                };
+
                 // Stop auto-refresh when page is hidden
                 // Force reload when page becomes visible (prevent stale data)
                 document.addEventListener('visibilitychange', () => {
@@ -1121,7 +1419,8 @@
                         ChatLogOperations.load(true);
                     }
                 });
-                            }
+                
+            }
         };
 
         // Initialize

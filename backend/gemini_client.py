@@ -1,5 +1,5 @@
 """
-Gemini Client - Fixed for Free API Keys
+Gemini Client 
 """
 
 import os

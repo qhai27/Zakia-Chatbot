@@ -1274,6 +1274,323 @@
                 }, 500);
             }
         };
+
+        const ReminderExportManager = {
+            showExportModal() {
+                // Create modal if doesn't exist
+                let modal = document.getElementById('exportReminderModal');
+                if (!modal) {
+                    modal = this.createExportModal();
+                    document.body.appendChild(modal);
+                }
+
+                // Populate filter options
+                this.populateZakatTypeOptions();
+                this.populateYearOptions();
+                this.populateMonthOptions();
+
+                modal.style.display = 'flex';
+            },
+
+            createExportModal() {
+                const modal = document.createElement('div');
+                modal.id = 'exportReminderModal';
+                modal.className = 'modal';
+                modal.innerHTML = `
+                    <div class="modal-overlay"></div>
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>📥 Eksport Reminder ke CSV</h3>
+                            <button class="btn-close" id="closeExportReminderModal">✖</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="exportZakatType">Jenis Zakat:</label>
+                                <select id="exportZakatType" class="admin-select">
+                                    <option value="">Semua Jenis Zakat</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="exportReminderYear">Tahun:</label>
+                                <select id="exportReminderYear" class="admin-select">
+                                    <option value="">Semua Tahun</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="exportReminderMonth">Bulan:</label>
+                                <select id="exportReminderMonth" class="admin-select">
+                                    <option value="">Semua Bulan</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="exportReminderAllTime">
+                                    <span>Eksport semua rekod (abaikan tarikh)</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn ghost" id="cancelExportReminder">Batal</button>
+                            <button class="btn primary" id="confirmExportReminder">📥 Eksport CSV</button>
+                        </div>
+                    </div>
+                `;
+
+                // Attach event listeners
+                const closeBtn = modal.querySelector('#closeExportReminderModal');
+                const cancelBtn = modal.querySelector('#cancelExportReminder');
+                const confirmBtn = modal.querySelector('#confirmExportReminder');
+                const overlay = modal.querySelector('.modal-overlay');
+                const allTimeCheckbox = modal.querySelector('#exportReminderAllTime');
+                const yearSelect = modal.querySelector('#exportReminderYear');
+                const monthSelect = modal.querySelector('#exportReminderMonth');
+
+                const closeModal = () => {
+                    modal.style.display = 'none';
+                };
+
+                closeBtn.addEventListener('click', closeModal);
+                cancelBtn.addEventListener('click', closeModal);
+                overlay.addEventListener('click', closeModal);
+
+                // Toggle date inputs based on "all time" checkbox
+                allTimeCheckbox.addEventListener('change', (e) => {
+                    yearSelect.disabled = e.target.checked;
+                    monthSelect.disabled = e.target.checked;
+                });
+
+                confirmBtn.addEventListener('click', () => {
+                    const zakatType = document.getElementById('exportZakatType').value;
+                    const allTime = allTimeCheckbox.checked;
+                    const year = yearSelect.value;
+                    const month = monthSelect.value;
+
+                    this.exportWithFilter(zakatType, year, month, allTime);
+                    closeModal();
+                });
+
+                return modal;
+            },
+
+            populateZakatTypeOptions() {
+                const zakatTypeSelect = document.getElementById('exportZakatType');
+                if (!zakatTypeSelect) return;
+
+                const zakatTypes = [
+                    { value: 'pendapatan', label: 'Pendapatan' },
+                    { value: 'simpanan', label: 'Simpanan' },
+                    { value: 'padi', label: 'Padi' },
+                    { value: 'saham', label: 'Saham' },
+                    { value: 'perak', label: 'Perak' },
+                    { value: 'kwsp', label: 'KWSP' }
+                ];
+
+                zakatTypeSelect.innerHTML = '<option value="">Semua Jenis Zakat</option>' +
+                    zakatTypes.map(type => `<option value="${type.value}">${type.label}</option>`).join('');
+            },
+
+            populateYearOptions() {
+                const yearSelect = document.getElementById('exportReminderYear');
+                if (!yearSelect) return;
+
+                // Get unique years from reminders created_at dates
+                const years = new Set();
+                STATE.reminders.forEach(reminder => {
+                    if (reminder.created_at) {
+                        try {
+                            const dateObj = new Date(reminder.created_at);
+                            if (!isNaN(dateObj.getTime())) {
+                                years.add(dateObj.getFullYear().toString());
+                            }
+                        } catch (e) {
+                            const dateStr = String(reminder.created_at);
+                            const match = dateStr.match(/(\d{4})/);
+                            if (match) {
+                                years.add(match[1]);
+                            }
+                        }
+                    }
+                });
+
+                const sortedYears = Array.from(years).sort((a, b) => b - a);
+
+                if (sortedYears.length === 0) {
+                    sortedYears.push(new Date().getFullYear().toString());
+                }
+
+                yearSelect.innerHTML = '<option value="">Semua Tahun</option>' +
+                    sortedYears.map(year => `<option value="${year}">${year}</option>`).join('');
+
+                const currentYear = new Date().getFullYear().toString();
+                if (sortedYears.includes(currentYear)) {
+                    yearSelect.value = currentYear;
+                }
+            },
+
+            populateMonthOptions() {
+                const monthSelect = document.getElementById('exportReminderMonth');
+                if (!monthSelect) return;
+
+                const months = [
+                    'Januari', 'Februari', 'Mac', 'April', 'Mei', 'Jun',
+                    'Julai', 'Ogos', 'September', 'Oktober', 'November', 'Disember'
+                ];
+
+                monthSelect.innerHTML = '<option value="">Semua Bulan</option>' +
+                    months.map((month, idx) => 
+                        `<option value="${(idx + 1).toString().padStart(2, '0')}">${month}</option>`
+                    ).join('');
+            },
+
+            exportWithFilter(zakatType, year, month, allTime) {
+                console.log('=== EXPORT WITH FILTER DEBUG ===');
+                console.log('Filters:', { zakatType, year, month, allTime });
+
+                // Start with currently filtered reminders
+                let filteredReminders = [...STATE.filteredReminders];
+                
+                console.log('Starting with filtered reminders:', filteredReminders.length);
+
+                // Apply zakat type filter
+                if (zakatType) {
+                    console.log('Applying zakat type filter:', zakatType);
+                    
+                    const beforeCount = filteredReminders.length;
+                    filteredReminders = filteredReminders.filter(reminder => {
+                        const normalizeType = (type) => {
+                            if (!type) return '';
+                            const typeMap = {
+                                'income_kaedah_a': 'pendapatan',
+                                'income_kaedah_b': 'pendapatan',
+                                'savings': 'simpanan'
+                            };
+                            return typeMap[type] || type;
+                        };
+
+                        const reminderType = normalizeType(reminder.zakat_type);
+                        return reminderType === zakatType;
+                    });
+                    
+                    console.log('After zakat type filter:', beforeCount, '->', filteredReminders.length);
+                }
+
+                // Apply date filter only if not "all time"
+                if (!allTime && (year || month)) {
+                    console.log('Applying date filter. Year:', year, 'Month:', month);
+                    
+                    const beforeCount = filteredReminders.length;
+                    filteredReminders = filteredReminders.filter(reminder => {
+                        if (!reminder.created_at) return false;
+
+                        const dateStr = String(reminder.created_at);
+                        let logYear, logMonth;
+
+                        try {
+                            const dateObj = new Date(dateStr);
+                            if (!isNaN(dateObj.getTime())) {
+                                logYear = dateObj.getFullYear().toString();
+                                logMonth = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+                            } else {
+                                throw new Error('Invalid date');
+                            }
+                        } catch (e) {
+                            let dateMatch = dateStr.match(/(\d{4})-(\d{2})-(\d{2})/);
+                            
+                            if (!dateMatch) {
+                                dateMatch = dateStr.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+                                if (dateMatch) {
+                                    dateMatch = [dateMatch[0], dateMatch[3], dateMatch[2], dateMatch[1]];
+                                }
+                            }
+
+                            if (!dateMatch) return false;
+                            [, logYear, logMonth] = dateMatch;
+                        }
+
+                        if (year && year.trim() !== '' && logYear !== year) return false;
+                        if (month && month.trim() !== '' && logMonth !== month) return false;
+
+                        return true;
+                    });
+                    
+                    console.log('After date filter:', beforeCount, '->', filteredReminders.length);
+                }
+
+                console.log('Final filtered count:', filteredReminders.length);
+                console.log('=== END DEBUG ===');
+
+                if (filteredReminders.length === 0) {
+                    alert('Tiada rekod ditemui untuk penapis yang dipilih.\n\nSila semak:\n- Adakah data wujud untuk penapis tersebut?\n- Cuba pilih "Eksport semua rekod"');
+                    return;
+                }
+
+                // Export to CSV
+                this.exportToCSV(filteredReminders, zakatType, year, month, allTime);
+            },
+
+            exportToCSV(reminders, filterZakatType, filterYear, filterMonth, allTime) {
+                // FIXED: Correct column headers
+                const headers = ['ID', 'Nama', 'Nombor IC', 'Nombor Telefon', 'Jenis Zakat', 'Jumlah Zakat (RM)', 'Tahun', 'Tarikh Daftar'];
+                
+                const rows = reminders.map(r => [
+                    r.id_reminder || '',
+                    r.name || '',
+                    UIManager.formatIC(r.ic_number) || '',
+                    UIManager.formatPhone(r.phone) || '',
+                    UIManager.formatZakatType(r.zakat_type) || '',
+                    r.zakat_amount ? parseFloat(r.zakat_amount).toFixed(2) : '0.00',
+                    UIManager.formatYear(r.year) || '',
+                    r.created_at ? new Date(r.created_at).toLocaleDateString('ms-MY') : ''
+                ]);
+
+                // Build filter info for filename
+                let filterInfo = [];
+                if (filterZakatType) {
+                    const typeMap = {
+                        'pendapatan': 'Pendapatan',
+                        'simpanan': 'Simpanan',
+                        'padi': 'Padi',
+                        'saham': 'Saham',
+                        'perak': 'Perak',
+                        'kwsp': 'KWSP'
+                    };
+                    filterInfo.push(typeMap[filterZakatType] || filterZakatType);
+                }
+                if (!allTime) {
+                    if (filterYear && filterMonth) {
+                        filterInfo.push(`${filterMonth}-${filterYear}`);
+                    } else if (filterYear) {
+                        filterInfo.push(filterYear);
+                    } else if (filterMonth) {
+                        filterInfo.push(`Month-${filterMonth}`);
+                    }
+                }
+
+                const filterSuffix = filterInfo.length > 0 ? `_${filterInfo.join('_')}` : '';
+                const filename = `reminders${filterSuffix}_${new Date().toISOString().split('T')[0]}.csv`;
+
+                // Create CSV content with UTF-8 BOM for proper Excel display
+                const csvContent = '\uFEFF' + [
+                    headers.join(','),
+                    ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+                ].join('\n');
+
+                // Download
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+
+                link.setAttribute('href', url);
+                link.setAttribute('download', filename);
+                link.style.visibility = 'hidden';
+
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                console.log(`✅ Exported ${reminders.length} reminders to ${filename}`);
+            }
+        };
                 // Event Handlers
         const EventHandlers = {
             init() {
@@ -1305,11 +1622,11 @@
                 }
 
 
-                if (DOM.exportRemindersBtn) {
+               if (DOM.exportRemindersBtn) {
                     DOM.exportRemindersBtn.addEventListener('click', () => {
-                        ReminderOperations.exportCSV();
+                        ReminderExportManager.showExportModal();
                     });
-                }
+            }
 
                 // Table actions
                 if (DOM.reminderTableBody) {

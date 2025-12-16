@@ -3,5 +3,8 @@
     "./backend/routes",
     "./backend"
   ],
+  "python.analysis.diagnosticSeverityOverrides": {
+    "reportMissingImports": "warning"
+  },
   "claudeCodeChat.permissions.yoloMode": true
 }
