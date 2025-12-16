@@ -727,14 +727,216 @@
         };
 
         const PrintManager = {
-            printAll() {
-                if (STATE.filteredReminders.length === 0) {
+            showFilterModal() {
+                // Create modal if doesn't exist
+                let modal = document.getElementById('printReminderFilterModal');
+                if (!modal) {
+                    modal = this.createFilterModal();
+                    document.body.appendChild(modal);
+                }
+
+                // Populate filter options
+                this.populateZakatTypeOptions();
+                this.populateYearOptions();
+                this.populateMonthOptions();
+
+                modal.style.display = 'flex';
+            },
+
+            createFilterModal() {
+                const modal = document.createElement('div');
+                modal.id = 'printReminderFilterModal';
+                modal.className = 'modal';
+                modal.innerHTML = `
+                    <div class="modal-overlay"></div>
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>🖨️ Pilih Penapis untuk Cetak</h3>
+                            <button class="btn-close" id="closeReminderFilterModal">✖</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="filterZakatType">Jenis Zakat:</label>
+                                <select id="filterZakatType" class="admin-select">
+                                    <option value="">Semua Jenis Zakat</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="filterReminderYear">Tahun:</label>
+                                <select id="filterReminderYear" class="admin-select">
+                                    <option value="">Semua Tahun</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="filterReminderMonth">Bulan:</label>
+                                <select id="filterReminderMonth" class="admin-select">
+                                    <option value="">Semua Bulan</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="filterReminderAllTime">
+                                    <span>Cetak semua rekod (abaikan tarikh)</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn ghost" id="cancelReminderFilter">Batal</button>
+                            <button class="btn primary" id="confirmPrintReminderWithFilter">🖨️ Cetak</button>
+                        </div>
+                    </div>
+                `;
+
+                // Attach event listeners
+                const closeBtn = modal.querySelector('#closeReminderFilterModal');
+                const cancelBtn = modal.querySelector('#cancelReminderFilter');
+                const confirmBtn = modal.querySelector('#confirmPrintReminderWithFilter');
+                const overlay = modal.querySelector('.modal-overlay');
+                const allTimeCheckbox = modal.querySelector('#filterReminderAllTime');
+                const yearSelect = modal.querySelector('#filterReminderYear');
+                const monthSelect = modal.querySelector('#filterReminderMonth');
+
+                const closeModal = () => {
+                    modal.style.display = 'none';
+                };
+
+                closeBtn.addEventListener('click', closeModal);
+                cancelBtn.addEventListener('click', closeModal);
+                overlay.addEventListener('click', closeModal);
+
+                // Toggle date inputs based on "all time" checkbox
+                allTimeCheckbox.addEventListener('change', (e) => {
+                    yearSelect.disabled = e.target.checked;
+                    monthSelect.disabled = e.target.checked;
+                });
+
+                confirmBtn.addEventListener('click', () => {
+                    const zakatType = document.getElementById('filterZakatType').value;
+                    const allTime = allTimeCheckbox.checked;
+                    const year = yearSelect.value;
+                    const month = monthSelect.value;
+
+                    this.printWithFilter(zakatType, year, month, allTime);
+                    closeModal();
+                });
+
+                return modal;
+            },
+
+            populateZakatTypeOptions() {
+                const zakatTypeSelect = document.getElementById('filterZakatType');
+                if (!zakatTypeSelect) return;
+
+                const zakatTypes = [
+                    { value: 'pendapatan', label: 'Pendapatan' },
+                    { value: 'simpanan', label: 'Simpanan' },
+                    { value: 'padi', label: 'Padi' },
+                    { value: 'saham', label: 'Saham' },
+                    { value: 'perak', label: 'Perak' },
+                    { value: 'kwsp', label: 'KWSP' }
+                ];
+
+                zakatTypeSelect.innerHTML = '<option value="">Semua Jenis Zakat</option>' +
+                    zakatTypes.map(type => `<option value="${type.value}">${type.label}</option>`).join('');
+            },
+
+            populateYearOptions() {
+                const yearSelect = document.getElementById('filterReminderYear');
+                if (!yearSelect) return;
+
+                // Get unique years from reminders
+                const years = new Set();
+                STATE.reminders.forEach(reminder => {
+                    if (reminder.created_at) {
+                        const match = reminder.created_at.match(/(\d{4})/);
+                        if (match) {
+                            years.add(match[1]);
+                        }
+                    }
+                });
+
+                const sortedYears = Array.from(years).sort((a, b) => b - a);
+
+                yearSelect.innerHTML = '<option value="">Semua Tahun</option>' +
+                    sortedYears.map(year => `<option value="${year}">${year}</option>`).join('');
+
+                // Set current year as default
+                const currentYear = new Date().getFullYear().toString();
+                if (sortedYears.includes(currentYear)) {
+                    yearSelect.value = currentYear;
+                }
+            },
+
+            populateMonthOptions() {
+                const monthSelect = document.getElementById('filterReminderMonth');
+                if (!monthSelect) return;
+
+                const months = [
+                    'Januari', 'Februari', 'Mac', 'April', 'Mei', 'Jun',
+                    'Julai', 'Ogos', 'September', 'Oktober', 'November', 'Disember'
+                ];
+
+                monthSelect.innerHTML = '<option value="">Semua Bulan</option>' +
+                    months.map((month, idx) => 
+                        `<option value="${(idx + 1).toString().padStart(2, '0')}">${month}</option>`
+                    ).join('');
+            },
+
+            printWithFilter(zakatType, year, month, allTime) {
+                let filteredReminders = STATE.filteredReminders;
+
+                // Apply filters
+                if (zakatType || !allTime) {
+                    filteredReminders = STATE.filteredReminders.filter(reminder => {
+                        // Filter by zakat type
+                        if (zakatType) {
+                            const normalizeType = (type) => {
+                                if (!type) return '';
+                                const typeMap = {
+                                    'income_kaedah_a': 'pendapatan',
+                                    'income_kaedah_b': 'pendapatan',
+                                    'savings': 'simpanan'
+                                };
+                                return typeMap[type] || type;
+                            };
+
+                            const reminderType = normalizeType(reminder.zakat_type);
+                            if (reminderType !== zakatType) return false;
+                        }
+
+                        // Filter by date
+                        if (!allTime && reminder.created_at) {
+                            const dateMatch = reminder.created_at.match(/(\d{4})-(\d{2})-(\d{2})/);
+                            if (!dateMatch) return false;
+
+                            const [, logYear, logMonth] = dateMatch;
+
+                            if (year && logYear !== year) return false;
+                            if (month && logMonth !== month) return false;
+                        }
+
+                        return true;
+                    });
+                }
+
+                if (filteredReminders.length === 0) {
+                    alert('Tiada rekod ditemui untuk penapis yang dipilih');
+                    return;
+                }
+
+                this.printAll(filteredReminders, zakatType, year, month, allTime);
+            },
+
+            printAll(reminders = null, filterZakatType = null, filterYear = null, filterMonth = null, allTime = false) {
+                const remindersToPrint = reminders || STATE.filteredReminders;
+
+                if (remindersToPrint.length === 0) {
                     alert('No reminders to print');
                     return;
                 }
 
                 const printWindow = window.open('', '_blank');
-                const content = this.generatePrintContent(STATE.filteredReminders, STATE.stats);
+                const content = this.generatePrintContent(remindersToPrint, filterZakatType, filterYear, filterMonth, allTime);
 
                 printWindow.document.write(content);
                 printWindow.document.close();
@@ -745,22 +947,45 @@
                 }, 500);
             },
 
-            printSingle(reminder) {
-                const printWindow = window.open('', '_blank');
-                const content = this.generateSinglePrintContent(reminder);
-
-                printWindow.document.write(content);
-                printWindow.document.close();
-                printWindow.focus();
-
-                setTimeout(() => {
-                    printWindow.print();
-                }, 500);
-            },
-
-            generatePrintContent(reminders, stats) {
+            generatePrintContent(reminders, filterZakatType, filterYear, filterMonth, allTime) {
                 const now = new Date().toLocaleString('ms-MY');
                 const totalAmount = reminders.reduce((sum, r) => sum + (parseFloat(r.zakat_amount) || 0), 0);
+
+                // Format filter info
+                let filterInfo = [];
+                
+                if (filterZakatType) {
+                    const zakatTypeNames = {
+                        'pendapatan': 'Pendapatan',
+                        'simpanan': 'Simpanan',
+                        'padi': 'Padi',
+                        'saham': 'Saham',
+                        'perak': 'Perak',
+                        'kwsp': 'KWSP'
+                    };
+                    filterInfo.push(`Jenis: ${zakatTypeNames[filterZakatType] || filterZakatType}`);
+                }
+
+                if (!allTime) {
+                    const monthNames = [
+                        'Januari', 'Februari', 'Mac', 'April', 'Mei', 'Jun',
+                        'Julai', 'Ogos', 'September', 'Oktober', 'November', 'Disember'
+                    ];
+                    
+                    if (filterYear && filterMonth) {
+                        const monthName = monthNames[parseInt(filterMonth) - 1];
+                        filterInfo.push(`Tempoh: ${monthName} ${filterYear}`);
+                    } else if (filterYear) {
+                        filterInfo.push(`Tempoh: Tahun ${filterYear}`);
+                    } else if (filterMonth) {
+                        const monthName = monthNames[parseInt(filterMonth) - 1];
+                        filterInfo.push(`Tempoh: ${monthName}`);
+                    }
+                } else if (!filterZakatType) {
+                    filterInfo.push('Semua Rekod');
+                }
+
+                const filterDisplay = filterInfo.length > 0 ? filterInfo.join(' | ') : 'Semua Rekod';
 
                 return `
                     <!DOCTYPE html>
@@ -772,14 +997,28 @@
                             .header { text-align: center; margin-bottom: 30px; border-bottom: 3px solid #006a4e; padding-bottom: 15px; }
                             .header h1 { color: #006a4e; margin: 0; }
                             .header p { color: #666; margin: 5px 0; }
-                            .stats { margin: 20px 0; padding: 15px; background: #f0f0f0; border-radius: 8px; }
-                            .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+                            .filter-info { 
+                                background: #f0f9ff; 
+                                padding: 12px; 
+                                border-left: 4px solid #006a4e; 
+                                margin-bottom: 20px;
+                                font-weight: 600;
+                            }
+                            .stats { 
+                                margin: 20px 0; 
+                                padding: 15px; 
+                                background: #f0f0f0; 
+                                border-radius: 8px; 
+                                display: grid;
+                                grid-template-columns: repeat(2, 1fr);
+                                gap: 15px;
+                            }
                             .stat-box { text-align: center; }
                             .stat-label { font-size: 12px; color: #666; }
                             .stat-value { font-size: 24px; font-weight: bold; color: #006a4e; }
                             table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                            th { background: #006a4e; color: white; padding: 10px; text-align: left; }
-                            td { padding: 8px; border-bottom: 1px solid #ddd; }
+                            th { background: #006a4e; color: white; padding: 10px; text-align: left; font-size: 12px; }
+                            td { padding: 8px; border-bottom: 1px solid #ddd; font-size: 11px; }
                             tr:nth-child(even) { background: #f9f9f9; }
                             .footer { margin-top: 30px; text-align: center; color: #666; font-size: 12px; }
                             @media print {
@@ -795,20 +1034,18 @@
                             <p>Generated: ${now}</p>
                         </div>
 
+                        <div class="filter-info">
+                            📋 Penapis: ${filterDisplay}
+                        </div>
+
                         <div class="stats">
-                            <div class="stats-grid">
-                                <div class="stat-box">
-                                    <div class="stat-label">Total Reminders</div>
-                                    <div class="stat-value">${reminders.length}</div>
-                                </div>
-                                <div class="stat-box">
-                                    <div class="stat-label">Total Zakat Amount</div>
-                                    <div class="stat-value">RM ${totalAmount.toFixed(2)}</div>
-                                </div>
-                                <div class="stat-box">
-                                    <div class="stat-label">Report Date</div>
-                                    <div class="stat-value">${new Date().toLocaleDateString('ms-MY')}</div>
-                                </div>
+                            <div class="stat-box">
+                                <div class="stat-label">Total Reminders</div>
+                                <div class="stat-value">${reminders.length}</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">Total Zakat Amount</div>
+                                <div class="stat-value">RM ${totalAmount.toFixed(2)}</div>
                             </div>
                         </div>
 
@@ -819,7 +1056,7 @@
                                     <th>Name</th>
                                     <th>IC Number</th>
                                     <th>Phone</th>
-                                    <th>Zakat Type</th>
+                                    <th>Jenis Zakat</th>
                                     <th>Amount (RM)</th>
                                     <th>Tahun</th>
                                     <th>Tarikh Daftar</th>
@@ -850,10 +1087,10 @@
                 `;
             },
 
-            generateSinglePrintContent(reminder) {
+            printSingle(reminder) {
                 const now = new Date().toLocaleString('ms-MY');
 
-                return `
+                const content = `
                     <!DOCTYPE html>
                     <html>
                     <head>
@@ -927,6 +1164,15 @@
                     </body>
                     </html>
                 `;
+
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(content);
+                printWindow.document.close();
+                printWindow.focus();
+
+                setTimeout(() => {
+                    printWindow.print();
+                }, 500);
             }
         };
 
@@ -956,9 +1202,10 @@
                 // Print and Export
                 if (DOM.printRemindersBtn) {
                     DOM.printRemindersBtn.addEventListener('click', () => {
-                        PrintManager.printAll();
+                        PrintManager.showFilterModal();  // Changed from printAll()
                     });
                 }
+
 
                 if (DOM.exportRemindersBtn) {
                     DOM.exportRemindersBtn.addEventListener('click', () => {

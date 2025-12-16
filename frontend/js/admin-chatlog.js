@@ -61,18 +61,31 @@
                     .replaceAll('>', '&gt;');
             },
 
+            // Replace the formatDate method in UIManager object
+
             formatDate(dateStr) {
                 if (!dateStr) return 'N/A';
                 
                 try {
+                    // Parse the datetime string directly without timezone conversion
+                    // Format: "2025-12-15 14:18:31" from database
                     const parts = dateStr.match(/(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})/);
+                    
                     if (parts) {
                         const [, year, month, day, hour, min, sec] = parts;
-                        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-                                          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                        
+                        const monthNames = [
+                            'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                            'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+                        ];
+                        
                         const monthName = monthNames[parseInt(month) - 1];
+                        
+                        // Return the EXACT time from database without any conversion
                         return `${day} ${monthName} ${year}, ${hour}:${min}:${sec}`;
                     }
+                    
+                    // Fallback: return original string
                     return dateStr;
                 } catch (e) {
                     console.error('Date formatting error:', e);

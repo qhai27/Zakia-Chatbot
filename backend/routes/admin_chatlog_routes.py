@@ -25,19 +25,10 @@ print("   URL Prefix: /admin/chat-logs")
 print("="*60 + "\n")
 
 def format_timestamp(dt):
-    """Format timestamp to Malaysia timezone string"""
+    """Format timestamp to string WITHOUT timezone conversion"""
     if dt is None:
         return None
-    
-    # If datetime is naive (no timezone), assume it's UTC
-    if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=timezone.utc)
-    
-    # Convert to Malaysia timezone
-    malaysia_time = dt.astimezone(MALAYSIA_TZ)
-    
-    # Return formatted string: "YYYY-MM-DD HH:MM:SS"
-    return malaysia_time.strftime('%Y-%m-%d %H:%M:%S')
+    return dt.strftime('%Y-%m-%d %H:%M:%S')
 
 @admin_chatlog_bp.route('', methods=['GET'])
 def list_chat_logs():
