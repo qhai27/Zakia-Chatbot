@@ -844,18 +844,33 @@
                 const yearSelect = document.getElementById('filterReminderYear');
                 if (!yearSelect) return;
 
-                // Get unique years from reminders
+                // Get unique years from reminders created_at dates
                 const years = new Set();
                 STATE.reminders.forEach(reminder => {
                     if (reminder.created_at) {
-                        const match = reminder.created_at.match(/(\d{4})/);
-                        if (match) {
-                            years.add(match[1]);
+                        try {
+                            // Parse date using Date object (handles GMT format)
+                            const dateObj = new Date(reminder.created_at);
+                            if (!isNaN(dateObj.getTime())) {
+                                years.add(dateObj.getFullYear().toString());
+                            }
+                        } catch (e) {
+                            // Fallback to regex
+                            const dateStr = String(reminder.created_at);
+                            const match = dateStr.match(/(\d{4})/);
+                            if (match) {
+                                years.add(match[1]);
+                            }
                         }
                     }
                 });
 
                 const sortedYears = Array.from(years).sort((a, b) => b - a);
+
+                // If no years found, add current year
+                if (sortedYears.length === 0) {
+                    sortedYears.push(new Date().getFullYear().toString());
+                }
 
                 yearSelect.innerHTML = '<option value="">Semua Tahun</option>' +
                     sortedYears.map(year => `<option value="${year}">${year}</option>`).join('');
@@ -883,47 +898,131 @@
             },
 
             printWithFilter(zakatType, year, month, allTime) {
-                let filteredReminders = STATE.filteredReminders;
+                console.log('=== PRINT WITH FILTER DEBUG ===');
+                console.log('Total reminders in STATE:', STATE.reminders.length);
+                console.log('Filtered reminders before print:', STATE.filteredReminders.length);
+                console.log('Filters:', { zakatType, year, month, allTime });
 
-                // Apply filters
-                if (zakatType || !allTime) {
-                    filteredReminders = STATE.filteredReminders.filter(reminder => {
-                        // Filter by zakat type
-                        if (zakatType) {
-                            const normalizeType = (type) => {
-                                if (!type) return '';
-                                const typeMap = {
-                                    'income_kaedah_a': 'pendapatan',
-                                    'income_kaedah_b': 'pendapatan',
-                                    'savings': 'simpanan'
-                                };
-                                return typeMap[type] || type;
+                // Start with currently filtered reminders (respects search/filter)
+                let filteredReminders = [...STATE.filteredReminders];
+                
+                console.log('Starting with filtered reminders:', filteredReminders.length);
+
+                // Apply zakat type filter
+                if (zakatType) {
+                    console.log('Applying zakat type filter:', zakatType);
+                    
+                    const beforeCount = filteredReminders.length;
+                    filteredReminders = filteredReminders.filter(reminder => {
+                        const normalizeType = (type) => {
+                            if (!type) return '';
+                            const typeMap = {
+                                'income_kaedah_a': 'pendapatan',
+                                'income_kaedah_b': 'pendapatan',
+                                'savings': 'simpanan'
                             };
+                            return typeMap[type] || type;
+                        };
 
-                            const reminderType = normalizeType(reminder.zakat_type);
-                            if (reminderType !== zakatType) return false;
+                        const reminderType = normalizeType(reminder.zakat_type);
+                        const matches = reminderType === zakatType;
+                        
+                        if (!matches) {
+                            console.log('Filtered out:', reminder.name, 'type:', reminder.zakat_type, 'normalized:', reminderType);
                         }
-
-                        // Filter by date
-                        if (!allTime && reminder.created_at) {
-                            const dateMatch = reminder.created_at.match(/(\d{4})-(\d{2})-(\d{2})/);
-                            if (!dateMatch) return false;
-
-                            const [, logYear, logMonth] = dateMatch;
-
-                            if (year && logYear !== year) return false;
-                            if (month && logMonth !== month) return false;
-                        }
-
-                        return true;
+                        
+                        return matches;
                     });
+                    
+                    console.log('After zakat type filter:', beforeCount, '->', filteredReminders.length);
                 }
 
+                // Apply date filter only if not "all time"
+                if (!allTime && (year || month)) {
+                    console.log('Applying date filter. Year:', year, 'Month:', month);
+                    
+                    const beforeCount = filteredReminders.length;
+                    filteredReminders = filteredReminders.filter(reminder => {
+                        if (!reminder.created_at) {
+                            console.log('No created_at for:', reminder.name);
+                            return false;
+                        }
+
+                        const dateStr = String(reminder.created_at);
+                        console.log('Processing date:', dateStr, 'for', reminder.name);
+
+                        let logYear, logMonth, logDay;
+
+                        // Try to parse as Date object first (handles GMT format)
+                        try {
+                            const dateObj = new Date(dateStr);
+                            if (!isNaN(dateObj.getTime())) {
+                                // Successfully parsed as Date
+                                logYear = dateObj.getFullYear().toString();
+                                logMonth = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+                                logDay = dateObj.getDate().toString().padStart(2, '0');
+                                console.log('Parsed via Date object:', { logYear, logMonth, logDay });
+                            } else {
+                                throw new Error('Invalid date');
+                            }
+                        } catch (e) {
+                            // Fallback to regex patterns
+                            // Pattern 1: YYYY-MM-DD (ISO format)
+                            let dateMatch = dateStr.match(/(\d{4})-(\d{2})-(\d{2})/);
+                            
+                            // Pattern 2: DD/MM/YYYY
+                            if (!dateMatch) {
+                                dateMatch = dateStr.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+                                if (dateMatch) {
+                                    // Reorder to [year, month, day]
+                                    dateMatch = [dateMatch[0], dateMatch[3], dateMatch[2], dateMatch[1]];
+                                }
+                            }
+
+                            if (!dateMatch) {
+                                console.log('Could not parse date:', dateStr);
+                                return false;
+                            }
+
+                            [, logYear, logMonth, logDay] = dateMatch;
+                            console.log('Parsed via regex:', { logYear, logMonth, logDay });
+                        }
+
+                        // Check year match - ONLY if year filter is provided
+                        if (year && year.trim() !== '') {
+                            if (logYear !== year) {
+                                console.log('Year mismatch:', logYear, '!==', year);
+                                return false;
+                            }
+                        }
+
+                        // Check month match - ONLY if month filter is provided
+                        if (month && month.trim() !== '') {
+                            if (logMonth !== month) {
+                                console.log('Month mismatch:', logMonth, '!==', month);
+                                return false;
+                            }
+                        }
+
+                        console.log('Date matches!');
+                        return true;
+                    });
+                    
+                    console.log('After date filter:', beforeCount, '->', filteredReminders.length);
+                } else if (allTime) {
+                    console.log('All time selected - skipping date filter');
+                }
+
+                console.log('Final filtered count:', filteredReminders.length);
+                console.log('=== END DEBUG ===');
+
+                // Show alert if no records
                 if (filteredReminders.length === 0) {
-                    alert('Tiada rekod ditemui untuk penapis yang dipilih');
+                    alert('Tiada rekod ditemui untuk penapis yang dipilih.\n\nSila semak:\n- Adakah data wujud untuk penapis tersebut?\n- Cuba pilih "Cetak semua rekod"');
                     return;
                 }
 
+                // Proceed with printing
                 this.printAll(filteredReminders, zakatType, year, month, allTime);
             },
 
@@ -931,7 +1030,7 @@
                 const remindersToPrint = reminders || STATE.filteredReminders;
 
                 if (remindersToPrint.length === 0) {
-                    alert('No reminders to print');
+                    alert('Tiada reminder untuk dicetak');
                     return;
                 }
 
@@ -1175,8 +1274,7 @@
                 }, 500);
             }
         };
-
-        // Event Handlers
+                // Event Handlers
         const EventHandlers = {
             init() {
                 // Search and filters

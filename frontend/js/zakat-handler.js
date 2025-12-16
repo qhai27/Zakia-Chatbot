@@ -172,10 +172,10 @@ class ZakatHandler {
                         💼 Zakat Pendapatan
                     </button>
                     <button class="zakat-type-btn" data-type="savings">
-                        🏦 Zakat Simpanan
+                        💰 Zakat Simpanan
                     </button>
                     <button class="zakat-type-btn" data-type="kwsp">
-                        💼 Zakat KWSP
+                        🏦 Zakat KWSP
                     </button>
                     <button class="zakat-type-btn" data-type="saham">
                         📈 Zakat Saham
@@ -203,32 +203,32 @@ class ZakatHandler {
                 <p style="margin-bottom: 16px; font-weight: 600;">💼 Pilih kaedah pengiraan zakat pendapatan:</p>
                 
                             
-            <div class="zakat-method-info" style="background:#f3f7f4; padding:8px; border-radius:6px; font-size:1em; color:#1a1a1a; line-height:1.2; display:inline-block;">
+            <div class="zakat-method-info" style="background:#f3f7f4; padding:8px; border-radius:6px; font-size:1em; color:#1a1a1a; line-height:1.2; width:100%; box-sizing:border-box;">
 
                 <!-- Kaedah A -->
                 <strong>Kaedah A (Disyorkan) ⭐</strong><br>
-                📌 Pengiraan tanpa tolakan (pendapatan kasar)<br>
-                <span style="font-size:0.95em;">
+                📌 Pengiraan tanpa tolakan (pendapatan kasar)
+                <div style="font-size:0.95em;">
                     • ⚡ Mudah & cepat  
                     • 🛡️ Kurang risiko silap  
                     • 📘 Selaras majoriti fatwa
-                </span><br>
-                <span style="font-size:0.95em;"><strong>Formula:</strong> (Pendapatan Kasar Tahunan × 2.5%)</span>
+                </div>
+                <div style="font-size:0.95em;"><strong>Formula:</strong> (Pendapatan Kasar Tahunan × 2.577%)</div>
 
                 <div style="border-top:1px solid #c5d3c7; margin:4px 0;"></div>
 
                 <!-- Kaedah B -->
                 <strong>Kaedah B 🧮</strong><br>
-                📌 Selepas tolak perbelanjaan asas<br>
-                <span style="font-size:0.95em;">
+                📌 Selepas tolak perbelanjaan asas
+                <div style="font-size:0.95em;">
                     • 👍 Sesuai jika perbelanjaan asas tinggi  
                     • 📌 Perlu teliti antara keperluan & kehendak
-                </span><br>
-                <span style="font-size:0.95em;"><strong>Formula:</strong> (Pendapatan – Perbelanjaan Asas) × 2.5%</span>
+                </div><br>
+                <div style="font-size:0.95em;"><strong>Formula:</strong> (Pendapatan – Perbelanjaan Asas) × 2.577%</div>
 
                 <!-- Cadangan -->
-                <div style="margin-top:4px; padding:6px; background:#e1f0e5; border-radius:4px; border-left:4px solid #2f6b3a; font-size:0.95em; color:#10391e; font-weight:600; line-height:1.2;">
-                    💡 <strong>Cadangan:</strong> Pilih <strong>Kaedah A</strong> untuk kiraan paling stabil, tepat & selamat.
+                <div style="margin-top:4px; padding:6px; background:#e1f0e5; border-radius:4px; border-left:4px solid #2f6b3a; font-size:0.95em; color:#10391e; font-weight:600; line-height:1.2; text-align:center;">
+                💡 <strong>Cadangan:</strong> Pilih <strong>Kaedah A</strong> untuk kiraan paling stabil, tepat & selamat.
                 </div>
 
             </div>
