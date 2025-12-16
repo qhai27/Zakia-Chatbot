@@ -241,9 +241,6 @@ class ZakatHandler {
                     <button class="zakat-type-btn" data-method="kaedah_b">
                         📊 Kaedah B (Dengan Tolakan)
                     </button>
-                    <button class="zakat-cancel-btn">
-                        ❌ Batal
-                    </button>
                 </div>
             </div>
         `;

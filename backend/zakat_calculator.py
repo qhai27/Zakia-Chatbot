@@ -455,7 +455,7 @@ class ZakatCalculator:
                     f"📊 **Butiran Pengiraan:**\n"
                     f"• Pendapatan kasar: RM{income:,.2f}\n"
                     f"• Nisab ({year} {year_type}): RM{nisab_value:,.2f}\n"
-                    f"• Kadar zakat: {kadar * 100:.2f}%\n\n"
+                    f"• Kadar zakat: 2.577%\n"
                     f"ℹ️ Kaedah A: Zakat dikira berdasarkan pendapatan kasar tanpa tolakan"
                 )
             else:
@@ -548,7 +548,7 @@ class ZakatCalculator:
                     f"• Perbelanjaan asas: RM{expenses:,.2f}\n"
                     f"• Pendapatan bersih: RM{zakatable_amount:,.2f}\n"
                     f"• Nisab ({year} {year_type}): RM{nisab_value:,.2f}\n"
-                    f"• Kadar zakat: {kadar * 100:.2f}%\n\n"
+                    f"• Kadar zakat: 2.577%\n"
                     f"ℹ️ Kaedah B: Zakat dikira selepas tolakan perbelanjaan asas"
                 )
             else:
