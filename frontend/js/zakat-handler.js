@@ -198,56 +198,49 @@ class ZakatHandler {
     }
 
     showIncomeMethodMenu() {
-        const menuHTML = `
-            <div class="zakat-menu">
-                <p style="margin-bottom: 16px; font-weight: 600;">💼 Pilih kaedah pengiraan zakat pendapatan:</p>
-                
-                            
-            <div class="zakat-method-info" style="background:#f3f7f4; padding:8px; border-radius:6px; font-size:1em; color:#1a1a1a; line-height:1.2; width:100%; box-sizing:border-box;">
+    const menuHTML = `
+    <div class="zakat-menu">
+        <p style="font-weight:600;">💼 Pilih kaedah pengiraan zakat pendapatan:</p>
+        <div class="zakat-method-info">
+            <!-- Kaedah A -->
+            <p><strong>Kaedah A (Disyorkan) ⭐</strong>
+            <p>📌 Pengiraan tanpa tolakan (pendapatan kasar)<br>
+            ⚡ Mudah & cepat
+            🛡️ Kurang risiko silap
+            📘 Selaras majoriti fatwa
 
-                <!-- Kaedah A -->
-                <strong>Kaedah A (Disyorkan) ⭐</strong><br>
-                📌 Pengiraan tanpa tolakan (pendapatan kasar)
-                <div style="font-size:0.95em;">
-                    • ⚡ Mudah & cepat  
-                    • 🛡️ Kurang risiko silap  
-                    • 📘 Selaras majoriti fatwa
-                </div>
-                <div style="font-size:0.95em;"><strong>Formula:</strong> (Pendapatan Kasar Tahunan × 2.577%)</div>
-
-                <div style="border-top:1px solid #c5d3c7; margin:4px 0;"></div>
-
-                <!-- Kaedah B -->
-                <strong>Kaedah B 🧮</strong><br>
-                📌 Selepas tolak perbelanjaan asas
-                <div style="font-size:0.95em;">
-                    • 👍 Sesuai jika perbelanjaan asas tinggi  
-                    • 📌 Perlu teliti antara keperluan & kehendak
-                </div><br>
-                <div style="font-size:0.95em;"><strong>Formula:</strong> (Pendapatan – Perbelanjaan Asas) × 2.577%</div>
-
-                <!-- Cadangan -->
-                <div style="margin-top:4px; padding:6px; background:#e1f0e5; border-radius:4px; border-left:4px solid #2f6b3a; font-size:0.95em; color:#10391e; font-weight:600; line-height:1.2; text-align:center;">
-                💡 <strong>Cadangan:</strong> Pilih <strong>Kaedah A</strong> untuk kiraan paling stabil, tepat & selamat.
-                </div>
-
+            <p><strong>Formula:</strong> Pendapatan Kasar Tahunan × 2.577%</p>
+            <div style="border-top:1px solid #c5d3c7; margin:2px 0;"></div>
+            <!-- Kaedah B -->
+            <p><strong>Kaedah B 🧮</strong>
+            <p>📌 Selepas tolak perbelanjaan asas<br>
+            👍 Sesuai jika perbelanjaan asas tinggi
+            📋 Perlu teliti antara keperluan & kehendak
+            <p><strong>Formula:</strong> (Pendapatan – Perbelanjaan Asas) × 2.577%</p>
+            <!-- Cadangan -->
+            <div style="
+                margin-top:2px;padding:6px 6px;
+                background:#e1f0e5;border-left:4px solid #2f6b3a;
+                border-radius:4px;font-weight:600;
+                color:#10391e; text-align:center;
+            ">💡 Cadangan: Pilih <strong>Kaedah A</strong> untuk kiraan paling stabil & selamat.</div>
             </div>
 
+        <div class="zakat-buttons">
+            <button class="zakat-type-btn" data-method="kaedah_a">
+                📋 Kaedah A
+            </button>
+            <button class="zakat-type-btn" data-method="kaedah_b">
+                📊 Kaedah B 
+            </button>
+        </div>
 
-                <div class="zakat-buttons">
-                    <button class="zakat-type-btn" data-method="kaedah_a">
-                        📋 Kaedah A (Tanpa Tolakan)
-                    </button>
-                    <button class="zakat-type-btn" data-method="kaedah_b">
-                        📊 Kaedah B (Dengan Tolakan)
-                    </button>
-                </div>
-            </div>
-        `;
+    </div>
+    `;
 
-        this.chatbot.appendMessage(menuHTML, 'bot', true);
-        this.attachMethodMenuListeners();
-    }
+    this.chatbot.appendMessage(menuHTML, 'bot', true);
+    this.attachMethodMenuListeners();
+}
 
     attachMethodMenuListeners() {
         const buttons = document.querySelectorAll('.zakat-type-btn[data-method]');

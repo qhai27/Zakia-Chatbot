@@ -81,6 +81,9 @@ body{
 
 .btn-end {
     border: none;
+    background-color: transparent;
+    cursor: pointer;
+    display: flex;
 }
 
 /*disclaimer text*/
@@ -100,9 +103,6 @@ body{
     height: 40px;
     border: none;
 }
-
-
-
 
 /* Main chat area */
 .chat-container{flex:1 1 auto;display:flex;flex-direction:column;overflow:hidden;padding:0}
@@ -154,6 +154,8 @@ body{
   border-bottom-left-radius:4px;
   text-align:left;
   max-width: calc(100% - 96px);
+  border-radius: 12px;
+  box-shadow: 0 6px 14px -4px #1d5009cf;
 }
 .msg.bot .bubble::before{
   content:'';
@@ -174,6 +176,8 @@ body{
   max-width:auto;  
   word-break:break-word;
   animation: bubbleIn .25s ease both, sendPulse 1.2s ease-out;
+  border-radius: 12px;
+  box-shadow: 0 6px 12px -4px #3f7a64;
 }
 
 /* user tail */

@@ -5,6 +5,7 @@ This module handles interaction with Google Gemini via the genai SDK.
 
 import os
 from dotenv import load_dotenv
+from google import genai
 import google.generativeai as genai
 import re
 
