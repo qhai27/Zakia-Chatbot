@@ -23,7 +23,7 @@ class GeminiService:
         models_to_try = [
             "gemini-2.0-flash",
             "gemini-2.0-flash-001",
-            "gemini-2.5-flash-lite-preview-06-17",
+
         ]
 
         self.model = None

@@ -104,52 +104,6 @@ class ZakatHandler {
     detectZakatIntent(message) {
         const msg = message.toLowerCase();
 
-        if (msg.includes('emas') || msg.includes('bulanan') ||
-            msg.includes('perak') || msg.includes('tahunan') ||
-            msg.includes('dikira') || msg.includes('zakat perniagaan') ||
-            msg.includes('zakat ternakan') || msg.includes('zakat pertanian') ||
-            msg.includes('pelaburan')) {
-            return null;
-        }
-
-        if (msg.includes('kira zakat pendapatan') ||
-            msg.includes('zakat pendapatan') ||
-            msg.includes('zakat gaji') ||
-            msg.includes('zakat income')) {
-            return 'income_menu';
-        }
-
-        if (msg.includes('kira zakat simpanan') ||
-            msg.includes('zakat simpanan') ||
-            msg.includes('zakat wang') ||
-            msg.includes('zakat savings')) {
-            return 'savings';
-        }
-
-        if (msg.includes('kira zakat padi') ||
-            msg.includes('zakat padi') ||
-            msg.includes('zakat beras')) {
-            return 'padi';
-        }
-
-        if (msg.includes('kira zakat saham') ||
-            msg.includes('zakat saham') ||
-            msg.includes('zakat portfolio')) {
-            return 'saham';
-        }
-
-        if (msg.includes('kira zakat perak') ||
-            msg.includes('zakat perak') ||
-            msg.includes('zakat silver')) {
-            return 'perak';
-        }
-
-        if (msg.includes('kira zakat kwsp') ||
-            msg.includes('zakat kwsp') ||
-            msg.includes('zakat epf')) {
-            return 'kwsp';
-        }
-
         if ((msg.includes('kira zakat') || msg.includes('zakat kalkulator') || msg.includes('kalkulator zakat')) &&
             !this.state.active) {
             return 'menu';

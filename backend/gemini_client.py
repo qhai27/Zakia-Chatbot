@@ -15,8 +15,8 @@ API_KEY = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=API_KEY)
 
 
-#  gemini-1.5-(free tier) 
-model = genai.GenerativeModel('gemini-1.5-flash')
+#  gemini(free tier) 
+model = genai.GenerativeModel('gemini-2.0-flash')
 
 def ask_gemini(prompt: str, temperature: float = 0.7, max_tokens: int = 500):
     """

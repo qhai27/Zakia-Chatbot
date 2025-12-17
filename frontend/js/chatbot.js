@@ -76,8 +76,8 @@ if (!window.ZakiaChatbot) {
             widget.innerHTML = `
                 <img src="images/zakia-avatar.png" alt="ZAKIA" class="widget-avatar">
                 <div class="widget-content">
-                    <div class="widget-title">ZAKIA</div>
-                    <div class="widget-subtitle">Nak tanya soalan?</div>
+                    <div class="widget-title">Hi, saya ZAKIA</div>
+                    <div class="widget-subtitle">Nak tanya soalan tentang zakat?</div>
                 </div>
             `;
             
