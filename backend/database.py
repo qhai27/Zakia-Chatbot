@@ -13,7 +13,7 @@ class DatabaseManager:
     def __init__(self, host=None, user=None, password=None, database=None):
         self.host = host or 'localhost'
         self.user = user or 'root'
-        self.password = password or ''       # Change this to your MySQL password
+        self.password = password or ''       
         self.database = database or 'lznk_chatbot'
         self.connection = None
         self.max_retries = 3
@@ -24,7 +24,7 @@ class DatabaseManager:
             self._init_pool()
 
     # -----------------------------------------------------------
-    # INITIALIZE POOL (FIXED)
+    # INITIALIZE POOL 
     # -----------------------------------------------------------
     def _init_pool(self):
         """Initialize connection pool with retry logic"""
@@ -58,7 +58,7 @@ class DatabaseManager:
                     return False
 
     # -----------------------------------------------------------
-    # CONNECT FUNCTION (FIXED & ENHANCED)
+    # CONNECT FUNCTION 
     # -----------------------------------------------------------
     def connect(self):
         """Get connection from pool or fallback to direct connection with retry logic."""
@@ -109,7 +109,7 @@ class DatabaseManager:
         return False
 
     # -----------------------------------------------------------
-    # ENSURE CONNECTION (ENHANCED)
+    # ENSURE CONNECTION
     # -----------------------------------------------------------
     def ensure_connection(self):
         """Ensure connection is alive with enhanced retry logic"""
@@ -131,7 +131,7 @@ class DatabaseManager:
             return self.connect()
 
     # -----------------------------------------------------------
-    # CREATE DATABASE (FIXED)
+    # CREATE DATABASE 
     # -----------------------------------------------------------
     def create_database(self):
         """Create database if not exists with retry logic"""
@@ -288,7 +288,7 @@ class DatabaseManager:
                     AND REFERENCED_TABLE_NAME = 'users'
                 """)
                 if not cursor.fetchone():
-                    # First, create users for all existing session_ids in chat_logs that don't have a user
+                    # Migrate existing session_ids to users table
                     print("📝 Migrating existing session_ids to users table...")
                     cursor.execute("""
                         INSERT INTO users (session_id, created_at, last_activity)

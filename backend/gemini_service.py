@@ -22,9 +22,11 @@ class GeminiService:
         # Try available models
         models_to_try = [
             "gemini-2.0-flash",
-            "gemini-2.0-flash-001",
-
-        ]
+            "gemini-1.5-flash",          # Canonical stable name
+            "gemini-1.5-flash-8b",       # Faster, higher quota
+            "gemini-1.5-flash-exp",      # Experimental
+            "gemini-2.0-flash-exp",
+                ]
 
         self.model = None
         self.model_name = None
