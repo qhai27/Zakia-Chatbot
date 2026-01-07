@@ -8,7 +8,7 @@
             API_BASE: 'http://127.0.0.1:5000/admin/chat-logs',
             PAGE_SIZE: 50,
             AUTO_REFRESH_INTERVAL: 10000,
-            FORCE_NO_CACHE: true 
+            FORCE_NO_CACHE: true
         };
 
         const DOM = {
@@ -27,15 +27,15 @@
         };
 
         let STATE = {
-        logs: [],
-        filteredLogs: [],
-        currentPage: 1,
-        totalPages: 1,
-        isLoading: false,
-        selectedLogs: new Set(),
-        autoRefreshTimer: null,
-        lastFetchTime: null, // NEW
-        isSectionActive: false // NEW
+            logs: [],
+            filteredLogs: [],
+            currentPage: 1,
+            totalPages: 1,
+            isLoading: false,
+            selectedLogs: new Set(),
+            autoRefreshTimer: null,
+            lastFetchTime: null, // NEW
+            isSectionActive: false // NEW
         };
 
         const UIManager = {
@@ -65,26 +65,26 @@
 
             formatDate(dateStr) {
                 if (!dateStr) return 'N/A';
-                
+
                 try {
                     // Parse the datetime string directly without timezone conversion
                     // Format: "2025-12-15 14:18:31" from database
                     const parts = dateStr.match(/(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})/);
-                    
+
                     if (parts) {
                         const [, year, month, day, hour, min, sec] = parts;
-                        
+
                         const monthNames = [
-                            'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                            'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
                             'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
                         ];
-                        
+
                         const monthName = monthNames[parseInt(month) - 1];
-                        
+
                         // Return the EXACT time from database without any conversion
                         return `${day} ${monthName} ${year}, ${hour}:${min}:${sec}`;
                     }
-                    
+
                     // Fallback: return original string
                     return dateStr;
                 } catch (e) {
@@ -95,8 +95,8 @@
 
             truncateText(text, maxLength = 80) {
                 if (!text) return '';
-                return text.length > maxLength 
-                    ? text.substring(0, maxLength) + '...' 
+                return text.length > maxLength
+                    ? text.substring(0, maxLength) + '...'
                     : text;
             },
 
@@ -165,7 +165,7 @@
                     cb.addEventListener('change', (e) => {
                         const id = parseInt(e.target.getAttribute('data-id'));
                         const row = e.target.closest('tr');
-                        
+
                         if (e.target.checked) {
                             STATE.selectedLogs.add(id);
                             row.classList.add('row-selected');
@@ -173,7 +173,7 @@
                             STATE.selectedLogs.delete(id);
                             row.classList.remove('row-selected');
                         }
-                        
+
                         this.updateBulkActions();
                     });
                 });
@@ -184,13 +184,13 @@
                     DOM.bulkDeleteBtn.disabled = STATE.selectedLogs.size === 0;
                     DOM.bulkDeleteBtn.innerHTML = `🗑️ Padam (${STATE.selectedLogs.size})`;
                 }
-                
+
                 if (DOM.selectAllCheckbox) {
                     const visibleLogs = STATE.filteredLogs.slice(
                         (STATE.currentPage - 1) * CONFIG.PAGE_SIZE,
                         STATE.currentPage * CONFIG.PAGE_SIZE
                     );
-                    const allSelected = visibleLogs.length > 0 && 
+                    const allSelected = visibleLogs.length > 0 &&
                         visibleLogs.every(log => STATE.selectedLogs.has(log.id_log));
                     DOM.selectAllCheckbox.checked = allSelected;
                 }
@@ -308,7 +308,7 @@
             },
 
             async deleteChatLog(id) {
-                const res = await fetch(`${CONFIG.API_BASE}/${id}`, { 
+                const res = await fetch(`${CONFIG.API_BASE}/${id}`, {
                     method: 'DELETE',
                     headers: { 'Content-Type': 'application/json' }
                 });
@@ -344,16 +344,16 @@
                     const previousCount = STATE.logs.length;
                     const data = await APIService.fetchChatLogs();
                     const newLogs = data.logs || [];
-                    
+
                     // IMPORTANT: Detect if data truly changed
                     const newCount = newLogs.length;
                     const countChanged = newCount !== previousCount;
-                    
+
                     console.log(`[LOAD] Previous: ${previousCount}, New: ${newCount}, Changed: ${countChanged}`);
-                    
+
                     STATE.logs = newLogs;
                     STATE.lastFetchTime = new Date();
-                    
+
                     // Clear selected logs that no longer exist
                     const existingIds = new Set(STATE.logs.map(l => l.id_log));
                     STATE.selectedLogs = new Set([...STATE.selectedLogs].filter(id => existingIds.has(id)));
@@ -367,36 +367,36 @@
                     } else {
                         UIManager.updateStatus('ℹ️ Tiada chat logs ditemui', false);
                     }
-                    
+
                     // Reset retry counter on success
                     return true;
                 } catch (error) {
                     console.error(`[ERROR] Loading chat logs (attempt ${retryCount + 1}):`, error);
-                    
+
                     // IMPORTANT: Retry logic for connection errors
-                    const isConnectionError = error.message.includes('Failed to fetch') || 
-                                            error.message.includes('ERR_CONNECTION') ||
-                                            error.message.includes('500');
-                    
+                    const isConnectionError = error.message.includes('Failed to fetch') ||
+                        error.message.includes('ERR_CONNECTION') ||
+                        error.message.includes('500');
+
                     if (isConnectionError && retryCount < 3) {
                         console.warn(`⚠️ Connection error, retrying in ${(retryCount + 1) * 1000}ms...`);
                         UIManager.updateStatus(`⚠️ Sambungan terputus, mencuba semula...`, true);
-                        
+
                         // Wait before retry (exponential backoff: 1s, 2s, 3s)
                         await new Promise(resolve => setTimeout(resolve, (retryCount + 1) * 1000));
-                        
+
                         // Recursive retry
                         return this.load(silent, retryCount + 1);
                     }
-                    
+
                     // If no retry or retries exhausted, show error
                     UIManager.updateStatus(`❌ Gagal memuatkan: ${error.message}`, true);
-                    
+
                     // Keep existing data if available (don't wipe out)
                     if (STATE.logs.length === 0) {
                         this.applyFilters();
                     }
-                    
+
                     return false;
                 } finally {
                     if (!silent) {
@@ -545,11 +545,11 @@
                 if (!confirmed) return;
 
                 console.log('Deleting chat log:', id);
-                
+
                 try {
                     UIManager.showLoading(true);
                     UIManager.updateStatus(`⏳ Memadam chat log #${id}...`);
-                    
+
                     // Remove from UI state immediately (optimistic update)
                     // This ensures UI stays in sync even if backend is slow or has cache issues
                     const indexInState = STATE.logs.findIndex(l => l.id_log === id);
@@ -557,9 +557,9 @@
                         STATE.logs.splice(indexInState, 1);
                         console.log(`✅ Removed from UI state. Remaining: ${STATE.logs.length}`);
                     }
-                    
+
                     const result = await APIService.deleteChatLog(id);
-                    
+
                     console.log('Delete result:', result);
 
                     if (result && result.success && result.deleted) {
@@ -578,7 +578,7 @@
                     }
                 } catch (error) {
                     console.error('❌ Delete error:', error);
-                    
+
                     // Check if error is 404 (record already deleted)
                     if (error.message.includes('404') || error.message.includes('not found')) {
                         console.log('⚠️ Record already deleted, syncing UI with server...');
@@ -689,12 +689,12 @@
                 document.body.removeChild(link);
             },
 
-           startAutoRefresh() {
+            startAutoRefresh() {
                 console.log('[AUTO-REFRESH] Starting auto-refresh');
-                
+
                 // Clear any existing timer
                 this.stopAutoRefresh();
-                
+
                 STATE.isSectionActive = true; // NEW
 
                 // Set up new interval
@@ -704,7 +704,7 @@
                         this.load(true); // Silent refresh
                     }
                 }, CONFIG.AUTO_REFRESH_INTERVAL);
-                
+
                 console.log(`[AUTO-REFRESH] Timer set to ${CONFIG.AUTO_REFRESH_INTERVAL}ms`);
             },
 
@@ -847,7 +847,7 @@
                 ];
 
                 monthSelect.innerHTML = '<option value="">Semua Bulan</option>' +
-                    months.map((month, idx) => 
+                    months.map((month, idx) =>
                         `<option value="${(idx + 1).toString().padStart(2, '0')}">${month}</option>`
                     ).join('');
             }
@@ -903,7 +903,7 @@
 
             generatePrintContent(logs, filterYear, filterMonth, allTime) {
                 const now = new Date().toLocaleString('ms-MY');
-                
+
                 // Format filter info
                 let filterInfo = '';
                 if (!allTime) {
@@ -911,7 +911,7 @@
                         'Januari', 'Februari', 'Mac', 'April', 'Mei', 'Jun',
                         'Julai', 'Ogos', 'September', 'Oktober', 'November', 'Disember'
                     ];
-                    
+
                     if (filterYear && filterMonth) {
                         const monthName = monthNames[parseInt(filterMonth) - 1];
                         filterInfo = `${monthName} ${filterYear}`;
@@ -1083,20 +1083,24 @@
                     });
                 }
 
-                // Navigation handler
-                const navItems = document.querySelectorAll('.nav-item');
-                navItems.forEach(item => {
-                    item.addEventListener('click', (e) => {
-                        const section = item.getAttribute('data-section');
-                        
-                        if (section === 'chatlog') {
-                            setTimeout(() => {
-                                ChatLogOperations.load();
-                                ChatLogOperations.startAutoRefresh();
-                            }, 100);
-                        } else {
-                            ChatLogOperations.stopAutoRefresh();
-                        }
+                // Navigation is handled by admin-navigation.js
+                // This section-specific handler only manages auto-refresh
+                const chatlogNav = document.querySelector('[data-section="chatlog"]');
+                if (chatlogNav) {
+                    chatlogNav.addEventListener('click', () => {
+                        // Navigation handler will show the section
+                        // We just need to load the data and start auto-refresh
+                        setTimeout(() => {
+                            ChatLogOperations.load();
+                            ChatLogOperations.startAutoRefresh();
+                        }, 200);
+                    });
+                }
+
+                // Stop auto-refresh when leaving chatlog section
+                document.querySelectorAll('.nav-item[data-section]:not([data-section="chatlog"])').forEach(nav => {
+                    nav.addEventListener('click', () => {
+                        ChatLogOperations.stopAutoRefresh();
                     });
                 });
 
@@ -1241,7 +1245,7 @@
                         ];
 
                         monthSelect.innerHTML = '<option value="">Semua Bulan</option>' +
-                            months.map((month, idx) => 
+                            months.map((month, idx) =>
                                 `<option value="${(idx + 1).toString().padStart(2, '0')}">${month}</option>`
                             ).join('');
                     },
@@ -1254,13 +1258,13 @@
 
                         // Start with currently filtered logs
                         let filteredLogs = [...STATE.filteredLogs];
-                        
+
                         console.log('Starting with filtered logs:', filteredLogs.length);
 
                         // Apply date filter only if not "all time"
                         if (!allTime && (year || month)) {
                             console.log('Applying date filter. Year:', year, 'Month:', month);
-                            
+
                             const beforeCount = filteredLogs.length;
                             filteredLogs = filteredLogs.filter(log => {
                                 if (!log.created_at) {
@@ -1286,7 +1290,7 @@
                                 } catch (e) {
                                     // Fallback to regex patterns
                                     let dateMatch = dateStr.match(/(\d{4})-(\d{2})-(\d{2})/);
-                                    
+
                                     if (!dateMatch) {
                                         dateMatch = dateStr.match(/(\d{2})\/(\d{2})\/(\d{4})/);
                                         if (dateMatch) {
@@ -1322,7 +1326,7 @@
                                 console.log('Date matches!');
                                 return true;
                             });
-                            
+
                             console.log('After date filter:', beforeCount, '->', filteredLogs.length);
                         } else if (allTime) {
                             console.log('All time selected - skipping date filter');
@@ -1344,7 +1348,7 @@
                     exportToCSV(logs, filterYear, filterMonth, allTime) {
                         // FIXED: Correct column headers
                         const headers = ['ID Log', 'ID Pengguna', 'ID Sesi', 'Pesanan Pengguna', 'Respon Bot', 'Masa'];
-                        
+
                         const rows = logs.map(log => [
                             log.id_log || '',
                             log.id_user || '',
@@ -1361,7 +1365,7 @@
                                 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
                                 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
                             ];
-                            
+
                             if (filterYear && filterMonth) {
                                 const monthName = monthNames[parseInt(filterMonth) - 1];
                                 filterInfo.push(`${monthName}-${filterYear}`);
@@ -1419,7 +1423,7 @@
                         ChatLogOperations.load(true);
                     }
                 });
-                
+
             }
         };
 

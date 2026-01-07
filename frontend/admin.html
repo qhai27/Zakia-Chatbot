@@ -10,9 +10,13 @@
     <link rel="stylesheet" href="adminstyle.css">
 
     <!-- Scripts -->
+    <script src="js/admin-navigation.js" defer></script>
+    <script src="js/analytics-diagnostic.js" defer></script>
     <script src="js/admin-faq.js" defer></script>
     <script src="js/admin-reminder.js" defer></script>
     <script src="js/admin-chatlog.js" defer></script>
+    <script src="js/admin-analytics.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 
 <body>
@@ -31,14 +35,17 @@
 
             <!-- Sidebar Menu -->
             <nav class="sidebar-nav">
-                <a href="#" class="nav-item active" data-section="faqs">
+                <a href="#" class="nav-item active" data-section="faqs" id="navFaqs">
                     <span class="nav-icon">📋</span> <span>Senarai FAQ</span>
                 </a>
-                <a href="#" class="nav-item" data-section="reminders">
+                <a href="#" class="nav-item" data-section="reminders" id="navReminders">
                     <span class="nav-icon">🔔</span> <span>Peringatan</span>
                 </a>
-                <a href="#" class="nav-item" data-section="chatlog">
+                <a href="#" class="nav-item" data-section="chatlog" id="navChatlog">
                     <span class="nav-icon">💬</span> <span>Sejarah ChatLog</span>
+                </a>
+                <a href="#" class="nav-item" data-section="analytics" id="navAnalytics">
+                    <span class="nav-icon">📊</span> <span>Analitik FAQ</span>
                 </a>
             </nav>
 
@@ -69,7 +76,7 @@
 
 
             <!-- ====================== FAQ SECTION ======================= -->
-            <section id="faqSection" class="content-section active">
+            <section id="faqSection" class="content-section" style="display:block;">
 
                 <!-- Header -->
                 <header class="content-header">
@@ -404,6 +411,269 @@
 
             </section>
             <!-- ================= END CHATLOG SECTION ================== -->
+
+
+            <!-- =================== ANALYTICS SECTION ==================== -->
+            <section id="analyticsSection" class="content-section" style="display:none;">
+
+                <!-- Header -->
+                <header class="content-header"
+                    style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
+                    <div class="header-left" style="flex: 1; min-width: 200px;">
+                        <h1 style="margin: 0 0 8px 0; font-size: 24px;">📊 Analytics Dashboard</h1>
+                        <select id="analyticsPeriod" class="admin-select" style="width: 100%; max-width: 200px;">
+                            <option value="day">Hari Ini</option>
+                            <option value="week">Minggu Ini</option>
+                            <option value="month" selected>Bulan Ini</option>
+                        </select>
+                    </div>
+                    <div class="header-actions" style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button id="refreshAnalytics" class="btn ghost" style="flex: 1; min-width: 100px;">🔄
+                            Refresh</button>
+                    </div>
+                </header>
+
+                <!-- Overview Stats Cards -->
+                <div class="analytics-stats-grid">
+
+                    <!-- Total Chats -->
+                    <div class="analytics-stat-card">
+                        <div class="stat-icon">💬</div>
+                        <div class="stat-content">
+                            <div class="stat-label">Total Chats</div>
+                            <div id="statTotalChats" class="stat-value">0</div>
+                        </div>
+                    </div>
+
+                    <!-- Unique Users -->
+                    <div class="analytics-stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-content">
+                            <div class="stat-label">Unique Users</div>
+                            <div id="statUniqueUsers" class="stat-value">0</div>
+                        </div>
+                    </div>
+
+                    <!-- Average Session Length -->
+                    <div class="analytics-stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-content">
+                            <div class="stat-label">Avg Session</div>
+                            <div id="statAvgSession" class="stat-value">0.0</div>
+                            <small class="stat-unit">messages</small>
+                        </div>
+                    </div>
+
+                    <!-- Growth Rate -->
+                    <div class="analytics-stat-card">
+                        <div class="stat-icon">📈</div>
+                        <div class="stat-content">
+                            <div class="stat-label">Growth Rate</div>
+                            <div id="statGrowthRate" class="stat-value">+0%</div>
+                        </div>
+                    </div>
+
+                    <!-- Engagement Score -->
+                    <div class="analytics-stat-card highlight">
+                        <div class="stat-icon">⭐</div>
+                        <div class="stat-content">
+                            <div class="stat-label">Engagement Score</div>
+                            <div id="statEngagement" class="stat-value score-good">0.0</div>
+                            <small class="stat-unit">/ 100</small>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Charts Section -->
+                <div class="analytics-charts-section">
+
+                    <!-- Chats Per Day Chart -->
+                    <div class="analytics-chart-card">
+                        <div class="chart-header">
+                            <h3>📅 Chats Per Day</h3>
+                            <small class="text-muted">Message volume over time</small>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="chatsPerDayChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Hourly Distribution Chart -->
+                    <div class="analytics-chart-card">
+                        <div class="chart-header">
+                            <h3>🕐 Peak Hours</h3>
+                            <small class="text-muted">Messages by hour of day</small>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="hourlyChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- FAQ Categories Chart -->
+                    <div class="analytics-chart-card">
+                        <div class="chart-header">
+                            <h3>📋 FAQ Categories</h3>
+                            <small class="text-muted">Distribution by category</small>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="faqCategoriesChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- FAQ Analytics Stats Cards -->
+                <div class="analytics-stats-grid" style="margin-top: 20px;">
+
+                    <!-- Total FAQs -->
+                    <div class="analytics-stat-card">
+                        <div class="stat-icon">📋</div>
+                        <div class="stat-content">
+                            <div class="stat-label">Total FAQs</div>
+                            <div id="faqStatTotal" class="stat-value">0</div>
+                        </div>
+                    </div>
+
+                    <!-- Recent FAQs -->
+                    <div class="analytics-stat-card">
+                        <div class="stat-icon">🆕</div>
+                        <div class="stat-content">
+                            <div class="stat-label">Recent FAQs</div>
+                            <div id="faqStatRecent" class="stat-value">0</div>
+                            <small class="stat-unit">this period</small>
+                        </div>
+                    </div>
+
+                    <!-- Average Answer Length -->
+                    <div class="analytics-stat-card">
+                        <div class="stat-icon">📝</div>
+                        <div class="stat-content">
+                            <div class="stat-label">Avg Answer Length</div>
+                            <div id="faqStatAvgLength" class="stat-value">0</div>
+                        </div>
+                    </div>
+
+                    <!-- Top Category -->
+                    <div class="analytics-stat-card">
+                        <div class="stat-icon">🏷️</div>
+                        <div class="stat-content">
+                            <div class="stat-label">Top Category</div>
+                            <div id="faqStatTopCategory" class="stat-value">-</div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Data Tables Section -->
+                <div class="analytics-data-section">
+
+                    <!-- FAQ Categories -->
+                    <div class="analytics-data-card">
+                        <div class="data-card-header">
+                            <h3>📋 FAQ Categories</h3>
+                            <small class="text-muted">Distribution by category</small>
+                        </div>
+                        <div class="table-container compact">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Category</th>
+                                        <th style="width:80px;" class="text-center">Count</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="faqCategoriesBody">
+                                    <tr>
+                                        <td colspan="2" class="text-center text-muted">Loading...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Top Questions -->
+                    <div class="analytics-data-card">
+                        <div class="data-card-header">
+                            <h3>🔥 Most Asked Questions</h3>
+                            <small class="text-muted">Top 10 frequently asked</small>
+                        </div>
+                        <div class="table-container compact">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Question</th>
+                                        <th style="width:80px;" class="text-center">Count</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="topQuestionsBody">
+                                    <tr>
+                                        <td colspan="2" class="text-center text-muted">Loading...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Zakat Type Popularity -->
+                    <div class="analytics-data-card">
+                        <div class="data-card-header">
+                            <h3>💰 Zakat Type Popularity</h3>
+                            <small class="text-muted">Breakdown by zakat type</small>
+                        </div>
+                        <div class="table-container compact">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Type</th>
+                                        <th style="width:80px;" class="text-center">Count</th>
+                                        <th style="width:120px;" class="text-right">Total (RM)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="zakatPopularityBody">
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted">Loading...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Unanswered Questions Section -->
+                <div class="analytics-unanswered-section">
+                    <div class="section-header">
+                        <h2>❓ Unanswered Questions</h2>
+                        <span id="unansweredCount" class="count-badge">0</span>
+                    </div>
+
+                    <div class="info-banner">
+                        <span class="info-icon">💡</span>
+                        <p>These are questions with low confidence scores (< 45%). Review and convert them to FAQs to
+                                improve the chatbot.</p>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th style="width:60px;">ID</th>
+                                    <th>Question</th>
+                                    <th style="width:100px;" class="text-center">Confidence</th>
+                                    <th style="width:180px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="unansweredBody">
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </section>
+            <!-- ================= END ANALYTICS SECTION ================= -->
 
         </main>
         <!-- =================== END MAIN CONTENT ====================== -->

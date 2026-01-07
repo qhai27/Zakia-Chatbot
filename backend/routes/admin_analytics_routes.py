@@ -1,5 +1,5 @@
 """
-Admin Analytics Routes
+Admin Analytics Routes - FIXED
 Provides comprehensive analytics for the ZAKIA chatbot system
 """
 
@@ -10,9 +10,6 @@ from collections import defaultdict
 
 admin_analytics_bp = Blueprint('admin_analytics', __name__, url_prefix='/admin/analytics')
 
-# Initialize database
-db = DatabaseManager()
-
 @admin_analytics_bp.route('/dashboard', methods=['GET'])
 def get_analytics_dashboard():
     """
@@ -20,6 +17,8 @@ def get_analytics_dashboard():
     Query params:
         - period: 'day', 'week', 'month' (default: 'month')
     """
+    local_db = None
+    cursor = None
     try:
         period = request.args.get('period', 'month')
         
@@ -32,10 +31,15 @@ def get_analytics_dashboard():
         else:  # month
             start_date = end_date - timedelta(days=30)
         
-        if not db.connection or not db.connection.is_connected():
-            db.connect()
+        # Create fresh connection for this request
+        local_db = DatabaseManager()
+        if not local_db.connect():
+            return jsonify({
+                "success": False,
+                "error": "Database connection failed"
+            }), 500
         
-        cursor = db.connection.cursor(dictionary=True)
+        cursor = local_db.connection.cursor(dictionary=True)
         
         # ===== OVERVIEW STATS =====
         
@@ -168,7 +172,91 @@ def get_analytics_dashboard():
             if item.get('total_amount'):
                 item['total_amount'] = float(item['total_amount'])
         
-        cursor.close()
+        # ===== FAQ ANALYTICS =====
+        
+        # Total FAQs
+        cursor.execute("SELECT COUNT(*) as total FROM faqs")
+        total_faqs = cursor.fetchone()['total']
+        
+        # FAQs by category
+        cursor.execute("""
+            SELECT 
+                COALESCE(category, 'Umum') as category,
+                COUNT(*) as count
+            FROM faqs
+            GROUP BY COALESCE(category, 'Umum')
+            ORDER BY count DESC
+        """)
+        faqs_by_category = cursor.fetchall()
+        
+        # Debug: Log the data structure
+        print(f"📊 FAQ categories query result: {len(faqs_by_category)} categories")
+        if faqs_by_category:
+            print(f"   First item: {faqs_by_category[0]}")
+            print(f"   First item type: {type(faqs_by_category[0])}")
+            if isinstance(faqs_by_category[0], dict):
+                print(f"   First item keys: {list(faqs_by_category[0].keys())}")
+        
+        # Ensure data is properly formatted as list of dicts
+        formatted_categories = []
+        for item in faqs_by_category:
+            if isinstance(item, dict):
+                formatted_categories.append({
+                    'category': item.get('category', 'Umum'),
+                    'count': int(item.get('count', 0))
+                })
+            elif isinstance(item, (list, tuple)) and len(item) >= 2:
+                # Handle tuple/list format
+                formatted_categories.append({
+                    'category': str(item[0]) if item[0] else 'Umum',
+                    'count': int(item[1]) if item[1] else 0
+                })
+        
+        faqs_by_category = formatted_categories if formatted_categories else faqs_by_category
+        
+        # Recent FAQs (last 30 days)
+        cursor.execute("""
+            SELECT COUNT(*) as recent_count
+            FROM faqs
+            WHERE created_at >= %s OR updated_at >= %s
+        """, (start_date, start_date))
+        recent_faqs = cursor.fetchone()['recent_count']
+        
+        # FAQ growth over time (for the period)
+        cursor.execute("""
+            SELECT 
+                DATE(created_at) as date,
+                COUNT(*) as count
+            FROM faqs
+            WHERE created_at >= %s AND created_at <= %s
+            GROUP BY DATE(created_at)
+            ORDER BY date ASC
+        """, (start_date, end_date))
+        faq_growth = cursor.fetchall()
+        
+        # Convert date objects to strings
+        for item in faq_growth:
+            item['date'] = item['date'].strftime('%Y-%m-%d')
+        
+        # Average answer length
+        cursor.execute("""
+            SELECT AVG(LENGTH(answer)) as avg_length
+            FROM faqs
+        """)
+        avg_length_result = cursor.fetchone()
+        avg_answer_length = round(float(avg_length_result['avg_length']) if avg_length_result['avg_length'] else 0, 0)
+        
+        # Most used categories (top 5)
+        top_categories = faqs_by_category[:5] if len(faqs_by_category) > 5 else faqs_by_category
+        
+        faq_analytics = {
+            "total_faqs": total_faqs,
+            "recent_faqs": recent_faqs,
+            "faqs_by_category": faqs_by_category,
+            "faq_growth": faq_growth,
+            "avg_answer_length": avg_answer_length,
+            "top_categories": top_categories
+        }
         
         return jsonify({
             "success": True,
@@ -178,17 +266,32 @@ def get_analytics_dashboard():
                 "hourly_distribution": hourly_distribution
             },
             "top_questions": top_questions,
-            "zakat_popularity": zakat_popularity
+            "zakat_popularity": zakat_popularity,
+            "faq_analytics": faq_analytics
         })
         
     except Exception as e:
         print(f"❌ Analytics dashboard error: {e}")
         import traceback
         traceback.print_exc()
+        
         return jsonify({
             "success": False,
             "error": str(e)
         }), 500
+        
+    finally:
+        # Clean up resources
+        if cursor:
+            try:
+                cursor.close()
+            except:
+                pass
+        if local_db:
+            try:
+                local_db.close()
+            except:
+                pass
 
 
 @admin_analytics_bp.route('/unanswered', methods=['GET'])
@@ -199,14 +302,21 @@ def get_unanswered_questions():
         - status: 'new', 'reviewed', 'answered' (default: 'new')
         - limit: number of records (default: 20)
     """
+    local_db = None
+    cursor = None
     try:
         status = request.args.get('status', 'new')
         limit = int(request.args.get('limit', 20))
         
-        if not db.connection or not db.connection.is_connected():
-            db.connect()
+        # Create fresh connection
+        local_db = DatabaseManager()
+        if not local_db.connect():
+            return jsonify({
+                "success": True,
+                "questions": []
+            })
         
-        cursor = db.connection.cursor(dictionary=True)
+        cursor = local_db.connection.cursor(dictionary=True)
         
         # Check if table exists
         cursor.execute("""
@@ -218,7 +328,6 @@ def get_unanswered_questions():
         
         if cursor.fetchone()['COUNT(*)'] == 0:
             # Table doesn't exist, return empty result
-            cursor.close()
             return jsonify({
                 "success": True,
                 "questions": []
@@ -246,8 +355,6 @@ def get_unanswered_questions():
             if q.get('created_at'):
                 q['created_at'] = q['created_at'].strftime('%Y-%m-%d %H:%M:%S')
         
-        cursor.close()
-        
         return jsonify({
             "success": True,
             "questions": questions
@@ -259,6 +366,18 @@ def get_unanswered_questions():
             "success": True,
             "questions": []  # Return empty on error to prevent UI break
         })
+        
+    finally:
+        if cursor:
+            try:
+                cursor.close()
+            except:
+                pass
+        if local_db:
+            try:
+                local_db.close()
+            except:
+                pass
 
 
 @admin_analytics_bp.route('/unanswered/<int:question_id>', methods=['PUT'])
@@ -269,6 +388,8 @@ def update_unanswered_question(question_id):
         - status: 'reviewed' or 'answered'
         - notes: optional admin notes
     """
+    local_db = None
+    cursor = None
     try:
         data = request.get_json() or {}
         status = data.get('status')
@@ -280,10 +401,15 @@ def update_unanswered_question(question_id):
                 "error": "Invalid status"
             }), 400
         
-        if not db.connection or not db.connection.is_connected():
-            db.connect()
+        # Create fresh connection
+        local_db = DatabaseManager()
+        if not local_db.connect():
+            return jsonify({
+                "success": False,
+                "error": "Database connection failed"
+            }), 500
         
-        cursor = db.connection.cursor()
+        cursor = local_db.connection.cursor()
         
         cursor.execute("""
             UPDATE unanswered_questions
@@ -291,8 +417,7 @@ def update_unanswered_question(question_id):
             WHERE id = %s
         """, (status, notes, question_id))
         
-        db.connection.commit()
-        cursor.close()
+        local_db.connection.commit()
         
         return jsonify({
             "success": True,
@@ -301,12 +426,121 @@ def update_unanswered_question(question_id):
         
     except Exception as e:
         print(f"❌ Update unanswered question error: {e}")
-        if db.connection:
-            db.connection.rollback()
         return jsonify({
             "success": False,
             "error": str(e)
         }), 500
+        
+    finally:
+        if cursor:
+            try:
+                cursor.close()
+            except:
+                pass
+        if local_db:
+            try:
+                if hasattr(local_db, 'connection') and local_db.connection:
+                    local_db.connection.rollback()
+                local_db.close()
+            except:
+                pass
+
+
+@admin_analytics_bp.route('/unanswered/<int:question_id>/convert-to-faq', methods=['POST'])
+def convert_unanswered_to_faq(question_id):
+    """
+    Convert an unanswered question to FAQ
+    Body:
+        - answer: The answer text (required)
+        - category: FAQ category (optional, default: 'Umum')
+    """
+    local_db = None
+    cursor = None
+    try:
+        data = request.get_json() or {}
+        answer = data.get('answer', '').strip()
+        category = data.get('category', 'Umum') or 'Umum'
+        
+        if not answer:
+            return jsonify({
+                "success": False,
+                "error": "Answer is required"
+            }), 400
+        
+        # Create fresh connection
+        local_db = DatabaseManager()
+        if not local_db.connect():
+            return jsonify({
+                "success": False,
+                "error": "Database connection failed"
+            }), 500
+        
+        cursor = local_db.connection.cursor(dictionary=True)
+        
+        # Get the question text
+        cursor.execute("""
+            SELECT question FROM unanswered_questions
+            WHERE id = %s
+        """, (question_id,))
+        
+        result = cursor.fetchone()
+        if not result:
+            cursor.close()
+            return jsonify({
+                "success": False,
+                "error": "Question not found"
+            }), 404
+        
+        question = result['question']
+        
+        # Create FAQ
+        faq_id = local_db.create_faq(question, answer, category)
+        
+        if not faq_id:
+            cursor.close()
+            return jsonify({
+                "success": False,
+                "error": "Failed to create FAQ"
+            }), 500
+        
+        # Mark unanswered question as answered
+        cursor.execute("""
+            UPDATE unanswered_questions
+            SET status = 'answered'
+            WHERE id = %s
+        """, (question_id,))
+        
+        local_db.connection.commit()
+        cursor.close()
+        
+        return jsonify({
+            "success": True,
+            "message": "Question converted to FAQ successfully",
+            "faq_id": faq_id
+        })
+        
+    except Exception as e:
+        print(f"❌ Convert to FAQ error: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+        
+    finally:
+        if cursor:
+            try:
+                cursor.close()
+            except:
+                pass
+        if local_db:
+            try:
+                if hasattr(local_db, 'connection') and local_db.connection:
+                    local_db.connection.rollback()
+                local_db.close()
+            except:
+                pass
 
 
 @admin_analytics_bp.route('/export', methods=['GET'])
@@ -318,6 +552,8 @@ def export_analytics():
         - date_from: start date (YYYY-MM-DD)
         - date_to: end date (YYYY-MM-DD)
     """
+    local_db = None
+    cursor = None
     try:
         export_type = request.args.get('type', 'chats')
         date_from = request.args.get('date_from')
@@ -329,10 +565,15 @@ def export_analytics():
                 "error": "date_from and date_to are required"
             }), 400
         
-        if not db.connection or not db.connection.is_connected():
-            db.connect()
+        # Create fresh connection
+        local_db = DatabaseManager()
+        if not local_db.connect():
+            return jsonify({
+                "success": False,
+                "error": "Database connection failed"
+            }), 500
         
-        cursor = db.connection.cursor(dictionary=True)
+        cursor = local_db.connection.cursor(dictionary=True)
         
         if export_type == 'chats':
             cursor.execute("""
@@ -373,7 +614,6 @@ def export_analytics():
                 ORDER BY created_at DESC
             """, (date_from, date_to))
         else:
-            cursor.close()
             return jsonify({
                 "success": False,
                 "error": "Invalid export type"
@@ -389,8 +629,6 @@ def export_analytics():
             if item.get('zakat_amount'):
                 item['zakat_amount'] = float(item['zakat_amount'])
         
-        cursor.close()
-        
         return jsonify({
             "success": True,
             "data": data,
@@ -403,6 +641,18 @@ def export_analytics():
             "success": False,
             "error": str(e)
         }), 500
+        
+    finally:
+        if cursor:
+            try:
+                cursor.close()
+            except:
+                pass
+        if local_db:
+            try:
+                local_db.close()
+            except:
+                pass
 
 
 # Health check

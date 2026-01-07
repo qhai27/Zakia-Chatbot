@@ -216,6 +216,22 @@ class DatabaseManager:
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """)
 
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS unanswered_questions (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    session_id VARCHAR(100),
+                    question TEXT NOT NULL,
+                    detected_intent VARCHAR(100),
+                    confidence_score FLOAT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    status ENUM('new', 'reviewed', 'answered') DEFAULT 'new',
+                    admin_notes TEXT,
+                    INDEX idx_status (status),
+                    INDEX idx_created (created_at),
+                    INDEX idx_session (session_id)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            """)
+
             self.connection.commit()
             cursor.close()
             

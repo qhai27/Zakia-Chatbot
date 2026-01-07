@@ -46,33 +46,18 @@
             stats: null
         };
 
-        // Navigation Handler
-        const navItems = document.querySelectorAll('.nav-item');
-        navItems.forEach(item => {
-            item.addEventListener('click', (e) => {
-                e.preventDefault();
-                const section = item.getAttribute('data-section');
-
-                // Update active nav
-                navItems.forEach(nav => nav.classList.remove('active'));
-                item.classList.add('active');
-
-                // Show appropriate section
-                document.querySelectorAll('.content-section').forEach(sec => {
-                    sec.style.display = 'none';
-                });
-
-                if (section === 'reminders') {
-                    document.getElementById('remindersSection').style.display = 'block';
+        // Navigation is now handled by admin-navigation.js
+        // This section-specific handler only loads data when reminders section is shown
+        const remindersNav = document.querySelector('[data-section="reminders"]');
+        if (remindersNav) {
+            remindersNav.addEventListener('click', () => {
+                // Navigation handler will show the section
+                // We just need to load the data
+                setTimeout(() => {
                     ReminderOperations.load();
-                } else if (section === 'faqs') {
-                    document.getElementById('faqSection').style.display = 'block';
-                } else if (section === 'chatlog') {
-                    document.getElementById('chatlogSection').style.display = 'block';
-                    ChatLogOperations.load();
-                }
+                }, 200);
             });
-        });
+        }
 
         const UIManager = {
             updateStatus(message, isError = false) {
@@ -892,7 +877,7 @@
                 ];
 
                 monthSelect.innerHTML = '<option value="">Semua Bulan</option>' +
-                    months.map((month, idx) => 
+                    months.map((month, idx) =>
                         `<option value="${(idx + 1).toString().padStart(2, '0')}">${month}</option>`
                     ).join('');
             },
@@ -905,13 +890,13 @@
 
                 // Start with currently filtered reminders (respects search/filter)
                 let filteredReminders = [...STATE.filteredReminders];
-                
+
                 console.log('Starting with filtered reminders:', filteredReminders.length);
 
                 // Apply zakat type filter
                 if (zakatType) {
                     console.log('Applying zakat type filter:', zakatType);
-                    
+
                     const beforeCount = filteredReminders.length;
                     filteredReminders = filteredReminders.filter(reminder => {
                         const normalizeType = (type) => {
@@ -926,21 +911,21 @@
 
                         const reminderType = normalizeType(reminder.zakat_type);
                         const matches = reminderType === zakatType;
-                        
+
                         if (!matches) {
                             console.log('Filtered out:', reminder.name, 'type:', reminder.zakat_type, 'normalized:', reminderType);
                         }
-                        
+
                         return matches;
                     });
-                    
+
                     console.log('After zakat type filter:', beforeCount, '->', filteredReminders.length);
                 }
 
                 // Apply date filter only if not "all time"
                 if (!allTime && (year || month)) {
                     console.log('Applying date filter. Year:', year, 'Month:', month);
-                    
+
                     const beforeCount = filteredReminders.length;
                     filteredReminders = filteredReminders.filter(reminder => {
                         if (!reminder.created_at) {
@@ -969,7 +954,7 @@
                             // Fallback to regex patterns
                             // Pattern 1: YYYY-MM-DD (ISO format)
                             let dateMatch = dateStr.match(/(\d{4})-(\d{2})-(\d{2})/);
-                            
+
                             // Pattern 2: DD/MM/YYYY
                             if (!dateMatch) {
                                 dateMatch = dateStr.match(/(\d{2})\/(\d{2})\/(\d{4})/);
@@ -1007,7 +992,7 @@
                         console.log('Date matches!');
                         return true;
                     });
-                    
+
                     console.log('After date filter:', beforeCount, '->', filteredReminders.length);
                 } else if (allTime) {
                     console.log('All time selected - skipping date filter');
@@ -1052,7 +1037,7 @@
 
                 // Format filter info
                 let filterInfo = [];
-                
+
                 if (filterZakatType) {
                     const zakatTypeNames = {
                         'pendapatan': 'Pendapatan',
@@ -1070,7 +1055,7 @@
                         'Januari', 'Februari', 'Mac', 'April', 'Mei', 'Jun',
                         'Julai', 'Ogos', 'September', 'Oktober', 'November', 'Disember'
                     ];
-                    
+
                     if (filterYear && filterMonth) {
                         const monthName = monthNames[parseInt(filterMonth) - 1];
                         filterInfo.push(`Tempoh: ${monthName} ${filterYear}`);
@@ -1437,7 +1422,7 @@
                 ];
 
                 monthSelect.innerHTML = '<option value="">Semua Bulan</option>' +
-                    months.map((month, idx) => 
+                    months.map((month, idx) =>
                         `<option value="${(idx + 1).toString().padStart(2, '0')}">${month}</option>`
                     ).join('');
             },
@@ -1448,13 +1433,13 @@
 
                 // Start with currently filtered reminders
                 let filteredReminders = [...STATE.filteredReminders];
-                
+
                 console.log('Starting with filtered reminders:', filteredReminders.length);
 
                 // Apply zakat type filter
                 if (zakatType) {
                     console.log('Applying zakat type filter:', zakatType);
-                    
+
                     const beforeCount = filteredReminders.length;
                     filteredReminders = filteredReminders.filter(reminder => {
                         const normalizeType = (type) => {
@@ -1470,14 +1455,14 @@
                         const reminderType = normalizeType(reminder.zakat_type);
                         return reminderType === zakatType;
                     });
-                    
+
                     console.log('After zakat type filter:', beforeCount, '->', filteredReminders.length);
                 }
 
                 // Apply date filter only if not "all time"
                 if (!allTime && (year || month)) {
                     console.log('Applying date filter. Year:', year, 'Month:', month);
-                    
+
                     const beforeCount = filteredReminders.length;
                     filteredReminders = filteredReminders.filter(reminder => {
                         if (!reminder.created_at) return false;
@@ -1495,7 +1480,7 @@
                             }
                         } catch (e) {
                             let dateMatch = dateStr.match(/(\d{4})-(\d{2})-(\d{2})/);
-                            
+
                             if (!dateMatch) {
                                 dateMatch = dateStr.match(/(\d{2})\/(\d{2})\/(\d{4})/);
                                 if (dateMatch) {
@@ -1512,7 +1497,7 @@
 
                         return true;
                     });
-                    
+
                     console.log('After date filter:', beforeCount, '->', filteredReminders.length);
                 }
 
@@ -1531,7 +1516,7 @@
             exportToCSV(reminders, filterZakatType, filterYear, filterMonth, allTime) {
                 // FIXED: Correct column headers
                 const headers = ['ID', 'Nama', 'Nombor IC', 'Nombor Telefon', 'Jenis Zakat', 'Jumlah Zakat (RM)', 'Tahun', 'Tarikh Daftar'];
-                
+
                 const rows = reminders.map(r => [
                     r.id_reminder || '',
                     r.name || '',
@@ -1591,7 +1576,7 @@
                 console.log(`✅ Exported ${reminders.length} reminders to ${filename}`);
             }
         };
-                // Event Handlers
+        // Event Handlers
         const EventHandlers = {
             init() {
                 // Search and filters
@@ -1622,11 +1607,11 @@
                 }
 
 
-               if (DOM.exportRemindersBtn) {
+                if (DOM.exportRemindersBtn) {
                     DOM.exportRemindersBtn.addEventListener('click', () => {
                         ReminderExportManager.showExportModal();
                     });
-            }
+                }
 
                 // Table actions
                 if (DOM.reminderTableBody) {

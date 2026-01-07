@@ -1,6 +1,6 @@
 """
-ZAKIA Chatbot - Main Application (FIXED)
-With proper chat log routes and real-time support
+ZAKIA Chatbot - Main Application (UPDATED)
+With analytics routes and complete functionality
 """
 
 from flask import Flask
@@ -217,7 +217,17 @@ except ImportError as e:
         failed_blueprints.append(f"❌ Inline admin reminder routes: {e}")
         print(f"❌ Failed to create inline admin reminder routes: {e}")
 
-# Import and register admin chat log routes (FIX FOR 404 ERROR)
+# Import and register admin analytics routes
+try:
+    from routes.admin_analytics_routes import admin_analytics_bp
+    app.register_blueprint(admin_analytics_bp)
+    loaded_blueprints.append("✅ Admin analytics routes")
+    print("✅ Admin analytics routes loaded successfully")
+except ImportError as e:
+    failed_blueprints.append(f"❌ Admin analytics routes: {e}")
+    print(f"❌ Failed to load admin analytics routes: {e}")
+
+# Import and register admin chat log routes
 try:
     from routes.admin_chatlog_routes import admin_chatlog_bp
     app.register_blueprint(admin_chatlog_bp)
@@ -486,6 +496,14 @@ if __name__ == "__main__":
             except Exception as e:
                 print(f"⚠️ Warning: Reminder table initialization error: {e}")
             
+            # Initialize unanswered questions table
+            try:
+                from unanswered_handler import UnansweredQuestionsHandler
+                unanswered_handler = UnansweredQuestionsHandler(db_manager)
+                print("✅ Unanswered questions table initialized successfully")
+            except Exception as e:
+                print(f"⚠️ Warning: Unanswered questions table initialization error: {e}")
+            
             # Initialize NLP model
             try:
                 from services.nlp_service import NLPService
@@ -502,13 +520,16 @@ if __name__ == "__main__":
             print("   💰 Zakat Calculator: POST /api/calculate-zakat")
             print("   📅 Zakat Years: GET /api/zakat/years")
             print("   📊 Zakat Nisab Info: GET /api/zakat/nisab-info")
-            print("   🔔 Save Reminder: POST /api/save-reminder")
+            print("   📌 Save Reminder: POST /api/save-reminder")
             print("   📋 List Reminders: GET /api/reminders")
             print("   👨‍💼 Admin FAQs: GET /admin/faqs")
             print("   👨‍💼 Admin Reminders: GET /admin/reminders")
             print("   📊 Reminder Stats: GET /admin/reminders/stats")
             print("   💬 Admin Chat Logs: GET /admin/chat-logs")
             print("   📊 Chat Log Stats: GET /admin/chat-logs/stats")
+            print("   📈 Analytics Dashboard: GET /admin/analytics/dashboard")
+            print("   ❓ Unanswered Questions: GET /admin/analytics/unanswered")
+            print("   📥 Export Analytics: GET /admin/analytics/export")
             print("   ❤️ Health Check: GET /health")
             print("=" * 60 + "\n")
             
