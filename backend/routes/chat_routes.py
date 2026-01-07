@@ -10,9 +10,6 @@ import traceback
 from database import DatabaseManager
 from nlp_processor import NLPProcessor
 from gemini_service import GeminiService
-from unanswered_handler import UnansweredQuestionsHandler
-
-
 # Create blueprint
 chat_bp = Blueprint('chat', __name__)
 
@@ -43,9 +40,6 @@ def add_emoji_if_missing(text: str) -> str:
         else:
             return text + " 😊"
     return text
-
-# Initialize handler (at module level)
-unanswered_handler = UnansweredQuestionsHandler(db)
 
 @chat_bp.route("/chat", methods=["POST"])
 def chat():
@@ -172,16 +166,6 @@ def chat():
         )
         
         confidence = response_data.get('confidence', 0)
-
-         # Log unanswered if low confidence
-        if confidence < 0.45:
-            unanswered_handler.log_unanswered(
-                session_id=session_id,
-                question=user_input,
-                detected_intent=intent.get('type'),  # or whatever intent field you have
-                confidence=confidence
-            )
-            
         matched_question = response_data.get('matched_question')
         faq_answer = response_data['reply']
         
@@ -199,7 +183,6 @@ def chat():
                 # HIGH CONFIDENCE (0.75+) = FAQ match found - enhance it
                 if confidence >= 0.75 and matched_question:
                     print(f"   ✅ Good FAQ match - Enhancing with Gemini...")
-                    
                     enhanced_reply = gemini.enhance_faq_response(
                         user_input,
                         faq_answer,

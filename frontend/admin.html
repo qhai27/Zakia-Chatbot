@@ -129,14 +129,9 @@
                             <div class="form-group">
                                 <label>
                                     Jawapan <span class="required">*</span>
-                                    <button id="addLinkBtn" type="button" class="btn-link-tool">🔗 Tambah
-                                        Pautan</button>
                                 </label>
                                 <textarea id="answer" class="admin-textarea" rows="6"
                                     placeholder="Masukkan jawapan yang lengkap dan jelas..."></textarea>
-                                <small class="form-hint">
-                                    Tip: Gunakan butang "Tambah Pautan" untuk memasukkan URL ke dalam jawapan.
-                                </small>
                             </div>
                         </div>
 
@@ -640,38 +635,6 @@
 
                 </div>
 
-                <!-- Unanswered Questions Section -->
-                <div class="analytics-unanswered-section">
-                    <div class="section-header">
-                        <h2>❓ Unanswered Questions</h2>
-                        <span id="unansweredCount" class="count-badge">0</span>
-                    </div>
-
-                    <div class="info-banner">
-                        <span class="info-icon">💡</span>
-                        <p>These are questions with low confidence scores (< 45%). Review and convert them to FAQs to
-                                improve the chatbot.</p>
-                    </div>
-
-                    <div class="table-container">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th style="width:60px;">ID</th>
-                                    <th>Question</th>
-                                    <th style="width:100px;" class="text-center">Confidence</th>
-                                    <th style="width:180px;">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="unansweredBody">
-                                <tr>
-                                    <td colspan="4" class="text-center text-muted">Loading...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
             </section>
             <!-- ================= END ANALYTICS SECTION ================= -->
 
@@ -687,11 +650,6 @@
     <div id="linkModal" class="modal" style="display:none;">
         <div class="modal-overlay"></div>
         <div class="modal-content">
-
-            <div class="modal-header">
-                <h3>Tambah Pautan</h3>
-                <button class="btn-close" onclick="document.getElementById('linkModal').style.display='none'">✖</button>
-            </div>
 
             <div class="modal-body">
                 <div class="form-group">

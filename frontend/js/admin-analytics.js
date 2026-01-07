@@ -45,9 +45,7 @@
 
                 // Tables
                 topQuestionsBody: document.getElementById('topQuestionsBody'),
-                zakatPopularityBody: document.getElementById('zakatPopularityBody'),
-                unansweredBody: document.getElementById('unansweredBody'),
-                unansweredCount: document.getElementById('unansweredCount')
+                zakatPopularityBody: document.getElementById('zakatPopularityBody')
             };
 
             // Debug: Check what we found
@@ -81,16 +79,6 @@
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
                     const data = await res.json();
                     console.log('📊 Dashboard data:', data);
-                    return data;
-                },
-
-                async fetchUnanswered(status = 'new', limit = 10) {
-                    console.log(`📡 Fetching unanswered: ${status}`);
-                    const params = new URLSearchParams({ status, limit: limit.toString() });
-                    const res = await fetch(`${CONFIG.API_BASE}/unanswered?${params}`);
-                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                    const data = await res.json();
-                    console.log('❓ Unanswered data:', data);
                     return data;
                 }
             };
@@ -495,162 +483,6 @@
                     console.log('  ✅ FAQ analytics rendered');
                 },
 
-                renderUnansweredQuestions(questions) {
-                    console.log('❓ Rendering unanswered questions...', questions.length);
-
-                    if (DOM.unansweredCount) {
-                        DOM.unansweredCount.textContent = questions.length;
-                    }
-
-                    if (!DOM.unansweredBody) return;
-
-                    if (questions.length === 0) {
-                        DOM.unansweredBody.innerHTML = `
-                            <tr><td colspan="4" class="text-center text-muted">✅ Tiada soalan tidak dijawab</td></tr>
-                        `;
-                        return;
-                    }
-
-                    DOM.unansweredBody.innerHTML = questions.map(q => `
-                        <tr>
-                            <td>${q.id}</td>
-                            <td>${this.escapeHtml(q.question)}</td>
-                            <td class="text-center">
-                                <span class="confidence-badge">${(q.confidence_score * 100).toFixed(0)}%</span>
-                            </td>
-                            <td>
-                                <button class="btn btn-sm primary convert-to-faq-btn" data-id="${q.id}" data-question="${this.escapeHtml(q.question)}" title="Convert to FAQ">
-                                    ➕ Convert to FAQ
-                                </button>
-                            </td>
-                        </tr>
-                    `).join('');
-
-                    // Attach event listeners to convert buttons
-                    DOM.unansweredBody.querySelectorAll('.convert-to-faq-btn').forEach(btn => {
-                        btn.addEventListener('click', (e) => {
-                            const questionId = btn.getAttribute('data-id');
-                            const question = btn.getAttribute('data-question');
-                            this.showConvertToFaqModal(questionId, question);
-                        });
-                    });
-
-                    console.log('  ✅ Unanswered questions rendered');
-                },
-
-                showConvertToFaqModal(questionId, question) {
-                    // Remove existing modal if any
-                    const existing = document.getElementById('convertToFaqModal');
-                    if (existing) existing.remove();
-
-                    const modal = document.createElement('div');
-                    modal.id = 'convertToFaqModal';
-                    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:10000;';
-                    modal.innerHTML = `
-                        <div style="width:600px;max-width:90vw;background:#fff;border-radius:12px;padding:24px;box-shadow:0 10px 40px rgba(0,0,0,0.2);max-height:90vh;overflow-y:auto;">
-                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-                                <h3 style="margin:0;color:#157347;">➕ Convert to FAQ</h3>
-                                <button class="btn-close" onclick="this.closest('#convertToFaqModal').remove()">✖</button>
-                            </div>
-                            
-                            <div style="margin-bottom:16px;padding:12px;background:#f8f9fa;border-radius:8px;">
-                                <strong>Question:</strong>
-                                <p style="margin:8px 0 0 0;color:#495057;">${question}</p>
-                            </div>
-                            
-                            <div style="margin-bottom:16px;">
-                                <label style="display:block;margin-bottom:8px;font-weight:600;">Answer <span style="color:#e53e3e;">*</span></label>
-                                <textarea id="convertFaqAnswer" rows="6" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-family:inherit;resize:vertical;" placeholder="Masukkan jawapan untuk soalan ini..."></textarea>
-                            </div>
-                            
-                            <div style="margin-bottom:20px;">
-                                <label style="display:block;margin-bottom:8px;font-weight:600;">Category</label>
-                                <input id="convertFaqCategory" type="text" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;" placeholder="Umum" value="Umum">
-                                <small style="color:#6c757d;display:block;margin-top:4px;">Kosongkan untuk menggunakan kategori "Umum"</small>
-                            </div>
-                            
-                            <div id="convertFaqMessage" style="display:none;padding:12px;border-radius:6px;margin-bottom:16px;"></div>
-                            
-                            <div style="display:flex;justify-content:flex-end;gap:12px;">
-                                <button class="btn ghost" onclick="document.getElementById('convertToFaqModal').remove()">Batal</button>
-                                <button id="convertFaqSubmitBtn" class="btn primary">💾 Convert to FAQ</button>
-                            </div>
-                        </div>
-                    `;
-
-                    document.body.appendChild(modal);
-
-                    // Close on overlay click
-                    modal.addEventListener('click', (e) => {
-                        if (e.target === modal) modal.remove();
-                    });
-
-                    // Handle submit
-                    const submitBtn = document.getElementById('convertFaqSubmitBtn');
-                    const answerInput = document.getElementById('convertFaqAnswer');
-                    const categoryInput = document.getElementById('convertFaqCategory');
-                    const messageDiv = document.getElementById('convertFaqMessage');
-
-                    submitBtn.addEventListener('click', async () => {
-                        const answer = answerInput.value.trim();
-                        const category = categoryInput.value.trim() || 'Umum';
-
-                        if (!answer) {
-                            messageDiv.style.display = 'block';
-                            messageDiv.style.background = '#fee';
-                            messageDiv.style.color = '#c33';
-                            messageDiv.textContent = '❌ Sila masukkan jawapan.';
-                            return;
-                        }
-
-                        submitBtn.disabled = true;
-                        submitBtn.textContent = '⏳ Converting...';
-                        messageDiv.style.display = 'none';
-
-                        try {
-                            const response = await fetch(`${CONFIG.API_BASE}/unanswered/${questionId}/convert-to-faq`, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ answer, category })
-                            });
-
-                            const data = await response.json();
-
-                            if (data.success) {
-                                messageDiv.style.display = 'block';
-                                messageDiv.style.background = '#d4edda';
-                                messageDiv.style.color = '#155724';
-                                messageDiv.textContent = '✅ Berjaya ditukar kepada FAQ!';
-
-                                // Reload analytics after 1 second
-                                setTimeout(() => {
-                                    modal.remove();
-                                    if (window.AnalyticsOperations) {
-                                        AnalyticsOperations.loadDashboard(STATE.currentPeriod);
-                                    }
-                                }, 1500);
-                            } else {
-                                messageDiv.style.display = 'block';
-                                messageDiv.style.background = '#fee';
-                                messageDiv.style.color = '#c33';
-                                messageDiv.textContent = `❌ ${data.error || 'Gagal menukar kepada FAQ'}`;
-                                submitBtn.disabled = false;
-                                submitBtn.textContent = '💾 Convert to FAQ';
-                            }
-                        } catch (error) {
-                            messageDiv.style.display = 'block';
-                            messageDiv.style.background = '#fee';
-                            messageDiv.style.color = '#c33';
-                            messageDiv.textContent = `❌ Error: ${error.message}`;
-                            submitBtn.disabled = false;
-                            submitBtn.textContent = '💾 Convert to FAQ';
-                        }
-                    });
-
-                    // Focus answer input
-                    answerInput.focus();
-                },
-
                 formatZakatType(type) {
                     const map = {
                         'pendapatan': 'Pendapatan', 'simpanan': 'Simpanan',
@@ -682,10 +514,7 @@
                     try {
                         console.log(`\n📊 ========== LOADING ANALYTICS (${period}) ==========`);
 
-                        const [dashboardData, unansweredData] = await Promise.all([
-                            APIService.fetchDashboard(period),
-                            APIService.fetchUnanswered('new', 10)
-                        ]);
+                        const dashboardData = await APIService.fetchDashboard(period);
 
                         if (dashboardData.success) {
                             console.log('✅ Dashboard data received successfully');
@@ -707,11 +536,6 @@
                             }
                         } else {
                             console.error('❌ Dashboard data failed:', dashboardData);
-                        }
-
-                        if (unansweredData.success) {
-                            console.log('✅ Unanswered data received successfully');
-                            UIManager.renderUnansweredQuestions(unansweredData.questions);
                         }
 
                         console.log('✅ ========== ANALYTICS LOADED ==========\n');

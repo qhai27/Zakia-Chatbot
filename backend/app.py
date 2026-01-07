@@ -496,14 +496,6 @@ if __name__ == "__main__":
             except Exception as e:
                 print(f"⚠️ Warning: Reminder table initialization error: {e}")
             
-            # Initialize unanswered questions table
-            try:
-                from unanswered_handler import UnansweredQuestionsHandler
-                unanswered_handler = UnansweredQuestionsHandler(db_manager)
-                print("✅ Unanswered questions table initialized successfully")
-            except Exception as e:
-                print(f"⚠️ Warning: Unanswered questions table initialization error: {e}")
-            
             # Initialize NLP model
             try:
                 from services.nlp_service import NLPService
@@ -528,7 +520,6 @@ if __name__ == "__main__":
             print("   💬 Admin Chat Logs: GET /admin/chat-logs")
             print("   📊 Chat Log Stats: GET /admin/chat-logs/stats")
             print("   📈 Analytics Dashboard: GET /admin/analytics/dashboard")
-            print("   ❓ Unanswered Questions: GET /admin/analytics/unanswered")
             print("   📥 Export Analytics: GET /admin/analytics/export")
             print("   ❤️ Health Check: GET /health")
             print("=" * 60 + "\n")

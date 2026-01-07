@@ -7,7 +7,7 @@
         const CONFIG = {
             API_BASE: 'http://127.0.0.1:5000/admin/chat-logs',
             PAGE_SIZE: 50,
-            AUTO_REFRESH_INTERVAL: 10000,
+            AUTO_REFRESH_INTERVAL: 5000, // Reduced to 5 seconds for more real-time updates
             FORCE_NO_CACHE: true
         };
 
@@ -342,17 +342,32 @@
                     }
 
                     const previousCount = STATE.logs.length;
+                    const previousLatestId = STATE.logs.length > 0 ? STATE.logs[0].id_log : null;
+
                     const data = await APIService.fetchChatLogs();
                     const newLogs = data.logs || [];
 
                     // IMPORTANT: Detect if data truly changed
                     const newCount = newLogs.length;
+                    const newLatestId = newLogs.length > 0 ? newLogs[0].id_log : null;
                     const countChanged = newCount !== previousCount;
+                    const hasNewLogs = newLatestId !== previousLatestId;
 
-                    console.log(`[LOAD] Previous: ${previousCount}, New: ${newCount}, Changed: ${countChanged}`);
+                    console.log(`[LOAD] Previous: ${previousCount}, New: ${newCount}, Changed: ${countChanged}, New logs: ${hasNewLogs}`);
 
-                    STATE.logs = newLogs;
-                    STATE.lastFetchTime = new Date();
+                    // Only update if data actually changed
+                    if (countChanged || hasNewLogs || !silent) {
+                        STATE.logs = newLogs;
+                        STATE.lastFetchTime = new Date();
+
+                        // If there are new logs, scroll to top to show them
+                        if (hasNewLogs && silent && STATE.currentPage === 1) {
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }
+                    } else {
+                        console.log('[LOAD] No changes detected, skipping UI update');
+                        return true; // Exit early if no changes
+                    }
 
                     // Clear selected logs that no longer exist
                     const existingIds = new Set(STATE.logs.map(l => l.id_log));
@@ -695,17 +710,28 @@
                 // Clear any existing timer
                 this.stopAutoRefresh();
 
-                STATE.isSectionActive = true; // NEW
+                STATE.isSectionActive = true;
+
+                // Helper function to check if section is actually visible
+                const isSectionVisible = () => {
+                    const chatlogSection = document.getElementById('chatlogSection');
+                    return chatlogSection &&
+                        chatlogSection.style.display !== 'none' &&
+                        chatlogSection.offsetParent !== null;
+                };
 
                 // Set up new interval
                 STATE.autoRefreshTimer = setInterval(() => {
-                    if (STATE.isSectionActive && !STATE.isLoading) { // CHANGED: Check if active
+                    // Check if section is visible AND active AND not loading
+                    if (STATE.isSectionActive && isSectionVisible() && !STATE.isLoading) {
                         console.log('[AUTO-REFRESH] Refreshing data...');
                         this.load(true); // Silent refresh
+                    } else {
+                        console.log('[AUTO-REFRESH] Skipping refresh - section not visible or loading');
                     }
                 }, CONFIG.AUTO_REFRESH_INTERVAL);
 
-                console.log(`[AUTO-REFRESH] Timer set to ${CONFIG.AUTO_REFRESH_INTERVAL}ms`);
+                console.log(`[AUTO-REFRESH] Timer set to ${CONFIG.AUTO_REFRESH_INTERVAL}ms (${CONFIG.AUTO_REFRESH_INTERVAL / 1000}s)`);
             },
 
             stopAutoRefresh() {
@@ -1083,6 +1109,30 @@
                     });
                 }
 
+                // Use MutationObserver to detect when chatlog section becomes visible
+                const chatlogSection = document.getElementById('chatlogSection');
+                if (chatlogSection) {
+                    const observer = new MutationObserver((mutations) => {
+                        const isVisible = chatlogSection.style.display !== 'none' &&
+                            chatlogSection.offsetParent !== null;
+
+                        if (isVisible && !STATE.isSectionActive) {
+                            console.log('[OBSERVER] Chatlog section became visible, starting auto-refresh');
+                            STATE.isSectionActive = true;
+                            ChatLogOperations.load();
+                            ChatLogOperations.startAutoRefresh();
+                        } else if (!isVisible && STATE.isSectionActive) {
+                            console.log('[OBSERVER] Chatlog section hidden, stopping auto-refresh');
+                            ChatLogOperations.stopAutoRefresh();
+                        }
+                    });
+
+                    observer.observe(chatlogSection, {
+                        attributes: true,
+                        attributeFilter: ['style', 'class']
+                    });
+                }
+
                 // Navigation is handled by admin-navigation.js
                 // This section-specific handler only manages auto-refresh
                 const chatlogNav = document.querySelector('[data-section="chatlog"]');
@@ -1406,21 +1456,39 @@
                 // Stop auto-refresh when page is hidden
                 // Force reload when page becomes visible (prevent stale data)
                 document.addEventListener('visibilitychange', () => {
-                    if (!document.hidden) {
-                        const chatlogSection = document.getElementById('chatlogSection');
-                        if (chatlogSection && chatlogSection.style.display !== 'none') {
-                            console.log('[VISIBILITY] Page visible again, force reloading data...');
-                            ChatLogOperations.load(true); // Silent reload
+                    const chatlogSection = document.getElementById('chatlogSection');
+                    const isSectionVisible = chatlogSection &&
+                        chatlogSection.style.display !== 'none' &&
+                        chatlogSection.offsetParent !== null;
+
+                    if (!document.hidden && isSectionVisible) {
+                        console.log('[VISIBILITY] Page visible again, force reloading data...');
+                        ChatLogOperations.load(true); // Silent reload
+                        // Restart auto-refresh if it was active
+                        if (STATE.isSectionActive) {
+                            ChatLogOperations.startAutoRefresh();
                         }
+                    } else if (document.hidden) {
+                        // Pause auto-refresh when page is hidden to save resources
+                        console.log('[VISIBILITY] Page hidden, pausing auto-refresh');
+                        // Don't stop completely, just pause - will resume when visible
                     }
                 });
 
-                // NEW: Force reload on window focus
+                // Force reload on window focus
                 window.addEventListener('focus', () => {
                     const chatlogSection = document.getElementById('chatlogSection');
-                    if (chatlogSection && chatlogSection.style.display !== 'none' && !STATE.isLoading) {
+                    const isSectionVisible = chatlogSection &&
+                        chatlogSection.style.display !== 'none' &&
+                        chatlogSection.offsetParent !== null;
+
+                    if (isSectionVisible && !STATE.isLoading) {
                         console.log('[FOCUS] Window focused, checking for updates...');
                         ChatLogOperations.load(true);
+                        // Restart auto-refresh if it was active
+                        if (STATE.isSectionActive) {
+                            ChatLogOperations.startAutoRefresh();
+                        }
                     }
                 });
 
@@ -1435,9 +1503,14 @@
 
         // Check if chatlog section is initially active
         const chatlogSection = document.getElementById('chatlogSection');
-        if (chatlogSection && chatlogSection.style.display !== 'none') {
+        if (chatlogSection &&
+            chatlogSection.style.display !== 'none' &&
+            chatlogSection.offsetParent !== null) {
+            console.log('[INIT] Chatlog section is initially visible, loading data...');
             ChatLogOperations.load();
             ChatLogOperations.startAutoRefresh();
+        } else {
+            console.log('[INIT] Chatlog section not visible, will load when navigated to');
         }
     });
 })();

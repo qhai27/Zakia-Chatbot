@@ -211,13 +211,8 @@ python init_db.py
 4. Test thoroughly
 5. Submit a pull request
 
-## License
 
-This project is licensed under the MIT License.
 
-## Support
-
-For support or questions, please contact the LZNK development team.
 
 
 
