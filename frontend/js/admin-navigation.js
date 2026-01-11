@@ -12,6 +12,7 @@
             'faqs': 'faqSection',
             'reminders': 'remindersSection',
             'chatlog': 'chatlogSection',
+            'livechat': 'livechatSection',
             'analytics': 'analyticsSection'
         };
 
@@ -93,6 +94,13 @@
                                 window.ChatLogOperations.startAutoRefresh();
                             }
                         }, 100);
+                    }
+                    break;
+                case 'livechat':
+                    if (window.LiveChatAdmin && window.LiveChatAdmin.load) {
+                        setTimeout(() => {
+                            window.LiveChatAdmin.load();
+                        }, 150);
                     }
                     break;
                 case 'analytics':

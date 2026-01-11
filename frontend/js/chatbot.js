@@ -15,7 +15,12 @@ if (!window.ZakiaChatbot) {
             this.hasUserSentMessage = false;
             this.apiBaseUrl = window.CONFIG.API_BASE_URL;
             this.isMinimized = false;
-            
+
+            // Live chat state
+            this.waitingForAdmin = false;
+            this.pollInterval = null;
+            this.adminWaitingMessageId = null;
+
             // Initialize zakat handler
             this.zakatHandler = null;
 
@@ -25,11 +30,11 @@ if (!window.ZakiaChatbot) {
         init() {
             this.setupEventListeners();
             this.loadFAQs();
-            
+
             // Initialize zakat handler after DOM is ready
             if (window.ZakatHandler) {
                 this.zakatHandler = new window.ZakatHandler(this);
-                window.zakatHandler = this.zakatHandler; // Make globally accessible
+                window.zakatHandler = this.zakatHandler;
             }
         }
 
@@ -55,7 +60,7 @@ if (!window.ZakiaChatbot) {
 
         toggleMinimize() {
             this.isMinimized = !this.isMinimized;
-            
+
             if (this.isMinimized) {
                 this.chatbox.style.display = 'none';
                 if (!document.getElementById('chatWidget')) {
@@ -80,20 +85,25 @@ if (!window.ZakiaChatbot) {
                     <div class="widget-subtitle">Nak tanya soalan tentang zakat?</div>
                 </div>
             `;
-            
+
             const self = this;
-            widget.addEventListener('click', function() {
+            widget.addEventListener('click', function () {
                 self.isMinimized = false;
                 self.chatbox.style.display = 'flex';
                 widget.remove();
             });
-            
+
             document.body.appendChild(widget);
         }
 
-        appendMessage(text, sender, isHTML = false) {
+        appendMessage(text, sender, isHTML = false, options = {}) {
             const msg = document.createElement('div');
             msg.className = `msg ${sender}`;
+
+            // Store message ID for later reference
+            if (options.messageId) {
+                msg.dataset.messageId = options.messageId;
+            }
 
             const now = new Date();
             const timeString = now.toLocaleTimeString('en-US', {
@@ -112,6 +122,11 @@ if (!window.ZakiaChatbot) {
                         <div class="msg-time">${timeString}</div>
                     </div>
                 `;
+                
+                // Only add feedback controls if NOT an admin response and NOT waiting for admin
+                if (!options.isAdminResponse && !options.skipFeedback) {
+                    this.addFeedbackControls(msg, content);
+                }
             } else {
                 msg.innerHTML = `
                     <div class="bubble-container">
@@ -123,24 +138,94 @@ if (!window.ZakiaChatbot) {
 
             this.messagesEl.appendChild(msg);
             this.messagesEl.scrollTop = this.messagesEl.scrollHeight;
+
+            return msg;
+        }
+
+        addFeedbackControls(msgEl, botText) {
+            // Avoid duplicate controls
+            if (msgEl.querySelector('.feedback-row')) return;
+
+            const feedbackRow = document.createElement('div');
+            feedbackRow.className = 'feedback-row';
+            feedbackRow.innerHTML = `
+                <span class="feedback-label">Jawapan ini membantu?</span>
+                <button class="feedback-btn yes">👍 Ya</button>
+                <button class="feedback-btn no">❌ Tidak</button>
+            `;
+
+            const bubbleContainer = msgEl.querySelector('.bubble-container');
+            if (bubbleContainer) {
+                bubbleContainer.appendChild(feedbackRow);
+            } else {
+                msgEl.appendChild(feedbackRow);
+            }
+
+            const yesBtn = feedbackRow.querySelector('.yes');
+            const noBtn = feedbackRow.querySelector('.no');
+
+            const disableButtons = () => {
+                yesBtn.disabled = true;
+                noBtn.disabled = true;
+                yesBtn.classList.add('disabled');
+                noBtn.classList.add('disabled');
+            };
+
+            yesBtn.addEventListener('click', () => {
+                this.appendMessage("Terima kasih atas maklum balas! 😊", 'bot', false, { skipFeedback: true });
+                disableButtons();
+            });
+
+            noBtn.addEventListener('click', async () => {
+                disableButtons();
+                await this.escalateToLiveChat(botText);
+            });
+        }
+
+        showAdminWaitingIndicator() {
+            const messageId = 'admin-waiting-' + Date.now();
+            
+            const waitingMsg = this.appendMessage(
+                `<div class="admin-waiting-indicator">
+                    <div class="waiting-spinner"></div>
+                    <p>Menunggu jawapan dari admin...</p>
+                    <small>Ini mungkin mengambil masa beberapa minit</small>
+                </div>`,
+                'bot',
+                true,
+                { messageId, skipFeedback: true }
+            );
+
+            this.adminWaitingMessageId = messageId;
+            return waitingMsg;
+        }
+
+        removeAdminWaitingIndicator() {
+            if (this.adminWaitingMessageId) {
+                const waitingMsg = this.messagesEl.querySelector(`[data-message-id="${this.adminWaitingMessageId}"]`);
+                if (waitingMsg) {
+                    waitingMsg.remove();
+                }
+                this.adminWaitingMessageId = null;
+            }
         }
 
         processLinks(text) {
             let processed = this.escapeHtml(text);
-            
+
             const htmlLinkPattern = /&lt;a\s+href=&quot;([^&]+)&quot;[^&]*&gt;([^&]+)&lt;\/a&gt;/gi;
             processed = processed.replace(htmlLinkPattern, (match, url, label) => {
                 const cleanUrl = url.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"');
                 const cleanLabel = label.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
                 return `<a href="${cleanUrl}" target="_blank" rel="noopener noreferrer" class="chat-link">${cleanLabel}</a>`;
             });
-            
+
             const urlPattern = /(https?:\/\/[^\s<>"]+[^\s<>".,;:!?)])/gi;
             processed = processed.replace(urlPattern, (url) => {
                 const displayUrl = url.length > 50 ? url.substring(0, 47) + '...' : url;
                 return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="chat-link">${displayUrl}</a>`;
             });
-            
+
             const phonePattern = /(\+?[\d\s\-()]{10,})/g;
             processed = processed.replace(phonePattern, (phone) => {
                 const cleanPhone = phone.replace(/[\s\-()]/g, '');
@@ -149,12 +234,12 @@ if (!window.ZakiaChatbot) {
                 }
                 return phone;
             });
-            
+
             const emailPattern = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g;
             processed = processed.replace(emailPattern, (email) => {
                 return `<a href="mailto:${email}" class="chat-link">${email}</a>`;
             });
-            
+
             return processed;
         }
 
@@ -177,107 +262,257 @@ if (!window.ZakiaChatbot) {
             this.quickRepliesEl.style.display = 'flex';
         }
 
+        async sendMessage(messageOverride) {
+            const text = (messageOverride ?? this.inputEl.value).trim();
+            if (!text) return;
 
-async sendMessage(messageOverride) {
-    const text = (messageOverride ?? this.inputEl.value).trim();
-    if (!text) return;
+            this.appendMessage(text, 'user');
+            this.inputEl.value = '';
+            this.sendBtn.disabled = true;
+            this.hideQuickReplies();
 
-    this.appendMessage(text, 'user');
-    this.inputEl.value = '';
-    this.sendBtn.disabled = true;
-    this.hideQuickReplies();
+            this.hasUserSentMessage = true;
+            this.lastUserMessage = text;
 
-    this.hasUserSentMessage = true;
+            // Priority 1: Check if reminder handler is active
+            if (this.zakatHandler && this.zakatHandler.reminderHandler &&
+                this.zakatHandler.reminderHandler.isActive()) {
+                const handled = await this.zakatHandler.reminderHandler.processInput(text);
+                if (handled) {
+                    this.sendBtn.disabled = false;
+                    return;
+                }
+            }
 
-    // Priority 1: Check if reminder handler is active
-    if (this.zakatHandler && this.zakatHandler.reminderHandler && 
-        this.zakatHandler.reminderHandler.isActive()) {
-        const handled = await this.zakatHandler.reminderHandler.processInput(text);
-        if (handled) {
-            this.sendBtn.disabled = false;
-            return;
-        }
-    }
+            // Priority 2: Check if zakat handler is active
+            if (this.zakatHandler && this.zakatHandler.state.active) {
+                // Check for cancel command
+                if (text.toLowerCase().includes('batal') || text.toLowerCase().includes('cancel')) {
+                    this.zakatHandler.cancel();
+                    this.sendBtn.disabled = false;
+                    return;
+                }
 
-    // Priority 2: Check if zakat handler is active
-    if (this.zakatHandler && this.zakatHandler.state.active) {
-        // Check for cancel command
-        if (text.toLowerCase().includes('batal') || text.toLowerCase().includes('cancel')) {
-            this.zakatHandler.cancel();
-            this.sendBtn.disabled = false;
-            return;
-        }
-        
-        // Process zakat input
-        const handled = this.zakatHandler.processInput(text);
-        if (handled) {
-            this.sendBtn.disabled = false;
-            return;
-        }
-    }
-    
-    // Priority 3: Check for new zakat intent
-    if (this.zakatHandler) {
-        const zakatIntent = this.zakatHandler.detectZakatIntent(text);
-        if (zakatIntent) {
-            if (zakatIntent === 'menu') {
-                setTimeout(() => {
-                    this.zakatHandler.showZakatMenu();
-                }, 500);
+                // Process zakat input
+                const handled = this.zakatHandler.processInput(text);
+                if (handled) {
+                    this.sendBtn.disabled = false;
+                    return;
+                }
+            }
+
+            // Priority 3: Check for new zakat intent
+            if (this.zakatHandler) {
+                const zakatIntent = this.zakatHandler.detectZakatIntent(text);
+                if (zakatIntent) {
+                    if (zakatIntent === 'menu') {
+                        setTimeout(() => {
+                            this.zakatHandler.showZakatMenu();
+                        }, 500);
+                        this.sendBtn.disabled = false;
+                        return;
+                    } else if (zakatIntent === 'nisab') {
+                        this.zakatHandler.fetchNisabInfo();
+                        this.sendBtn.disabled = false;
+                        return;
+                    } else {
+                        setTimeout(() => {
+                            this.zakatHandler.startZakatCalculation(zakatIntent);
+                        }, 500);
+                        this.sendBtn.disabled = false;
+                        return;
+                    }
+                }
+            }
+
+            // Priority 4: Regular chat processing
+            this.setTyping(true);
+
+            try {
+                const requestBody = { message: text };
+                if (this.sessionId) {
+                    requestBody.session_id = this.sessionId;
+                }
+
+                const res = await fetch(`${this.apiBaseUrl}${window.CONFIG.ENDPOINTS.CHAT}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(requestBody)
+                });
+
+                const data = await res.json();
+
+                if (data.session_id) {
+                    this.sessionId = data.session_id;
+                }
+
+                this.appendMessage(data.reply || window.CONFIG.MESSAGES.SERVER_ERROR, 'bot');
+
+                if (!this.hasUserSentMessage) {
+                    setTimeout(() => this.showQuickReplies(), window.CONFIG.UI.TYPING_DELAY);
+                }
+
+            } catch (e) {
+                this.appendMessage(window.CONFIG.MESSAGES.CONNECTION_ERROR, 'bot');
+                if (!this.hasUserSentMessage) {
+                    this.showQuickReplies();
+                }
+            } finally {
+                this.setTyping(false);
                 this.sendBtn.disabled = false;
-                return;
-            } else if (zakatIntent === 'nisab') {
-                this.zakatHandler.fetchNisabInfo();
-                this.sendBtn.disabled = false;
-                return;
-            } else {
-                setTimeout(() => {
-                    this.zakatHandler.startZakatCalculation(zakatIntent);
-                }, 500);
-                this.sendBtn.disabled = false;
-                return;
+                this.messagesEl.scrollTop = this.messagesEl.scrollHeight;
             }
         }
-    }
 
-    // Priority 4: Regular chat processing
-    this.setTyping(true);
+        async escalateToLiveChat(botReplyText) {
+            try {
+                console.log('\n📤 ESCALATING TO LIVE CHAT');
+                console.log('   Session ID:', this.sessionId);
+                console.log('   User Message:', this.lastUserMessage);
 
-    try {
-        const requestBody = { message: text };
-        if (this.sessionId) {
-            requestBody.session_id = this.sessionId;
+                const payload = {
+                    session_id: this.sessionId,
+                    user_message: this.lastUserMessage || '',
+                    bot_response: botReplyText || ''
+                };
+
+                const res = await fetch(`${this.apiBaseUrl}${window.CONFIG.ENDPOINTS.LIVE_CHAT_REQUEST}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+                console.log('📨 Escalation response:', data);
+
+                if (data.success) {
+                    console.log('✅ Escalation successful, request ID:', data.id);
+                    
+                    // Show waiting indicator
+                    this.showAdminWaitingIndicator();
+                    
+                    // Start polling for admin response
+                    this.waitingForAdmin = true;
+                    this.startAdminResponsePolling();
+                } else {
+                    console.error('❌ Escalation failed:', data.error);
+                    this.appendMessage("Maaf, tidak dapat hantar permintaan live chat. Sila cuba lagi.", 'bot', false, { skipFeedback: true });
+                }
+            } catch (error) {
+                console.error('❌ Live chat request error:', error);
+                this.appendMessage("Ralat menghantar permintaan live chat. Sila cuba lagi.", 'bot', false, { skipFeedback: true });
+            }
         }
 
-        const res = await fetch(`${this.apiBaseUrl}${window.CONFIG.ENDPOINTS.CHAT}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(requestBody)
-        });
-
-        const data = await res.json();
-
-        if (data.session_id) {
-            this.sessionId = data.session_id;
+        startAdminResponsePolling() {
+            if (this.pollInterval) {
+                clearInterval(this.pollInterval);
+            }
+            
+            console.log('🔄 Starting admin response polling...');
+            console.log('   Polling every 1.5 seconds');
+            console.log('   Session ID:', this.sessionId);
+            
+            // Poll immediately first
+            this.checkAdminResponse();
+            
+            // Then poll every 1.5 seconds for up to 5 minutes (faster response)
+            let elapsed = 0;
+            const maxTime = 300000; // 5 minutes
+            const interval = 1500; // 1.5 seconds (reduced for faster response)
+            
+            this.pollInterval = setInterval(async () => {
+                elapsed += interval;
+                
+                console.log(`⏱️ Polling for admin response... (${elapsed / 1000}s)`);
+                
+                const gotResponse = await this.checkAdminResponse();
+                
+                if (gotResponse) {
+                    console.log('✅ Admin response received!');
+                    this.stopAdminResponsePolling();
+                } else if (elapsed >= maxTime) {
+                    console.log('⏰ Polling timeout reached');
+                    this.stopAdminResponsePolling();
+                    this.removeAdminWaitingIndicator();
+                    this.appendMessage(
+                        "Maaf, admin masih belum membalas. Anda boleh terus bertanya atau cuba lagi kemudian. 🙏",
+                        'bot',
+                        false,
+                        { skipFeedback: true }
+                    );
+                }
+            }, interval);
         }
 
-        this.appendMessage(data.reply || window.CONFIG.MESSAGES.SERVER_ERROR, 'bot');
-
-        if (!this.hasUserSentMessage) {
-            setTimeout(() => this.showQuickReplies(), window.CONFIG.UI.TYPING_DELAY);
+        stopAdminResponsePolling() {
+            if (this.pollInterval) {
+                clearInterval(this.pollInterval);
+                this.pollInterval = null;
+            }
+            this.waitingForAdmin = false;
         }
 
-    } catch (e) {
-        this.appendMessage(window.CONFIG.MESSAGES.CONNECTION_ERROR, 'bot');
-        if (!this.hasUserSentMessage) {
-            this.showQuickReplies();
+        async checkAdminResponse() {
+            try {
+                if (!this.sessionId) {
+                    console.error('❌ No session ID for polling');
+                    return false;
+                }
+                
+                const params = new URLSearchParams({ 
+                    session_id: this.sessionId, 
+                    _t: Date.now().toString() 
+                });
+                
+                const url = `${this.apiBaseUrl}${window.CONFIG.ENDPOINTS.LIVE_CHAT_PENDING}?${params}`;
+                console.log('   📡 Polling URL:', url);
+                
+                const res = await fetch(url, { 
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!res.ok) {
+                    console.error('❌ Admin response check failed:', res.status, res.statusText);
+                    return false;
+                }
+                
+                const data = await res.json();
+                console.log('   📥 Poll response:', data);
+                
+                if (data.success && data.pending && data.response?.admin_response) {
+                    console.log('✅ ADMIN RESPONSE FOUND!');
+                    console.log('   Admin:', data.response.admin_name);
+                    console.log('   Response:', data.response.admin_response.substring(0, 50) + '...');
+                    
+                    // Remove waiting indicator
+                    this.removeAdminWaitingIndicator();
+                    
+                    // Show admin response
+                    const adminName = data.response.admin_name || 'Admin';
+                    const adminResponse = data.response.admin_response;
+                    
+                    this.appendMessage(
+                        `<div style="margin-bottom: 8px;"><strong>💬 Jawapan dari ${this.escapeHtml(adminName)}:</strong></div>${this.processLinks(adminResponse)}`,
+                        'bot',
+                        true,
+                        { isAdminResponse: true, skipFeedback: true }
+                    );
+                    
+                    return true;
+                } else {
+                    console.log('   ⏳ No admin response yet');
+                    return false;
+                }
+                
+            } catch (e) {
+                console.error('❌ Polling error:', e);
+                return false;
+            }
         }
-    } finally {
-        this.setTyping(false);
-        this.sendBtn.disabled = false;
-        this.messagesEl.scrollTop = this.messagesEl.scrollHeight;
-    }
-}
 
         handleQuickReplyClick(target) {
             document.querySelectorAll('.quick-reply').forEach(btn => {
@@ -294,16 +529,21 @@ async sendMessage(messageOverride) {
         }
 
         endChat() {
+            // Stop any active polling
+            this.stopAdminResponsePolling();
+            this.removeAdminWaitingIndicator();
+            
             this.messagesEl.innerHTML = '';
             this.sessionId = null;
             this.hasUserSentMessage = false;
-            
+            this.waitingForAdmin = false;
+
             // Reset zakat handler
             if (this.zakatHandler) {
                 this.zakatHandler.resetState();
             }
-            
-            this.appendMessage(window.CONFIG.MESSAGES.SESSION_ENDED, 'bot');
+
+            this.appendMessage(window.CONFIG.MESSAGES.SESSION_ENDED, 'bot', false, { skipFeedback: true });
             this.showQuickReplies();
         }
 
@@ -322,24 +562,6 @@ async sendMessage(messageOverride) {
                 console.log('Could not load FAQs:', e);
             }
         }
-
-        async onUserMessageSubmit(message) {
-        // attempt to let reminder flow handle the message first
-        try {
-            if (window.reminderHandlerInstance && typeof window.reminderHandlerInstance.processInput === 'function') {
-                const consumed = await window.reminderHandlerInstance.processInput(message);
-                if (consumed) {
-                    // reminder flow consumed the input — do not continue with normal intent handling
-                    return;
-                }
-            }
-        } catch (e) {
-            console.error('Error routing to ReminderHandler', e);
-        }
-
-        // existing chat processing (intent detection, zakat flow, etc.)
-        }
-
     }
 
     window.ZakiaChatbot = ZakiaChatbot;

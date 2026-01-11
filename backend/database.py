@@ -216,6 +216,37 @@ class DatabaseManager:
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """)
 
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS live_chat_requests (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    session_id VARCHAR(100),
+                    user_message TEXT NOT NULL,
+                    bot_response TEXT,
+                    status ENUM('open', 'in_progress', 'resolved') DEFAULT 'open',
+                    admin_response TEXT,
+                    admin_name VARCHAR(100),
+                    is_delivered TINYINT(1) DEFAULT 0,
+                    delivered_at TIMESTAMP NULL DEFAULT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    INDEX idx_status (status),
+                    INDEX idx_created (created_at),
+                    INDEX idx_session (session_id)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            """)
+
+            # Migration: ensure new columns exist on older databases
+            try:
+                cursor.execute("""
+                    ALTER TABLE live_chat_requests
+                    ADD COLUMN is_delivered TINYINT(1) DEFAULT 0,
+                    ADD COLUMN delivered_at TIMESTAMP NULL DEFAULT NULL
+                """)
+            except Error as e:
+                # Ignore duplicate column errors
+                if "Duplicate column" not in str(e) and "1060" not in str(e):
+                    print(f"⚠️ Could not migrate live_chat_requests columns: {e}")
+
             self.connection.commit()
             cursor.close()
             

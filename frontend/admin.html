@@ -15,7 +15,10 @@
     <script src="js/admin-faq.js" defer></script>
     <script src="js/admin-reminder.js" defer></script>
     <script src="js/admin-chatlog.js" defer></script>
+    <script src="js/admin-livechat.js" defer></script>
     <script src="js/admin-analytics.js" defer></script>
+    <script src="chatbot-livechat-polling.js"></script>
+    <script src="chatbot-livechat-integration.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 
@@ -43,6 +46,9 @@
                 </a>
                 <a href="#" class="nav-item" data-section="chatlog" id="navChatlog">
                     <span class="nav-icon">💬</span> <span>Sejarah ChatLog</span>
+                </a>
+                <a href="#" class="nav-item" data-section="livechat" id="navLiveChat">
+                    <span class="nav-icon">🆘</span> <span>Live Chat</span>
                 </a>
                 <a href="#" class="nav-item" data-section="analytics" id="navAnalytics">
                     <span class="nav-icon">📊</span> <span>Analitik FAQ</span>
@@ -403,6 +409,66 @@
 
                 <!-- Pagination -->
                 <div id="chatlogPagination" class="pagination"></div>
+
+            </section>
+            <!-- =================== LIVE CHAT SECTION ==================== -->
+            <section id="livechatSection" class="content-section" style="display:none;">
+
+                <!-- Header -->
+                <header class="content-header">
+                    <div class="header-left">
+                        <h1>🆘 Live Chat Escalations</h1>
+                        <div id="livechatStatus" class="status-badge">Memuat data...</div>
+                    </div>
+                    <div class="header-actions">
+                        <button id="refreshLivechat" class="btn ghost">🔄 Refresh</button>
+                    </div>
+                </header>
+
+                <!-- Open Requests -->
+                <h3>Permintaan Terbuka</h3>
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th style="width: 80px;">ID</th>
+                                <th style="width: 200px;">Soalan Pengguna</th>
+                                <th style="width: 200px;">Jawapan Bot</th>
+                                <th style="width: 120px;">Session</th>
+                                <th style="width: 160px;">Tarikh</th>
+                                <th style="width: 100px;">Tindakan</th>
+                                <th style="width: 400px;">Jawapan Admin</th>
+                            </tr>
+                        </thead>
+                        <tbody id="livechatTableBody">
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- History -->
+                <h3 style="margin-top:24px;">Sejarah (Resolved)</h3>
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Soalan Pengguna</th>
+                                <th>Jawapan Bot</th>
+                                <th>Session</th>
+                                <th>Diselesaikan</th>
+                                <th>Jawapan Admin</th>
+                            </tr>
+                        </thead>
+                        <tbody id="livechatHistoryBody">
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
 
             </section>
             <!-- ================= END CHATLOG SECTION ================== -->

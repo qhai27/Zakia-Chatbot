@@ -32,6 +32,16 @@ except ImportError as e:
     failed_blueprints.append(f"❌ Chat routes: {e}")
     print(f"❌ Failed to load chat routes: {e}")
 
+# Import and register live chat escalation routes
+try:
+    from routes.live_chat_routes import live_chat_bp
+    app.register_blueprint(live_chat_bp)
+    loaded_blueprints.append("✅ Live chat routes")
+    print("✅ Live chat routes loaded successfully")
+except ImportError as e:
+    failed_blueprints.append(f"❌ Live chat routes: {e}")
+    print(f"❌ Failed to load live chat routes: {e}")
+
 # Import and register admin routes
 try:
     from routes.admin_routes import admin_bp
@@ -227,6 +237,16 @@ except ImportError as e:
     failed_blueprints.append(f"❌ Admin analytics routes: {e}")
     print(f"❌ Failed to load admin analytics routes: {e}")
 
+# Import and register admin live chat routes
+try:
+    from routes.admin_livechat_routes import admin_livechat_bp
+    app.register_blueprint(admin_livechat_bp)
+    loaded_blueprints.append("✅ Admin live chat routes")
+    print("✅ Admin live chat routes loaded successfully")
+except ImportError as e:
+    failed_blueprints.append(f"❌ Admin live chat routes: {e}")
+    print(f"❌ Failed to load admin live chat routes: {e}")
+
 # Import and register admin chat log routes
 try:
     from routes.admin_chatlog_routes import admin_chatlog_bp
@@ -312,12 +332,12 @@ except ImportError as e:
                 cursor.execute(query, params + [limit, offset])
                 rows = cursor.fetchall()
                 
-                # Format timestamps
+                # Format timestamps - use strftime directly like other routes (no timezone conversion)
                 logs = []
                 for row in rows:
                     log = dict(row)
                     if log.get('created_at'):
-                        log['created_at'] = format_timestamp(log['created_at'])
+                        log['created_at'] = log['created_at'].strftime('%Y-%m-%d %H:%M:%S') if hasattr(log['created_at'], 'strftime') else str(log['created_at'])
                     logs.append(log)
                 
                 cursor.close()

@@ -6,7 +6,10 @@ const CONFIG = {
     ENDPOINTS: {
         CHAT: "/chat",
         FAQS: "/faqs",
-        HEALTH: "/health"
+        HEALTH: "/health",
+        LIVE_CHAT_REQUEST: "/live-chat/request",
+        LIVE_CHAT_PENDING: "/live-chat/pending",
+        ADMIN_LIVE_CHAT: "/admin/live-chat"
     },
     UI: {
         TYPING_DELAY: 1000,

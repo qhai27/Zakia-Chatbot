@@ -683,6 +683,93 @@ body{
     animation: linkAppear 0.3s ease-out;
 }
 
+/* Admin Waiting Indicator Styles */
+.admin-waiting-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    text-align: center;
+}
 
+.admin-waiting-indicator p {
+    margin: 10px 0 5px 0;
+    font-weight: 600;
+    color: #006a4e;
+}
+
+.admin-waiting-indicator small {
+    color: #666;
+    font-size: 12px;
+}
+
+/* Spinning loader animation */
+.waiting-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #006a4e;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Feedback controls styling improvements */
+.feedback-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.feedback-label {
+    font-size: 13px;
+    color: #666;
+    margin-right: 5px;
+}
+
+.feedback-btn {
+    padding: 6px 12px;
+    font-size: 13px;
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.feedback-btn:hover:not(.disabled) {
+    background: #f3f4f6;
+    border-color: #006a4e;
+    transform: translateY(-1px);
+}
+
+.feedback-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.feedback-btn.yes:hover:not(.disabled) {
+    background: #d1fae5;
+    border-color: #10b981;
+}
+
+.feedback-btn.no:hover:not(.disabled) {
+    background: #fee2e2;
+    border-color: #ef4444;
+}
+
+/* Admin response styling */
+.bot-bubble strong {
+    color: #006a4e;
+    display: block;
+    margin-bottom: 8px;
+}
 
 /* End of consolidated CSS */
