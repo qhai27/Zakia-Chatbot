@@ -1,5 +1,5 @@
 /* ==========================
-   ZAKAT CALCULATOR STYLES 
+   ZAKAT CALCULATOR STYLES - ENHANCED
    ========================== */
 
 /* Zakat Menu Container */
@@ -9,31 +9,50 @@
     padding: 12px 0;
 }
 
-/* Button Container */
+/* Button Container - Enhanced with smooth transitions */
 .zakat-buttons {
     display: flex;
     flex-direction: column;
     gap: 10px;
     margin-top: 12px;
+    animation: slideInFromBottom 0.4s ease-out;
 }
 
-/* Method Info Box */
+@keyframes slideInFromBottom {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Method Info Box - Enhanced with better depth */
 .zakat-method-info {
     background: white;
-    padding: 10px 12px;
-    border-radius: 12px;
-    margin-bottom: 12px;
+    padding: 12px 16px;
+    border-radius: 16px;
+    margin-bottom: 16px;
     font-size: 0.9em;
     border: 2px solid #5DB996;
-
-    /* bottom-only floating shadow */
-    box-shadow: 0 6px 12px -5px rgba(93, 185, 150, 0.35);
-
+    box-shadow: 
+        0 1px 3px rgba(93, 185, 150, 0.12),
+        0 6px 16px -6px rgba(93, 185, 150, 0.25);
     position: relative;
     overflow: hidden;
     text-align: left;
     max-width: 100%;
     width: 100%;
+    transition: all 0.3s ease;
+}
+
+.zakat-method-info:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+        0 2px 4px rgba(93, 185, 150, 0.15),
+        0 8px 20px -6px rgba(93, 185, 150, 0.3);
 }
 
 .zakat-method-info::before {
@@ -47,6 +66,16 @@
     pointer-events: none;
 }
 
+/* Icon decoration for method info */
+.zakat-method-info::after {
+    content: 'ℹ️';
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-size: 1.2em;
+    opacity: 0.3;
+}
+
 /* RESET GAP */
 .zakat-method-info * {
     margin-left: 0;
@@ -55,12 +84,16 @@
 }
 
 .zakat-method-info p {
-    margin: 0 0 4px 0;
-    line-height: 1.3;
+    margin: 0 0 6px 0;
+    line-height: 1.5;
     color: #1f2937;
     position: relative;
     z-index: 1;
     text-align: left;
+}
+
+.zakat-method-info p:last-child {
+    margin-bottom: 0;
 }
 
 .zakat-method-info strong {
@@ -68,39 +101,30 @@
     font-weight: 700;
 }
 
-/* Main Zakat Type Buttons */
+/* Main Zakat Type Buttons - Enhanced with ripple effect */
 .zakat-type-btn {
-    /* Layout & Sizing */
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
-    padding: 14px 20px;
-    gap: 8px;
-    
-    /* Positioning */
+    padding: 16px 24px;
+    gap: 10px;
     position: relative;
     overflow: hidden;
-    
-    /* Styling */
     background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
     border: 2px solid #5DB996;
-    border-radius: 14px;
+    border-radius: 16px;
     color: #157347;
-    
-    /* Typography */
     font-size: 14px;
     font-weight: 600;
     text-align: center;
-    line-height: 1;
+    line-height: 1.2;
     white-space: nowrap;
-    
-    /* Effects */
-    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.1);
+    box-shadow: 
+        0 1px 3px rgba(59, 130, 246, 0.08),
+        0 4px 12px -4px rgba(59, 130, 246, 0.12);
     cursor: pointer;
-    transition: all 0.3s ease;
-    
-    /* Reset browser defaults */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
@@ -108,12 +132,12 @@
     margin: 0;
 }
 
-
 .zakat-type-btn * {
     margin: 0;
     padding: 0;
 }
 
+/* Shimmer effect */
 .zakat-type-btn::before {
     content: '';
     position: absolute;
@@ -121,8 +145,8 @@
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-    transition: left 0.5s;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     pointer-events: none;
 }
 
@@ -133,17 +157,20 @@
 .zakat-type-btn:hover:not(:disabled) {
     background: linear-gradient(135deg, #5DB996 0%, #4a9d7f 100%);
     color: #ffffff;
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 6px 20px rgba(93, 185, 150, 0.3);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 
+        0 4px 8px rgba(93, 185, 150, 0.2),
+        0 8px 24px rgba(93, 185, 150, 0.3);
 }
 
 .zakat-type-btn:active:not(:disabled) {
     transform: translateY(0) scale(0.98);
     box-shadow: 0 2px 6px rgba(93, 185, 150, 0.2);
+    transition: all 0.1s ease;
 }
 
 .zakat-type-btn:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
     transform: none;
 }
@@ -153,56 +180,47 @@
     color: #ffffff;
     border-color: #157347;
     animation: selectedPulse 0.6s ease;
+    box-shadow: 
+        0 4px 12px rgba(21, 115, 71, 0.25),
+        0 0 0 4px rgba(21, 115, 71, 0.1);
 }
 
 @keyframes selectedPulse {
     0% {
         transform: scale(1);
-        box-shadow: 0 2px 8px rgba(21, 115, 71, 0.2);
     }
     50% {
         transform: scale(1.05);
-        box-shadow: 0 8px 24px rgba(21, 115, 71, 0.4);
     }
     100% {
         transform: scale(1);
-        box-shadow: 0 4px 16px rgba(21, 115, 71, 0.3);
     }
 }
 
-/* Year Type Selection Buttons */
+/* Year Type Selection Buttons - Enhanced */
 .zakat-year-type-btn {
-    /* Layout & Sizing */
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
-    padding: 14px 20px;
-    gap: 8px;
-    
-    /* Positioning */
+    padding: 16px 24px;
+    gap: 10px;
     position: relative;
     overflow: hidden;
-    
-    /* Styling */
     background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
     border: 2px solid #BEDC74;
-    border-radius: 14px;
+    border-radius: 16px;
     color: #387F39;
-    
-    /* Typography */
     font-size: 14px;
     font-weight: 600;
     text-align: center;
-    line-height: 1;
+    line-height: 1.2;
     white-space: nowrap;
-    
-    /* Effects */
-    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.1);
+    box-shadow: 
+        0 1px 3px rgba(59, 130, 246, 0.08),
+        0 4px 12px -4px rgba(59, 130, 246, 0.12);
     cursor: pointer;
-    transition: all 0.3s ease;
-    
-    /* Reset browser defaults */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
@@ -216,14 +234,17 @@
 }
 
 .zakat-year-type-btn:hover:not(:disabled) {
-    background:  #BEDC74 ;
+    background: #BEDC74;
     color: #ffffff;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.25);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 
+        0 4px 8px rgba(190, 220, 116, 0.2),
+        0 8px 20px rgba(190, 220, 116, 0.25);
 }
 
 .zakat-year-type-btn:active:not(:disabled) {
-    transform: translateY(0);
+    transform: translateY(0) scale(0.98);
+    transition: all 0.1s ease;
 }
 
 .zakat-year-type-btn:disabled {
@@ -234,121 +255,105 @@
 .zakat-year-type-btn.selected {
     border-color: #BEDC74;
     background: #BEDC74;
-    
     color: #ffffff;
-    border-color: #BEDC74;
+    box-shadow: 
+        0 4px 12px rgba(190, 220, 116, 0.25),
+        0 0 0 4px rgba(190, 220, 116, 0.1);
 }
 
-/* Year Selection Buttons */
-/* Year Selection Buttons — LZNK Theme */
+/* Year Selection Buttons - Enhanced LZNK Theme */
 .zakat-year-btn {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
-    padding: 14px 20px;
-    gap: 8px;
+    padding: 16px 24px;
+    gap: 10px;
     position: relative;
     overflow: hidden;
-
-    /* LZNK color theme */
     background: linear-gradient(135deg, #e9f6ef 0%, #d9efe4 100%);
-    border: 2px solid #0B5C3B; /* LZNK Green */
-    border-radius: 14px;
+    border: 2px solid #0B5C3B;
+    border-radius: 16px;
     color: #0B5C3B;
-
     font-size: 14px;
     font-weight: 600;
     text-align: center;
     white-space: nowrap;
     line-height: 1.2;
-
-    box-shadow: 0 2px 6px rgba(11, 92, 59, 0.18);
+    box-shadow: 
+        0 1px 3px rgba(11, 92, 59, 0.12),
+        0 4px 12px -4px rgba(11, 92, 59, 0.18);
     cursor: pointer;
-    transition: all 0.3s ease;
-
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     appearance: none;
     box-sizing: border-box;
     margin: 0;
 }
 
-/* Reset spacing */
 .zakat-year-btn * {
     margin: 0;
     padding: 0;
 }
 
-/* Hover (gold accent + deep green) */
 .zakat-year-btn:hover:not(:disabled) {
     background: linear-gradient(135deg, #0B5C3B 0%, #0A4A30 100%);
-    color: #FFD95F; /* Soft gold text */
-    transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(11, 92, 59, 0.32);
+    color: #FFD95F;
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 
+        0 4px 8px rgba(11, 92, 59, 0.25),
+        0 8px 20px rgba(11, 92, 59, 0.32);
 }
 
-/* Active */
 .zakat-year-btn:active:not(:disabled) {
-    transform: translateY(0);
+    transform: translateY(0) scale(0.98);
+    transition: all 0.1s ease;
 }
 
-/* Disabled */
 .zakat-year-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
 
-/* Selected (solid LZNK Green + gold outline effect) */
 .zakat-year-btn.selected {
     background: linear-gradient(135deg, #0A4A30 0%, #073722 100%);
     color: #FFD95F;
-    border-color: #D4AF37; /* Gold border */
-    box-shadow: 0 4px 14px rgba(212, 175, 55, 0.35);
+    border-color: #D4AF37;
+    box-shadow: 
+        0 4px 14px rgba(212, 175, 55, 0.35),
+        0 0 0 4px rgba(212, 175, 55, 0.15);
 }
 
-
-/* Cancel Button */
+/* Cancel Button - Enhanced */
 .zakat-cancel-btn {
-    /* Layout & Sizing */
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
-    padding: 12px 20px;
-    gap: 8px;
-    
-    /* Positioning */
+    padding: 14px 24px;
+    gap: 10px;
     position: relative;
     overflow: hidden;
-    
-    /* Styling */
     background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
     border: 2px solid #ef4444;
-    border-radius: 14px;
+    border-radius: 16px;
     color: #991b1b;
-    
-    /* Typography */
     font-size: 14px;
     font-weight: 600;
     text-align: center;
-    line-height: 1;
+    line-height: 1.2;
     white-space: nowrap;
-    
-    /* Effects */
-    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.1);
+    box-shadow: 
+        0 1px 3px rgba(239, 68, 68, 0.08),
+        0 4px 12px -4px rgba(239, 68, 68, 0.12);
     cursor: pointer;
-    transition: all 0.3s ease;
-    
-    /* Spacing */
-    margin: 4px 0 0 0;
-    
-    /* Reset browser defaults */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin: 8px 0 0 0;
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
     box-sizing: border-box;
 }
 
-/* Remove any default spacing */
 .zakat-cancel-btn * {
     margin: 0;
     padding: 0;
@@ -357,12 +362,15 @@
 .zakat-cancel-btn:hover:not(:disabled) {
     background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
     color: #ffffff;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.25);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 
+        0 4px 8px rgba(239, 68, 68, 0.2),
+        0 8px 20px rgba(239, 68, 68, 0.25);
 }
 
 .zakat-cancel-btn:active:not(:disabled) {
-    transform: translateY(0);
+    transform: translateY(0) scale(0.98);
+    transition: all 0.1s ease;
 }
 
 .zakat-cancel-btn:disabled {
@@ -370,25 +378,19 @@
     cursor: not-allowed;
 }
 
-/* Ensure emoji and text are inline and centered together */
-.zakat-type-btn,
-.zakat-year-type-btn,
-.zakat-year-btn,
-.zakat-cancel-btn {
-    line-height: 1.4;
-    white-space: nowrap;
-}
-
-/* Result Card Styles */
+/* Result Card Styles - Enhanced with better depth */
 .zakat-result-card {
     background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-    border-left: 4px solid #5DB996;
-    border-radius: 16px;
-    padding: 20px;
-    margin: 12px 0;
-    box-shadow: 0 4px 16px rgba(93, 185, 150, 0.15);
+    border-left: 5px solid #5DB996;
+    border-radius: 20px;
+    padding: 24px;
+    margin: 16px 0;
+    box-shadow: 
+        0 2px 8px rgba(93, 185, 150, 0.1),
+        0 8px 24px -8px rgba(93, 185, 150, 0.2);
     position: relative;
     overflow: hidden;
+    animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .zakat-result-card::before {
@@ -398,12 +400,12 @@
     right: -50%;
     width: 200%;
     height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
     pointer-events: none;
 }
 
 .zakat-result-card p {
-    margin: 10px 0;
+    margin: 12px 0;
     line-height: 1.7;
     color: #1f2937;
     position: relative;
@@ -424,96 +426,103 @@
     font-size: 1.05em;
 }
 
-/* Action Buttons Container */
+/* Action Buttons Container - Enhanced spacing */
 .zakat-action-buttons {
     display: flex;
-    gap: 10px;
-    margin-top: 20px;
-    padding-top: 16px;
-    border-top: 2px dashed rgba(93, 185, 150, 0.2);
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 2px dashed rgba(93, 185, 150, 0.25);
 }
 
-/* Payment Button Styles */
+/* Payment Button Styles - Enhanced */
 .btn-pay-zakat {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 12px 20px;
-    gap: 8px;
-    
-    /* Positioning */
+    padding: 14px 24px;
+    gap: 10px;
     position: relative;
     overflow: hidden;
-    
-    /* Styling */
     background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
     border: 2px solid #5DB996;
-    border-radius: 12px;
+    border-radius: 14px;
     color: #157347;
-    
-    /* Typography */
     font-size: 14px;
     font-weight: 600;
     text-align: center;
-    line-height: 1;
+    line-height: 1.2;
     white-space: nowrap;
-    
-    /* Effects */
-    box-shadow: 0 2px 8px rgba(93, 185, 150, 0.15);
+    box-shadow: 
+        0 1px 3px rgba(93, 185, 150, 0.1),
+        0 4px 12px -4px rgba(93, 185, 150, 0.15);
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    
-    /* Reset browser defaults */
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
     box-sizing: border-box;
     margin: 0;
+}
 
+.btn-pay-zakat::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn-pay-zakat:hover::before {
+    width: 300px;
+    height: 300px;
 }
 
 .btn-pay-zakat:hover {
     background: linear-gradient(135deg, #FFD95F 0%, #ffd95f 100%);
     color: #8B4513;
     border-color: #FFD95F;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(255, 217, 95, 0.3);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 
+        0 4px 12px rgba(255, 217, 95, 0.25),
+        0 8px 24px rgba(255, 217, 95, 0.3);
 }
 
-/* Recalculate Button - FIXED CENTERING */
+.btn-pay-zakat:active {
+    transform: translateY(0) scale(0.98);
+    transition: all 0.1s ease;
+}
+
+/* Recalculate Button - Enhanced */
 .btn-recalculate {
-    /* Layout & Sizing */
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 12px 20px;
-    gap: 8px;
-    
-    /* Positioning */
+    padding: 14px 24px;
+    gap: 10px;
     position: relative;
     overflow: hidden;
-    
-    /* Styling */
     background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
     border: 2px solid #5DB996;
-    border-radius: 12px;
+    border-radius: 14px;
     color: #157347;
-    
-    /* Typography */
     font-size: 14px;
     font-weight: 600;
     text-align: center;
-    line-height: 1;
+    line-height: 1.2;
     white-space: nowrap;
-    
-    /* Effects */
-    box-shadow: 0 2px 8px rgba(93, 185, 150, 0.15);
+    box-shadow: 
+        0 1px 3px rgba(93, 185, 150, 0.1),
+        0 4px 12px -4px rgba(93, 185, 150, 0.15);
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    
-    /* Reset browser defaults */
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
@@ -525,43 +534,48 @@
     background: linear-gradient(135deg, #FFD95F 0%, #ffd95f 100%);
     color: #8B4513;
     border-color: #FFD95F;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(255, 217, 95, 0.3);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 
+        0 4px 12px rgba(255, 217, 95, 0.25),
+        0 8px 24px rgba(255, 217, 95, 0.3);
 }
 
 .btn-recalculate:active {
-    transform: translateY(0);
+    transform: translateY(0) scale(0.98);
     box-shadow: 0 2px 8px rgba(255, 217, 95, 0.2);
+    transition: all 0.1s ease;
 }
 
-/* Stack buttons vertically */
+/* Stack buttons vertically - Enhanced */
 .vertical-stack {
     display: flex;
-    flex-direction: column;   /* SUSUN MENEGAK */
-    gap: 12px;                /* Jarak antara butang */
-    width: 100%;            
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
 }
 
-
-/* Loading State */
+/* Loading State - Enhanced */
 .zakat-calculating {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
-    padding: 16px;
+    gap: 14px;
+    padding: 20px;
     background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-    border-radius: 12px;
-    margin: 8px 0;
+    border-radius: 16px;
+    margin: 12px 0;
+    box-shadow: 
+        0 2px 8px rgba(93, 185, 150, 0.1),
+        0 4px 16px -4px rgba(93, 185, 150, 0.15);
 }
 
 .zakat-calculating .spinner {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     border: 3px solid #e5e7eb;
     border-top-color: #5DB996;
     border-radius: 50%;
-    animation: spin 1s linear infinite;
+    animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
@@ -570,29 +584,42 @@
     }
 }
 
-/* Highlight Important Numbers */
+/* Highlight Important Numbers - Enhanced */
 .zakat-result-card .amount-highlight {
     background: linear-gradient(135deg, #FFD95F 0%, #ffd95f 100%);
-    padding: 3px 10px;
-    border-radius: 8px;
+    padding: 6px 14px;
+    border-radius: 10px;
     font-weight: 700;
     color: #8B4513;
     display: inline-block;
-    box-shadow: 0 2px 6px rgba(255, 217, 95, 0.2);
+    box-shadow: 
+        0 2px 6px rgba(255, 217, 95, 0.2),
+        0 0 0 3px rgba(255, 217, 95, 0.1);
+    margin: 0 4px;
 }
 
-/* Nisab Status Badge */
+/* Nisab Status Badge - Enhanced */
 .nisab-badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    padding: 8px 14px;
-    border-radius: 20px;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 24px;
     font-size: 13px;
     font-weight: 600;
-    margin: 8px 0;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    margin: 10px 0;
+    box-shadow: 
+        0 2px 6px rgba(0, 0, 0, 0.08),
+        0 4px 12px -4px rgba(0, 0, 0, 0.12);
+    transition: all 0.3s ease;
+}
+
+.nisab-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+        0 4px 8px rgba(0, 0, 0, 0.1),
+        0 6px 16px -4px rgba(0, 0, 0, 0.15);
 }
 
 .nisab-badge.reached {
@@ -619,97 +646,128 @@
     }
 }
 
-.zakat-result-card {
-    animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Responsive Design */
-@media (max-width: 480px) {
-    .zakat-buttons {
-        gap: 8px;
-    }
-    
-    .zakat-type-btn,
-    .zakat-year-type-btn,
-    .zakat-year-btn,
-    .zakat-cancel-btn {
-        padding: 12px 16px;
-        font-size: 14px;
-    }
-    
-    .zakat-result-card {
-        padding: 16px;
-        font-size: 14px;
-    }
-    
-    .zakat-action-buttons {
-        flex-direction: column;
-    }
-    
-    .btn-recalculate {
-        width: 100%;
-    }
-    
-    .zakat-method-info {
-        padding: 12px;
-        font-size: 0.85em;
-    }
-}
-
-/* Add subtle hover effect to result card */
+/* Hover effect for result card - Enhanced */
 .zakat-result-card:hover {
-    box-shadow: 0 8px 24px rgba(93, 185, 150, 0.2);
-    transform: translateY(-2px);
-    transition: all 0.3s ease;
+    box-shadow: 
+        0 4px 12px rgba(93, 185, 150, 0.15),
+        0 12px 32px -8px rgba(93, 185, 150, 0.25);
+    transform: translateY(-4px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Success checkmark animation */
+/* Success checkmark animation - Enhanced */
 @keyframes checkmark {
     0% {
         transform: scale(0) rotate(0deg);
+        opacity: 0;
     }
     50% {
-        transform: scale(1.2) rotate(180deg);
+        transform: scale(1.3) rotate(180deg);
+        opacity: 1;
     }
     100% {
         transform: scale(1) rotate(360deg);
+        opacity: 1;
     }
 }
 
 .zakat-result-card.success::after {
     content: '✓';
     position: absolute;
-    top: 16px;
-    right: 16px;
-    width: 32px;
-    height: 32px;
-    background: #5DB996;
+    top: 20px;
+    right: 20px;
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #5DB996 0%, #4a9d7f 100%);
     color: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
-    font-size: 18px;
-    animation: checkmark 0.6s ease;
+    font-size: 20px;
+    animation: checkmark 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(93, 185, 150, 0.3);
 }
 
-.zakat-type-btn,
-.zakat-year-type-btn,
-.zakat-year-btn,
-.zakat-cancel-btn,
-.btn-recalculate {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    box-sizing: border-box;
+/* Focus states for accessibility - Enhanced */
+.zakat-type-btn:focus-visible,
+.zakat-year-type-btn:focus-visible,
+.zakat-year-btn:focus-visible,
+.zakat-cancel-btn:focus-visible,
+.btn-recalculate:focus-visible,
+.btn-pay-zakat:focus-visible {
+    outline: 3px solid rgba(93, 185, 150, 0.5);
+    outline-offset: 3px;
 }
 
-.zakat-type-btn > *,
-.zakat-year-type-btn > *,
-.zakat-year-btn > *,
-.zakat-cancel-btn > *,
-.btn-recalculate > * {
-    display: inline-block;
-    vertical-align: middle;
+/* Responsive Design - Enhanced */
+@media (max-width: 480px) {
+    .zakat-buttons {
+        gap: 10px;
+    }
+    
+    .zakat-type-btn,
+    .zakat-year-type-btn,
+    .zakat-year-btn,
+    .zakat-cancel-btn {
+        padding: 14px 20px;
+        font-size: 14px;
+    }
+    
+    .zakat-result-card {
+        padding: 20px;
+        font-size: 14px;
+        border-radius: 16px;
+    }
+    
+    .zakat-action-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .btn-recalculate,
+    .btn-pay-zakat {
+        width: 100%;
+    }
+    
+    .zakat-method-info {
+        padding: 14px;
+        font-size: 0.85em;
+    }
+}
+
+/* Tablet optimization */
+@media (min-width: 481px) and (max-width: 768px) {
+    .zakat-result-card {
+        padding: 22px;
+    }
+    
+    .zakat-action-buttons {
+        gap: 14px;
+    }
+}
+
+/* Smooth scroll behavior */
+.zakat-menu,
+.zakat-year-selection,
+.zakat-year-list {
+    scroll-behavior: smooth;
+}
+
+/* Print styles */
+@media print {
+    .zakat-type-btn,
+    .zakat-year-type-btn,
+    .zakat-year-btn,
+    .zakat-cancel-btn,
+    .btn-recalculate,
+    .btn-pay-zakat {
+        border: 2px solid #000;
+        box-shadow: none;
+    }
+    
+    .zakat-result-card {
+        page-break-inside: avoid;
+    }
 }

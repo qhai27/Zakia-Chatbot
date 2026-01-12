@@ -16,7 +16,7 @@
 
 <body>
   <div class="chatbox" role="region" aria-label="ZAKIA Chatbot">
-    <div class="header">
+    <div class="header" role="banner">
       <div class="header-left">
         <img src="images/zakia-avatar.png" class="avatar" alt="ZAKIA">
         <div class="header-text">
@@ -24,26 +24,27 @@
           <p>LZNK Assistant</p>
         </div>
       </div>
-      <button class="minimize-btn" title="Minimize">−</button>
+      <button class="minimize-btn" title="Minimize" type="button" aria-label="Minimize chat" aria-expanded="true">−</button>
     </div>
 
-    <div class="end-chat-section">
-    <h5 class="end-chat-text">
+    <div class="end-chat-section" role="note" aria-label="End chat notice">
+      <p class="end-chat-text">
         Perbualan anda mungkin direkod dan disimpan bagi tujuan pemantauan kualiti perkhidmatan dan penambahbaikan sistem.
-    </h5>
+      </p>
 
-    <button id="endChat" class="btn-end" title="End Chat">
+      <button id="endChat" class="btn-end" title="End Chat" type="button" aria-label="End chat and clear conversation">
         <img src="images/endchat2.png" alt="End Chat" class="end-chat-icon">
-    </button>
-  </div>
+        <span class="sr-only">Tamatkan perbualan</span>
+      </button>
+    </div>
 
 
-    <div class="chat-container">
+    <div class="chat-container" role="main">
       <div class="date-indicator">
         <span id="dateChip" class="date-chip"></span>
       </div>
 
-      <div id="messages" class="messages" aria-live="polite" aria-relevant="additions">
+      <div id="messages" class="messages" aria-live="polite" aria-relevant="additions" tabindex="0" aria-label="Conversation messages">
         <div class="msg bot">
           <img src="images/zakia-avatar.png" class="msg-avatar" alt="ZAKIA">
           <div class="bubble bot-bubble" style="text-align: left;">
@@ -64,17 +65,17 @@
         </div>
       </div>
 
-      <div id="quickReplies" class="quick-replies">
-        <button class="quick-reply" data-text="Apa itu zakat?">Apa itu zakat?</button>
-        <button class="quick-reply" data-text="Siapa yang wajib bayar zakat?">Siapa yang wajib bayar zakat?</button>
-        <button class="quick-reply" data-text="Kira zakat">💰 Kira Zakat</button>
-        <button class="quick-reply" data-text="Nisab">📊 Maklumat Nisab</button>
+      <div id="quickReplies" class="quick-replies" role="list">
+        <button type="button" class="quick-reply" data-text="Apa itu zakat?">Apa itu zakat?</button>
+        <button type="button" class="quick-reply" data-text="Siapa yang wajib bayar zakat?">Siapa yang wajib bayar zakat?</button>
+        <button type="button" class="quick-reply" data-text="Kira zakat">💰 Kira Zakat</button>
+        <button type="button" class="quick-reply" data-text="Nisab">📊 Maklumat Nisab</button>
       </div>
     </div>
 
     <div class="input-area">
       <textarea id="userInput" rows="1" placeholder="Tulis mesej anda… (Contoh: 'kira zakat')" autocomplete="off"></textarea>
-      <button id="sendBtn" class="btn-send" aria-label="Hantar" title="Hantar">
+      <button id="sendBtn" class="btn-send" type="button" aria-label="Hantar" title="Hantar">
         <img src="images/buttonsend.png" alt="Hantar" class="send-icon">
       </button>
     </div>
