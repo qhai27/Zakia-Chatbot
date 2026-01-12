@@ -1279,7 +1279,400 @@ mark {
     }
 }
 
+/* ============================================
+   LIVE CHAT ADMIN INTERFACE - PROFESSIONAL GOV THEME
+   ============================================ */
 
+/* Live Chat Stats Cards */
+.livechat-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.livechat-stat-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.livechat-stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 106, 78, 0.15);
+    border-color: var(--lznk-green);
+}
+
+.livechat-stat-card.open {
+    border-left: 4px solid #ef4444;
+    background: linear-gradient(135deg, #fef2f2 0%, #fff 100%);
+}
+
+.livechat-stat-card.resolved {
+    border-left: 4px solid #10b981;
+    background: linear-gradient(135deg, #f0fdf4 0%, #fff 100%);
+}
+
+.livechat-stat-icon {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    font-size: 28px;
+    background: var(--lznk-green);
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 106, 78, 0.2);
+}
+
+.livechat-stat-card.open .livechat-stat-icon {
+    background: #ef4444;
+}
+
+.livechat-stat-card.resolved .livechat-stat-icon {
+    background: #10b981;
+}
+
+.livechat-stat-content {
+    flex: 1;
+}
+
+.livechat-stat-label {
+    font-size: 13px;
+    color: #6b7280;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.livechat-stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--lznk-green);
+    line-height: 1;
+}
+
+.livechat-stat-card.open .livechat-stat-value {
+    color: #ef4444;
+}
+
+.livechat-stat-card.resolved .livechat-stat-value {
+    color: #10b981;
+}
+
+/* Live Chat Reply Container - Professional Design */
+.livechat-reply-container {
+    padding: 16px;
+    background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.livechat-reply-container:hover {
+    border-color: var(--lznk-green);
+    box-shadow: 0 4px 12px rgba(0, 106, 78, 0.1);
+}
+
+.admin-textarea.livechat-reply {
+    width: 100%;
+    min-height: 120px;
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.6;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    resize: vertical;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.admin-textarea.livechat-reply:focus {
+    border-color: var(--lznk-green);
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(0, 106, 78, 0.1);
+}
+
+.admin-textarea.livechat-reply::placeholder {
+    color: #9ca3af;
+    font-style: italic;
+}
+
+.btn.livechat-send {
+    width: 100%;
+    margin-top: 12px;
+    padding: 12px 20px;
+    font-size: 15px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--lznk-green) 0%, var(--lznk-green-light) 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 106, 78, 0.3);
+}
+
+.btn.livechat-send:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 106, 78, 0.4);
+}
+
+.btn.livechat-send:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.btn.livechat-send:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Live Chat Table Enhancements */
+#livechatSection .table-container {
+    margin-bottom: 32px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+#livechatSection .table th {
+    background: linear-gradient(135deg, var(--lznk-green) 0%, var(--lznk-green-dark) 100%);
+    color: white;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 13px;
+    padding: 16px;
+    border-bottom: 3px solid var(--lznk-yellow);
+}
+
+#livechatSection .table td {
+    padding: 16px;
+    vertical-align: middle;
+}
+
+#livechatSection .table tr:hover {
+    background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+}
+
+/* Admin Response Display */
+.admin-response-cell {
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border-left: 4px solid #10b981;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.admin-response-cell .admin-name {
+    display: block;
+    margin-top: 8px;
+    color: #065f46;
+    font-weight: 600;
+    font-size: 12px;
+    font-style: italic;
+}
+
+/* Section Headers */
+#livechatSection h3 {
+    color: var(--lznk-green);
+    font-size: 18px;
+    font-weight: 700;
+    margin: 32px 0 16px 0;
+    padding-bottom: 8px;
+    border-bottom: 3px solid var(--lznk-yellow);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+#livechatSection h3::before {
+    content: '';
+    width: 6px;
+    height: 24px;
+    background: var(--lznk-green);
+    border-radius: 3px;
+}
+
+/* Success Notification Toast */
+.success-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    padding: 16px 24px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+    animation: slideInRight 0.4s ease, fadeOut 0.3s ease 4.7s forwards;
+    min-width: 320px;
+}
+
+.notification-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.notification-icon {
+    font-size: 32px;
+    animation: bounceIn 0.6s ease;
+}
+
+.notification-text {
+    flex: 1;
+}
+
+.notification-text strong {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 4px;
+}
+
+.notification-text small {
+    display: block;
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes bounceIn {
+    0%, 20%, 50%, 80%, 100% {
+        transform: scale(1);
+    }
+    40% {
+        transform: scale(1.2);
+    }
+    60% {
+        transform: scale(1.1);
+    }
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+        transform: translateX(400px);
+    }
+}
+
+/* Modal Overlay Fix - CRITICAL Z-INDEX */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 9998;
+    backdrop-filter: blur(4px);
+}
+
+#livechatMessageModal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#livechatMessageModal .modal-content {
+    position: relative;
+    z-index: 10000 !important;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 700px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+#livechatMessageModal .modal-header {
+    background: linear-gradient(135deg, var(--lznk-green) 0%, var(--lznk-green-dark) 100%);
+    color: white;
+    padding: 24px;
+    border-radius: 16px 16px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 4px solid var(--lznk-yellow);
+}
+
+#livechatMessageModal .modal-header h2 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+#livechatMessageModal .modal-close {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#livechatMessageModal .modal-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+#livechatMessageModal .modal-body {
+    padding: 32px;
+}
+
+/* ============================================
+   ADDITIONAL STYLES FOR CHAT LOG & ENHANCEMENTS
+   Append these to the end of adminstyle.css
+   ============================================ */
+
+/* Search highlighting */
+mark {
+    background-color: #fef3c7;
+    color: #92400e;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-weight: 600;
+}
 
 /* Analytics-specific styles */
 
@@ -1407,10 +1800,14 @@ mark {
 
 .chart-container {
     position: relative;
-    height: 250px;
     width: 100%;
-    min-height: 200px;
-}
+    min-height: 180px;
+    aspect-ratio: 16 / 9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+} 
 
 /* Data Tables Section */
 .analytics-data-section {
@@ -1658,16 +2055,27 @@ mark {
     }
 
     .chart-container {
-        height: 180px;
+        min-height: 160px;
+        aspect-ratio: 16 / 9;
+    }
+
+    /* FAQ chart: allow horizontal scrolling inside the chart box without changing the chart's visual size */
+    .faq-chart-card .chart-container {
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
     }
 
     .table-container.compact {
         max-height: 250px;
     }
 
-    /* Make FAQ chart legend stack on mobile */
+    /* Make charts responsive and fill container; for FAQ chart allow content overflow to enable scrolling if needed */
     .analytics-chart-card .chart-container canvas {
-        max-width: 100%;
+        width: 100% !important;
+        height: 100% !important;
+        display: block;
+        max-width: none;
     }
 }
 
@@ -1686,7 +2094,8 @@ mark {
     }
 
     .chart-container {
-        height: 200px;
+        min-height: 180px;
+        aspect-ratio: 16 / 9;
     }
 
     .chart-header h3 {

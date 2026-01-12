@@ -3,7 +3,7 @@ ZAKIA Chatbot - Main Application (UPDATED)
 With analytics routes and complete functionality
 """
 
-from flask import Flask
+from flask import Flask, make_response
 from flask_cors import CORS
 
 app = Flask(__name__)
@@ -246,6 +246,17 @@ try:
 except ImportError as e:
     failed_blueprints.append(f"❌ Admin live chat routes: {e}")
     print(f"❌ Failed to load admin live chat routes: {e}")
+
+# Ensure CORS preflight (OPTIONS) for live chat endpoints (DELETE preflight often fails otherwise)
+@app.route('/admin/live-chat', methods=['OPTIONS'])
+@app.route('/admin/live-chat/<int:request_id>', methods=['OPTIONS'])
+def _live_chat_cors_preflight(request_id=None):
+    resp = make_response('', 200)
+    resp.headers['Access-Control-Allow-Origin'] = '*'  # or set to specific origin like 'http://127.0.0.1:5500'
+    resp.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+    resp.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With'
+    resp.headers['Access-Control-Max-Age'] = '3600'
+    return resp
 
 # Import and register admin chat log routes
 try:

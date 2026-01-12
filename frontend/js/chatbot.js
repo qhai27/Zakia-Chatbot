@@ -432,7 +432,7 @@ if (!window.ZakiaChatbot) {
                     console.log('✅ Admin response received!');
                     this.stopAdminResponsePolling();
                 } else if (elapsed >= maxTime) {
-                    console.log('⏰ Polling timeout reached');
+                    console.log('Polling timeout reached');
                     this.stopAdminResponsePolling();
                     this.removeAdminWaitingIndicator();
                     this.appendMessage(

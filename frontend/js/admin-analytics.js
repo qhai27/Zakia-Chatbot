@@ -297,6 +297,21 @@
                     const isMobile = window.innerWidth <= 768;
                     const isSmallMobile = window.innerWidth <= 480;
 
+                    // Ensure canvas can become wider than the container so horizontal scrolling works
+                    try {
+                        const container = DOM.faqCategoriesChart.parentElement || DOM.faqCategoriesChart;
+                        const perItem = isSmallMobile ? 90 : (isMobile ? 100 : 120);
+                        const extra = 40; // padding / legend buffer
+                        const desiredWidth = Math.max(container.clientWidth, (labels.length * perItem) + extra);
+                        DOM.faqCategoriesChart.style.width = desiredWidth + 'px';
+                        DOM.faqCategoriesChart.style.maxWidth = 'none';
+                        DOM.faqCategoriesChart.style.height = '100%';
+                        // ensure scroll starts at left
+                        container.scrollLeft = 0;
+                    } catch (e) {
+                        console.warn('Could not set canvas width for scrolling:', e);
+                    }
+
                     STATE.charts.faqCategories = new Chart(ctx, {
                         type: 'doughnut',
                         data: {
@@ -316,13 +331,13 @@
                                 legend: {
                                     position: isSmallMobile ? 'bottom' : (isMobile ? 'bottom' : 'right'),
                                     labels: {
-                                        padding: isSmallMobile ? 8 : 15,
+                                        padding: isSmallMobile ? 6 : 12,
                                         usePointStyle: true,
                                         font: {
-                                            size: isSmallMobile ? 10 : (isMobile ? 11 : 12)
+                                            size: isSmallMobile ? 9 : (isMobile ? 10 : 11)
                                         },
-                                        boxWidth: isSmallMobile ? 10 : 12,
-                                        boxHeight: isSmallMobile ? 10 : 12
+                                        boxWidth: isSmallMobile ? 8 : 10,
+                                        boxHeight: isSmallMobile ? 8 : 10
                                     }
                                 },
                                 tooltip: {
@@ -352,10 +367,28 @@
                                 STATE.charts.faqCategories.options.plugins.legend.position =
                                     isSmallMobileNow ? 'bottom' : (isMobileNow ? 'bottom' : 'right');
                                 STATE.charts.faqCategories.options.plugins.legend.labels.font.size =
-                                    isSmallMobileNow ? 10 : (isMobileNow ? 11 : 12);
+                                    isSmallMobileNow ? 9 : (isMobileNow ? 10 : 11);
                                 STATE.charts.faqCategories.options.plugins.legend.labels.padding =
-                                    isSmallMobileNow ? 8 : 15;
+                                    isSmallMobileNow ? 6 : 12;
+                                // also update box sizes
+                                STATE.charts.faqCategories.options.plugins.legend.labels.boxWidth =
+                                    isSmallMobileNow ? 8 : 10;
+                                STATE.charts.faqCategories.options.plugins.legend.labels.boxHeight =
+                                    isSmallMobileNow ? 8 : 10;
 
+                                // Recalculate canvas width to match number of categories so container can scroll
+                                try {
+                                    const container = DOM.faqCategoriesChart.parentElement || DOM.faqCategoriesChart;
+                                    const perItem = isSmallMobileNow ? 90 : (isMobileNow ? 100 : 120);
+                                    const desiredWidth = Math.max(container.clientWidth, (labels.length * perItem) + 40);
+                                    DOM.faqCategoriesChart.style.width = desiredWidth + 'px';
+                                    DOM.faqCategoriesChart.style.maxWidth = 'none';
+                                } catch (e) {
+                                    console.warn('Could not recalc canvas width on resize:', e);
+                                }
+
+                                // Resize and update chart after adjusting canvas
+                                STATE.charts.faqCategories.resize();
                                 STATE.charts.faqCategories.update();
                             }
                         }, 250);

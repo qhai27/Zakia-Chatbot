@@ -71,45 +71,36 @@
                         </td>
                         <td><code class="session-code">${escapeHtml((req.session_id || '').substring(0, 8))}...</code></td>
                         <td class="date-cell">${formatDate(req.created_at)}</td>
-                        <td>
+                        <td class="text-center">
                             <button 
                                 class="btn ghost btn-sm livechat-view-message" 
                                 data-id="${req.id}"
                                 title="Lihat Mesej Penuh"
-                            >
-                                👁️ Lihat
-                            </button>
+                            >👁️ Lihat</button>
+                            <button
+                                class="btn warn btn-sm livechat-delete"
+                                data-id="${req.id}"
+                                title="Padam permintaan"
+                                style="margin-left:8px;"
+                            >🗑️ Padam</button>
                         </td>
-                        <td style="min-width: 400px;">
-                            <div class="livechat-reply-container">
-                                <textarea 
-                                    class="admin-textarea livechat-reply" 
-                                    data-id="${req.id}" 
-                                    placeholder="Tulis jawapan untuk pengguna..."
-                                    rows="6"
-                                    style="min-height: 120px; font-size: 14px; line-height: 1.5;"
-                                >${req.admin_response || ''}</textarea>
-                                <button 
-                                    class="btn primary btn-sm livechat-send" 
-                                    data-id="${req.id}"
-                                    data-session="${req.session_id}"
-                                    style="margin-top: 12px; width: 100%;"
-                                >
-                                    📤 Hantar Jawapan
-                                </button>
-                            </div>
-                        </td>
+
                     </tr>
                 `).join('');
 
-                // Attach view message event listeners
+                // Attach view / delete listeners (open requests)
                 DOM.tableBody.querySelectorAll('.livechat-view-message').forEach(btn => {
                     btn.addEventListener('click', () => {
                         const id = parseInt(btn.getAttribute('data-id'));
                         const request = requests.find(r => r.id === id);
-                        if (request) {
-                            showMessageModal(request);
-                        }
+                        if (request) showMessageModal(request);
+                    });
+                });
+
+                DOM.tableBody.querySelectorAll('.livechat-delete').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const id = parseInt(btn.getAttribute('data-id'));
+                        Controller.deleteRequest(id);
                     });
                 });
             },
@@ -119,13 +110,13 @@
                 if (!rows.length) {
                     DOM.historyBody.innerHTML = `
                         <tr>
-                            <td colspan="6" class="text-center text-muted">Tiada rekod sejarah.</td>
+                            <td colspan="7" class="text-center text-muted">Tiada rekod sejarah.</td>
                         </tr>
                     `;
                     return;
                 }
                 DOM.historyBody.innerHTML = rows.map(req => `
-                    <tr>
+                    <tr data-request-id="${req.id}">
                         <td><span class="id-badge">#${req.id}</span></td>
                         <td class="message-cell">
                             <div class="message-preview user-message-preview">
@@ -139,14 +130,29 @@
                         </td>
                         <td><code class="session-code">${escapeHtml((req.session_id || '').substring(0, 8))}...</code></td>
                         <td class="date-cell">${formatDate(req.updated_at || req.delivered_at || req.created_at)}</td>
-                        <td class="message-cell">
-                            <div class="admin-response-cell">
-                                ${escapeHtml(req.admin_response || '-')}
-                                ${req.admin_name ? `<small class="admin-name">- ${escapeHtml(req.admin_name)}</small>` : ''}
-                            </div>
+                        <td class="text-center">
+                            <button class="btn ghost btn-sm history-view" data-id="${req.id}">👁️ Lihat</button>
+                            <button class="btn warn btn-sm history-delete" data-id="${req.id}" style="margin-left:8px;">🗑️ Padam</button>
                         </td>
+
                     </tr>
                 `).join('');
+
+                // Attach listeners for history view/delete
+                DOM.historyBody.querySelectorAll('.history-view').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const id = parseInt(btn.getAttribute('data-id'));
+                        const request = STATE.history.find(r => r.id === id);
+                        if (request) showMessageModal(request);
+                    });
+                });
+
+                DOM.historyBody.querySelectorAll('.history-delete').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const id = parseInt(btn.getAttribute('data-id'));
+                        Controller.deleteRequest(id);
+                    });
+                });
             }
         };
 
@@ -212,6 +218,33 @@
                 const data = await res.json();
                 console.log('✅ Response sent successfully:', data);
                 return data;
+            },
+
+            async deleteRequest(id) {
+                try {
+                    const res = await fetch(`${CONFIG.API_BASE}/${encodeURIComponent(id)}`, {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+
+                    if (!res.ok) {
+                        const errorData = await res.json().catch(() => ({}));
+                        throw new Error(errorData.error || `HTTP ${res.status}`);
+                    }
+
+                    // Some servers return 204 No Content for successful deletes (no JSON body).
+                    if (res.status === 204) {
+                        return { success: true };
+                    }
+
+                    // Try to parse JSON, but fall back to success if parsing  fails.
+                    const data = await res.json().catch(() => ({ success: true }));
+                    return data;
+                } catch (err) {
+                    // Network / CORS / preflight failures surface as TypeError: Failed to fetch
+                    console.error('🔒 Network/CORS error while deleting request:', err);
+                    throw new Error('Network/CORS error while deleting. Check server CORS and that OPTIONS requests for DELETE return 200. Details: ' + (err.message || err));
+                }
             }
         };
 
@@ -339,6 +372,30 @@
                         sendBtn.disabled = false;
                         sendBtn.innerHTML = '📤 Hantar Jawapan';
                     }
+                }
+            },
+
+            async deleteRequest(id) {
+                if (!id) return;
+                if (!confirm(`Padam permintaan live chat #${id}?`)) return;
+                try {
+                    UI.setStatus('⏳ Memadam permintaan...');
+                    const result = await API.deleteRequest(id);
+                    if (result && result.success) {
+                        // Optimistic update
+                        STATE.requests = STATE.requests.filter(r => r.id !== id);
+                        STATE.history = STATE.history.filter(r => r.id !== id);
+                        UI.renderRows(STATE.requests);
+                        UI.renderHistory(STATE.history);
+                        UI.updateStats();
+                        UI.setStatus(`✅ Permintaan #${id} dipadam`);
+                    } else {
+                        throw new Error(result?.error || 'Gagal memadam rekod');
+                    }
+                } catch (err) {
+                    console.error('❌ Delete error:', err);
+                    UI.setStatus(`❌ ${err.message}`, true);
+                    alert(`Gagal memadam: ${err.message}`);
                 }
             },
 
@@ -476,6 +533,28 @@
 
             // Populate modal content
             const modalBody = document.getElementById('messageModalBody');
+
+            const isOpenRequest = STATE.requests.some(r => r.id === request.id);
+
+            let adminSectionHtml = '';
+            if (isOpenRequest) {
+                adminSectionHtml = `
+                    <div style="padding: 16px; background: #fff7ed; border-radius: 12px; border-left: 4px solid #f59e0b;">
+                        <h3 style="margin: 0 0 12px 0; color: #92400e; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">✏️ Jawapan Admin</h3>
+                        <textarea id="modalAdminResponse" rows="6" style="width:100%; min-height: 120px; font-size: 14px; line-height: 1.5;">${escapeHtml(request.admin_response || '')}</textarea>
+                        <button id="modalSendResponse" class="btn primary" style="margin-top: 12px;">📤 Hantar Jawapan</button>
+                    </div>
+                `;
+            } else {
+                adminSectionHtml = `
+                    <div style="padding: 16px; background: #f8fafc; border-radius: 12px; border-left: 4px solid #9ca3af;">
+                        <h3 style="margin: 0 0 12px 0; color: #374151; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">✏️ Jawapan Admin</h3>
+                        <p style="margin: 0; color: #1f2937; font-size: 15px; line-height: 1.6; white-space: pre-wrap; word-break: break-word;">${escapeHtml(request.admin_response || '-')}</p>
+                        ${request.admin_name ? `<small class="admin-name">- ${escapeHtml(request.admin_name)}</small>` : ''}
+                    </div>
+                `;
+            }
+
             modalBody.innerHTML = `
                 <div style="display: flex; flex-direction: column; gap: 24px;">
                     <div>
@@ -496,8 +575,49 @@
                         <h3 style="margin: 0 0 12px 0; color: #065f46; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">🤖 Jawapan Bot</h3>
                         <p style="margin: 0; color: #1f2937; font-size: 15px; line-height: 1.6; white-space: pre-wrap; word-break: break-word;">${escapeHtml(request.bot_response || 'Tiada jawapan')}</p>
                     </div>
+
+                    ${adminSectionHtml}
                 </div>
             `;
+
+            // Attach modal send handler (if open request)
+            if (isOpenRequest) {
+                const modalSendBtn = document.getElementById('modalSendResponse');
+                const modalTextarea = document.getElementById('modalAdminResponse');
+
+                if (modalSendBtn && modalTextarea) {
+                    modalSendBtn.addEventListener('click', async () => {
+                        const text = modalTextarea.value || '';
+                        if (!text.trim()) {
+                            alert('Sila masukkan jawapan.');
+                            return;
+                        }
+
+                        modalSendBtn.disabled = true;
+                        modalSendBtn.innerText = '⏳ Menghantar...';
+
+                        // Use Controller.sendResponse which handles optimistic UI updates
+                        await Controller.sendResponse(request.id, text, request.session_id || '');
+
+                        // If the request was removed from open list, close modal
+                        const stillOpen = STATE.requests.some(r => r.id === request.id);
+                        if (!stillOpen) {
+                            modal.style.display = 'none';
+                        } else {
+                            modalSendBtn.disabled = false;
+                            modalSendBtn.innerText = '📤 Hantar Jawapan';
+                        }
+                    });
+
+                    // Ctrl/Cmd+Enter to send from modal textarea
+                    modalTextarea.addEventListener('keydown', (e) => {
+                        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                            const btn = document.getElementById('modalSendResponse');
+                            if (btn) btn.click();
+                        }
+                    });
+                }
+            }
 
             // Show modal
             modal.style.display = 'flex';
@@ -512,21 +632,8 @@
             }
 
             if (DOM.tableBody) {
-                DOM.tableBody.addEventListener('click', (e) => {
-                    const btn = e.target.closest('.livechat-send');
-                    if (!btn) return;
-
-                    const id = parseInt(btn.getAttribute('data-id'));
-                    const sessionId = btn.getAttribute('data-session');
-                    const textarea = DOM.tableBody.querySelector(`.livechat-reply[data-id="${id}"]`);
-
-                    if (!textarea) {
-                        console.error('Textarea not found for request:', id);
-                        return;
-                    }
-
-                    Controller.sendResponse(id, textarea.value, sessionId);
-                });
+                // Reply UI removed from inline rows and moved into the "Lihat" modal.
+                // Modal send handler is attached inside showMessageModal when appropriate.
             }
 
             // Monitor section visibility

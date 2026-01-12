@@ -417,7 +417,7 @@
                 <!-- Header -->
                 <header class="content-header">
                     <div class="header-left">
-                        <h1>🆘 Live Chat Escalations</h1>
+                        <h1>🆘 Live Chats</h1>
                         <div id="livechatStatus" class="status-badge">Memuat data...</div>
                     </div>
                     <div class="header-actions">
@@ -437,12 +437,19 @@
                                 <th style="width: 120px;">Session</th>
                                 <th style="width: 160px;">Tarikh</th>
                                 <th style="width: 100px;">Tindakan</th>
-                                <th style="width: 400px;">Jawapan Admin</th>
                             </tr>
                         </thead>
                         <tbody id="livechatTableBody">
                             <tr>
-                                <td colspan="6" class="text-center text-muted">Loading...</td>
+                                <td class="text-center text-muted">-</td>
+                                <td class="text-center text-muted">Loading...</td>
+                                <td class="text-center text-muted">Loading...</td>
+                                <td class="text-center text-muted">-</td>
+                                <td class="text-center text-muted">-</td>
+                                <td class="text-center">
+                                    <button class="btn ghost" onclick="viewLivechat('sample')">👁️ Lihat</button>
+                                    <button class="btn warn" onclick="deleteLivechat('sample')">🗑️ Padam</button>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -459,12 +466,20 @@
                                 <th>Jawapan Bot</th>
                                 <th>Session</th>
                                 <th>Diselesaikan</th>
-                                <th>Jawapan Admin</th>
+                                <th>Tindakan</th>
                             </tr>
                         </thead>
                         <tbody id="livechatHistoryBody">
                             <tr>
-                                <td colspan="6" class="text-center text-muted">Loading...</td>
+                                <td class="text-center text-muted">-</td>
+                                <td class="text-center text-muted">Loading...</td>
+                                <td class="text-center text-muted">Loading...</td>
+                                <td class="text-center text-muted">-</td>
+                                <td class="text-center text-muted">-</td>
+                                <td class="text-center">
+                                    <button class="btn ghost" onclick="viewLivechat('sample-res')">👁️ Lihat</button>
+                                    <button class="btn warn" onclick="deleteLivechat('sample-res')">🗑️ Padam</button>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -572,13 +587,13 @@
                     </div>
 
                     <!-- FAQ Categories Chart -->
-                    <div class="analytics-chart-card">
+                    <div class="analytics-chart-card faq-chart-card">
                         <div class="chart-header">
                             <h3>📋 FAQ Categories</h3>
                             <small class="text-muted">Distribution by category</small>
                         </div>
                         <div class="chart-container">
-                            <canvas id="faqCategoriesChart" width="400" height="200"></canvas>
+                            <canvas id="faqCategoriesChart"></canvas>
                         </div>
                     </div>
 
@@ -788,7 +803,5 @@
     </div>
 
     <!-- ======================= END MODALS ========================== -->
-
 </body>
-
 </html>

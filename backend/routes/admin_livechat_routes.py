@@ -3,7 +3,7 @@ Admin Live Chat Routes - FIXED VERSION
 List and respond to escalated live chat requests with proper DB commit.
 """
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from database import DatabaseManager
 import logging
 import traceback
@@ -485,3 +485,86 @@ def health_check():
             "success": False,
             "error": str(e)
         }), 500
+
+
+@admin_livechat_bp.route('/<int:request_id>', methods=['DELETE'])
+def delete_livechat_request(request_id):
+    """
+    Delete a live-chat request by id.
+    Return 200 + {"success": True} on success,
+    404 if not found, 500 on error.
+    """
+    local_db = DatabaseManager()
+    cursor = None
+    try:
+        if not ensure_connection(local_db):
+            return jsonify({
+                "success": False,
+                "error": "DB connection failed"
+            }), 500
+
+        cursor = local_db.connection.cursor(dictionary=True)
+        
+        # Check if request exists
+        cursor.execute("""
+            SELECT id FROM live_chat_requests WHERE id = %s
+        """, (request_id,))
+        
+        if not cursor.fetchone():
+            cursor.close()
+            return jsonify({
+                "success": False,
+                "error": "Not found"
+            }), 404
+        
+        # Delete the request
+        cursor.execute("""
+            DELETE FROM live_chat_requests WHERE id = %s
+        """, (request_id,))
+        
+        deleted = cursor.rowcount > 0
+        
+        if deleted:
+            local_db.connection.commit()
+            logger.info(f"✅ Successfully deleted live chat request #{request_id}")
+        else:
+            local_db.connection.rollback()
+            cursor.close()
+            return jsonify({
+                "success": False,
+                "error": "Not found"
+            }), 404
+        
+        cursor.close()
+        
+        return jsonify({
+            "success": True,
+            "id": request_id,
+            "deleted": True
+        }), 200
+        
+    except Exception as e:
+        logger.error(f"❌ Error deleting live chat request #{request_id}: {e}")
+        logger.error(traceback.format_exc())
+        
+        if local_db.connection:
+            try:
+                local_db.connection.rollback()
+            except:
+                pass
+        
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+        
+    finally:
+        if cursor:
+            try:
+                cursor.close()
+            except:
+                pass
+        try:
+            local_db.close()
+        except:
+            pass
