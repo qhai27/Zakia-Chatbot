@@ -1,6 +1,5 @@
 // ===============================================
-// UNIFIED NAVIGATION HANDLER
-// Ensures only one section is visible at a time
+// UNIFIED NAVIGATION HANDLER FOR ADMIN INTERFACE
 // ===============================================
 
 (function () {
@@ -60,14 +59,20 @@
                 console.error(`❌ Unknown section key: ${sectionKey}`);
             }
 
-            // Update active nav item
-            const navItems = document.querySelectorAll('.nav-item');
+            // Update active nav item (works for both sidebar and topbar)
+            const navItems = document.querySelectorAll('.nav-item, .topbar-nav-item');
             navItems.forEach(nav => {
                 nav.classList.remove('active');
                 if (nav.getAttribute('data-section') === sectionKey) {
                     nav.classList.add('active');
                 }
             });
+
+            // Close mobile nav if open
+            const topbarNav = document.getElementById('topbarNav');
+            if (topbarNav && topbarNav.classList.contains('mobile-open')) {
+                topbarNav.classList.remove('mobile-open');
+            }
 
             // Trigger section-specific loading
             switch (sectionKey) {
@@ -76,6 +81,8 @@
                     if (window.AdminAPI && window.AdminAPI.reload) {
                         window.AdminAPI.reload();
                     }
+                    // Update topbar stats
+                    updateTopbarStats();
                     break;
                 case 'reminders':
                     // Reminders section
@@ -114,9 +121,27 @@
             }
         }
 
+        // Update topbar stats (syncs with sidebar stats)
+        function updateTopbarStats() {
+            // FAQ count
+            const totalFaqs = document.getElementById('totalFaqs')?.textContent || '0';
+            const topbarFaqsEl = document.getElementById('topbarTotalFaqs');
+            if (topbarFaqsEl) {
+                topbarFaqsEl.textContent = totalFaqs;
+            }
+
+            // Chat logs count
+            const totalLogs = document.getElementById('totalChatLogs')?.textContent || '0';
+            const topbarLogsEl = document.getElementById('topbarTotalChatLogs');
+            if (topbarLogsEl) {
+                topbarLogsEl.textContent = totalLogs;
+            }
+        }
+
         // Attach navigation listeners
         function setupNavigation() {
-            const navItems = document.querySelectorAll('.nav-item[data-section]');
+            // Select both sidebar nav items AND topbar nav items
+            const navItems = document.querySelectorAll('.nav-item[data-section], .topbar-nav-item[data-section]');
 
             navItems.forEach(item => {
                 // Remove any existing listeners by cloning
@@ -142,14 +167,40 @@
         initializeSections();
         setupNavigation();
 
+        // Setup stat sync (update topbar when sidebar stats change)
+        const observer = new MutationObserver(() => {
+            updateTopbarStats();
+        });
+
+        const totalFaqsEl = document.getElementById('totalFaqs');
+        const totalLogsEl = document.getElementById('totalChatLogs');
+
+        if (totalFaqsEl) {
+            observer.observe(totalFaqsEl, { 
+                childList: true, 
+                characterData: true, 
+                subtree: true 
+            });
+        }
+
+        if (totalLogsEl) {
+            observer.observe(totalLogsEl, { 
+                childList: true, 
+                characterData: true, 
+                subtree: true 
+            });
+        }
+
+        // Initial stats sync
+        updateTopbarStats();
+
         // Make navigation handler globally accessible
         window.AdminNavigation = {
             navigate: handleNavigation,
-            showSection: (sectionKey) => handleNavigation(sectionKey)
+            showSection: (sectionKey) => handleNavigation(sectionKey),
+            updateStats: updateTopbarStats
         };
 
         console.log('✅ Navigation handler initialized');
     });
 })();
-
-

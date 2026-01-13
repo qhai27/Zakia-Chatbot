@@ -76,7 +76,7 @@
                                 class="btn ghost btn-sm livechat-view-message" 
                                 data-id="${req.id}"
                                 title="Lihat Mesej Penuh"
-                            >👁️ Lihat</button>
+                            >👁️ Papar</button>
                             <button
                                 class="btn warn btn-sm livechat-delete"
                                 data-id="${req.id}"
@@ -131,7 +131,7 @@
                         <td><code class="session-code">${escapeHtml((req.session_id || '').substring(0, 8))}...</code></td>
                         <td class="date-cell">${formatDate(req.updated_at || req.delivered_at || req.created_at)}</td>
                         <td class="text-center">
-                            <button class="btn ghost btn-sm history-view" data-id="${req.id}">👁️ Lihat</button>
+                            <button class="btn ghost btn-sm history-view" data-id="${req.id}">👁️ Papar</button>
                             <button class="btn warn btn-sm history-delete" data-id="${req.id}" style="margin-left:8px;">🗑️ Padam</button>
                         </td>
 
@@ -506,8 +506,9 @@
             if (!modal) {
                 modal = document.createElement('div');
                 modal.id = 'livechatMessageModal';
-                modal.className = 'modal-overlay';
+                modal.className = 'modal';
                 modal.innerHTML = `
+                    <div class="modal-overlay"></div>
                     <div class="modal-content" style="max-width: 700px; max-height: 90vh; overflow-y: auto;">
                         <div class="modal-header">
                             <h2>📋 Butiran Live Chat</h2>
@@ -519,16 +520,12 @@
                 document.body.appendChild(modal);
 
                 // Close button handler
-                document.getElementById('closeMessageModal').addEventListener('click', () => {
-                    modal.style.display = 'none';
-                });
+                const closeBtn = modal.querySelector('#closeMessageModal');
+                if (closeBtn) closeBtn.addEventListener('click', () => { modal.style.display = 'none'; });
 
                 // Close on overlay click
-                modal.addEventListener('click', (e) => {
-                    if (e.target === modal) {
-                        modal.style.display = 'none';
-                    }
-                });
+                const overlay = modal.querySelector('.modal-overlay');
+                if (overlay) overlay.addEventListener('click', () => { modal.style.display = 'none'; });
             }
 
             // Populate modal content
@@ -586,7 +583,8 @@
                 const modalTextarea = document.getElementById('modalAdminResponse');
 
                 if (modalSendBtn && modalTextarea) {
-                    modalSendBtn.addEventListener('click', async () => {
+                    // Use one-off handler assignments to avoid duplicate listeners
+                    modalSendBtn.onclick = async () => {
                         const text = modalTextarea.value || '';
                         if (!text.trim()) {
                             alert('Sila masukkan jawapan.');
@@ -607,15 +605,14 @@
                             modalSendBtn.disabled = false;
                             modalSendBtn.innerText = '📤 Hantar Jawapan';
                         }
-                    });
+                    };
 
                     // Ctrl/Cmd+Enter to send from modal textarea
-                    modalTextarea.addEventListener('keydown', (e) => {
+                    modalTextarea.onkeydown = (e) => {
                         if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-                            const btn = document.getElementById('modalSendResponse');
-                            if (btn) btn.click();
+                            if (modalSendBtn) modalSendBtn.click();
                         }
-                    });
+                    };
                 }
             }
 
@@ -629,11 +626,6 @@
                     console.log('🔄 Manual refresh triggered');
                     Controller.load();
                 });
-            }
-
-            if (DOM.tableBody) {
-                // Reply UI removed from inline rows and moved into the "Lihat" modal.
-                // Modal send handler is attached inside showMessageModal when appropriate.
             }
 
             // Monitor section visibility

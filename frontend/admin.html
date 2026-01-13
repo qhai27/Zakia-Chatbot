@@ -26,55 +26,62 @@
 
     <div class="admin-layout">
 
-        <!-- ======================= SIDEBAR ======================= -->
-        <aside class="sidebar">
 
-            <!-- Sidebar Header -->
-            <div class="sidebar-header">
-                <img src="images/zakia-avatar.png" alt="ZAKIA" class="sidebar-logo">
-                <h2>ZAKIA Admin</h2>
-                <p>Management Panel</p>
-            </div>
-
-            <!-- Sidebar Menu -->
-            <nav class="sidebar-nav">
-                <a href="#" class="nav-item active" data-section="faqs" id="navFaqs">
-                    <span class="nav-icon">📋</span> <span>Senarai FAQ</span>
-                </a>
-                <a href="#" class="nav-item" data-section="reminders" id="navReminders">
-                    <span class="nav-icon">🔔</span> <span>Peringatan</span>
-                </a>
-                <a href="#" class="nav-item" data-section="chatlog" id="navChatlog">
-                    <span class="nav-icon">💬</span> <span>Sejarah ChatLog</span>
-                </a>
-                <a href="#" class="nav-item" data-section="livechat" id="navLiveChat">
-                    <span class="nav-icon">🆘</span> <span>Live Chat</span>
-                </a>
-                <a href="#" class="nav-item" data-section="analytics" id="navAnalytics">
-                    <span class="nav-icon">📊</span> <span>Analitik FAQ</span>
-                </a>
-            </nav>
-
-            <!-- Sidebar Stats -->
-            <div class="sidebar-footer">
-                <div class="stats-box">
-                    <div class="stat-item">
-                        <span class="stat-label">Jumlah FAQ</span>
-                        <span id="totalFaqs" class="stat-value">0</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Peringatan</span>
-                        <span id="totalReminders" class="stat-value">0</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Chat Logs</span>
-                        <span id="totalChatLogs" class="stat-value">0</span>
-                    </div>
+        <!-- ======================= TOP NAVIGATION BAR ======================= -->
+        <nav class="topbar">
+            
+            <!-- Brand/Logo -->
+            <a href="#" class="topbar-brand">
+                <img src="images/zakia-avatar.png" alt="ZAKIA" class="topbar-logo">
+                <div class="topbar-title">
+                    <h1>ZAKIA Admin</h1>
+                    <p>Management Panel</p>
                 </div>
+            </a>
+
+            <!-- Navigation Items -->
+            <div class="topbar-nav" id="topbarNav">
+                <a href="#" class="topbar-nav-item active" data-section="faqs" id="navFaqs">
+                    <span class="nav-icon">📋</span>
+                    <span>FAQ</span>
+                </a>
+                <a href="#" class="topbar-nav-item" data-section="reminders" id="navReminders">
+                    <span class="nav-icon">🔔</span>
+                    <span>Peringatan</span>
+                    <!-- <span class="nav-badge">5</span> -->
+                </a>
+                <a href="#" class="topbar-nav-item" data-section="chatlog" id="navChatlog">
+                    <span class="nav-icon">💬</span>
+                    <span>Chat Log</span>
+                </a>
+                <a href="#" class="topbar-nav-item" data-section="livechat" id="navLiveChat">
+                    <span class="nav-icon">🆘</span>
+                    <span>Live Chat</span>
+                    <!-- <span class="nav-badge">2</span> -->
+                </a>
+                <a href="#" class="topbar-nav-item" data-section="analytics" id="navAnalytics">
+                    <span class="nav-icon">📊</span>
+                    <span>Analitik</span>
+                </a>
             </div>
 
-        </aside>
-        <!-- ===================== END SIDEBAR ====================== -->
+            <!-- Right Section -->
+            <div class="topbar-right">
+
+                <!-- User Profile -->
+                <div class="topbar-user">
+                    <img src="images/zakia-avatar.png" alt="Admin" class="topbar-user-avatar">
+                    <span class="topbar-user-name">Admin</span>
+                </div>
+
+                <!-- Mobile Menu Toggle -->
+                <button class="topbar-menu-toggle" onclick="toggleMobileNav()">
+                    ☰
+                </button>
+            </div>
+
+        </nav>
+        <!-- ===================== END TOP NAVIGATION BAR ====================== -->
 
 
         <!-- ====================== MAIN CONTENT ===================== -->
