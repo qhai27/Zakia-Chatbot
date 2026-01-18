@@ -16,6 +16,9 @@ if (!window.ZakiaChatbot) {
             this.apiBaseUrl = window.CONFIG.API_BASE_URL;
             this.isMinimized = false;
 
+            // Initialize voice handler AFTER DOM is ready
+            this.voiceHandler = null;
+
             // Live chat state
             this.waitingForAdmin = false;
             this.pollInterval = null;
@@ -28,14 +31,47 @@ if (!window.ZakiaChatbot) {
         }
 
         init() {
+            console.log('🚀 Initializing ZAKIA Chatbot...');
+            
             this.setupEventListeners();
             this.loadFAQs();
 
-            // Initialize zakat handler after DOM is ready
-            if (window.ZakatHandler) {
-                this.zakatHandler = new window.ZakatHandler(this);
-                window.zakatHandler = this.zakatHandler;
-            }
+            // Initialize feature handlers
+            this.initializeHandlers();
+            
+            console.log('✅ ZAKIA Chatbot initialized successfully');
+        }
+
+        /**
+         * Initialize all feature handlers
+         */
+        initializeHandlers() {
+            // Wait a bit to ensure all scripts are loaded
+            setTimeout(() => {
+                // Initialize Voice Handler
+                if (window.VoiceHandler) {
+                    console.log('🎤 Initializing Voice Handler...');
+                    this.voiceHandler = new VoiceHandler(this);
+                    console.log('✅ Voice Handler initialized');
+                } else {
+                    console.warn('⚠️ VoiceHandler not found. Voice features disabled.');
+                }
+                
+                // Initialize Zakat Handler
+                if (window.ZakatHandler) {
+                    console.log('🧮 Initializing Zakat Handler...');
+                    this.zakatHandler = new window.ZakatHandler(this);
+                    window.zakatHandler = this.zakatHandler;
+                    console.log('✅ Zakat Handler initialized');
+                } else {
+                    console.warn('⚠️ ZakatHandler not found.');
+                }
+                
+                // Initialize FAQ Browser
+                if (window.FAQBrowser) {
+                    console.log('📚 FAQ Browser available');
+                }
+            }, 100);
         }
 
         setupEventListeners() {
@@ -127,6 +163,13 @@ if (!window.ZakiaChatbot) {
                 if (!options.isAdminResponse && !options.skipFeedback) {
                     this.addFeedbackControls(msg, content);
                 }
+                
+                // Trigger TTS for bot messages (if voice handler is available and not skipped)
+                if (this.voiceHandler && !options.skipTTS) {
+                    // Get plain text without HTML for TTS
+                    const plainText = this.getPlainTextFromHTML(content);
+                    this.voiceHandler.handleBotMessage(plainText);
+                }
             } else {
                 msg.innerHTML = `
                     <div class="bubble-container">
@@ -140,6 +183,15 @@ if (!window.ZakiaChatbot) {
             this.messagesEl.scrollTop = this.messagesEl.scrollHeight;
 
             return msg;
+        }
+
+        /**
+         * Extract plain text from HTML for TTS
+         */
+        getPlainTextFromHTML(html) {
+            const temp = document.createElement('div');
+            temp.innerHTML = html;
+            return temp.textContent || temp.innerText || '';
         }
 
         addFeedbackControls(msgEl, botText) {
@@ -193,7 +245,7 @@ if (!window.ZakiaChatbot) {
                 </div>`,
                 'bot',
                 true,
-                { messageId, skipFeedback: true }
+                { messageId, skipFeedback: true, skipTTS: true }
             );
 
             this.adminWaitingMessageId = messageId;
@@ -346,13 +398,15 @@ if (!window.ZakiaChatbot) {
                     this.sessionId = data.session_id;
                 }
 
-                this.appendMessage(data.reply || window.CONFIG.MESSAGES.SERVER_ERROR, 'bot');
+                const botResponse = data.reply || window.CONFIG.MESSAGES.SERVER_ERROR;
+                this.appendMessage(botResponse, 'bot');
 
                 if (!this.hasUserSentMessage) {
                     setTimeout(() => this.showQuickReplies(), window.CONFIG.UI.TYPING_DELAY);
                 }
 
             } catch (e) {
+                console.error('❌ Error sending message:', e);
                 this.appendMessage(window.CONFIG.MESSAGES.CONNECTION_ERROR, 'bot');
                 if (!this.hasUserSentMessage) {
                     this.showQuickReplies();
@@ -432,7 +486,7 @@ if (!window.ZakiaChatbot) {
                     console.log('✅ Admin response received!');
                     this.stopAdminResponsePolling();
                 } else if (elapsed >= maxTime) {
-                    console.log('Polling timeout reached');
+                    console.log('⏰ Polling timeout reached');
                     this.stopAdminResponsePolling();
                     this.removeAdminWaitingIndicator();
                     this.appendMessage(
@@ -533,6 +587,11 @@ if (!window.ZakiaChatbot) {
             this.stopAdminResponsePolling();
             this.removeAdminWaitingIndicator();
             
+            // Stop any ongoing TTS
+            if (this.voiceHandler) {
+                this.voiceHandler.stopSpeaking();
+            }
+            
             this.messagesEl.innerHTML = '';
             this.sessionId = null;
             this.hasUserSentMessage = false;
@@ -543,8 +602,8 @@ if (!window.ZakiaChatbot) {
                 this.zakatHandler.resetState();
             }
 
-            this.appendMessage(window.CONFIG.MESSAGES.SESSION_ENDED, 'bot', false, { skipFeedback: true });
-            this.showQuickReplies();
+            this.appendMessage(window.CONFIG.MESSAGES.SESSION_ENDED, 'bot', false, { skipFeedback: true, skipTTS: true });
+            this.hideQuickReplies();
         }
 
         async loadFAQs() {
@@ -553,10 +612,36 @@ if (!window.ZakiaChatbot) {
                 const data = await res.json();
 
                 if (data.faqs && data.faqs.length > 0) {
-                    const quickReplies = data.faqs.slice(0, window.CONFIG.UI.MAX_QUICK_REPLIES);
-                    this.quickRepliesEl.innerHTML = quickReplies.map(faq =>
-                        `<button class="quick-reply" data-text="${this.escapeHtml(faq.question)}">${this.escapeHtml(faq.question)}</button>`
-                    ).join('');
+                    // Icon mapping for common questions
+                    const iconMap = {
+                        'perbezaan fakir': '📋',
+                        'fakir dan miskin': '📋',
+                        'fakir & miskin': '📋',
+                        'kelayakan terima': '💰',
+                        'terima zakat': '💰',
+                        'ahli keluarga': '👥',
+                        'keluarga': '👥',
+                        'kalkulator': '🧮',
+                        'kira zakat': '🧮',
+                        'bayar zakat': '🌐',
+                        'zakat online': '🌐',
+                        'nisab': '📊',
+                        'apa itu zakat': '❓',
+                        'jenis zakat': '📚',
+                        'default': '💡'
+                    };
+
+                    // Function to get icon based on question text
+                    const getIcon = (question) => {
+                        const lowerQuestion = question.toLowerCase();
+                        for (const [key, icon] of Object.entries(iconMap)) {
+                            if (lowerQuestion.includes(key)) {
+                                return icon;
+                            }
+                        }
+                        return iconMap.default;
+                    };
+
                 }
             } catch (e) {
                 console.log('Could not load FAQs:', e);
@@ -568,5 +653,10 @@ if (!window.ZakiaChatbot) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    new ZakiaChatbot();
+    // Create chatbot instance and expose it globally for FAQ browser
+    console.log('📱 DOM loaded - Creating ZAKIA chatbot instance...');
+    window.zakiaInstance = new ZakiaChatbot();
+    window.chatbotInstance = window.zakiaInstance; // Alias for compatibility
+    
+    console.log('✅ ZAKIA Chatbot instance created and exposed globally');
 });

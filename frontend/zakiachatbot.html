@@ -8,15 +8,18 @@
   <link rel="stylesheet" href="style.css" /> 
   <link rel="stylesheet" href="zakat-styles.css" />
   <link rel="stylesheet" href="reminder-styles.css" />
+  <link rel="stylesheet" href="faq-browser.css" />
   <script src="js/config.js"></script>
+  <script src="js/voice-handler.js"></script>
   <script src="js/reminder-handler.js"></script>
   <script src="js/zakat-handler.js"></script>
+  <script src="js/faq-browser.js"></script>
   <script src="js/chatbot.js"></script>
 </head>
 
 <body>
   <div class="chatbox" role="region" aria-label="ZAKIA Chatbot">
-    <div class="header" role="banner">
+    <div class="header">
       <div class="header-left">
         <img src="images/zakia-avatar.png" class="avatar" alt="ZAKIA">
         <div class="header-text">
@@ -24,22 +27,20 @@
           <p>LZNK Assistant</p>
         </div>
       </div>
-      <button class="minimize-btn" title="Minimize" type="button" aria-label="Minimize chat" aria-expanded="true">−</button>
+      <div class="header-right">  
+      <button class="minimize-btn" title="Minimize">−</button>
+      <button id="endChat"class="endchat-btn" title="End Chat">×</button>
+      </div>
+      
     </div>
 
-    <div class="end-chat-section" role="note" aria-label="End chat notice">
-      <p class="end-chat-text">
+    <div class="end-chat-section">
+      <h5 class="end-chat-text">
         Perbualan anda mungkin direkod dan disimpan bagi tujuan pemantauan kualiti perkhidmatan dan penambahbaikan sistem.
-      </p>
-
-      <button id="endChat" class="btn-end" title="End Chat" type="button" aria-label="End chat and clear conversation">
-        <img src="images/endchat2.png" alt="End Chat" class="end-chat-icon">
-        <span class="sr-only">Tamatkan perbualan</span>
-      </button>
+      </h5>
     </div>
 
-
-    <div class="chat-container" role="main">
+    <div class="chat-container">
       <div class="date-indicator">
         <span id="dateChip" class="date-chip"></span>
       </div>
@@ -65,26 +66,57 @@
         </div>
       </div>
 
-      <div id="quickReplies" class="quick-replies" role="list">
-        <button type="button" class="quick-reply" data-text="Apa itu zakat?">Apa itu zakat?</button>
-        <button type="button" class="quick-reply" data-text="Siapa yang wajib bayar zakat?">Siapa yang wajib bayar zakat?</button>
-        <button type="button" class="quick-reply" data-text="Kira zakat">💰 Kira Zakat</button>
-        <button type="button" class="quick-reply" data-text="Nisab">📊 Maklumat Nisab</button>
+      <div id="quickReplies" class="quick-replies">
+        <button class="quick-reply" data-text="Perbezaan fakir dan miskin" data-icon="📋">
+          <span>Perbezaan fakir & miskin</span>
+        </button>
+        <button class="quick-reply" data-text="Syarat bayar zakat" data-icon="💰">
+          <span>Syarat bayar zakat</span>
+        </button>
+        <button class="quick-reply" data-text="Perbezaan antara zakat dan sedekah?" data-icon="👥">
+          <span>Perbezaan zakat & sedekah</span>
+        </button>
+        <button class="quick-reply" data-text="Kalkulator zakat" data-icon="🧮">
+          <span>Kalkulator zakat</span>
+        </button>
+        <button class="quick-reply faq-browser-btn" data-action="browse-faq" data-icon="📚">
+          <span>Lihat soalan lain</span>
+        </button>
       </div>
     </div>
 
     <div class="input-area">
       <textarea id="userInput" rows="1" placeholder="Tulis mesej anda… (Contoh: 'kira zakat')" autocomplete="off"></textarea>
-      <button id="sendBtn" class="btn-send" type="button" aria-label="Hantar" title="Hantar">
+      <button id="sendBtn" class="btn-send" aria-label="Hantar" title="Hantar">
         <img src="images/buttonsend.png" alt="Hantar" class="send-icon">
       </button>
     </div>
   </div>
 
-  <!-- Load scripts -->
-  <!-- avoid duplicate includes (already loaded in <head>) -->
+  <!-- FAQ Browser Modal -->
+  <div id="faqBrowserModal" class="faq-modal" style="display: none;">
+    <div class="faq-modal-overlay"></div>
+    <div class="faq-modal-content">
+      <div class="faq-modal-header">
+        <h3>📚 Soalan Lazim (FAQ)</h3>
+        <button class="faq-modal-close" aria-label="Tutup">×</button>
+      </div>
+      
+      <div class="faq-modal-search">
+        <input type="text" id="faqSearchInput" placeholder="🔍 Cari soalan..." />
+      </div>
+
+      <div class="faq-modal-body" id="faqBrowserContent">
+        <div class="faq-loading">
+          <div class="faq-spinner"></div>
+          <p>Memuat soalan...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
-    // Attach quick-reply handlers (prevents duplicate listeners)
+    // Attach quick-reply handlers
     (function () {
       function setupQuickReplies() {
         const ta = document.getElementById('userInput');
@@ -94,21 +126,30 @@
         document.querySelectorAll('.quick-reply').forEach(btn => {
           if (btn.dataset._qrAttached) return;
           btn.dataset._qrAttached = '1';
-          btn.addEventListener('click', (e) => {
-            const text = btn.getAttribute('data-text') || '';
-            if (!text) return;
-            ta.value = text;
-            // trigger input resize if available
-            const ev = new Event('input', { bubbles: true });
-            ta.dispatchEvent(ev);
-            // send message
-            sendBtn.click();
-            ta.focus();
-          });
+          
+          // Check if this is the FAQ browser button
+          if (btn.getAttribute('data-action') === 'browse-faq') {
+            btn.addEventListener('click', (e) => {
+              e.preventDefault();
+              if (window.FAQBrowser) {
+                window.FAQBrowser.show();
+              }
+            });
+          } else {
+            // Regular quick reply
+            btn.addEventListener('click', (e) => {
+              const text = btn.getAttribute('data-text') || '';
+              if (!text) return;
+              ta.value = text;
+              const ev = new Event('input', { bubbles: true });
+              ta.dispatchEvent(ev);
+              sendBtn.click();
+              ta.focus();
+            });
+          }
         });
       }
 
-      // run after DOM ready
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', setupQuickReplies);
       } else {
