@@ -32,63 +32,69 @@ class VoiceHandler {
     }
 
     /**
-     * Load and select female Malay voice
+     * Load and select female Malay/Indonesian voice
      */
     loadVoices() {
         const setVoice = () => {
             const voices = this.synthesis.getVoices();
             
             if (voices.length === 0) {
-                console.log('⏳ Voices not loaded yet, waiting...');
+                console.log('⏳ Menunggu suara...');
                 return;
             }
 
-            console.log('🔍 Available voices:', voices.map(v => `${v.name} (${v.lang})`));
+            console.log('🔍 Suara yang tersedia:', voices.map(v => `${v.name} (${v.lang})`));
 
-            // Look for Google Bahasa Indonesia female voice specifically
+            // Priority 1: Google Indonesian (most common and natural)
             let selectedVoice = voices.find(voice => 
-                voice.name === 'Google Bahasa Indonesia' || 
-                voice.name.includes('Indonesian Female') ||
-                voice.name.includes('id-ID')
+                voice.name === 'Google Bahasa Indonesia' ||
+                voice.name === 'Google Indonesian'
             );
 
-            // If not found, look for any Malay/Indonesian female voice
+            // Priority 2
             if (!selectedVoice) {
                 selectedVoice = voices.find(voice => 
-                    (voice.lang.startsWith('ms') || voice.lang.startsWith('id')) &&
+                    voice.lang.startsWith('id') &&
                     (voice.name.toLowerCase().includes('female') || 
                      voice.name.toLowerCase().includes('perempuan'))
                 );
             }
 
-            // If still not found, use first Malay or Indonesian voice
+            // Priority 3
             if (!selectedVoice) {
                 selectedVoice = voices.find(voice => 
-                    voice.lang.startsWith('ms') || voice.lang.startsWith('id')
+                    voice.lang.startsWith('id')
                 );
             }
 
-            // Last resort: use first available voice
+            // Priority 4: Malay voices
+            if (!selectedVoice) {
+                selectedVoice = voices.find(voice => 
+                    voice.lang.startsWith('ms')
+                );
+            }
+
+            // Last resort: Use first available voice
             if (!selectedVoice && voices.length > 0) {
                 selectedVoice = voices[0];
             }
 
             if (selectedVoice) {
                 this.preferredVoice = selectedVoice;
-                console.log('✅ Selected voice:', selectedVoice.name, `(${selectedVoice.lang})`);
+                console.log('✅ Suara dipilih:', selectedVoice.name, `(${selectedVoice.lang})`);
                 this.voicesLoaded = true;
             }
         };
 
-        // Try to load voices immediately
+        // Load voices immediately
         setVoice();
 
-        // Also listen for voiceschanged event (for browsers that load voices asynchronously)
+        // Listen for voice changes (async loading)
         if (this.synthesis.onvoiceschanged !== undefined) {
             this.synthesis.onvoiceschanged = setVoice;
         }
 
-        // Fallback: try again after a delay
+        // Retry loading
         setTimeout(setVoice, 100);
         setTimeout(setVoice, 500);
     }
@@ -97,12 +103,10 @@ class VoiceHandler {
      * Setup Web Speech API for voice input
      */
     setupSpeechRecognition() {
-        // Check browser support
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         
         if (!SpeechRecognition) {
             console.warn('⚠️ Speech Recognition not supported in this browser');
-            // Hide mic button if not supported
             this.hideMicButtonIfNotSupported = true;
             return;
         }
@@ -113,14 +117,12 @@ class VoiceHandler {
         this.recognition.interimResults = false;
         this.recognition.maxAlternatives = 1;
 
-        // Mobile optimization - reduce timeout
         if (this.isMobile()) {
-            console.log('📱 Mobile device detected - optimizing settings');
+            console.log('📱 Peranti mudah alih dikesan');
         }
 
-        // Event handlers
         this.recognition.onstart = () => {
-            console.log('🎤 Voice recognition started');
+            console.log('🎤 Pengenalan suara dimulakan');
             this.isListening = true;
             this.updateMicButton(true);
             this.showListeningIndicator();
@@ -128,23 +130,20 @@ class VoiceHandler {
 
         this.recognition.onresult = (event) => {
             const transcript = event.results[0][0].transcript;
-            console.log('📝 Recognized text:', transcript);
+            console.log('📝 Teks dikenali:', transcript);
             
-            // Put text in input field
             this.chatbot.inputEl.value = transcript;
             
-            // Trigger input event for auto-resize
             const inputEvent = new Event('input', { bubbles: true });
             this.chatbot.inputEl.dispatchEvent(inputEvent);
             
-            // Auto-send after brief delay
             setTimeout(() => {
                 this.chatbot.sendBtn.click();
             }, 500);
         };
 
         this.recognition.onerror = (event) => {
-            console.error('❌ Speech recognition error:', event.error);
+            console.error('❌ Ralat pengenalan suara:', event.error);
             this.isListening = false;
             this.updateMicButton(false);
             this.hideListeningIndicator();
@@ -161,44 +160,32 @@ class VoiceHandler {
         };
 
         this.recognition.onend = () => {
-            console.log('🔴 Voice recognition ended');
+            console.log('🔴 Pengenalan suara ditamatkan');
             this.isListening = false;
             this.updateMicButton(false);
             this.hideListeningIndicator();
         };
     }
 
-    /**
-     * Detect if running on mobile device
-     */
     isMobile() {
         return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     }
 
-    /**
-     * Detect if running on iOS
-     */
     isiOS() {
         return /iPhone|iPad|iPod/i.test(navigator.userAgent);
     }
 
-    /**
-     * Create voice control buttons in UI
-     */
     createVoiceControls() {
         const inputArea = document.querySelector('.input-area');
         const textArea = document.getElementById('userInput');
         if (!inputArea || !textArea) return;
 
-        // Wrap textarea in a container for positioning
         const textareaWrapper = document.createElement('div');
         textareaWrapper.className = 'textarea-wrapper';
         
-        // Replace textarea with wrapper
         textArea.parentNode.insertBefore(textareaWrapper, textArea);
         textareaWrapper.appendChild(textArea);
 
-        // Create microphone button inside textarea (only if supported)
         if (!this.hideMicButtonIfNotSupported) {
             const micButton = document.createElement('button');
             micButton.id = 'micBtn';
@@ -220,19 +207,10 @@ class VoiceHandler {
                 this.toggleListening();
             });
             
-            // Add mic button to wrapper
             textareaWrapper.appendChild(micButton);
-            
-            // Update textarea padding to make room for mic button
             textArea.style.paddingRight = '50px';
-        } else if (this.isiOS()) {
-            // Show iOS helper message on first load
-            setTimeout(() => {
-                console.log('📱 iOS detected - Voice input not available, but TTS works!');
-            }, 1000);
         }
 
-        // Create TTS toggle button (outside textarea, before send button)
         const ttsButton = document.createElement('button');
         ttsButton.id = 'ttsBtn';
         ttsButton.className = 'btn-tts';
@@ -241,22 +219,16 @@ class VoiceHandler {
         this.updateTTSButton(ttsButton);
         ttsButton.addEventListener('click', () => this.toggleTTS());
 
-        // Insert before send button
         const sendBtn = document.getElementById('sendBtn');
         inputArea.insertBefore(ttsButton, sendBtn);
 
-        // Add styles
         this.addVoiceStyles();
     }
 
-    /**
-     * Toggle voice listening
-     */
     toggleListening() {
         if (!this.recognition) {
-            // Show appropriate message based on platform
             if (this.isiOS()) {
-                this.showVoiceMessage('📱 Maaf, pengenalan suara tidak disokong di iOS. Sila gunakan keyboard untuk menaip atau gunakan mikrofon keyboard iOS.');
+                this.showVoiceMessage('📱 Maaf, pengenalan suara tidak disokong di iOS. Sila gunakan keyboard untuk menaip.');
             } else {
                 this.showVoiceMessage('Pengenalan suara tidak disokong oleh pelayar ini.');
             }
@@ -270,19 +242,15 @@ class VoiceHandler {
         }
     }
 
-    /**
-     * Start listening for voice input
-     */
     startListening() {
-        // Request microphone permission first on mobile
         if (this.isMobile()) {
             navigator.mediaDevices.getUserMedia({ audio: true })
                 .then(() => {
-                    console.log('✅ Microphone permission granted');
+                    console.log('✅ Kebenaran mikrofon diberikan');
                     this.activateRecognition();
                 })
                 .catch((error) => {
-                    console.error('❌ Microphone permission denied:', error);
+                    console.error('❌ Kebenaran mikrofon ditolak:', error);
                     this.showVoiceMessage('Sila benarkan akses mikrofon untuk menggunakan ciri suara.');
                 });
         } else {
@@ -290,30 +258,21 @@ class VoiceHandler {
         }
     }
 
-    /**
-     * Activate speech recognition
-     */
     activateRecognition() {
         try {
             this.recognition.start();
         } catch (error) {
-            console.error('Error starting recognition:', error);
+            console.error('Ralat memulakan pengenalan:', error);
             this.showVoiceMessage('Ralat memulakan pengenalan suara.');
         }
     }
 
-    /**
-     * Stop listening
-     */
     stopListening() {
         if (this.recognition && this.isListening) {
             this.recognition.stop();
         }
     }
 
-    /**
-     * Update microphone button state
-     */
     updateMicButton(isActive) {
         const micBtn = document.getElementById('micBtn');
         if (!micBtn) return;
@@ -327,9 +286,6 @@ class VoiceHandler {
         }
     }
 
-    /**
-     * Show listening indicator
-     */
     showListeningIndicator() {
         const indicator = document.createElement('div');
         indicator.id = 'listeningIndicator';
@@ -344,9 +300,6 @@ class VoiceHandler {
         messagesEl.scrollTop = messagesEl.scrollHeight;
     }
 
-    /**
-     * Hide listening indicator
-     */
     hideListeningIndicator() {
         const indicator = document.getElementById('listeningIndicator');
         if (indicator) {
@@ -354,16 +307,10 @@ class VoiceHandler {
         }
     }
 
-    /**
-     * Show voice message to user
-     */
     showVoiceMessage(message) {
         this.chatbot.appendMessage(message, 'bot', false, { skipFeedback: true });
     }
 
-    /**
-     * Toggle Text-to-Speech
-     */
     toggleTTS() {
         this.ttsEnabled = !this.ttsEnabled;
         this.saveTTSPreference();
@@ -371,19 +318,14 @@ class VoiceHandler {
         const ttsBtn = document.getElementById('ttsBtn');
         this.updateTTSButton(ttsBtn);
 
-        // Stop current speech if TTS is disabled
         if (!this.ttsEnabled && this.isSpeaking) {
             this.stopSpeaking();
         }
 
-        // Show feedback
         const status = this.ttsEnabled ? 'dihidupkan' : 'dimatikan';
         this.showVoiceMessage(`Suara ${status}. 🔊`);
     }
 
-    /**
-     * Update TTS button appearance
-     */
     updateTTSButton(button) {
         if (!button) return;
 
@@ -406,12 +348,12 @@ class VoiceHandler {
     }
 
     /**
-     * Speak text using TTS with female Malay voice
+     * Speak text using TTS with FEMALE MALAY VOICE
      */
     speak(text) {
         if (!this.ttsEnabled || !text) return;
 
-        // Reload voices if not loaded yet
+        // Reload voices if not loaded
         if (!this.voicesLoaded) {
             this.loadVoices();
         }
@@ -424,35 +366,37 @@ class VoiceHandler {
 
         // Create utterance
         this.currentUtterance = new SpeechSynthesisUtterance(cleanText);
-        this.currentUtterance.lang = this.language;
         
-        // Set preferred voice (female Malay)
+        // Set language to Indonesian (sounds natural for Malay)
+        this.currentUtterance.lang = 'ms-MY';
+        
+        // Set preferred voice 
         if (this.preferredVoice) {
             this.currentUtterance.voice = this.preferredVoice;
-            console.log('🎙️ Using voice:', this.preferredVoice.name);
+            console.log('🎙️ Menggunakan suara:', this.preferredVoice.name);
         }
         
-        // Voice parameters optimized for female voice - slower speed
-        this.currentUtterance.rate = 0.95;  // Slower for better clarity
-        this.currentUtterance.pitch = 1.1;   // Higher pitch for female voice
-        this.currentUtterance.volume = 1.0;
+        // Voice parameters optimized for FEMALE voice and SLOWER speed
+        this.currentUtterance.rate = 0.94;    // SLOWER - 70% speed for clarity
+        this.currentUtterance.pitch = 1.15;   // HIGHER pitch for female voice
+        this.currentUtterance.volume = 1.0;   // Full volume
 
         // Event handlers
         this.currentUtterance.onstart = () => {
-            console.log('🔊 TTS started');
+            console.log('🔊 TTS dimulakan');
             this.isSpeaking = true;
             this.addSpeakingIndicator();
         };
 
         this.currentUtterance.onend = () => {
-            console.log('🔇 TTS ended');
+            console.log('🔇 TTS ditamatkan');
             this.isSpeaking = false;
             this.removeSpeakingIndicator();
             this.currentUtterance = null;
         };
 
         this.currentUtterance.onerror = (event) => {
-            console.error('❌ TTS error:', event.error);
+            console.error('❌ Ralat TTS:', event.error);
             this.isSpeaking = false;
             this.removeSpeakingIndicator();
         };
@@ -461,9 +405,6 @@ class VoiceHandler {
         this.synthesis.speak(this.currentUtterance);
     }
 
-    /**
-     * Stop speaking
-     */
     stopSpeaking() {
         if (this.synthesis.speaking) {
             this.synthesis.cancel();
@@ -472,9 +413,6 @@ class VoiceHandler {
         this.removeSpeakingIndicator();
     }
 
-    /**
-     * Clean text for better speech output
-     */
     cleanTextForSpeech(text) {
         let cleaned = text;
         
@@ -484,26 +422,26 @@ class VoiceHandler {
         // Remove URLs
         cleaned = cleaned.replace(/https?:\/\/[^\s]+/g, '');
         
-        // Remove emojis (optional - they might be spoken as descriptions)
+        // Remove emojis
         cleaned = cleaned.replace(/[\u{1F600}-\u{1F64F}]/gu, '');
         cleaned = cleaned.replace(/[\u{1F300}-\u{1F5FF}]/gu, '');
         cleaned = cleaned.replace(/[\u{1F680}-\u{1F6FF}]/gu, '');
         cleaned = cleaned.replace(/[\u{2600}-\u{26FF}]/gu, '');
         cleaned = cleaned.replace(/[\u{2700}-\u{27BF}]/gu, '');
         
-        // Replace common symbols
+        // Replace symbols with Malay words
         cleaned = cleaned.replace(/&/g, ' dan ');
         cleaned = cleaned.replace(/@/g, ' di ');
+        cleaned = cleaned.replace(/%/g, ' peratus ');
+        cleaned = cleaned.replace(/\+/g, ' tambah ');
+        cleaned = cleaned.replace(/-/g, ' ');
         
-        // Clean up whitespace
+        // Clean whitespace
         cleaned = cleaned.replace(/\s+/g, ' ').trim();
         
         return cleaned;
     }
 
-    /**
-     * Add speaking indicator to last bot message
-     */
     addSpeakingIndicator() {
         const messages = document.querySelectorAll('.msg.bot');
         if (messages.length === 0) return;
@@ -534,28 +472,19 @@ class VoiceHandler {
         }
     }
 
-    /**
-     * Remove speaking indicator
-     */
     removeSpeakingIndicator() {
         const indicators = document.querySelectorAll('.speaking-indicator');
         indicators.forEach(indicator => indicator.remove());
     }
 
-    /**
-     * Save TTS preference to localStorage
-     */
     saveTTSPreference() {
         try {
             localStorage.setItem('zakia_tts_enabled', this.ttsEnabled ? '1' : '0');
         } catch (e) {
-            console.warn('Could not save TTS preference:', e);
+            console.warn('Tidak dapat menyimpan keutamaan TTS:', e);
         }
     }
 
-    /**
-     * Load TTS preference from localStorage
-     */
     loadTTSPreference() {
         try {
             const saved = localStorage.getItem('zakia_tts_enabled');
@@ -567,20 +496,16 @@ class VoiceHandler {
                 }
             }
         } catch (e) {
-            console.warn('Could not load TTS preference:', e);
+            console.warn('Tidak dapat memuatkan keutamaan TTS:', e);
         }
     }
 
-    /**
-     * Add CSS styles for voice controls
-     */
     addVoiceStyles() {
         if (document.getElementById('voice-handler-styles')) return;
 
         const style = document.createElement('style');
         style.id = 'voice-handler-styles';
         style.textContent = `
-            /* Textarea wrapper for positioning mic button */
             .textarea-wrapper {
                 position: relative;
                 flex: 1;
@@ -593,7 +518,6 @@ class VoiceHandler {
                 width: 100%;
             }
 
-            /* Inline mic button inside textarea */
             .btn-mic-inline {
                 position: absolute;
                 right: 8px;
@@ -634,7 +558,6 @@ class VoiceHandler {
                 height: 20px;
             }
 
-            /* TTS button (external) */
             .btn-tts {
                 background: transparent;
                 border: none;
@@ -731,7 +654,6 @@ class VoiceHandler {
                 }
             }
 
-            /* Mobile optimizations */
             @media (max-width: 480px) {
                 .btn-mic-inline {
                     width: 32px;
@@ -765,13 +687,11 @@ class VoiceHandler {
                     height: 16px;
                 }
 
-                /* Adjust textarea padding for smaller mic button */
                 .textarea-wrapper textarea {
                     padding-right: 45px !important;
                 }
             }
 
-            /* Extra small screens */
             @media (max-width: 375px) {
                 .btn-mic-inline {
                     width: 30px;
@@ -788,7 +708,6 @@ class VoiceHandler {
                 }
             }
 
-            /* Prevent text selection on buttons (mobile) */
             .btn-mic-inline, .btn-tts {
                 -webkit-tap-highlight-color: transparent;
                 -webkit-touch-callout: none;
@@ -796,14 +715,12 @@ class VoiceHandler {
                 user-select: none;
             }
 
-            /* Better touch feedback on mobile */
             @media (hover: none) and (pointer: coarse) {
                 .btn-mic-inline:active, .btn-tts:active {
                     background: rgba(21, 115, 71, 0.15);
                 }
             }
 
-            /* Ensure mic button stays visible when textarea grows */
             .textarea-wrapper {
                 position: relative;
             }
@@ -815,12 +732,8 @@ class VoiceHandler {
         document.head.appendChild(style);
     }
 
-    /**
-     * Auto-speak bot messages
-     */
     handleBotMessage(text) {
         if (this.ttsEnabled && text) {
-            // Small delay before speaking
             setTimeout(() => {
                 this.speak(text);
             }, 300);
@@ -828,5 +741,4 @@ class VoiceHandler {
     }
 }
 
-// Export for use in chatbot
 window.VoiceHandler = VoiceHandler;

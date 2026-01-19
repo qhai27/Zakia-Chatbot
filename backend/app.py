@@ -1,6 +1,6 @@
 """
-ZAKIA Chatbot - Main Application (UPDATED)
-With analytics routes and complete functionality
+ZAKIA Chatbot - Main Application 
+CORS Configuration
 """
 
 from flask import Flask, make_response
