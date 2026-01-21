@@ -1,4 +1,4 @@
-/* Consolidated CSS for Zakia Chatbot*/
+
 @import url('https://fonts.googleapis.com/css2?family=Gabarito:wght@400;500;600;700&display=swap');
 
 :root{
@@ -25,14 +25,344 @@ html,body{height:100%;font-family:var(--font)}
 body{
   min-height:100vh;
   display:flex;
-  justify-content:flex-end;
+  justify-content:center;
   align-items:center;
-  padding-right:30px;
-  background:white;
+  padding:20px;
+  background:#f5f5f5;
   color:#111827;
 }
 
-/* Chat container */
+/* ============================================
+   SPLASH SCREEN STYLES
+   ============================================ */
+
+/* ============================================
+   ENHANCED SPLASH SCREEN STYLES
+   ============================================ */
+
+.splash-screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #157347 0%, #0f5a38 50%, #0a4428 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  opacity: 1;
+  transition: opacity 0.8s ease-out;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+/* Animated background patterns */
+.splash-screen::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 30% 50%, rgba(93, 185, 150, 0.15) 0%, transparent 50%),
+              radial-gradient(circle at 70% 50%, rgba(93, 185, 150, 0.1) 0%, transparent 50%);
+  animation: rotateBackground 20s linear infinite;
+}
+
+.splash-screen::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    linear-gradient(45deg, transparent 48%, rgba(255, 255, 255, 0.03) 50%, transparent 52%),
+    linear-gradient(-45deg, transparent 48%, rgba(255, 255, 255, 0.03) 50%, transparent 52%);
+  background-size: 30px 30px;
+  opacity: 0.5;
+  animation: patternMove 3s linear infinite;
+}
+
+@keyframes rotateBackground {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes patternMove {
+  0% { background-position: 0 0, 0 0; }
+  100% { background-position: 30px 30px, -30px -30px; }
+}
+
+.splash-screen.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.splash-video-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.splash-video-container {
+  width: 100%;
+  max-width: 350px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  background: #000;
+  margin-bottom: 35px;
+  position: relative;
+  animation: videoFloat 3s ease-in-out infinite;
+}
+
+.splash-video-container::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 20px;
+  background: linear-gradient(45deg, #5DB996, #157347, #5DB996);
+  background-size: 200% 200%;
+  z-index: -1;
+  opacity: 0.5;
+  animation: glowPulse 3s ease-in-out infinite;
+  filter: blur(10px);
+}
+
+@keyframes videoFloat {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-10px) scale(1.02); }
+}
+
+@keyframes glowPulse {
+  0%, 100% { 
+    opacity: 0.5;
+    background-position: 0% 50%;
+  }
+  50% { 
+    opacity: 0.8;
+    background-position: 100% 50%;
+  }
+}
+
+.splash-video {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.splash-branding {
+  text-align: center;
+  color: #ffffff;
+  animation: fadeInUp 0.8s ease-out 0.3s both;
+  position: relative;
+}
+
+.splash-branding::before,
+.splash-branding::after {
+  content: '✦';
+  position: absolute;
+  top: 50%;
+  font-size: 20px;
+  color: #5DB996;
+  animation: starTwinkle 2s ease-in-out infinite;
+}
+
+.splash-branding::before {
+  left: -40px;
+  animation-delay: 0s;
+}
+
+.splash-branding::after {
+  right: -40px;
+  animation-delay: 1s;
+}
+
+@keyframes starTwinkle {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+.splash-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  text-shadow: 
+    0 0 20px rgba(93, 185, 150, 0.5),
+    0 2px 10px rgba(0, 0, 0, 0.5);
+  background: linear-gradient(135deg, #ffffff 0%, #5DB996 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: titleShine 3s ease-in-out infinite;
+}
+
+@keyframes titleShine {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.3); }
+}
+
+.splash-subtitle {
+  font-size: 1.1rem;
+  opacity: 0.95;
+  font-weight: 400;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.splash-loader {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  animation: fadeIn 0.6s ease-out 0.8s both;
+}
+
+.splash-dot {
+  width: 12px;
+  height: 12px;
+  background: linear-gradient(135deg, #5DB996, #3a9d7f);
+  border-radius: 50%;
+  box-shadow: 
+    0 0 10px rgba(93, 185, 150, 0.5),
+    0 2px 4px rgba(0, 0, 0, 0.3);
+  animation: splashBounce 1.4s infinite ease-in-out;
+}
+
+.splash-dot:nth-child(1) { animation-delay: 0s; }
+.splash-dot:nth-child(2) { animation-delay: 0.2s; }
+.splash-dot:nth-child(3) { animation-delay: 0.4s; }
+
+.skip-button {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  padding: 12px 28px;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  font-family: var(--font);
+  animation: fadeIn 0.6s ease-out 1s both, buttonPulse 2s ease-in-out 1.5s infinite;
+  z-index: 2;
+}
+
+.skip-button::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 25px;
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  background-size: 200% 200%;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.skip-button:hover::before {
+  opacity: 1;
+  animation: shimmerButton 1.5s linear infinite;
+}
+
+.skip-button:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateX(-50%) translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+.skip-button:active {
+  transform: translateX(-50%) translateY(-1px) scale(0.98);
+}
+
+@keyframes buttonPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.3); }
+  50% { box-shadow: 0 0 0 8px rgba(255, 255, 255, 0); }
+}
+
+@keyframes shimmerButton {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.audio-prompt {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  animation: fadeInScale 0.5s ease-out 0.5s both;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.audio-prompt:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.05);
+}
+
+.audio-prompt::before {
+  content: '🔊';
+  font-size: 16px;
+  animation: soundWave 1s ease-in-out infinite;
+}
+
+@keyframes soundWave {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes splashBounce {
+  0%, 80%, 100% { transform: scale(0.8) translateY(0); opacity: 0.5; }
+  40% { transform: scale(1.3) translateY(-8px); opacity: 1; }
+}
+/* ============================================
+   CHATBOT FRAME & CONTENT
+   ============================================ */
+
 .chatbox{
   width:100%;
   max-width:var(--max-chat-width);
@@ -49,7 +379,19 @@ body{
   overflow:hidden;
   display:flex;
   flex-direction:column;
+  position: relative;
   transition:max-height .3s ease, height .2s ease;
+}
+
+.chatbox > *:not(.splash-screen) {
+  opacity: 0;
+  transition: opacity 0.6s ease-in;
+  pointer-events: none;
+}
+
+.chatbox.loaded > *:not(.splash-screen) {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 /* Header */
@@ -68,7 +410,6 @@ body{
 .header-text h3{margin:0;font-size:1.25rem}
 .header-text p{margin:0;opacity:.85;font-size:.9rem}
 
-/* Minimize / End chat */
 .minimize-btn, .endchat-btn {background:none;border:none;color:#fff;font-size:20px;font-weight:700;cursor:pointer;padding:6px 8px;border-radius:6px;transition:background .2s,transform .06s}
 .minimize-btn:hover, .endchat-btn:hover {background:rgba(255,255,255,0.08)}
 .minimize-btn:focus, .endchat-btn:focus{outline:2px solid rgba(255,255,255,0.12);outline-offset:2px}
@@ -78,7 +419,7 @@ body{
     flex-direction: column;
     align-items: center;
     padding: 8px 10px;
-    background: #e6e6e5f2;
+    background: #cae0dd;
     border-top: 1px solid #ddd;
 }
 
@@ -92,13 +433,10 @@ body{
     max-width: 80%;
 }
 
-
-/* Main chat area */
 .chat-container{flex:1 1 auto;display:flex;flex-direction:column;overflow:hidden;padding:0}
 .date-indicator{display:flex;justify-content:center;padding:8px 0}
 .date-chip{background:#FFD95F;color:#8B4513;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:200}
 
-/* Messages */
 .messages{
   flex:1 1 auto;
   padding:16px;
@@ -113,15 +451,12 @@ body{
 .msg.user{justify-content:flex-end}
 .msg.bot{justify-content:flex-start}
 
-/* Bubble container/alignment */
 .bubble-container{display:flex;flex-direction:column;width:100%;max-width:100%}
 .msg.user .bubble-container{align-items:flex-end}
 .msg.bot .bubble-container{align-items:flex-start}
 
-/* Avatars */
 .msg-avatar{width:50px;height: 50px;border-radius:50%;object-fit:cover;background:#e0e0e0;flex-shrink:0}
 
-/* Bubble core */
 .bubble{
   display:inline-block;
   padding:12px 16px;
@@ -134,11 +469,8 @@ body{
   white-space:pre-wrap;
   overflow-wrap:anywhere;
   max-width: calc(100% - 96px);
-  
-
 }
 
-/* bot bubble */
 .msg.bot .bubble{
   background:var(--bot-bg);
   color:var(--bot-text);
@@ -158,7 +490,6 @@ body{
   border-color:transparent var(--bot-bg) transparent transparent;
 }
 
-/* user bubble */
 .msg.user .bubble{
   background:var(--user-bg);
   color:var(--user-text);
@@ -171,7 +502,6 @@ body{
   box-shadow: 0 6px 12px -4px #3f7a64;
 }
 
-/* user tail */
 .msg.user .bubble::before{
   content:'';
   position:absolute;
@@ -182,7 +512,6 @@ body{
   border-color:transparent transparent transparent var(--user-bg);
 }
 
-/* subtle animations */
 @keyframes sendPulse{
   0%{box-shadow:0 0 0 0 rgba(93,185,150,0.28)}
   70%{box-shadow:0 0 0 10px rgba(93,185,150,0)}
@@ -193,10 +522,8 @@ body{
   100%{opacity:1;transform:translateY(0) scale(1)}
 }
 
-/* message time */
 .msg-time{font-size:11px;color:var(--muted);margin-top:4px;padding:0 4px}
 
-/* typing indicator */
 .typing{display:flex;align-items:center;gap:8px;padding:0 16px 8px}
 .typing.hidden{display:none}
 .dot{width:6px;height:6px;background:#9dcfb4;border-radius:50%;display:inline-block;animation:blink 1.2s infinite}
@@ -204,7 +531,6 @@ body{
 .dot:nth-child(3){animation-delay:.3s}
 @keyframes blink{0%,80%,100%{opacity:.2;transform:translateY(0)}40%{opacity:1;transform:translateY(-2px)}}
 
-/* Quick replies - Card Style */
 .quick-replies{
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -234,17 +560,15 @@ body{
   position: relative;
   overflow: hidden;
   box-shadow:
-    0 2px 0 #b6d6b6,              /* bottom edge */
+    0 2px 0 #b6d6b6,
     0 8px 18px rgba(33,77,44,.18),
     inset 0 1px 0 rgba(255,255,255,.9);
-
   transition:
     transform .18s ease,
     box-shadow .18s ease,
     background .18s ease;
 }
 
-/* Icon container */
 .quick-reply::before{
   content: attr(data-icon);
   font-size: 26px;
@@ -259,7 +583,6 @@ body{
   box-shadow: 0 2px 6px rgba(0,0,0,0.06);
 }
 
-/* Arrow */
 .quick-reply::after{
   content: '›';
   font-size: 24px;
@@ -298,8 +621,6 @@ body{
   transform: scale(0.98);
 }
 
-/* Input area */
-/* Input area - Unified Chat Control Bar */
 .input-area {
   background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
   padding: 16px;
@@ -309,7 +630,6 @@ body{
   border-top: 1px solid rgba(21,115,71,0.08);
   flex-shrink: 0;
   box-shadow: 0 -4px 20px rgba(0,0,0,0.03);
-  
 }
 
 .input-area textarea,
@@ -369,16 +689,13 @@ body{
 
 .send-icon{width:30px;height: 30px;object-fit:contain}
 
-/* scrollbar */
 .messages::-webkit-scrollbar{width:6px}
 .messages::-webkit-scrollbar-track{background:#f1f1f1}
 .messages::-webkit-scrollbar-thumb{background:#BDBDBD;border-radius:6px}
 .messages::-webkit-scrollbar-thumb:hover{background:#9E9E9E}
 
-/* minimized */
 .chatbox.minimized{height:auto;max-height:84px;overflow:hidden}
 
-/* floating widget */
 #chatWidget{
   position:fixed;bottom:20px;right:20px;background:var(--primary);color:#fff;border-radius:50px;padding:12px 20px;display:flex;align-items:center;gap:12px;box-shadow:0 6px 25px rgba(21,115,71,0.3);cursor:pointer;z-index:1000;animation:slideIn .28s ease
 }
@@ -392,8 +709,6 @@ body{
 #chatWidget.has-notification::after{display:block}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.7;transform:scale(1.1)}}
 
-/* --- UI Animation & Polishing --- */
-/* message entrance (subtle stagger-like feel when messages render) */
 .messages .msg{
   opacity: 0;
   transform: translateY(8px) scale(.997);
@@ -404,7 +719,6 @@ body{
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* gentle hover / focus for bubbles */
 .bubble{
   transition: transform var(--anim-fast) ease, box-shadow var(--anim-fast) ease, filter var(--anim-fast) ease;
 }
@@ -412,10 +726,8 @@ body{
   transform: translateY(-2px) scale(1.01);
   box-shadow: 0 8px 28px rgba(16,24,40,0.10);
   filter: saturate(1.03);
-  
 }
 
-/* stronger emphasis for user-sent animation (pulse shortly after send) */
 .msg.user .bubble.sendPulseAnim{
   animation: sendPop 420ms cubic-bezier(.2,.9,.3,1);
 }
@@ -425,11 +737,9 @@ body{
   100% { transform: translateY(0) scale(1); }
 }
 
-/* bot bubble shimmer */
 .msg.bot .bubble{
   position: relative;
   overflow: hidden;
-  
 }
 .msg.bot .bubble::after{
   content: "";
@@ -447,7 +757,6 @@ body{
   100%{ transform: translateX(120%); }
 }
 
-/* improved typing indicator animation */
 .typing .dot{
   width:7px;height:7px;border-radius:50%;
   background:rgba(241, 227, 68, 0.85);
@@ -465,7 +774,6 @@ body{
   100% { transform: translateY(0); opacity:.6 }
 }
 
-/* unread / new message badge for floating widget */
 #chatWidget .badge{
   position: absolute;
   top: 8px;
@@ -491,21 +799,17 @@ body{
   100%{ transform: scale(1); opacity: 1; }
 }
 
-/* Accessibility helper */
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
-/* Date chip refinements and input polish */
 .date-chip{font-weight:500;padding:6px 14px;border-radius:14px;box-shadow:0 4px 10px rgba(21,115,71,0.04);font-size:12px}
 .input-area{border-top:1px solid rgba(21,115,71,0.06);box-shadow:0 -6px 20px rgba(16,24,40,0.02)}
 .btn-send{border-radius:12px}
 .minimize-btn, .endchat-btn{font-size:22px}
 
-/* focus-visible outlines for keyboard users */
 button:focus-visible, .input-area textarea:focus-visible, .quick-reply:focus-visible{outline:2px solid rgba(21,115,71,0.18);outline-offset:2px}
 
 .messages .msg.no-anim{ animation: none !important; opacity:1; transform:none !important; }
 
-/* Minimize button */
 .minimize-btn, .endchat-btn{
   transition: transform .36s cubic-bezier(.2,.9,.3,1), box-shadow .18s, background .18s;
   transform-origin: center;
@@ -519,7 +823,6 @@ button:focus-visible, .input-area textarea:focus-visible, .quick-reply:focus-vis
   transform: rotate(180deg) scale(0.98);
 }
 
-/* Floating widget */
 #chatWidget{
   animation: slideIn .28s ease, widgetFloat 6s ease-in-out infinite;
   transition: transform .18s ease, box-shadow .18s ease;
@@ -565,7 +868,6 @@ button:focus-visible, .input-area textarea:focus-visible, .quick-reply:focus-vis
   box-shadow: 0 12px 28px rgba(93,185,150,0.18);
 }
 
-/* Keyframes */
 @keyframes widgetFloat{
   0%   { transform: translateY(0); }
   50%  { transform: translateY(-6px); }
@@ -589,7 +891,6 @@ button:focus-visible, .input-area textarea:focus-visible, .quick-reply:focus-vis
   100% { box-shadow: 0 0 0 0 rgba(93,185,150,0.00); transform: scale(1); }
 }
 
-/* Chat Link Styling */
 .chat-link {
     display: inline-flex;
     align-items: center;
@@ -701,7 +1002,6 @@ button:focus-visible, .input-area textarea:focus-visible, .quick-reply:focus-vis
     animation: linkAppear 0.3s ease-out;
 }
 
-/* Admin Waiting Indicator */
 .admin-waiting-indicator {
     display: flex;
     flex-direction: column;
@@ -735,7 +1035,6 @@ button:focus-visible, .input-area textarea:focus-visible, .quick-reply:focus-vis
     100% { transform: rotate(360deg); }
 }
 
-/* Feedback controls */
 .feedback-row {
     display: flex;
     align-items: center;
@@ -788,11 +1087,14 @@ button:focus-visible, .input-area textarea:focus-visible, .quick-reply:focus-vis
     margin-bottom: 8px;
 }
 
-/* Responsive tweaks */
 @media (max-width:768px){
   :root{--max-chat-width:100%}
   body{padding:12px}
   .chatbox{height:90vh;border-radius:16px}
+  .splash-screen{border-radius:16px}
+  .splash-video-container{max-width:280px}
+  .splash-title{font-size:1.6rem}
+  .splash-subtitle{font-size:1rem}
   .header{padding:10px 12px}
   .header-text h3{font-size:.9rem}
   .messages{padding:14px}
@@ -822,6 +1124,10 @@ button:focus-visible, .input-area textarea:focus-visible, .quick-reply:focus-vis
 @media (max-width:480px){
   body{padding:0;align-items:stretch}
   .chatbox{max-width:100%;height:100vh;border-radius:0;box-shadow:none}
+  .splash-screen{border-radius:0}
+  .splash-video-container{max-width:250px}
+  .splash-title{font-size:1.4rem}
+  .splash-subtitle{font-size:0.9rem}
   .header{padding:12px 16px;border-radius:0}
   .avatar{width:40px;height:40px}
   .messages{padding:12px 16px;gap:10px}
@@ -887,13 +1193,9 @@ button:focus-visible, .input-area textarea:focus-visible, .quick-reply:focus-vis
   .btn-send{width:32px;height:32px}
 }
 
-/* reduce animation intensity on small screens */
 @media (max-width:480px){
   .messages .msg{ animation-duration: calc(var(--anim-normal) * 0.9); }
   .msg.bot .bubble::after{ animation-duration: calc(var(--shimmer-duration) * 1.2); }
 }
-
-
-
 
 /* End of consolidated CSS */

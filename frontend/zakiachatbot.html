@@ -18,7 +18,44 @@
 </head>
 
 <body>
+  <!-- Chatbot Frame Container -->
   <div class="chatbox" role="region" aria-label="ZAKIA Chatbot">
+    
+    <!-- Enhanced Splash Screen -->
+    <div class="splash-screen" id="splashScreen">
+      <!-- Audio Unmute Prompt -->
+      <div class="audio-prompt" id="audioPrompt" style="display: none;">
+        <span>Klik untuk hidupkan audio</span>
+      </div>
+
+      <div class="splash-video-wrapper">
+        <div class="splash-video-container">
+          <video 
+            id="splashVideo" 
+            class="splash-video" 
+            playsinline
+            preload="auto">
+            <source src="images/AVATAR ZakIA.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+        </div>
+        
+        <div class="splash-branding">
+          <h1 class="splash-title">ZAKIA</h1>
+          <p class="splash-subtitle">Pembantu Maya LZNK</p>
+          
+          <div class="splash-loader">
+            <div class="splash-dot"></div>
+            <div class="splash-dot"></div>
+            <div class="splash-dot"></div>
+          </div>
+        </div>
+      </div>
+      
+      <button class="skip-button" id="skipButton">Langkau →</button>
+    </div>
+
+    <!-- Header -->
     <div class="header">
       <div class="header-left">
         <img src="images/zakia-avatar.png" class="avatar" alt="ZAKIA">
@@ -28,10 +65,9 @@
         </div>
       </div>
       <div class="header-right">  
-      <button class="minimize-btn" title="Minimize">−</button>
-      <button id="endChat"class="endchat-btn" title="End Chat">×</button>
+        <button class="minimize-btn" title="Minimize">−</button>
+        <button id="endChat" class="endchat-btn" title="End Chat">×</button>
       </div>
-      
     </div>
 
     <div class="end-chat-section">
@@ -48,13 +84,11 @@
       <div id="messages" class="messages" aria-live="polite" aria-relevant="additions" tabindex="0" aria-label="Conversation messages">
         <div class="msg bot">
           <img src="images/zakia-avatar.png" class="msg-avatar" alt="ZAKIA">
-          <div class="bubble bot-bubble" style="text-align: left;">
-            <p>Assalamualaikum👋 Saya Zakia, pembantu maya dari Lembaga Zakat Negeri Kedah (LZNK).
-              <br>Saya boleh membantu anda dengan:
-                ❓ Soalan tentang zakat 
-                🧮 Kalkulator zakat 
-                ℹ️ Maklumat tentang nisab 
-             <br>Bagaimana saya boleh membantu anda hari ini?😊 </p>
+          <div class="bubble-container">
+            <div class="bubble bot-bubble" style="text-align: left;">
+              <p>Assalamualaikum👋 Saya Zakia, pembantu maya dari Lembaga Zakat Negeri Kedah (LZNK).
+               <br>Bagaimana saya boleh membantu anda hari ini?😊 </p>
+            </div>
           </div>
         </div>
       </div>
@@ -115,8 +149,176 @@
     </div>
   </div>
 
+<!--Splash Screen Control Script-->
+<script>
+  (function() {
+    const splashScreen = document.getElementById('splashScreen');
+    const splashVideo = document.getElementById('splashVideo');
+    const skipButton = document.getElementById('skipButton');
+    const audioPrompt = document.getElementById('audioPrompt');
+    const chatbox = document.querySelector('.chatbox');
+
+    const MIN_SPLASH_TIME = 2000;
+    const startTime = Date.now();
+    
+    let videoStarted = false;
+    let audioEnabled = false;
+    let splashHidden = false; // Flag to prevent replay
+
+    // Function to enable audio and play video
+    function enableAudioAndPlay() {
+      if (splashHidden) return; // Don't play if already hidden
+      
+      splashVideo.muted = false;
+      audioEnabled = true;
+      audioPrompt.style.display = 'none';
+      
+      splashVideo.play()
+        .then(() => {
+          console.log('✅ Video playing with AUDIO enabled');
+          videoStarted = true;
+        })
+        .catch(err => {
+          console.warn('⚠️ Failed to play with audio:', err);
+          splashVideo.muted = true;
+          splashVideo.play();
+        });
+    }
+
+    // Try to play video with audio first - AGGRESSIVE APPROACH
+    function attemptAutoplay() {
+      if (splashHidden) return; // Don't play if already hidden
+      
+      // Set volume to max
+      splashVideo.volume = 1.0;
+      splashVideo.muted = false;
+      
+      const playPromise = splashVideo.play();
+      
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            console.log('✅ Video autoplaying WITH AUDIO! 🔊');
+            videoStarted = true;
+            audioEnabled = true;
+            // Hide audio prompt since audio is working
+            if (audioPrompt) {
+              audioPrompt.style.display = 'none';
+            }
+          })
+          .catch(error => {
+            console.warn('⚠️ Autoplay with audio blocked by browser:', error.name);
+            
+            // Show audio prompt for user interaction
+            if (audioPrompt) {
+              audioPrompt.style.display = 'flex';
+            }
+            
+            // Fallback: Try muted autoplay
+            splashVideo.muted = true;
+            splashVideo.play()
+              .then(() => {
+                console.log('▶️ Video playing MUTED. Click to unmute.');
+                videoStarted = true;
+              })
+              .catch(e => {
+                console.error('❌ Even muted playback failed:', e);
+                hideSplash();
+              });
+          });
+      }
+    }
+
+    function hideSplash() {
+      if (splashHidden) return; // Prevent multiple calls
+      splashHidden = true;
+      
+      const elapsed = Date.now() - startTime;
+      const remainingTime = Math.max(0, MIN_SPLASH_TIME - elapsed);
+
+      setTimeout(() => {
+        splashScreen.classList.add('fade-out');
+        chatbox.classList.add('loaded');
+        
+        setTimeout(() => {
+          splashScreen.style.display = 'none';
+          if (splashVideo) {
+            splashVideo.pause();
+            splashVideo.currentTime = 0;
+            splashVideo.removeAttribute('src'); // Remove source to prevent replay
+            splashVideo.load(); // Reset video element
+          }
+        }, 800);
+      }, remainingTime);
+    }
+
+    // Event Listeners
+    
+    // Audio prompt click - enable audio
+    if (audioPrompt) {
+      audioPrompt.addEventListener('click', function(e) {
+        e.stopPropagation();
+        enableAudioAndPlay();
+      });
+    }
+    
+    // Skip button
+    skipButton.addEventListener('click', function(e) {
+      e.stopPropagation();
+      hideSplash();
+    });
+    
+    // Video ended - AUTO HIDE SPLASH
+    splashVideo.addEventListener('ended', function() {
+      console.log('✅ Video finished - transitioning to chatbot');
+      hideSplash();
+    });
+    
+    // Click anywhere on splash to enable audio (if muted)
+    splashScreen.addEventListener('click', function(e) {
+      if (!audioEnabled && videoStarted && !splashHidden &&
+          e.target !== skipButton && 
+          e.target !== audioPrompt &&
+          !e.target.classList.contains('skip-button') &&
+          !e.target.classList.contains('audio-prompt')) {
+        console.log('👆 User clicked - attempting to enable audio');
+        enableAudioAndPlay();
+      }
+    });
+
+    // Try autoplay when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', attemptAutoplay);
+    } else {
+      attemptAutoplay();
+    }
+
+    // Error handler
+    splashVideo.addEventListener('error', function(e) {
+      console.error('❌ Video error:', e);
+      hideSplash();
+    });
+
+    // Video loaded
+    splashVideo.addEventListener('loadeddata', function() {
+      console.log('📹 Video loaded successfully');
+    });
+
+    // Additional attempt on user interaction anywhere on page
+    let firstInteraction = true;
+    document.addEventListener('click', function retryAudio() {
+      if (firstInteraction && !audioEnabled && videoStarted && !splashHidden) {
+        console.log('🔄 First user interaction - retrying audio');
+        firstInteraction = false;
+        enableAudioAndPlay();
+      }
+    }, { once: true });
+    
+  })();
+</script>
+
   <script>
-    // Attach quick-reply handlers
+    // Quick reply handlers
     (function () {
       function setupQuickReplies() {
         const ta = document.getElementById('userInput');
@@ -127,7 +329,6 @@
           if (btn.dataset._qrAttached) return;
           btn.dataset._qrAttached = '1';
           
-          // Check if this is the FAQ browser button
           if (btn.getAttribute('data-action') === 'browse-faq') {
             btn.addEventListener('click', (e) => {
               e.preventDefault();
@@ -136,7 +337,6 @@
               }
             });
           } else {
-            // Regular quick reply
             btn.addEventListener('click', (e) => {
               const text = btn.getAttribute('data-text') || '';
               if (!text) return;
@@ -159,6 +359,7 @@
   </script>
 
   <script>
+    // Textarea auto-resize
     (function(){
       const ta = document.getElementById('userInput');
       const sendBtn = document.getElementById('sendBtn');
@@ -214,7 +415,7 @@
       window.addEventListener('resize', resize);
     })();
 
-    // Populate date chip
+    // Date chip
     (function(){
       const el = document.getElementById('dateChip');
       if (!el) return;

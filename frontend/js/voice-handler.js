@@ -1,106 +1,55 @@
 /**
- * Voice Handler for ZAKIA Chatbot
- * Handles Speech Recognition (Voice Input) and Text-to-Speech (TTS)
- * Language: Malay (ms-MY) with Female Voice
+ * Voice Handler for ZAKIA Chatbot - Hybrid Edition
+ * STT: Web Speech API (Malay - Malaysia)
+ * TTS: ElevenLabs API (Bahasa Melayu Female Voice)
  */
 
 class VoiceHandler {
     constructor(chatbotInstance) {
         this.chatbot = chatbotInstance;
         this.recognition = null;
-        this.synthesis = window.speechSynthesis;
         this.isListening = false;
         this.isSpeaking = false;
         this.ttsEnabled = true;
-        this.currentUtterance = null;
         
-        // Malay language settings
-        this.language = 'ms-MY';
+        // Malay language settings for STT
+        this.recognitionLanguage = 'ms-MY'; // Malay - Malaysia
         
-        // Voice preferences
-        this.preferredVoice = null;
-        this.voicesLoaded = false;
+        // ElevenLabs Configuration for TTS
+        this.elevenLabsApiKey = '4a1b1788fb59eecefda5cf2e4690da16ab397d626b9805cd3174b0995a028613'; //ID key 
+        this.elevenLabsVoiceId = 'F9yCRElGuNvX7A2kGbWz'; // Maya J
+        this.elevenLabsModelId = 'eleven_multilingual_v2'; // Supports Bahasa Melayu
+        
+        // Audio handling
+        this.currentAudio = null;
         
         this.init();
     }
 
     init() {
         this.setupSpeechRecognition();
-        this.loadVoices();
         this.createVoiceControls();
         this.loadTTSPreference();
     }
 
     /**
-     * Load and select female Malay/Indonesian voice
+     * Set ElevenLabs API Key
      */
-    loadVoices() {
-        const setVoice = () => {
-            const voices = this.synthesis.getVoices();
-            
-            if (voices.length === 0) {
-                console.log('⏳ Menunggu suara...');
-                return;
-            }
-
-            console.log('🔍 Suara yang tersedia:', voices.map(v => `${v.name} (${v.lang})`));
-
-            // Priority 1: Google Indonesian (most common and natural)
-            let selectedVoice = voices.find(voice => 
-                voice.name === 'Google Bahasa Indonesia' ||
-                voice.name === 'Google Indonesian'
-            );
-
-            // Priority 2
-            if (!selectedVoice) {
-                selectedVoice = voices.find(voice => 
-                    voice.lang.startsWith('id') &&
-                    (voice.name.toLowerCase().includes('female') || 
-                     voice.name.toLowerCase().includes('perempuan'))
-                );
-            }
-
-            // Priority 3
-            if (!selectedVoice) {
-                selectedVoice = voices.find(voice => 
-                    voice.lang.startsWith('id')
-                );
-            }
-
-            // Priority 4: Malay voices
-            if (!selectedVoice) {
-                selectedVoice = voices.find(voice => 
-                    voice.lang.startsWith('ms')
-                );
-            }
-
-            // Last resort: Use first available voice
-            if (!selectedVoice && voices.length > 0) {
-                selectedVoice = voices[0];
-            }
-
-            if (selectedVoice) {
-                this.preferredVoice = selectedVoice;
-                console.log('✅ Suara dipilih:', selectedVoice.name, `(${selectedVoice.lang})`);
-                this.voicesLoaded = true;
-            }
-        };
-
-        // Load voices immediately
-        setVoice();
-
-        // Listen for voice changes (async loading)
-        if (this.synthesis.onvoiceschanged !== undefined) {
-            this.synthesis.onvoiceschanged = setVoice;
-        }
-
-        // Retry loading
-        setTimeout(setVoice, 100);
-        setTimeout(setVoice, 500);
+    setApiKey(apiKey) {
+        this.elevenLabsApiKey = apiKey;
+        console.log('✅ ElevenLabs API Key set');
     }
 
     /**
-     * Setup Web Speech API for voice input
+     * Set ElevenLabs Voice ID (optional customization)
+     */
+    setVoiceId(voiceId) {
+        this.elevenLabsVoiceId = voiceId;
+        console.log('ElevenLabs Voice ID updated:', voiceId);
+    }
+
+    /**
+     * Setup Web Speech API for voice input (Malay - Malaysia)
      */
     setupSpeechRecognition() {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -112,7 +61,7 @@ class VoiceHandler {
         }
 
         this.recognition = new SpeechRecognition();
-        this.recognition.lang = this.language;
+        this.recognition.lang = this.recognitionLanguage; // ms-MY
         this.recognition.continuous = false;
         this.recognition.interimResults = false;
         this.recognition.maxAlternatives = 1;
@@ -348,14 +297,14 @@ class VoiceHandler {
     }
 
     /**
-     * Speak text using TTS with FEMALE MALAY VOICE
+     * Speak text using ElevenLabs Text-to-Speech API (Bahasa Melayu Female Voice)
      */
-    speak(text) {
+    async speak(text) {
         if (!this.ttsEnabled || !text) return;
-
-        // Reload voices if not loaded
-        if (!this.voicesLoaded) {
-            this.loadVoices();
+        
+        if (!this.elevenLabsApiKey) {
+            console.warn('⚠️ API Key ElevenLabs belum ditetapkan');
+            return;
         }
 
         // Stop any ongoing speech
@@ -363,51 +312,76 @@ class VoiceHandler {
 
         // Clean text for better speech
         const cleanText = this.cleanTextForSpeech(text);
+        
+        if (!cleanText) return;
 
-        // Create utterance
-        this.currentUtterance = new SpeechSynthesisUtterance(cleanText);
-        
-        // Set language to Indonesian (sounds natural for Malay)
-        this.currentUtterance.lang = 'ms-MY';
-        
-        // Set preferred voice 
-        if (this.preferredVoice) {
-            this.currentUtterance.voice = this.preferredVoice;
-            console.log('🎙️ Menggunakan suara:', this.preferredVoice.name);
-        }
-        
-        // Voice parameters optimized for FEMALE voice and SLOWER speed
-        this.currentUtterance.rate = 0.94;    // SLOWER - 70% speed for clarity
-        this.currentUtterance.pitch = 1.15;   // HIGHER pitch for female voice
-        this.currentUtterance.volume = 1.0;   // Full volume
-
-        // Event handlers
-        this.currentUtterance.onstart = () => {
-            console.log('🔊 TTS dimulakan');
+        try {
             this.isSpeaking = true;
             this.addSpeakingIndicator();
-        };
-
-        this.currentUtterance.onend = () => {
-            console.log('🔇 TTS ditamatkan');
+            
+            console.log('🎙️ Menghantar ke ElevenLabs TTS...');
+            
+            // Call ElevenLabs TTS API
+            const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${this.elevenLabsVoiceId}`, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'audio/mpeg',
+                    'Content-Type': 'application/json',
+                    'xi-api-key': this.elevenLabsApiKey
+                },
+                body: JSON.stringify({
+                    text: cleanText,
+                    model_id: this.elevenLabsModelId,
+                    voice_settings: {
+                        stability: 0.5,
+                        similarity_boost: 0.75,
+                        style: 0.0,
+                        use_speaker_boost: true
+                    }
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`ElevenLabs TTS Error: ${response.status}`);
+            }
+            
+            // Get audio blob
+            const audioBlob = await response.blob();
+            const audioUrl = URL.createObjectURL(audioBlob);
+            
+            // Play audio
+            this.currentAudio = new Audio(audioUrl);
+            
+            this.currentAudio.onended = () => {
+                console.log('🔇 TTS ditamatkan');
+                this.isSpeaking = false;
+                this.removeSpeakingIndicator();
+                URL.revokeObjectURL(audioUrl);
+                this.currentAudio = null;
+            };
+            
+            this.currentAudio.onerror = (error) => {
+                console.error('❌ Ralat audio:', error);
+                this.isSpeaking = false;
+                this.removeSpeakingIndicator();
+                URL.revokeObjectURL(audioUrl);
+            };
+            
+            await this.currentAudio.play();
+            console.log('🔊 TTS dimainkan');
+            
+        } catch (error) {
+            console.error('❌ Ralat ElevenLabs TTS:', error);
             this.isSpeaking = false;
             this.removeSpeakingIndicator();
-            this.currentUtterance = null;
-        };
-
-        this.currentUtterance.onerror = (event) => {
-            console.error('❌ Ralat TTS:', event.error);
-            this.isSpeaking = false;
-            this.removeSpeakingIndicator();
-        };
-
-        // Speak
-        this.synthesis.speak(this.currentUtterance);
+        }
     }
 
     stopSpeaking() {
-        if (this.synthesis.speaking) {
-            this.synthesis.cancel();
+        if (this.currentAudio) {
+            this.currentAudio.pause();
+            this.currentAudio.currentTime = 0;
+            this.currentAudio = null;
         }
         this.isSpeaking = false;
         this.removeSpeakingIndicator();
@@ -437,6 +411,12 @@ class VoiceHandler {
         cleaned = cleaned.replace(/-/g, ' ');
         
         // Clean whitespace
+        cleaned = cleaned.replace(/\s+/g, ' ').trim();
+
+        // Remove remaining special characters but keep letters, numbers, and basic punctuation
+        cleaned = cleaned.replace(/[^a-zA-Z0-9\s,.!?'-]/g, ' ');
+        
+        // Clean up multiple spaces and trim
         cleaned = cleaned.replace(/\s+/g, ' ').trim();
         
         return cleaned;
