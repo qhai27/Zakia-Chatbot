@@ -1,6 +1,5 @@
 // ============================================
 // INTEGRATE LIVE CHAT POLLING INTO CHATBOT
-// Update your existing escalateLiveChat function
 // ============================================
 
 // When user clicks "Bercakap dengan Admin"

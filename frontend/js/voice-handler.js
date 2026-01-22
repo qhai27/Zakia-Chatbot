@@ -17,7 +17,7 @@ class VoiceHandler {
         
         // ElevenLabs Configuration for TTS
         this.elevenLabsApiKey = '4a1b1788fb59eecefda5cf2e4690da16ab397d626b9805cd3174b0995a028613'; //ID key 
-        this.elevenLabsVoiceId = 'F9yCRElGuNvX7A2kGbWz'; // Maya J
+        this.elevenLabsVoiceId = 'F9yCRElGuNvX7A2kGbWz'; // Maya J 
         this.elevenLabsModelId = 'eleven_multilingual_v2'; // Supports Bahasa Melayu
         
         // Audio handling
@@ -37,7 +37,7 @@ class VoiceHandler {
      */
     setApiKey(apiKey) {
         this.elevenLabsApiKey = apiKey;
-        console.log('✅ ElevenLabs API Key set');
+        console.log('ElevenLabs API Key set');
     }
 
     /**
