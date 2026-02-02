@@ -5,6 +5,9 @@ CORS Configuration
 
 from flask import Flask, make_response
 from flask_cors import CORS
+from database import DatabaseManager
+from routes.contact_request_routes import contact_bp
+from routes.admin_contact_routes import admin_contact_bp
 
 app = Flask(__name__)
 # Configure CORS to allow preflight requests from all origins
@@ -32,15 +35,10 @@ except ImportError as e:
     failed_blueprints.append(f"❌ Chat routes: {e}")
     print(f"❌ Failed to load chat routes: {e}")
 
-# Import and register live chat escalation routes
-try:
-    from routes.live_chat_routes import live_chat_bp
-    app.register_blueprint(live_chat_bp)
-    loaded_blueprints.append("✅ Live chat routes")
-    print("✅ Live chat routes loaded successfully")
-except ImportError as e:
-    failed_blueprints.append(f"❌ Live chat routes: {e}")
-    print(f"❌ Failed to load live chat routes: {e}")
+# Import and register
+app.register_blueprint(contact_bp)
+app.register_blueprint(admin_contact_bp)
+
 
 # Import and register admin routes
 try:

@@ -280,7 +280,7 @@
         if (DOM.saveFaqBtn) DOM.saveFaqBtn.disabled = show;
         if (DOM.saveFaqBtn) DOM.saveFaqBtn.innerHTML = show ? '⏳ Menyimpan...' : (STATE.editingId ? '💾 Kemaskini' : '💾 Simpan');
         if (DOM.refreshBtn) DOM.refreshBtn.disabled = show;
-        if (DOM.refreshBtn) DOM.refreshBtn.innerHTML = show ? '⏳ Memuat...' : '🔄 Refresh';
+        if (DOM.refreshBtn) DOM.refreshBtn.innerHTML = show ? '⏳ Memuat...' : '🔄 Muat Semula';
       },
 
       updateStatus(message, isError = false) {

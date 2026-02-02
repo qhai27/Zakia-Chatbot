@@ -1,0 +1,750 @@
+/* ============================================
+   LZNK ADMIN LOGIN PAGE
+   Professional Government Theme
+   ============================================ */
+
+:root {
+    --lznk-green: #006a4e;
+    --lznk-green-light: #008b62;
+    --lznk-green-dark: #004d38;
+    --lznk-yellow: #f9c80e;
+    --lznk-yellow-light: #ffd95f;
+    --lznk-red: #c62828;
+    --lznk-white: #ffffff;
+    --text-dark: #1f2937;
+    --text-muted: #6b7280;
+    --border-color: #e5e7eb;
+    --bg-light: #f9fafb;
+
+    --transition-fast: 0.2s ease;
+    --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* ============================================
+   RESET & BASE STYLES
+   ============================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--text-dark);
+    background: linear-gradient(135deg, #f0f9f4 0%, #e6f4ea 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* ============================================
+   BACKGROUND PATTERN
+   ============================================ */
+
+.bg-pattern {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 35px,
+            rgba(0, 106, 78, 0.02) 35px,
+            rgba(0, 106, 78, 0.02) 70px
+        );
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ============================================
+   LOGIN CONTAINER
+   ============================================ */
+
+.login-container {
+    width: 100%;
+    max-width: 1100px;
+    background: var(--lznk-white);
+    border-radius: 20px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    display: flex;
+    position: relative;
+    z-index: 1;
+    animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================
+   LEFT PANEL - BRANDING
+   ============================================ */
+
+.login-left {
+    flex: 1;
+    background: linear-gradient(135deg, var(--lznk-green-dark) 0%, var(--lznk-green) 100%);
+    padding: 60px 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+    color: var(--lznk-white);
+    position: relative;
+    overflow: hidden;
+}
+
+.login-left::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+    background-size: 30px 30px;
+    animation: float 20s linear infinite;
+}
+
+@keyframes float {
+    from {
+        transform: rotate(0deg) translateY(0);
+    }
+    to {
+        transform: rotate(360deg) translateY(20px);
+    }
+}
+
+.brand-section {
+    position: relative;
+    z-index: 2;
+}
+
+.brand-logo {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 4px solid var(--lznk-yellow);
+    object-fit: cover;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.brand-title {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.brand-subtitle {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 20px;
+    opacity: 0.95;
+}
+
+.brand-divider {
+    width: 80px;
+    height: 3px;
+    background: var(--lznk-yellow);
+    margin: 20px auto;
+    border-radius: 2px;
+}
+
+.brand-description {
+    font-size: 0.95rem;
+    line-height: 1.8;
+    opacity: 0.9;
+    max-width: 320px;
+}
+
+.brand-description strong {
+    color: var(--lznk-yellow);
+    font-weight: 700;
+}
+
+/* Security Badge */
+.security-badge {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    padding: 20px 25px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    text-align: left;
+    position: relative;
+    z-index: 2;
+}
+
+.security-icon {
+    font-size: 2.5rem;
+    animation: shake 3s ease-in-out infinite;
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: rotate(0deg);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: rotate(-5deg);
+    }
+    20%, 40%, 60%, 80% {
+        transform: rotate(5deg);
+    }
+}
+
+.security-text strong {
+    display: block;
+    font-size: 0.95rem;
+    margin-bottom: 5px;
+}
+
+.security-text p {
+    font-size: 0.85rem;
+    opacity: 0.85;
+    line-height: 1.5;
+}
+
+/* ============================================
+   RIGHT PANEL - FORMS
+   ============================================ */
+
+.login-right {
+    flex: 1.2;
+    padding: 50px 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+}
+
+.auth-form {
+    display: none;
+    animation: fadeIn 0.4s ease;
+}
+
+.auth-form.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* ============================================
+   FORM HEADER
+   ============================================ */
+
+.form-header {
+    margin-bottom: 30px;
+}
+
+.form-header h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--lznk-green);
+    margin-bottom: 10px;
+}
+
+.form-header p {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+}
+
+/* ============================================
+   ALERT MESSAGES
+   ============================================ */
+
+.alert {
+    padding: 14px 18px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.alert::before {
+    font-size: 1.3rem;
+}
+
+.alert.error {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+
+.alert.error::before {
+    content: '⚠️';
+}
+
+.alert.success {
+    background: #f0fdf4;
+    color: #065f46;
+    border: 1px solid #86efac;
+}
+
+.alert.success::before {
+    content: '✅';
+}
+
+.alert.info {
+    background: #eff6ff;
+    color: #1e40af;
+    border: 1px solid #bfdbfe;
+}
+
+.alert.info::before {
+    content: 'ℹ️';
+}
+
+/* ============================================
+   FORM BODY
+   ============================================ */
+
+.form-body {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.label-icon {
+    font-size: 1.1rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: all var(--transition-fast);
+    background: var(--lznk-white);
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--lznk-green);
+    box-shadow: 0 0 0 4px rgba(0, 106, 78, 0.1);
+}
+
+.form-input::placeholder {
+    color: var(--text-muted);
+    opacity: 0.7;
+}
+
+.form-hint {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* Password Wrapper */
+.password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-wrapper .form-input {
+    padding-right: 48px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 8px;
+    transition: transform var(--transition-fast);
+    user-select: none;
+}
+
+.toggle-password:hover {
+    transform: scale(1.1);
+}
+
+.toggle-password:active {
+    transform: scale(0.95);
+}
+
+/* ============================================
+   FORM OPTIONS
+   ============================================ */
+
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: -5px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: var(--text-dark);
+    cursor: pointer;
+    user-select: none;
+}
+
+.checkbox-label.full-width {
+    width: 100%;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--lznk-green);
+}
+
+.forgot-link {
+    font-size: 0.9rem;
+    color: var(--lznk-green);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color var(--transition-fast);
+}
+
+.forgot-link:hover {
+    color: var(--lznk-green-light);
+    text-decoration: underline;
+}
+
+.terms-link {
+    color: var(--lznk-green);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.terms-link:hover {
+    text-decoration: underline;
+}
+
+/* ============================================
+   SUBMIT BUTTON
+   ============================================ */
+
+.btn-submit {
+    width: 100%;
+    padding: 14px 24px;
+    background: linear-gradient(135deg, var(--lznk-green) 0%, var(--lznk-green-light) 100%);
+    color: var(--lznk-white);
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all var(--transition-smooth);
+    box-shadow: 0 4px 12px rgba(0, 106, 78, 0.3);
+    margin-top: 10px;
+}
+
+.btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 106, 78, 0.4);
+}
+
+.btn-submit:active {
+    transform: translateY(0);
+}
+
+.btn-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-icon {
+    font-size: 1.3rem;
+}
+
+.btn-text {
+    letter-spacing: 0.5px;
+}
+
+/* Loading State */
+.btn-submit.loading {
+    position: relative;
+    color: transparent;
+}
+
+.btn-submit.loading::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top-color: var(--lznk-white);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ============================================
+   FORM FOOTER
+   ============================================ */
+
+.form-footer {
+    margin-top: 25px;
+    text-align: center;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.form-footer p {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+}
+
+.switch-link {
+    color: var(--lznk-green);
+    text-decoration: none;
+    font-weight: 700;
+    transition: color var(--transition-fast);
+}
+
+.switch-link:hover {
+    color: var(--lznk-green-light);
+    text-decoration: underline;
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+
+.login-footer {
+    margin-top: 30px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    position: relative;
+    z-index: 1;
+}
+
+.login-footer p {
+    margin: 5px 0;
+}
+
+.footer-links {
+    margin-top: 8px;
+}
+
+.footer-links a {
+    color: var(--lznk-green);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+.footer-links a:hover {
+    color: var(--lznk-green-light);
+    text-decoration: underline;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 968px) {
+    .login-container {
+        flex-direction: column;
+        max-width: 500px;
+    }
+
+    .login-left {
+        padding: 40px 30px;
+    }
+
+    .brand-logo {
+        width: 80px;
+        height: 80px;
+    }
+
+    .brand-title {
+        font-size: 2.5rem;
+    }
+
+    .security-badge {
+        padding: 15px 20px;
+    }
+
+    .login-right {
+        padding: 40px 30px;
+    }
+}
+
+@media (max-width: 640px) {
+    body {
+        padding: 10px;
+    }
+
+    .login-container {
+        border-radius: 15px;
+    }
+
+    .login-left {
+        padding: 30px 20px;
+    }
+
+    .brand-logo {
+        width: 70px;
+        height: 70px;
+    }
+
+    .brand-title {
+        font-size: 2rem;
+    }
+
+    .brand-subtitle {
+        font-size: 0.95rem;
+    }
+
+    .security-badge {
+        flex-direction: column;
+        text-align: center;
+        padding: 15px;
+    }
+
+    .login-right {
+        padding: 30px 20px;
+    }
+
+    .form-header h2 {
+        font-size: 1.5rem;
+    }
+
+    .form-options {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .form-input {
+        padding: 10px 14px;
+        font-size: 0.9rem;
+    }
+
+    .btn-submit {
+        padding: 12px 20px;
+        font-size: 0.95rem;
+    }
+
+    .form-header h2 {
+        font-size: 1.3rem;
+    }
+
+    .form-header p {
+        font-size: 0.85rem;
+    }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+.form-input:focus-visible,
+.btn-submit:focus-visible,
+.toggle-password:focus-visible,
+.checkbox-label input:focus-visible {
+    outline: 3px solid var(--lznk-yellow);
+    outline-offset: 2px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

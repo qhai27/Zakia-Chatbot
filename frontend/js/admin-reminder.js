@@ -71,7 +71,7 @@
                 STATE.isLoading = show;
                 if (DOM.refreshReminders) {
                     DOM.refreshReminders.disabled = show;
-                    DOM.refreshReminders.innerHTML = show ? '⏳ Memuat...' : '🔄 Refresh';
+                    DOM.refreshReminders.innerHTML = show ? '⏳ Memuat...' : '🔄 Muat Semula';
                 }
             },
 

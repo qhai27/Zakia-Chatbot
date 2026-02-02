@@ -518,7 +518,7 @@ body {
 .modal {
     position: fixed;
     inset: 0;
-    z-index: 1000;
+    z-index: 9999;;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2453,4 +2453,271 @@ mark {
 @media (max-width: 480px) {
     .nav-item, .topbar-nav-item { padding: 12px 14px; }
     .btn { min-height: 44px; }
+}
+
+/* ===========================================
+   CONTACT REQUESTS STYLES
+   =========================================== */
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-color: var(--lznk-green);
+}
+
+.stat-icon {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e7f5ee;
+    border-radius: 12px;
+    font-size: 28px;
+        
+
+
+}
+.stat-card-icon {
+        width: 50px;
+        height: 50px;
+}
+.stat-card-icon img {
+        width: 40px;
+        height: 40px;
+}
+.stat-content {
+    flex: 1;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #6b7280;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-value {
+    font-size: 24px;
+    color: var(--lznk-green);
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+/* Office Status */
+.office-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #6b7280;
+}
+
+.status-text {
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+}
+
+/* Tabs */
+.tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.tab-btn {
+    padding: 12px 20px;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: #6b7280;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.tab-btn:hover {
+    color: #374151;
+    background: #f9fafb;
+}
+
+.tab-btn.active {
+    color: #3b82f6;
+    border-bottom-color: #3b82f6;
+}
+
+.tab-badge {
+    display: inline-block;
+    background: #ef4444;
+    color: white;
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: 6px;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Method Badges */
+.method-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.method-whatsapp {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.method-phone {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.method-email {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-contacted {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-resolved {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+/* Trigger Badges */
+.trigger-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    background: #f3f4f6;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #374151;
+}
+
+/* Question Cell */
+.question-cell {
+    max-width: 300px;
+}
+
+.question-preview {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+   /* -webkit-line-clamp: 2;*/
+    -webkit-box-orient: vertical;
+}
+
+/* Contact Links */
+.contact-link {
+    color: #3b82f6;
+    text-decoration: none;
+}
+
+.contact-link:hover {
+    text-decoration: underline;
+}
+
+/* Detail Grid */
+.detail-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.detail-section h4 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.detail-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.detail-table td {
+    padding: 8px 0;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.detail-table td:first-child {
+    width: 140px;
+    color: #6b7280;
+}
+
+.detail-question {
+    background: #f9fafb;
+    padding: 16px;
+    border-radius: 8px;
+    border-left: 4px solid #3b82f6;
+    white-space: pre-wrap;
+    line-height: 1.6;
+}
+
+.detail-notes {
+    background: #fffbeb;
+    padding: 16px;
+    border-radius: 8px;
+    border-left: 4px solid #f59e0b;
+    white-space: pre-wrap;
+    line-height: 1.6;
 }

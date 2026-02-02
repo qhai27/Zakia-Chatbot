@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ms">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LZNK Admin - Log Masuk</title>
+    <link rel="stylesheet" href="admin-login.css">
+</head>
+
+<body>
+
+    <!-- Background Pattern -->
+    <div class="bg-pattern"></div>
+
+    <!-- Login Container -->
+    <div class="login-container">
+
+        <!-- Left Panel - Branding -->
+        <div class="login-left">
+            <div class="brand-section">
+                <img src="images/zakia-avatar.png" alt="ZAKIA Logo" class="brand-logo">
+                <h1 class="brand-title">ZAKIA</h1>
+                <p class="brand-subtitle">Lembaga Zakat Negeri Kedah</p>
+                <div class="brand-divider"></div>
+                <p class="brand-description">
+                    Sistem Pengurusan Pentadbiran ZAKIA<br>
+                    <strong>Chatbot Pintar Zakat</strong>
+                </p>
+            </div>
+
+            <!-- Security Badge -->
+            <div class="security-badge">
+                <div class="security-icon">🔒</div>
+                <div class="security-text">
+                    <strong>Akses Selamat</strong>
+                    <p>Sistem dilindungi dengan penyulitan SSL</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel - Login Form -->
+        <div class="login-right">
+
+            <!-- Login Form -->
+            <div id="loginForm" class="auth-form active">
+                <div class="form-header">
+                    <h2>Log Masuk Pentadbir</h2>
+                    <p>Masukkan kelayakan anda untuk mengakses panel admin</p>
+                </div>
+
+                <!-- Alert Message -->
+                <div id="loginAlert" class="alert" style="display: none;"></div>
+
+                <form id="loginFormElement" class="form-body" onsubmit="handleLogin(event)">
+
+                    <!-- Admin ID Input -->
+                    <div class="form-group">
+                        <label for="loginAdminId">
+                            <span class="label-icon">👤</span>
+                            ID Pentadbir
+                        </label>
+                        <input 
+                            type="text" 
+                            id="loginAdminId" 
+                            name="adminId" 
+                            class="form-input" 
+                            placeholder="Masukkan ID pentadbir"
+                            required
+                            autocomplete="username"
+                        >
+                    </div>
+
+                    <!-- Password Input -->
+                    <div class="form-group">
+                        <label for="loginPassword">
+                            <span class="label-icon">🔑</span>
+                            Kata Laluan
+                        </label>
+                        <div class="password-wrapper">
+                            <input 
+                                type="password" 
+                                id="loginPassword" 
+                                name="password" 
+                                class="form-input" 
+                                placeholder="Masukkan kata laluan"
+                                required
+                                autocomplete="current-password"
+                            >
+                            <button type="button" class="toggle-password" onclick="togglePassword('loginPassword')">
+                                👁️
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Remember Me & Forgot Password -->
+                    <div class="form-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="rememberMe" name="rememberMe">
+                            <span>Ingat saya</span>
+                        </label>
+                        <a href="#" class="forgot-link" onclick="showForgotPassword(event)">
+                            Lupa kata laluan?
+                        </a>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn-submit" id="loginSubmitBtn">
+                        <span class="btn-icon">🔓</span>
+                        <span class="btn-text">Log Masuk</span>
+                    </button>
+
+                </form>
+
+                <!-- Signup Link -->
+                <div class="form-footer">
+                    <p>
+                        Belum mempunyai akaun?
+                        <a href="#" class="switch-link" onclick="showSignup(event)">
+                            Daftar di sini
+                        </a>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Signup Form -->
+            <div id="signupForm" class="auth-form">
+                <div class="form-header">
+                    <h2>Daftar Akaun Baharu</h2>
+                    <p>Lengkapkan maklumat untuk mencipta akaun pentadbir</p>
+                </div>
+
+                <!-- Alert Message -->
+                <div id="signupAlert" class="alert" style="display: none;"></div>
+
+                <form id="signupFormElement" class="form-body" onsubmit="handleSignup(event)">
+
+                    <!-- Full Name -->
+                    <div class="form-group">
+                        <label for="signupName">
+                            <span class="label-icon">👤</span>
+                            Nama Penuh
+                        </label>
+                        <input 
+                            type="text" 
+                            id="signupName" 
+                            name="name" 
+                            class="form-input" 
+                            placeholder="Masukkan nama penuh"
+                            required
+                        >
+                    </div>
+
+                    <!-- Admin ID -->
+                    <div class="form-group">
+                        <label for="signupAdminId">
+                            <span class="label-icon">🆔</span>
+                            ID Pentadbir
+                        </label>
+                        <input 
+                            type="text" 
+                            id="signupAdminId" 
+                            name="adminId" 
+                            class="form-input" 
+                            placeholder="Pilih ID pentadbir (unik)"
+                            required
+                            autocomplete="username"
+                        >
+                        <small class="form-hint">Gunakan huruf kecil dan nombor sahaja (min. 5 aksara)</small>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="form-group">
+                        <label for="signupEmail">
+                            <span class="label-icon">📧</span>
+                            E-mel Rasmi
+                        </label>
+                        <input 
+                            type="email" 
+                            id="signupEmail" 
+                            name="email" 
+                            class="form-input" 
+                            placeholder="nama@lznk.gov.my"
+                            required
+                            autocomplete="email"
+                        >
+                    </div>
+
+                    <!-- Password -->
+                    <div class="form-group">
+                        <label for="signupPassword">
+                            <span class="label-icon">🔑</span>
+                            Kata Laluan
+                        </label>
+                        <div class="password-wrapper">
+                            <input 
+                                type="password" 
+                                id="signupPassword" 
+                                name="password" 
+                                class="form-input" 
+                                placeholder="Cipta kata laluan yang kuat"
+                                required
+                                autocomplete="new-password"
+                            >
+                            <button type="button" class="toggle-password" onclick="togglePassword('signupPassword')">
+                                👁️
+                            </button>
+                        </div>
+                        <small class="form-hint">Min. 8 aksara, termasuk huruf besar, nombor & simbol</small>
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div class="form-group">
+                        <label for="confirmPassword">
+                            <span class="label-icon">🔒</span>
+                            Sahkan Kata Laluan
+                        </label>
+                        <div class="password-wrapper">
+                            <input 
+                                type="password" 
+                                id="confirmPassword" 
+                                name="confirmPassword" 
+                                class="form-input" 
+                                placeholder="Masukkan semula kata laluan"
+                                required
+                                autocomplete="new-password"
+                            >
+                            <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword')">
+                                👁️
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Terms & Conditions -->
+                    <div class="form-group">
+                        <label class="checkbox-label full-width">
+                            <input type="checkbox" id="acceptTerms" name="acceptTerms" required>
+                            <span>
+                                Saya bersetuju dengan 
+                                <a href="#" class="terms-link">Terma & Syarat</a> 
+                                penggunaan sistem
+                            </span>
+                        </label>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn-submit" id="signupSubmitBtn">
+                        <span class="btn-icon">✅</span>
+                        <span class="btn-text">Daftar Akaun</span>
+                    </button>
+
+                </form>
+
+                <!-- Login Link -->
+                <div class="form-footer">
+                    <p>
+                        Sudah mempunyai akaun?
+                        <a href="#" class="switch-link" onclick="showLogin(event)">
+                            Log masuk di sini
+                        </a>
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="login-footer">
+        <p>
+            &copy; 2025 Lembaga Zakat Negeri Kedah. Hak Cipta Terpelihara.
+        </p>
+        <p class="footer-links">
+            <a href="#">Dasar Privasi</a> • 
+            <a href="#">Terma Penggunaan</a> • 
+            <a href="#">Hubungi Kami</a>
+        </p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="admin-login.js"></script>
+
+</body>
+
+</html>

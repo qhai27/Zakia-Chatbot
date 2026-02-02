@@ -1,6 +1,7 @@
 """
 Zakat Calculator Module for ZAKIA Chatbot
 Integrates with JomZakat API for real-time nisab values
+Updated with monthly zakat calculations for all types
 
 """
 
@@ -103,10 +104,7 @@ class ZakatCalculator:
             return float(value) if value is not None else default
         except (ValueError, TypeError):
             return default
-        
-    from decimal import Decimal, ROUND_HALF_UP
 
-    # Add this helper method to the ZakatCalculator class
     def _round_currency(self, amount: float) -> float:
         """
         Round currency to 2 decimal places using ROUND_HALF_UP
@@ -449,9 +447,11 @@ class ZakatCalculator:
             
             # Build message
             if reaches_nisab:
+                monthly_zakat = zakat_amount / 12
                 message = (
                     f"✅ **Pendapatan anda mencapai nisab (Kaedah A - Tanpa Tolakan)**\n\n"
-                    f"💰 **Jumlah Zakat: RM{zakat_amount:,.2f}**\n\n"
+                    f"💰 **Jumlah Zakat: RM{zakat_amount:,.2f}**\n"
+                    f"📅 **Kadar zakat bulanan: RM{monthly_zakat:,.2f}/bulan**\n\n"
                     f"📊 **Butiran Pengiraan:**\n"
                     f"• Pendapatan kasar: RM{income:,.2f}\n"
                     f"• Nisab ({year} {year_type}): RM{nisab_value:,.2f}\n"
@@ -472,6 +472,7 @@ class ZakatCalculator:
             return {
                 'success': True,
                 'zakat_amount': round(zakat_amount, 2),
+                'monthly_zakat': round(zakat_amount / 12, 2) if reaches_nisab else 0.0,
                 'zakatable_amount': round(income, 2),
                 'reaches_nisab': reaches_nisab,
                 'nisab_value': nisab_value,
@@ -525,6 +526,7 @@ class ZakatCalculator:
                 return {
                     'success': True,
                     'zakat_amount': 0.0,
+                    'monthly_zakat': 0.0,
                     'zakatable_amount': 0.0,
                     'reaches_nisab': False,
                     'nisab_value': nisab_value,
@@ -540,9 +542,11 @@ class ZakatCalculator:
             
             # Build message
             if reaches_nisab:
+                monthly_zakat = zakat_amount / 12
                 message = (
                     f"✅ **Pendapatan bersih anda mencapai nisab (Kaedah B - Dengan Tolakan)**\n\n"
-                    f"💰 **Jumlah Zakat: RM{zakat_amount:,.2f}**\n\n"
+                    f"💰 **Jumlah Zakat: RM{zakat_amount:,.2f}**\n"
+                    f"📅 **Kadar zakat bulanan: RM{monthly_zakat:,.2f}/bulan**\n\n"
                     f"📊 **Butiran Pengiraan:**\n"
                     f"• Pendapatan tahunan: RM{income:,.2f}\n"
                     f"• Perbelanjaan asas: RM{expenses:,.2f}\n"
@@ -565,6 +569,7 @@ class ZakatCalculator:
             return {
                 'success': True,
                 'zakat_amount': round(zakat_amount, 2),
+                'monthly_zakat': round(zakat_amount / 12, 2) if reaches_nisab else 0.0,
                 'zakatable_amount': round(zakatable_amount, 2),
                 'reaches_nisab': reaches_nisab,
                 'nisab_value': nisab_value,
@@ -596,6 +601,7 @@ class ZakatCalculator:
                 return {
                     'success': True,
                     'zakat_amount': 0.0,
+                    'monthly_zakat': 0.0,
                     'reaches_nisab': False,
                     'message': '❌ Jumlah simpanan tidak sah. Sila masukkan nilai yang betul.',
                     'type': 'savings'
@@ -622,9 +628,11 @@ class ZakatCalculator:
             
             # Build message
             if reaches_nisab:
+                monthly_zakat = zakat_amount / 12
                 message = (
                     f"✅ **Simpanan anda mencapai nisab**\n\n"
-                    f"💰 **Jumlah Zakat: RM{zakat_amount:,.2f}**\n\n"
+                    f"💰 **Jumlah Zakat: RM{zakat_amount:,.2f}**\n"
+                    f"📅 **Kadar zakat bulanan: RM{monthly_zakat:,.2f}/bulan**\n\n"
                     f"📊 **Butiran Pengiraan:**\n"
                     f"• Jumlah simpanan: RM{savings:,.2f}\n"
                     f"• Nisab ({year} {year_type}): RM{nisab_value:,.2f}\n"
@@ -644,6 +652,7 @@ class ZakatCalculator:
             return {
                 'success': True,
                 'zakat_amount': round(zakat_amount, 2),
+                'monthly_zakat': round(zakat_amount / 12, 2) if reaches_nisab else 0.0,
                 'zakatable_amount': round(savings, 2),
                 'reaches_nisab': reaches_nisab,
                 'nisab_value': nisab_value,
@@ -675,6 +684,7 @@ class ZakatCalculator:
                 return {
                     'success': True,
                     'zakat_amount': 0.0,
+                    'monthly_zakat': 0.0,
                     'zakatable_amount': 0.0,
                     'reaches_nisab': False,
                     'message': '❌ Nilai tidak sah. Sila masukkan nilai yang betul.',
@@ -700,9 +710,10 @@ class ZakatCalculator:
             year_label = 'Hijrah' if year_type == 'H' else 'Masihi'
             
             if reaches_nisab:
+                monthly_zakat = zakat_amount / 12
                 message = (
                     f"✅ **Hasil padi anda mencapai nisab**\n\n"
-                    f"💰 **Jumlah Zakat: RM{zakat_amount:,.2f}**\n\n"
+                    f"💰 **Jumlah Zakat: RM{zakat_amount:,.2f}**\n"
                     f"📊 **Butiran Pengiraan:**\n"
                     f"• Jumlah hasil: RM{total_value:,.2f}\n"
                     f"• Nisab ({year} {year_label}): RM{nisab_rm:,.2f}\n"
@@ -723,6 +734,7 @@ class ZakatCalculator:
             return {
                 'success': True,
                 'zakat_amount': round(zakat_amount, 2),
+                'monthly_zakat': round(zakat_amount / 12, 2) if reaches_nisab else 0.0,
                 'zakatable_amount': round(total_value, 2),
                 'reaches_nisab': reaches_nisab,
                 'nisab_value': round(nisab_rm, 2),
@@ -772,6 +784,7 @@ class ZakatCalculator:
                 return {
                     'success': True,
                     'zakat_amount': 0.0,
+                    'monthly_zakat': 0.0,
                     'zakatable_amount': 0.0,
                     'reaches_nisab': False,
                     'message': '❌ Bilangan unit tidak sah.',
@@ -782,6 +795,7 @@ class ZakatCalculator:
                 return {
                     'success': True,
                     'zakat_amount': 0.0,
+                    'monthly_zakat': 0.0,
                     'zakatable_amount': 0.0,
                     'reaches_nisab': False,
                     'message': '❌ Harga seunit tidak sah.',
@@ -835,14 +849,17 @@ class ZakatCalculator:
             nama_display = f" ({nama})" if nama else ""
             
             if reaches_nisab:
+                monthly_zakat = zakat_amount / 12
                 message = (
                     f"✅ **Saham anda mencapai nisab{nama_display}**\n\n"
-                    f"💰 **Jumlah Zakat: RM{zakat_amount:,.2f}**\n\n"
+                    f"💰 **Jumlah Zakat: RM{zakat_amount:,.2f}**\n"
+                    f"📅 **Kadar zakat bulanan: RM{monthly_zakat:,.2f}/bulan**\n\n"
                     f"📊 **Butiran Pengiraan:**\n"
                     f"• Bilangan unit: {bilangan:,.0f}\n"
                     f"• Harga seunit: RM{harga:,.2f}\n"
-                    f"• Jumlah saham: RM{jumlah_saham:}\n"
+                    f"• Jumlah saham: RM{jumlah_saham:,.2f}\n"
                     f"• Kadar nisab ({year} {year_label}): RM{kadar_nisab_rm:,.2f}\n"
+                    f"• Kadar zakat: 2.577%\n\n"
                     f"ℹ️ Zakat saham dikira sebanyak 2.577% daripada jumlah saham."
                 )
             else:
@@ -861,6 +878,7 @@ class ZakatCalculator:
             return {
                 'success': True,
                 'zakat_amount': round(zakat_amount, 2),
+                'monthly_zakat': round(zakat_amount / 12, 2) if reaches_nisab else 0.0,
                 'zakatable_amount': round(jumlah_saham, 2),
                 'reaches_nisab': reaches_nisab,
                 'nisab_value': round(kadar_nisab_rm, 2),
@@ -901,8 +919,8 @@ class ZakatCalculator:
         1. Get weight from user
         2. Check if weight >= NILAI nisab (595g)
         3. If YES:
-        - Calculate value = weight × price_per_gram
-        - Calculate zakat = value × 2.577%
+           - Calculate value = weight × price_per_gram
+           - Calculate zakat = value × 2.577%
         4. If NO: zakat = 0
         """
         try:
@@ -912,6 +930,7 @@ class ZakatCalculator:
                 return {
                     'success': True,
                     'zakat_amount': 0.0,
+                    'monthly_zakat': 0.0,
                     'zakatable_amount': 0.0,
                     'reaches_nisab': False,
                     'message': '❌ Nilai berat tidak sah. Sila masukkan nilai yang betul.',
@@ -964,15 +983,18 @@ class ZakatCalculator:
             year_label = 'Hijrah' if year_type == 'H' else 'Masihi'
             
             if reaches_nisab:
+                monthly_zakat = zakat_amount / 12
                 message = (
                     f"✅ **Perak anda mencapai nisab**\n\n"
-                    f"💰 **Jumlah Zakat: RM{zakat_amount:,.2f}**\n\n"
+                    f"💰 **Jumlah Zakat: RM{zakat_amount:,.2f}**\n"
+                    f"📅 **Kadar zakat bulanan: RM{monthly_zakat:,.2f}/bulan**\n\n"
                     f"📊 **Butiran Pengiraan:**\n"
                     f"• Berat perak: {berat:,.2f} gram\n"
                     f"• Nilai nisab: {nilai_nisab_gram:,.0f} gram\n"
                     f"• Kadar nisab: RM{kadar_nisab_rm:,.2f}\n"
                     f"• Harga per gram: RM{harga_per_gram:,.2f}\n"
                     f"• Nilai perak: RM{total_value:,.2f}\n"
+                    f"• Kadar zakat: 2.577%\n\n"
                     f"ℹ️ Zakat perak dikira sebanyak 2.577% daripada nilai perak anda."
                 )
             else:
@@ -991,6 +1013,7 @@ class ZakatCalculator:
             return {
                 'success': True,
                 'zakat_amount': round(zakat_amount, 2),
+                'monthly_zakat': round(zakat_amount / 12, 2) if reaches_nisab else 0.0,
                 'zakatable_amount': round(total_value, 2),
                 'reaches_nisab': reaches_nisab,
                 'nisab_value': nilai_nisab_gram,  # Weight threshold
@@ -1034,6 +1057,7 @@ class ZakatCalculator:
                 return {
                     'success': True,
                     'zakat_amount': 0.0,
+                    'monthly_zakat': 0.0,
                     'zakatable_amount': 0.0,
                     'reaches_nisab': False,
                     'message': '❌ Nilai tidak sah.',
@@ -1067,9 +1091,11 @@ class ZakatCalculator:
             # Build message
             if reaches_nisab:
                 if pengeluaran > 0:
+                    monthly_zakat = zakat_amount / 12
                     message = (
                         f"✅ **KWSP anda mencapai nisab**\n\n"
-                        f"💰 **Jumlah Zakat: RM{zakat_amount:,.2f}**\n\n"
+                        f"💰 **Jumlah Zakat: RM{zakat_amount:,.2f}**\n"
+                        f"📅 **Kadar zakat bulanan: RM{monthly_zakat:,.2f}/bulan**\n\n"
                         f"📊 **Butiran Pengiraan:**\n"
                         f"• Akaun 1: RM{akaun_1:,.2f}\n"
                         f"• Akaun 2: RM{akaun_2:,.2f}\n"
@@ -1097,6 +1123,7 @@ class ZakatCalculator:
             return {
                 'success': True,
                 'zakat_amount': round(zakat_amount, 2),
+                'monthly_zakat': round(zakat_amount / 12, 2) if reaches_nisab and pengeluaran > 0 else 0.0,
                 'zakatable_amount': round(zakatable, 2),
                 'reaches_nisab': reaches_nisab,
                 'nisab_value': round(nisab_value, 2),
@@ -1216,12 +1243,14 @@ class ZakatCalculator:
                 
                 reaches = amount >= nisab_value
                 zakat = round((amount * kadar) if reaches else 0.0, 2)
+                monthly_zakat = round(zakat / 12, 2) if reaches else 0.0
                 
                 results[y] = {
                     'nisab': nisab_value,
                     'kadar': kadar,
                     'reaches': reaches,
-                    'zakat': zakat
+                    'zakat': zakat,
+                    'monthly_zakat': monthly_zakat
                 }
             except Exception as e:
                 results[y] = {'error': str(e)}

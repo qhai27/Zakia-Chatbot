@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Admin - FAQ & Reminder Manager</title>
+    <title>Panel Pengurusan</title>
 
     <!-- Styles -->
     <link rel="stylesheet" href="adminstyle.css">
@@ -19,6 +19,7 @@
     <script src="js/admin-analytics.js" defer></script>
     <script src="chatbot-livechat-polling.js"></script>
     <script src="chatbot-livechat-integration.js"></script>
+    <script src="js/admin-contact.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 
@@ -35,31 +36,29 @@
                 <img src="images/zakia-avatar.png" alt="ZAKIA" class="topbar-logo">
                 <div class="topbar-title">
                     <h1>ZAKIA Admin</h1>
-                    <p>Management Panel</p>
+                    <p>Panel Pengurusan</p>
                 </div>
             </a>
 
             <!-- Navigation Items -->
-            <div class="topbar-nav" id="topbarNav">
-                <a href="#" class="topbar-nav-item active" data-section="faqs" id="navFaqs">
+             <div class="topbar-nav" id="topbarNav">
+                <a href="#" class="topbar-nav-item active" data-section="faqs">
                     <span class="nav-icon">📋</span>
-                    <span>FAQ</span>
+                    <span>Soalan Lazim</span>
                 </a>
-                <a href="#" class="topbar-nav-item" data-section="reminders" id="navReminders">
+                <a href="#" class="topbar-nav-item" data-section="reminders">
                     <span class="nav-icon">🔔</span>
                     <span>Peringatan</span>
-                    <!-- <span class="nav-badge">5</span> -->
                 </a>
-                <a href="#" class="topbar-nav-item" data-section="chatlog" id="navChatlog">
+                <a href="#" class="topbar-nav-item" data-section="chatlog">
                     <span class="nav-icon">💬</span>
-                    <span>Chat Log</span>
+                    <span>Log Perbualan</span>
                 </a>
-                <a href="#" class="topbar-nav-item" data-section="livechat" id="navLiveChat">
-                    <span class="nav-icon">🆘</span>
-                    <span>Live Chat</span>
-                    <!-- <span class="nav-badge">2</span> -->
+                <a href="#" class="topbar-nav-item" data-section="contactRequests">
+                    <span class="nav-icon">📞</span>
+                    <span>Permohonan Untuk Dihubungi</span>
                 </a>
-                <a href="#" class="topbar-nav-item" data-section="analytics" id="navAnalytics">
+                <a href="#" class="topbar-nav-item" data-section="analytics">
                     <span class="nav-icon">📊</span>
                     <span>Analitik</span>
                 </a>
@@ -94,7 +93,7 @@
                 <!-- Header -->
                 <header class="content-header">
                     <div class="header-left">
-                        <h1>FAQ Manager</h1>
+                        <h1>Pengurusan Soalan Lazim (FAQ)</h1>
                         <div id="statusIndicator" class="status-badge">Memuat FAQ...</div>
                     </div>
                     <div class="header-actions">
@@ -105,8 +104,8 @@
                 <!-- Toolbar -->
                 <div class="toolbar">
                     <input id="search" class="admin-input search" placeholder="🔍 Cari soalan atau kategori...">
-                    <button id="refresh" class="btn ghost">🔄 Refresh</button>
-                    <button id="editCategoriesBtn" class="btn ghost">✏️ Edit Kategori</button>
+                    <button id="refresh" class="btn ghost">🔄 Muat Semula</button>
+                    <button id="editCategoriesBtn" class="btn ghost">✏️ Sunting Kategori</button>
                 </div>
 
                 <!-- Add/Edit Form -->
@@ -189,17 +188,17 @@
             <!-- =================== REMINDERS SECTION ==================== -->
             <section id="remindersSection" class="content-section" style="display:none;">
 
-                <!-- Header -->
-                <header class="content-header">
-                    <div class="header-left">
-                        <h1>🔔 Reminder Management</h1>
-                        <div id="reminderStatus" class="status-badge">Memuat reminders...</div>
-                    </div>
-                    <div class="header-actions">
-                        <button id="printRemindersBtn" class="btn primary">🖨️ Cetak</button>
-                        <button id="exportRemindersBtn" class="btn ghost">📥 Eksport CSV</button>
-                    </div>
-                </header>
+            <!-- Header -->
+            <header class="content-header">
+                <div class="header-left">
+                    <h1>🔔 Pengurusan Peringatan</h1>
+                    <div id="reminderStatus" class="status-badge">Memuat peringatan...</div>
+                </div>
+                <div class="header-actions">
+                    <button id="printRemindersBtn" class="btn primary">🖨️ Cetak</button>
+                    <button id="exportRemindersBtn" class="btn ghost">📥 Eksport CSV</button>
+                </div>
+            </header>
 
                 <!-- Reminder Stats Cards -->
                 <div class="stats-cards">
@@ -308,7 +307,7 @@
                         <option value="perak">Perak</option>
                         <option value="kwsp">KWSP</option>
                     </select>
-                    <button id="refreshReminders" class="btn ghost">🔄 Refresh</button>
+                    <button id="refreshReminders" class="btn ghost">🔄 Muat Semula</button>
                 </div>
 
                 <!-- Table -->
@@ -346,11 +345,11 @@
             <!-- ==================== CHATLOG SECTION ===================== -->
             <section id="chatlogSection" class="content-section" style="display:none;">
 
-                <!-- Header -->
+                 <!-- Header -->
                 <header class="content-header">
                     <div class="header-left">
-                        <h1>💬 Sejarah ChatLog</h1>
-                        <div id="chatlogStatus" class="status-badge">Memuat chat log...</div>
+                        <h1>💬 Sejarah Log Perbualan</h1>
+                        <div id="chatlogStatus" class="status-badge">Memuat log perbualan...</div>
                     </div>
                     <div class="header-actions">
                         <button id="printChatLogsBtn" class="btn primary">🖨️ Cetak</button>
@@ -373,7 +372,7 @@
                 <div class="toolbar">
                     <input id="chatlogSearch" class="admin-input search"
                         placeholder="🔍 Cari pesanan, session ID, atau user ID...">
-                    <button id="refreshChatLogs" class="btn ghost">🔄 Refresh</button>
+                    <button id="refreshChatLogs" class="btn ghost">🔄 Muat Semula</button>
                 </div>
 
                 <!-- Bulk Actions -->
@@ -418,83 +417,223 @@
                 <div id="chatlogPagination" class="pagination"></div>
 
             </section>
-            <!-- =================== LIVE CHAT SECTION ==================== -->
-            <section id="livechatSection" class="content-section" style="display:none;">
+
+            <!-- =================== CONTACT REQUESTS SECTION ==================== -->
+            <section id="contactRequestsSection" class="content-section" style="display:none;">
 
                 <!-- Header -->
                 <header class="content-header">
                     <div class="header-left">
-                        <h1>🆘 Live Chats</h1>
-                        <div id="livechatStatus" class="status-badge">Memuat data...</div>
+                        <h1>📞 Permintaan Hubungi</h1>
+                        <div id="contactStatus" class="status-badge">Memuat data...</div>
                     </div>
-                    <div class="header-actions">
-                        <button id="refreshLivechat" class="btn ghost">🔄 Refresh</button>
+                    <div class="header-right">
+                        <div class="office-status" id="officeStatusIndicator">
+                            <span class="status-dot"></span>
+                            <span class="status-text">Menyemak...</span>
+                        </div>
+                        <button id="refreshContacts" class="btn ghost">🔄 Muat Semula</button>
                     </div>
                 </header>
 
-                <!-- Open Requests -->
-                <h3>Permintaan Terbuka</h3>
-                <div class="table-container">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th style="width: 80px;">ID</th>
-                                <th style="width: 200px;">Soalan Pengguna</th>
-                                <th style="width: 200px;">Jawapan Bot</th>
-                                <th style="width: 120px;">Session</th>
-                                <th style="width: 160px;">Tarikh</th>
-                                <th style="width: 100px;">Tindakan</th>
-                            </tr>
-                        </thead>
-                        <tbody id="livechatTableBody">
-                            <tr>
-                                <td class="text-center text-muted">-</td>
-                                <td class="text-center text-muted">Loading...</td>
-                                <td class="text-center text-muted">Loading...</td>
-                                <td class="text-center text-muted">-</td>
-                                <td class="text-center text-muted">-</td>
-                                <td class="text-center">
-                                    <button class="btn ghost" onclick="viewLivechat('sample')">👁️ Lihat</button>
-                                    <button class="btn warn" onclick="deleteLivechat('sample')">🗑️ Padam</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                <div class="stat-card pending-card">
+                    <div class="stat-card-icon">
+                        <img src="images/pending-card.png" alt="Menunggu">
+                    </div>
+                    <div class="stat-card-content">
+                        <div class="stat-card-label">Menunggu</div>
+                        <div id="statsPendingContacts" class="stat-card-value">0</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card contacted-card">
+                    <div class="stat-card-icon">
+                        <img src="images/contacted-card.png" alt="Telah Dihubungi">
+                    </div>
+                    <div class="stat-card-content">
+                        <div class="stat-card-label">Telah Dihubungi</div>
+                        <div id="statsContactedContacts" class="stat-card-value">0</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card total-card">
+                    <div class="stat-card-icon">
+                        <img src="images/total-card.png" alt="Jumlah">
+                    </div>
+                    <div class="stat-card-content">
+                        <div class="stat-card-label">Jumlah</div>
+                        <div id="statsTotalContacts" class="stat-card-value">0</div>
+                    </div>
+                </div>
+            </div>
+
+                <!-- Tabs -->
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="pending">
+                        ⏳ Menunggu <span class="tab-badge" id="pendingBadge">0</span>
+                    </button>
+                    <button class="tab-btn" data-tab="history">
+                        📚 Sejarah
+                    </button>
                 </div>
 
-                <!-- History -->
-                <h3 style="margin-top:24px;">Sejarah (Resolved)</h3>
-                <div class="table-container">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Soalan Pengguna</th>
-                                <th>Jawapan Bot</th>
-                                <th>Session</th>
-                                <th>Diselesaikan</th>
-                                <th>Tindakan</th>
-                            </tr>
-                        </thead>
-                        <tbody id="livechatHistoryBody">
-                            <tr>
-                                <td class="text-center text-muted">-</td>
-                                <td class="text-center text-muted">Loading...</td>
-                                <td class="text-center text-muted">Loading...</td>
-                                <td class="text-center text-muted">-</td>
-                                <td class="text-center text-muted">-</td>
-                                <td class="text-center">
-                                    <button class="btn ghost" onclick="viewLivechat('sample-res')">👁️ Lihat</button>
-                                    <button class="btn warn" onclick="deleteLivechat('sample-res')">🗑️ Padam</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <!-- Pending Requests Tab -->
+                <div id="pendingTab" class="tab-content active">
+                    <div class="toolbar">
+                        <input id="contactSearch" class="admin-input search" placeholder="🔍 Cari nama, telefon, email...">
+                        <select id="contactMethodFilter" class="admin-select">
+                            <option value="">Semua Kaedah</option>
+                            <option value="whatsapp">WhatsApp</option>
+                            <option value="phone">Telefon</option>
+                            <option value="email">Email</option>
+                        </select>
+                        <select id="contactTriggerFilter" class="admin-select">
+                            <option value="">Semua Trigger</option>
+                            <option value="explicit_request">Permintaan Terus</option>
+                            <option value="confusion">Keliru</option>
+                            <option value="repetition">Soalan Berulang</option>
+                            <option value="complexity">Kompleks</option>
+                        </select>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th style="width:60px;">ID</th>
+                                    <th style="width:150px;">Nama</th>
+                                    <th style="width:130px;">Telefon</th>
+                                    <th style="width:180px;">Email</th>
+                                    <th>Soalan</th>
+                                    <th style="width:100px;">Kaedah</th>
+                                    <th style="width:140px;">Tarikh</th>
+                                    <th style="width:180px;">Tindakan</th>
+                                </tr>
+                            </thead>
+                            <tbody id="contactTableBody">
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted">Memuat data...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div id="contactEmptyState" class="empty-state" style="display:none;">
+                            <div class="empty-icon">📞</div>
+                            <p>Tiada permintaan menunggu</p>
+                            <small class="text-muted">Permintaan baru akan muncul di sini</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- History Tab -->
+                <div id="historyTab" class="tab-content">
+                    <div class="toolbar">
+                        <input id="historySearch" class="admin-input search" placeholder="🔍 Cari nama, telefon...">
+                        <select id="historyStatusFilter" class="admin-select">
+                            <option value="">Semua Status</option>
+                            <option value="contacted">Dihubungi</option>
+                            <option value="resolved">Selesai</option>
+                        </select>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th style="width:60px;">ID</th>
+                                    <th style="width:150px;">Nama</th>
+                                    <th style="width:130px;">Telefon</th>
+                                    <th>Soalan</th>
+                                    <th style="width:100px;">Kaedah</th>
+                                    <th style="width:120px;">Status</th>
+                                    <th style="width:140px;">Dihubungi</th>
+                                    <th style="width:140px;">Tindakan</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTableBody">
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted">Memuat data...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div id="historyEmptyState" class="empty-state" style="display:none;">
+                            <div class="empty-icon">📚</div>
+                            <p>Tiada sejarah permintaan</p>
+                        </div>
+                    </div>
                 </div>
 
             </section>
-            <!-- ================= END CHATLOG SECTION ================== -->
+        <!-- ================= END CONTACT REQUESTS SECTION ================= -->
 
+        <!-- Contact Detail Modal -->
+        <!-- Modal Butiran Permohonan -->
+            <div id="contactDetailModal" class="modal" style="display:none;">
+                <div class="modal-overlay"></div>
+                <div class="modal-content modal-large">
+                    <div class="modal-header">
+                        <h3>📋 Butiran Permohonan</h3>
+                        <button class="btn-close" onclick="closeContactDetailModal()">✖</button>
+                    </div>
+                    <div id="contactDetailBody" class="modal-body">
+                        <!-- Dimuatkan secara dinamik -->
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn ghost" onclick="closeContactDetailModal()">Tutup</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Tandakan Sebagai Dihubungi -->
+            <div id="markContactedModal" class="modal" style="display:none;">
+                <div class="modal-overlay"></div>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>✅ Tandakan Sebagai Dihubungi</h3>
+                        <button class="btn-close" onclick="closeMarkContactedModal()">✖</button>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="form-group">
+                            <label>Kaedah Menghubungi <span class="required">*</span></label>
+                            <select id="contactedMethodSelect" class="admin-input">
+                                <option value="whatsapp">WhatsApp</option>
+                                <option value="phone">Telefon</option>
+                                <option value="email">E-mel</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Catatan Admin</label>
+                            <textarea
+                                id="adminNotesTextarea"
+                                class="admin-textarea"
+                                rows="4"
+                                placeholder="Contoh: Telah dihubungi dan isu telah diselesaikan."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Nama Pegawai</label>
+                            <input
+                                id="contactedByInput"
+                                class="admin-input"
+                                placeholder="Masukkan nama pegawai"
+                                value="">
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn ghost" onclick="closeMarkContactedModal()">Batal</button>
+                        <button id="confirmMarkContactedBtn" class="btn primary">
+                            ✅ Tandakan Dihubungi
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- ================= END CONTACT DETAIL MODAL ================= -->
 
             <!-- =================== ANALYTICS SECTION ==================== -->
             <section id="analyticsSection" class="content-section" style="display:none;">
@@ -502,65 +641,68 @@
                 <!-- Header -->
                 <header class="content-header"
                     style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
+                    
                     <div class="header-left" style="flex: 1; min-width: 200px;">
-                        <h1 style="margin: 0 0 8px 0; font-size: 24px;">📊 Analytics Dashboard</h1>
+                        <h1 style="margin: 0 0 8px 0; font-size: 24px;">📊 Papan Pemuka Analitik</h1>
                         <select id="analyticsPeriod" class="admin-select" style="width: 100%; max-width: 200px;">
                             <option value="day">Hari Ini</option>
                             <option value="week">Minggu Ini</option>
                             <option value="month" selected>Bulan Ini</option>
                         </select>
                     </div>
+
                     <div class="header-actions" style="display: flex; gap: 8px; flex-wrap: wrap;">
-                        <button id="refreshAnalytics" class="btn ghost" style="flex: 1; min-width: 100px;">🔄
-                            Refresh</button>
+                        <button id="refreshAnalytics" class="btn ghost" style="flex: 1; min-width: 100px;">
+                            🔄 Muat Semula
+                        </button>
                     </div>
                 </header>
 
-                <!-- Overview Stats Cards -->
+                <!-- Kad Statistik Ringkasan -->
                 <div class="analytics-stats-grid">
 
-                    <!-- Total Chats -->
+                    <!-- Jumlah Sesi Chat -->
                     <div class="analytics-stat-card">
                         <div class="stat-icon">💬</div>
                         <div class="stat-content">
-                            <div class="stat-label">Total Chats</div>
+                            <div class="stat-label">Jumlah Chat</div>
                             <div id="statTotalChats" class="stat-value">0</div>
                         </div>
                     </div>
 
-                    <!-- Unique Users -->
+                    <!-- Pengguna Unik -->
                     <div class="analytics-stat-card">
                         <div class="stat-icon">👥</div>
                         <div class="stat-content">
-                            <div class="stat-label">Unique Users</div>
+                            <div class="stat-label">Pengguna Unik</div>
                             <div id="statUniqueUsers" class="stat-value">0</div>
                         </div>
                     </div>
 
-                    <!-- Average Session Length -->
+                    <!-- Purata Panjang Sesi -->
                     <div class="analytics-stat-card">
                         <div class="stat-icon">📊</div>
                         <div class="stat-content">
-                            <div class="stat-label">Avg Session</div>
+                            <div class="stat-label">Purata Sesi</div>
                             <div id="statAvgSession" class="stat-value">0.0</div>
-                            <small class="stat-unit">messages</small>
+                            <small class="stat-unit">mesej</small>
                         </div>
                     </div>
 
-                    <!-- Growth Rate -->
+                    <!-- Kadar Pertumbuhan -->
                     <div class="analytics-stat-card">
                         <div class="stat-icon">📈</div>
                         <div class="stat-content">
-                            <div class="stat-label">Growth Rate</div>
+                            <div class="stat-label">Kadar Pertumbuhan</div>
                             <div id="statGrowthRate" class="stat-value">+0%</div>
                         </div>
                     </div>
 
-                    <!-- Engagement Score -->
+                    <!-- Skor Penglibatan -->
                     <div class="analytics-stat-card highlight">
                         <div class="stat-icon">⭐</div>
                         <div class="stat-content">
-                            <div class="stat-label">Engagement Score</div>
+                            <div class="stat-label">Skor Penglibatan</div>
                             <div id="statEngagement" class="stat-value score-good">0.0</div>
                             <small class="stat-unit">/ 100</small>
                         </div>
@@ -568,36 +710,36 @@
 
                 </div>
 
-                <!-- Charts Section -->
+                <!-- Seksyen Carta -->
                 <div class="analytics-charts-section">
 
-                    <!-- Chats Per Day Chart -->
+                    <!-- Carta Chat Harian -->
                     <div class="analytics-chart-card">
                         <div class="chart-header">
-                            <h3>📅 Chats Per Day</h3>
-                            <small class="text-muted">Message volume over time</small>
+                            <h3>📅 Chat Mengikut Hari</h3>
+                            <small class="text-muted">Jumlah mesej mengikut masa</small>
                         </div>
                         <div class="chart-container">
                             <canvas id="chatsPerDayChart" width="400" height="200"></canvas>
                         </div>
                     </div>
 
-                    <!-- Hourly Distribution Chart -->
+                    <!-- Carta Waktu Puncak -->
                     <div class="analytics-chart-card">
                         <div class="chart-header">
-                            <h3>🕐 Peak Hours</h3>
-                            <small class="text-muted">Messages by hour of day</small>
+                            <h3>🕐 Waktu Puncak</h3>
+                            <small class="text-muted">Bilangan mesej mengikut jam</small>
                         </div>
                         <div class="chart-container">
                             <canvas id="hourlyChart" width="400" height="200"></canvas>
                         </div>
                     </div>
 
-                    <!-- FAQ Categories Chart -->
+                    <!-- Carta Kategori Soalan Lazim -->
                     <div class="analytics-chart-card faq-chart-card">
                         <div class="chart-header">
-                            <h3>📋 FAQ Categories</h3>
-                            <small class="text-muted">Distribution by category</small>
+                            <h3>📋 Kategori Soalan Lazim</h3>
+                            <small class="text-muted">Agihan mengikut kategori</small>
                         </div>
                         <div class="chart-container">
                             <canvas id="faqCategoriesChart"></canvas>
@@ -606,115 +748,115 @@
 
                 </div>
 
-                <!-- FAQ Analytics Stats Cards -->
+                <!-- Statistik Soalan Lazim -->
                 <div class="analytics-stats-grid" style="margin-top: 20px;">
 
-                    <!-- Total FAQs -->
+                    <!-- Jumlah Soalan Lazim -->
                     <div class="analytics-stat-card">
                         <div class="stat-icon">📋</div>
                         <div class="stat-content">
-                            <div class="stat-label">Total FAQs</div>
+                            <div class="stat-label">Jumlah Soalan Lazim</div>
                             <div id="faqStatTotal" class="stat-value">0</div>
                         </div>
                     </div>
 
-                    <!-- Recent FAQs -->
+                    <!-- Soalan Lazim Terkini -->
                     <div class="analytics-stat-card">
                         <div class="stat-icon">🆕</div>
                         <div class="stat-content">
-                            <div class="stat-label">Recent FAQs</div>
+                            <div class="stat-label">Soalan Lazim Terkini</div>
                             <div id="faqStatRecent" class="stat-value">0</div>
-                            <small class="stat-unit">this period</small>
+                            <small class="stat-unit">tempoh ini</small>
                         </div>
                     </div>
 
-                    <!-- Average Answer Length -->
+                    <!-- Purata Panjang Jawapan -->
                     <div class="analytics-stat-card">
                         <div class="stat-icon">📝</div>
                         <div class="stat-content">
-                            <div class="stat-label">Avg Answer Length</div>
+                            <div class="stat-label">Purata Panjang Jawapan</div>
                             <div id="faqStatAvgLength" class="stat-value">0</div>
                         </div>
                     </div>
 
-                    <!-- Top Category -->
+                    <!-- Kategori Paling Popular -->
                     <div class="analytics-stat-card">
                         <div class="stat-icon">🏷️</div>
                         <div class="stat-content">
-                            <div class="stat-label">Top Category</div>
+                            <div class="stat-label">Kategori Teratas</div>
                             <div id="faqStatTopCategory" class="stat-value">-</div>
                         </div>
                     </div>
 
                 </div>
 
-                <!-- Data Tables Section -->
+                <!-- Seksyen Jadual Data -->
                 <div class="analytics-data-section">
 
-                    <!-- FAQ Categories -->
+                    <!-- Jadual Kategori Soalan Lazim -->
                     <div class="analytics-data-card">
                         <div class="data-card-header">
-                            <h3>📋 FAQ Categories</h3>
-                            <small class="text-muted">Distribution by category</small>
+                            <h3>📋 Kategori Soalan Lazim</h3>
+                            <small class="text-muted">Agihan mengikut kategori</small>
                         </div>
                         <div class="table-container compact">
                             <table class="table">
                                 <thead>
                                     <tr>
-                                        <th>Category</th>
-                                        <th style="width:80px;" class="text-center">Count</th>
+                                        <th>Kategori</th>
+                                        <th style="width:80px;" class="text-center">Bil.</th>
                                     </tr>
                                 </thead>
                                 <tbody id="faqCategoriesBody">
                                     <tr>
-                                        <td colspan="2" class="text-center text-muted">Loading...</td>
+                                        <td colspan="2" class="text-center text-muted">Memuatkan data...</td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
 
-                    <!-- Top Questions -->
+                    <!-- Soalan Paling Kerap Ditanya -->
                     <div class="analytics-data-card">
                         <div class="data-card-header">
-                            <h3>🔥 Most Asked Questions</h3>
-                            <small class="text-muted">Top 10 frequently asked</small>
+                            <h3>🔥 Soalan Paling Kerap Ditanya</h3>
+                            <small class="text-muted">10 soalan teratas</small>
                         </div>
                         <div class="table-container compact">
                             <table class="table">
                                 <thead>
                                     <tr>
-                                        <th>Question</th>
-                                        <th style="width:80px;" class="text-center">Count</th>
+                                        <th>Soalan</th>
+                                        <th style="width:80px;" class="text-center">Bil.</th>
                                     </tr>
                                 </thead>
                                 <tbody id="topQuestionsBody">
                                     <tr>
-                                        <td colspan="2" class="text-center text-muted">Loading...</td>
+                                        <td colspan="2" class="text-center text-muted">Memuatkan data...</td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
 
-                    <!-- Zakat Type Popularity -->
+                    <!-- Populariti Jenis Zakat -->
                     <div class="analytics-data-card">
                         <div class="data-card-header">
-                            <h3>💰 Zakat Type Popularity</h3>
-                            <small class="text-muted">Breakdown by zakat type</small>
+                            <h3>💰 Populariti Jenis Zakat</h3>
+                            <small class="text-muted">Pecahan mengikut jenis zakat</small>
                         </div>
                         <div class="table-container compact">
                             <table class="table">
                                 <thead>
                                     <tr>
-                                        <th>Type</th>
-                                        <th style="width:80px;" class="text-center">Count</th>
-                                        <th style="width:120px;" class="text-right">Total (RM)</th>
+                                        <th>Jenis</th>
+                                        <th style="width:80px;" class="text-center">Bil.</th>
+                                        <th style="width:120px;" class="text-right">Jumlah (RM)</th>
                                     </tr>
                                 </thead>
                                 <tbody id="zakatPopularityBody">
                                     <tr>
-                                        <td colspan="3" class="text-center text-muted">Loading...</td>
+                                        <td colspan="3" class="text-center text-muted">Memuatkan data...</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -724,6 +866,8 @@
                 </div>
 
             </section>
+            <!-- ================= TAMAT SEKSYEN ANALITIK ================= -->
+
             <!-- ================= END ANALYTICS SECTION ================= -->
 
         </main>
@@ -762,44 +906,46 @@
         </div>
     </div>
 
-    <!-- Reminder Detail Modal -->
+    <!-- Modal Butiran Peringatan -->
     <div id="reminderDetailModal" class="modal" style="display:none;">
         <div class="modal-overlay"></div>
         <div class="modal-content modal-large">
 
             <div class="modal-header">
-                <h3>📋 Reminder Details</h3>
+                <h3>📋 Butiran Peringatan</h3>
                 <button class="btn-close"
                     onclick="document.getElementById('reminderDetailModal').style.display='none'">✖</button>
             </div>
 
             <div id="reminderDetailBody" class="modal-body">
-                <!-- Loaded dynamically -->
+                <!-- Dimuatkan secara dinamik -->
             </div>
 
             <div class="modal-footer">
                 <button class="btn ghost"
-                    onclick="document.getElementById('reminderDetailModal').style.display='none'">Tutup</button>
-                <button id="printSingleReminder" class="btn primary">🖨️ Print</button>
+                    onclick="document.getElementById('reminderDetailModal').style.display='none'">
+                    Tutup
+                </button>
+                <button id="printSingleReminder" class="btn primary">🖨️ Cetak</button>
             </div>
 
         </div>
     </div>
 
-    <!-- Chat Log Detail Modal -->
+    <!-- Modal Butiran Log Perbualan -->
     <div id="chatlogDetailModal" class="modal" style="display:none;">
 
         <div class="modal-overlay"></div>
         <div class="modal-content modal-large">
 
             <div class="modal-header">
-                <h3>💬 Chat Log Details</h3>
+                <h3>💬 Butiran Log Perbualan</h3>
                 <button class="btn-close"
                     onclick="document.getElementById('chatlogDetailModal').style.display='none'">✖</button>
             </div>
 
             <div class="modal-body">
-                <!-- Loaded dynamically -->
+                <!-- Dimuatkan secara dinamik -->
             </div>
 
             <div class="modal-footer">

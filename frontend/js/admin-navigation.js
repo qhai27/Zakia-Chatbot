@@ -1,17 +1,19 @@
 // ===============================================
 // UNIFIED NAVIGATION HANDLER FOR ADMIN INTERFACE
+// Handles sidebar and topbar navigation clicks,
+// section visibility, and section-specific loading.
 // ===============================================
 
 (function () {
     document.addEventListener('DOMContentLoaded', () => {
         console.log('🧭 Navigation handler initializing...');
 
-        // Section mapping
+        // Section mapping - UPDATED to include contactRequests
         const SECTION_MAP = {
             'faqs': 'faqSection',
             'reminders': 'remindersSection',
             'chatlog': 'chatlogSection',
-            'livechat': 'livechatSection',
+            'contactRequests': 'contactRequestsSection',  
             'analytics': 'analyticsSection'
         };
 
@@ -36,6 +38,9 @@
         // Navigation handler
         function handleNavigation(sectionKey) {
             console.log(`🧭 Navigating to: ${sectionKey}`);
+
+            // Stop auto-refresh on sections being left
+            stopAutoRefreshOnNavigation(sectionKey);
 
             // Hide ALL sections first
             const allSections = document.querySelectorAll('.content-section');
@@ -75,6 +80,29 @@
             }
 
             // Trigger section-specific loading
+            loadSectionData(sectionKey);
+        }
+
+        // Stop auto-refresh when navigating away from sections
+        function stopAutoRefreshOnNavigation(targetSection) {
+            // Stop ChatLog auto-refresh when leaving
+            if (targetSection !== 'chatlog') {
+                if (window.ChatLogOperations && window.ChatLogOperations.stopAutoRefresh) {
+                    window.ChatLogOperations.stopAutoRefresh();
+                }
+            }
+
+            // Stop Contact Requests auto-refresh when leaving
+            if (targetSection !== 'contactRequests') {
+                if (window.ContactRequestAdmin && window.ContactRequestAdmin.stopAutoRefresh) {
+                    window.ContactRequestAdmin.stopAutoRefresh();
+                    console.log('⏸️ Stopped Contact Requests auto-refresh');
+                }
+            }
+        }
+
+        // Load section-specific data
+        function loadSectionData(sectionKey) {
             switch (sectionKey) {
                 case 'faqs':
                     // FAQ section - already loaded by admin-faq.js
@@ -84,6 +112,7 @@
                     // Update topbar stats
                     updateTopbarStats();
                     break;
+
                 case 'reminders':
                     // Reminders section
                     if (window.ReminderOperations && window.ReminderOperations.load) {
@@ -92,6 +121,7 @@
                         }, 100);
                     }
                     break;
+
                 case 'chatlog':
                     // ChatLog section
                     if (window.ChatLogOperations && window.ChatLogOperations.load) {
@@ -103,13 +133,25 @@
                         }, 100);
                     }
                     break;
-                case 'livechat':
-                    if (window.LiveChatAdmin && window.LiveChatAdmin.load) {
+
+                case 'contactRequests':
+                    // ✅  Contact Requests section
+                    console.log('📞 Loading Contact Requests section...');
+                    if (window.ContactRequestAdmin) {
                         setTimeout(() => {
-                            window.LiveChatAdmin.load();
+                            console.log('   - Calling ContactRequestAdmin.load()');
+                            window.ContactRequestAdmin.load();
+                            
+                            console.log('   - Starting auto-refresh');
+                            window.ContactRequestAdmin.startAutoRefresh();
+                            
+                            console.log('✅ Contact Requests section loaded');
                         }, 150);
+                    } else {
+                        console.error('❌ ContactRequestAdmin not found! Make sure admin-contact.js is loaded.');
                     }
                     break;
+
                 case 'analytics':
                     // Analytics section
                     if (window.AnalyticsOperations && window.AnalyticsOperations.loadDashboard) {
@@ -118,6 +160,9 @@
                         }, 300);
                     }
                     break;
+
+                default:
+                    console.warn(`⚠️ No loader defined for section: ${sectionKey}`);
             }
         }
 
@@ -135,6 +180,13 @@
             const topbarLogsEl = document.getElementById('topbarTotalChatLogs');
             if (topbarLogsEl) {
                 topbarLogsEl.textContent = totalLogs;
+            }
+
+            // Contact Requests count (if available)
+            const pendingContacts = document.getElementById('statsPendingContacts')?.textContent || '0';
+            const topbarContactsEl = document.getElementById('topbarPendingContacts');
+            if (topbarContactsEl) {
+                topbarContactsEl.textContent = pendingContacts;
             }
         }
 
@@ -174,6 +226,7 @@
 
         const totalFaqsEl = document.getElementById('totalFaqs');
         const totalLogsEl = document.getElementById('totalChatLogs');
+        const pendingContactsEl = document.getElementById('statsPendingContacts');
 
         if (totalFaqsEl) {
             observer.observe(totalFaqsEl, { 
@@ -191,6 +244,14 @@
             });
         }
 
+        if (pendingContactsEl) {
+            observer.observe(pendingContactsEl, { 
+                childList: true, 
+                characterData: true, 
+                subtree: true 
+            });
+        }
+
         // Initial stats sync
         updateTopbarStats();
 
@@ -198,9 +259,11 @@
         window.AdminNavigation = {
             navigate: handleNavigation,
             showSection: (sectionKey) => handleNavigation(sectionKey),
-            updateStats: updateTopbarStats
+            updateStats: updateTopbarStats,
+            getSectionMap: () => SECTION_MAP
         };
 
-        console.log('✅ Navigation handler initialized');
+        console.log('✅ Navigation handler initialized with Contact Requests support');
+        console.log('   Available sections:', Object.keys(SECTION_MAP));
     });
 })();

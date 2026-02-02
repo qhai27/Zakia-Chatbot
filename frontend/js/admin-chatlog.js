@@ -50,7 +50,7 @@
                 STATE.isLoading = show;
                 if (DOM.refreshChatLogs) {
                     DOM.refreshChatLogs.disabled = show;
-                    DOM.refreshChatLogs.innerHTML = show ? '⏳ Memuat...' : '🔄 Refresh';
+                    DOM.refreshChatLogs.innerHTML = show ? '⏳ Memuat...' : '🔄 Muat Semula';
                 }
             },
 

@@ -1,5 +1,5 @@
 """
-Enhanced Gemini Service - SMART MODE for ZAKIA Chatbot
+Gemini Service - SMART MODE for ZAKIA Chatbot
 Improved prompts, validation, and response quality
 """
 

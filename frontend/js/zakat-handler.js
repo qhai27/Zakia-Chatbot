@@ -1340,7 +1340,7 @@ class ZakatHandler {
     }
 
     openPaymentPage() {
-        const paymentUrl = 'https://jom.zakatkedah.com.my';
+        const paymentUrl = 'https://jom.zakatkedah.com.my/kirazakat/tabkirazakat.php';
         window.open(paymentUrl, '_blank', 'noopener,noreferrer');
 
         this.chatbot.appendMessage(

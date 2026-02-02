@@ -1,4 +1,8 @@
-// Prevent redeclaration when script loaded multiple times
+// ============================================
+// ZAKIA CHATBOT - SMART ESCALATION VERSION
+// Removes annoying feedback buttons, adds intelligent escalation
+// ============================================
+
 if (!window.ZakiaChatbot) {
     class ZakiaChatbot {
         constructor() {
@@ -16,13 +20,16 @@ if (!window.ZakiaChatbot) {
             this.apiBaseUrl = window.CONFIG.API_BASE_URL;
             this.isMinimized = false;
 
+            // Smart escalation properties
+            this.conversationHistory = [];
+            this.escalationOffered = false;
+            this.lastTriggerType = null;
+            this.confusionSignalCount = 0;
+            this.repetitionCount = 0;
+            this.lastUserMessage = '';
+
             // Initialize voice handler AFTER DOM is ready
             this.voiceHandler = null;
-
-            // Live chat state
-            this.waitingForAdmin = false;
-            this.pollInterval = null;
-            this.adminWaitingMessageId = null;
 
             // Initialize zakat handler
             this.zakatHandler = null;
@@ -46,7 +53,6 @@ if (!window.ZakiaChatbot) {
          * Initialize all feature handlers
          */
         initializeHandlers() {
-            // Wait a bit to ensure all scripts are loaded
             setTimeout(() => {
                 // Initialize Voice Handler
                 if (window.VoiceHandler) {
@@ -136,7 +142,6 @@ if (!window.ZakiaChatbot) {
             const msg = document.createElement('div');
             msg.className = `msg ${sender}`;
 
-            // Store message ID for later reference
             if (options.messageId) {
                 msg.dataset.messageId = options.messageId;
             }
@@ -159,17 +164,18 @@ if (!window.ZakiaChatbot) {
                     </div>
                 `;
                 
-                // Only add feedback controls if NOT an admin response and NOT waiting for admin
-                if (!options.isAdminResponse && !options.skipFeedback) {
-                    this.addFeedbackControls(msg, content);
-                }
-                
                 // Trigger TTS for bot messages (if voice handler is available and not skipped)
                 if (this.voiceHandler && !options.skipTTS) {
-                    // Get plain text without HTML for TTS
                     const plainText = this.getPlainTextFromHTML(content);
                     this.voiceHandler.handleBotMessage(plainText);
                 }
+                
+                // Track message for history
+                this.conversationHistory.push({
+                    role: 'bot',
+                    content: this.getPlainTextFromHTML(content),
+                    timestamp: now
+                });
             } else {
                 msg.innerHTML = `
                     <div class="bubble-container">
@@ -177,6 +183,13 @@ if (!window.ZakiaChatbot) {
                         <div class="msg-time">${timeString}</div>
                     </div>
                 `;
+                
+                // Track user message
+                this.conversationHistory.push({
+                    role: 'user',
+                    content: text,
+                    timestamp: now
+                });
             }
 
             this.messagesEl.appendChild(msg);
@@ -194,71 +207,341 @@ if (!window.ZakiaChatbot) {
             return temp.textContent || temp.innerText || '';
         }
 
-        addFeedbackControls(msgEl, botText) {
-            // Avoid duplicate controls
-            if (msgEl.querySelector('.feedback-row')) return;
-
-            const feedbackRow = document.createElement('div');
-            feedbackRow.className = 'feedback-row';
-            feedbackRow.innerHTML = `
-                <span class="feedback-label">Jawapan ini membantu?</span>
-                <button class="feedback-btn yes">👍 Ya</button>
-                <button class="feedback-btn no">❌ Tidak</button>
-            `;
-
-            const bubbleContainer = msgEl.querySelector('.bubble-container');
-            if (bubbleContainer) {
-                bubbleContainer.appendChild(feedbackRow);
-            } else {
-                msgEl.appendChild(feedbackRow);
-            }
-
-            const yesBtn = feedbackRow.querySelector('.yes');
-            const noBtn = feedbackRow.querySelector('.no');
-
-            const disableButtons = () => {
-                yesBtn.disabled = true;
-                noBtn.disabled = true;
-                yesBtn.classList.add('disabled');
-                noBtn.classList.add('disabled');
-            };
-
-            yesBtn.addEventListener('click', () => {
-                this.appendMessage("Terima kasih atas maklum balas! 😊", 'bot', false, { skipFeedback: true });
-                disableButtons();
-            });
-
-            noBtn.addEventListener('click', async () => {
-                disableButtons();
-                await this.escalateToLiveChat(botText);
-            });
-        }
-
-        showAdminWaitingIndicator() {
-            const messageId = 'admin-waiting-' + Date.now();
+        // ========================================
+        // SMART ESCALATION TRIGGERS
+        // ========================================
+        
+        checkEscalationTriggers(userMessage, botResponse) {
+            const triggers = [];
             
-            const waitingMsg = this.appendMessage(
-                `<div class="admin-waiting-indicator">
-                    <div class="waiting-spinner"></div>
-                    <p>Menunggu jawapan dari admin...</p>
-                    <small>Ini mungkin mengambil masa beberapa minit</small>
-                </div>`,
-                'bot',
-                true,
-                { messageId, skipFeedback: true, skipTTS: true }
-            );
-
-            this.adminWaitingMessageId = messageId;
-            return waitingMsg;
+            // 1. EXPLICIT REQUEST
+            if (this.detectExplicitRequest(userMessage)) {
+                triggers.push('explicit_request');
+            }
+            
+            // 2. CONFUSION SIGNALS
+            if (this.detectConfusion(userMessage)) {
+                this.confusionSignalCount++;
+                if (this.confusionSignalCount >= 2) {
+                    triggers.push('confusion');
+                }
+            } else {
+                this.confusionSignalCount = 0;
+            }
+            
+            // 3. REPETITIVE QUERIES
+            if (this.detectRepetition()) {
+                triggers.push('repetition');
+            }
+            
+            // 4. COMPLEX QUERIES
+            if (this.detectComplexity(userMessage)) {
+                triggers.push('complexity');
+            }
+            
+            // 5. LOW CONFIDENCE (if bot provides confidence score)
+            if (botResponse.confidence && botResponse.confidence < 0.7) {
+                triggers.push('low_confidence');
+            }
+            
+            // Offer escalation if ANY trigger fires and not already offered recently
+            if (triggers.length > 0 && !this.escalationOffered) {
+                console.log('🎯 Escalation triggers fired:', triggers);
+                this.lastTriggerType = triggers[0];
+                this.offerEscalation(triggers[0]);
+                this.escalationOffered = true;
+                
+                // Reset flag after 2 minutes
+                setTimeout(() => {
+                    this.escalationOffered = false;
+                }, 120000);
+            }
+        }
+        
+        detectExplicitRequest(message) {
+            const humanKeywords = [
+                'bercakap dengan manusia', 'cakap dengan pegawai', 
+                'call saya', 'hubungi saya', 'jumpa staff',
+                'nak bercakap dengan orang', 'contact admin',
+                'speak to human', 'talk to person', 'jumpa staf'
+            ];
+            const lower = message.toLowerCase();
+            return humanKeywords.some(kw => lower.includes(kw));
+        }
+        
+        detectConfusion(message) {
+            const confusionSignals = [
+                'tak faham', 'tak jelas', 'huh', 'blur',
+                'confuse', 'complicated', 'susah faham', 'what do you mean',
+                'tidak faham', 'kurang jelas',
+            ];
+            const lower = message.toLowerCase();
+            return confusionSignals.some(s => lower.includes(s));
+        }
+        
+        detectRepetition() {
+            const recentUserMessages = this.conversationHistory
+                .filter(m => m.role === 'user')
+                .slice(-3);
+            
+            if (recentUserMessages.length < 3) return false;
+            
+            const keywords1 = this.extractKeywords(recentUserMessages[0].content);
+            const keywords2 = this.extractKeywords(recentUserMessages[1].content);
+            const keywords3 = this.extractKeywords(recentUserMessages[2].content);
+            
+            const overlap12 = this.calculateOverlap(keywords1, keywords2);
+            const overlap23 = this.calculateOverlap(keywords2, keywords3);
+            
+            return overlap12 > 0.5 || overlap23 > 0.5;
+        }
+        
+        detectComplexity(message) {
+            const complexIndicators = [
+                'kes khas', 'situasi saya', 'macam mana kalau',
+                'boleh ke kalau', 'specific case', 'in my case',
+                'special situation', 'my circumstances',
+                'bagaimana jika', 'adakah boleh', 'case saya'
+            ];
+            const lower = message.toLowerCase();
+            return complexIndicators.some(ind => lower.includes(ind));
+        }
+        
+        extractKeywords(text) {
+            const stopwords = ['saya', 'nak', 'apa', 'bila', 'ke', 'dan', 'atau', 'the', 'is', 'a', 'to', 'yang'];
+            return text.toLowerCase()
+                .split(/\s+/)
+                .filter(word => word.length > 3 && !stopwords.includes(word));
+        }
+        
+        calculateOverlap(arr1, arr2) {
+            const set1 = new Set(arr1);
+            const set2 = new Set(arr2);
+            const intersection = [...set1].filter(x => set2.has(x));
+            return intersection.length / Math.max(arr1.length, arr2.length, 1);
+        }
+        
+        offerEscalation(triggerType) {
+            const messages = {
+                explicit_request: `Baik, saya faham anda ingin bercakap dengan pegawai kami. Sila isi borang ringkas dan kami akan hubungi anda. 🤝`,
+                confusion: `Saya nampak anda mungkin perlukan penjelasan yang lebih terperinci. Pegawai kami boleh membantu dengan lebih mendalam. 📞`,
+                repetition: `Saya perasan anda ada soalan berulang tentang topik ini. Mungkin lebih baik jika pegawai kami terangkan secara langsung? 💬`,
+                complexity: `Kes anda nampaknya memerlukan penelitian khusus. Pegawai LZNK boleh semak dan beri jawapan yang tepat untuk situasi anda. ✅`,
+                low_confidence: `Untuk memastikan anda dapat maklumat yang paling tepat, saya cadangkan bercakap dengan pegawai kami. 👨‍💼`
+            };
+            
+            const message = messages[triggerType] || messages.explicit_request;
+            
+            this.appendMessage(message, 'bot', false, { skipFeedback: true, skipTTS: false });
+            
+            setTimeout(() => {
+                this.showEscalationButtons();
+            }, 500);
+        }
+        
+        showEscalationButtons() {
+            const buttonsHtml = `
+                <div class="escalation-options">
+                    <button class="escalation-btn yes-btn" onclick="window.zakiaInstance.openContactForm()">Hubungi Pegawai LZNK</button>
+                    <button class="escalation-btn no-btn" onclick="window.zakiaInstance.dismissEscalation()">Tidak, saya faham sekarang</button>
+                </div>
+            `;
+            
+            this.appendMessage(buttonsHtml, 'bot', true, { skipFeedback: true, skipTTS: true });
         }
 
-        removeAdminWaitingIndicator() {
-            if (this.adminWaitingMessageId) {
-                const waitingMsg = this.messagesEl.querySelector(`[data-message-id="${this.adminWaitingMessageId}"]`);
-                if (waitingMsg) {
-                    waitingMsg.remove();
+        dismissEscalation() {
+            this.appendMessage("Baik! Jika ada soalan lain, saya sedia membantu. 😊", 'bot', false, { skipFeedback: true });
+            this.escalationOffered = false;
+        }
+
+        // ========================================
+        // CONTACT FORM MODAL
+        // ========================================
+        
+        openContactForm() {
+            let modal = document.getElementById('contactFormModal');
+            
+            if (!modal) {
+                modal = this.createContactFormModal();
+                document.body.appendChild(modal);
+            }
+            
+            modal.style.display = 'flex';
+            
+            setTimeout(() => {
+                const nameInput = modal.querySelector('#contactName');
+                if (nameInput) nameInput.focus();
+            }, 100);
+        }
+        
+        createContactFormModal() {
+            const modal = document.createElement('div');
+            modal.id = 'contactFormModal';
+            modal.className = 'contact-form-modal';
+            
+            modal.innerHTML = `
+                <div class="modal-overlay" onclick="window.zakiaInstance.closeContactForm()"></div>
+                <div class="modal-content-contact">
+                    <div class="modal-header-contact">
+                        <h2>📋 Hubungi Pegawai LZNK</h2>
+                        <button class="modal-close-contact" onclick="window.zakiaInstance.closeContactForm()">×</button>
+                    </div>
+                    
+                    <form id="contactRequestForm" class="contact-form">
+                        <div class="form-group">
+                            <label for="contactName">Nama <span class="required">*</span></label>
+                            <input type="text" id="contactName" name="name" required placeholder="Nama penuh anda">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="contactPhone">No. Telefon <span class="required">*</span></label>
+                            <input type="tel" id="contactPhone" name="phone" required placeholder="+60123456789" pattern="[+]?[0-9]{10,15}">
+                            <small class="form-help">Contoh: +60123456789 atau 0123456789</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="contactEmail">Email (Pilihan)</label>
+                            <input type="email" id="contactEmail" name="email" placeholder="email@example.com">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="contactQuestion">Soalan/Masalah Anda <span class="required">*</span></label>
+                            <textarea id="contactQuestion" name="question" rows="5" required placeholder="Terangkan soalan atau masalah anda dengan lebih terperinci..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Cara Dihubungi </label>
+                            <div class="radio-group">
+                                <label>
+                                    <input type="radio" name="preferred_method" value="whatsapp" checked>
+                                    <span>💬 WhatsApp</span>
+                                </label>
+                                <label>
+                                    <input type="radio" name="preferred_method" value="phone">
+                                    <span>📞 Telefon</span>
+                                </label>
+                                <label>
+                                    <input type="radio" name="preferred_method" value="email">
+                                    <span>📧 Email</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="office-hours-info">
+                            <strong>⏰ Waktu Operasi:</strong>
+                            <br>Ahad - Rabu: 9:00 pagi - 5:00 petang
+                            <br>Khamis: 9:00 pagi - 3:30 petang
+                            <br>Jumaat & Sabtu: Cuti
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn-submit-contact">📤 Hantar Permintaan</button>
+                        </div>
+                    </form>
+                    
+                    <div id="contactFormSuccess" class="contact-success" style="display: none;">
+                        <div class="success-icon">✅</div>
+                        <h3>Permintaan Dihantar!</h3>
+                        <p id="successMessage"></p>
+                        <p class="reference-number">Nombor Rujukan: <strong id="referenceNumber"></strong></p>
+                        <button onclick="window.zakiaInstance.closeContactForm()" class="btn-close-success">Tutup</button>
+                    </div>
+                </div>
+            `;
+            
+            setTimeout(() => {
+                const form = modal.querySelector('#contactRequestForm');
+                if (form) {
+                    form.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.submitContactRequest(form);
+                    });
                 }
-                this.adminWaitingMessageId = null;
+            }, 0);
+            
+            return modal;
+        }
+        
+        async submitContactRequest(form) {
+            const formData = new FormData(form);
+            const data = {
+                session_id: this.sessionId,
+                name: formData.get('name'),
+                phone: formData.get('phone'),
+                email: formData.get('email') || null,
+                question: formData.get('question'),
+                preferred_method: formData.get('preferred_method'),
+                conversation_history: this.conversationHistory.slice(-5),
+                trigger_type: this.lastTriggerType
+            };
+            
+            const submitBtn = form.querySelector('.btn-submit-contact');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Menghantar...';
+            
+            try {
+                const response = await fetch(`${this.apiBaseUrl}${window.CONFIG.ENDPOINTS.CONTACT_REQUEST}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    form.style.display = 'none';
+                    
+                    const successDiv = document.getElementById('contactFormSuccess');
+                    const successMsg = document.getElementById('successMessage');
+                    const refNum = document.getElementById('referenceNumber');
+                    
+                    successMsg.textContent = result.message;
+                    refNum.textContent = `#${result.request_id}`;
+                    
+                    successDiv.style.display = 'block';
+                    
+                    this.appendMessage(
+                        result.is_office_hours 
+                            ? `✅ Terima kasih! Pegawai kami akan hubungi anda dalam masa 2-4 jam bekerja. Nombor rujukan: #${result.request_id}`
+                            : `🌙 Terima kasih! Permintaan anda telah diterima. Pegawai kami akan hubungi anda pada hari bekerja berikutnya. Nombor rujukan: #${result.request_id}`,
+                        'bot',
+                        false,
+                        { skipFeedback: true }
+                    );
+                } else {
+                    throw new Error(result.error || 'Failed to submit request');
+                }
+            } catch (error) {
+                console.error('❌ Contact request error:', error);
+                alert('Maaf, gagal menghantar permintaan. Sila cuba lagi.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = '📤 Hantar Permintaan';
+            }
+        }
+        
+        closeContactForm() {
+            const modal = document.getElementById('contactFormModal');
+            if (modal) {
+                modal.style.display = 'none';
+                
+                const form = modal.querySelector('#contactRequestForm');
+                const successDiv = modal.querySelector('#contactFormSuccess');
+                
+                if (form) {
+                    form.reset();
+                    form.style.display = 'block';
+                }
+                
+                if (successDiv) {
+                    successDiv.style.display = 'none';
+                }
+                
+                const submitBtn = modal.querySelector('.btn-submit-contact');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '📤 Hantar Permintaan';
+                }
             }
         }
 
@@ -338,14 +621,12 @@ if (!window.ZakiaChatbot) {
 
             // Priority 2: Check if zakat handler is active
             if (this.zakatHandler && this.zakatHandler.state.active) {
-                // Check for cancel command
                 if (text.toLowerCase().includes('batal') || text.toLowerCase().includes('cancel')) {
                     this.zakatHandler.cancel();
                     this.sendBtn.disabled = false;
                     return;
                 }
 
-                // Process zakat input
                 const handled = this.zakatHandler.processInput(text);
                 if (handled) {
                     this.sendBtn.disabled = false;
@@ -401,6 +682,12 @@ if (!window.ZakiaChatbot) {
                 const botResponse = data.reply || window.CONFIG.MESSAGES.SERVER_ERROR;
                 this.appendMessage(botResponse, 'bot');
 
+                // CHECK ESCALATION TRIGGERS AFTER BOT RESPONSE
+                this.checkEscalationTriggers(text, {
+                    content: botResponse,
+                    confidence: data.confidence
+                });
+
                 if (!this.hasUserSentMessage) {
                     setTimeout(() => this.showQuickReplies(), window.CONFIG.UI.TYPING_DELAY);
                 }
@@ -415,156 +702,6 @@ if (!window.ZakiaChatbot) {
                 this.setTyping(false);
                 this.sendBtn.disabled = false;
                 this.messagesEl.scrollTop = this.messagesEl.scrollHeight;
-            }
-        }
-
-        async escalateToLiveChat(botReplyText) {
-            try {
-                console.log('\n📤 ESCALATING TO LIVE CHAT');
-                console.log('   Session ID:', this.sessionId);
-                console.log('   User Message:', this.lastUserMessage);
-
-                const payload = {
-                    session_id: this.sessionId,
-                    user_message: this.lastUserMessage || '',
-                    bot_response: botReplyText || ''
-                };
-
-                const res = await fetch(`${this.apiBaseUrl}${window.CONFIG.ENDPOINTS.LIVE_CHAT_REQUEST}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                const data = await res.json();
-                console.log('📨 Escalation response:', data);
-
-                if (data.success) {
-                    console.log('✅ Escalation successful, request ID:', data.id);
-                    
-                    // Show waiting indicator
-                    this.showAdminWaitingIndicator();
-                    
-                    // Start polling for admin response
-                    this.waitingForAdmin = true;
-                    this.startAdminResponsePolling();
-                } else {
-                    console.error('❌ Escalation failed:', data.error);
-                    this.appendMessage("Maaf, tidak dapat hantar permintaan live chat. Sila cuba lagi.", 'bot', false, { skipFeedback: true });
-                }
-            } catch (error) {
-                console.error('❌ Live chat request error:', error);
-                this.appendMessage("Ralat menghantar permintaan live chat. Sila cuba lagi.", 'bot', false, { skipFeedback: true });
-            }
-        }
-
-        startAdminResponsePolling() {
-            if (this.pollInterval) {
-                clearInterval(this.pollInterval);
-            }
-            
-            console.log('🔄 Starting admin response polling...');
-            console.log('   Polling every 1.5 seconds');
-            console.log('   Session ID:', this.sessionId);
-            
-            // Poll immediately first
-            this.checkAdminResponse();
-            
-            // Then poll every 1.5 seconds for up to 5 minutes (faster response)
-            let elapsed = 0;
-            const maxTime = 300000; // 5 minutes
-            const interval = 1500; // 1.5 seconds (reduced for faster response)
-            
-            this.pollInterval = setInterval(async () => {
-                elapsed += interval;
-                
-                console.log(`⏱️ Polling for admin response... (${elapsed / 1000}s)`);
-                
-                const gotResponse = await this.checkAdminResponse();
-                
-                if (gotResponse) {
-                    console.log('✅ Admin response received!');
-                    this.stopAdminResponsePolling();
-                } else if (elapsed >= maxTime) {
-                    console.log('⏰ Polling timeout reached');
-                    this.stopAdminResponsePolling();
-                    this.removeAdminWaitingIndicator();
-                    this.appendMessage(
-                        "Maaf, admin masih belum membalas. Anda boleh terus bertanya atau cuba lagi kemudian. 🙏",
-                        'bot',
-                        false,
-                        { skipFeedback: true }
-                    );
-                }
-            }, interval);
-        }
-
-        stopAdminResponsePolling() {
-            if (this.pollInterval) {
-                clearInterval(this.pollInterval);
-                this.pollInterval = null;
-            }
-            this.waitingForAdmin = false;
-        }
-
-        async checkAdminResponse() {
-            try {
-                if (!this.sessionId) {
-                    console.error('❌ No session ID for polling');
-                    return false;
-                }
-                
-                const params = new URLSearchParams({ 
-                    session_id: this.sessionId, 
-                    _t: Date.now().toString() 
-                });
-                
-                const url = `${this.apiBaseUrl}${window.CONFIG.ENDPOINTS.LIVE_CHAT_PENDING}?${params}`;
-                console.log('   📡 Polling URL:', url);
-                
-                const res = await fetch(url, { 
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                if (!res.ok) {
-                    console.error('❌ Admin response check failed:', res.status, res.statusText);
-                    return false;
-                }
-                
-                const data = await res.json();
-                console.log('   📥 Poll response:', data);
-                
-                if (data.success && data.pending && data.response?.admin_response) {
-                    console.log('✅ ADMIN RESPONSE FOUND!');
-                    console.log('   Admin:', data.response.admin_name);
-                    console.log('   Response:', data.response.admin_response.substring(0, 50) + '...');
-                    
-                    // Remove waiting indicator
-                    this.removeAdminWaitingIndicator();
-                    
-                    // Show admin response
-                    const adminName = data.response.admin_name || 'Admin';
-                    const adminResponse = data.response.admin_response;
-                    
-                    this.appendMessage(
-                        `<div style="margin-bottom: 8px;"><strong>💬 Jawapan dari ${this.escapeHtml(adminName)}:</strong></div>${this.processLinks(adminResponse)}`,
-                        'bot',
-                        true,
-                        { isAdminResponse: true, skipFeedback: true }
-                    );
-                    
-                    return true;
-                } else {
-                    console.log('   ⏳ No admin response yet');
-                    return false;
-                }
-                
-            } catch (e) {
-                console.error('❌ Polling error:', e);
-                return false;
             }
         }
 
@@ -583,10 +720,6 @@ if (!window.ZakiaChatbot) {
         }
 
         endChat() {
-            // Stop any active polling
-            this.stopAdminResponsePolling();
-            this.removeAdminWaitingIndicator();
-            
             // Stop any ongoing TTS
             if (this.voiceHandler) {
                 this.voiceHandler.stopSpeaking();
@@ -595,7 +728,12 @@ if (!window.ZakiaChatbot) {
             this.messagesEl.innerHTML = '';
             this.sessionId = null;
             this.hasUserSentMessage = false;
-            this.waitingForAdmin = false;
+            
+            // Reset escalation state
+            this.conversationHistory = [];
+            this.escalationOffered = false;
+            this.confusionSignalCount = 0;
+            this.repetitionCount = 0;
 
             // Reset zakat handler
             if (this.zakatHandler) {
@@ -612,36 +750,7 @@ if (!window.ZakiaChatbot) {
                 const data = await res.json();
 
                 if (data.faqs && data.faqs.length > 0) {
-                    // Icon mapping for common questions
-                    const iconMap = {
-                        'perbezaan fakir': '📋',
-                        'fakir dan miskin': '📋',
-                        'fakir & miskin': '📋',
-                        'kelayakan terima': '💰',
-                        'terima zakat': '💰',
-                        'ahli keluarga': '👥',
-                        'keluarga': '👥',
-                        'kalkulator': '🧮',
-                        'kira zakat': '🧮',
-                        'bayar zakat': '🌐',
-                        'zakat online': '🌐',
-                        'nisab': '📊',
-                        'apa itu zakat': '❓',
-                        'jenis zakat': '📚',
-                        'default': '💡'
-                    };
-
-                    // Function to get icon based on question text
-                    const getIcon = (question) => {
-                        const lowerQuestion = question.toLowerCase();
-                        for (const [key, icon] of Object.entries(iconMap)) {
-                            if (lowerQuestion.includes(key)) {
-                                return icon;
-                            }
-                        }
-                        return iconMap.default;
-                    };
-
+                    console.log(`✅ Loaded ${data.faqs.length} FAQs`);
                 }
             } catch (e) {
                 console.log('Could not load FAQs:', e);
@@ -653,10 +762,9 @@ if (!window.ZakiaChatbot) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Create chatbot instance and expose it globally for FAQ browser
     console.log('📱 DOM loaded - Creating ZAKIA chatbot instance...');
     window.zakiaInstance = new ZakiaChatbot();
-    window.chatbotInstance = window.zakiaInstance; // Alias for compatibility
+    window.chatbotInstance = window.zakiaInstance;
     
     console.log('✅ ZAKIA Chatbot instance created and exposed globally');
 });
