@@ -174,6 +174,22 @@ class DatabaseManager:
         try:
             cursor = self.connection.cursor()
 
+            # ============================================================
+            # ADMINS TABLE - SIMPLE VERSION FOR ADMIN AUTHENTICATION
+            # ============================================================
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS admins (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    admin_id VARCHAR(50) UNIQUE NOT NULL,
+                    name VARCHAR(100) NOT NULL,
+                    email VARCHAR(100) UNIQUE NOT NULL,
+                    password VARCHAR(255) NOT NULL,
+                    INDEX idx_admin_id (admin_id),
+                    INDEX idx_email (email)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
+            """)
+            print("✅ Admins table created/verified")
+
             # FAQs Table
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS faqs (
@@ -219,7 +235,7 @@ class DatabaseManager:
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """)
 
-            # ===== NEW: Contact Requests Table (replaces live_chat_requests) =====
+            # Contact Requests Table
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS contact_requests (
                     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -263,7 +279,6 @@ class DatabaseManager:
             print("✅ Contact requests table created/verified")
 
             # Keep old live_chat_requests for backward compatibility (optional)
-            # You can comment this out after migration
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS live_chat_requests (
                     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -526,9 +541,6 @@ class DatabaseManager:
             if self.connection:
                 self.connection.rollback()
             return False
-
-    # [REST OF THE METHODS REMAIN THE SAME - truncated for brevity]
-    # Including: CRUD FAQ, USER MANAGEMENT, LOG CHAT, etc.
     
     def get_faqs(self):
         if not self.ensure_connection():

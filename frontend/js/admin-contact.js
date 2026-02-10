@@ -192,7 +192,7 @@
                         </td>
                         <td>
                             <span class="method-badge method-${req.contact_method_used || req.preferred_contact_method}">
-                                ${getMethodIcon(req.contact_method_used || req.preferred_contact_method)}
+                                ${capitalizeFirst(req.contact_method_used || req.preferred_contact_method)}
                             </span>
                         </td>
                         <td>

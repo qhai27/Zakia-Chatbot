@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LZNK Admin - Log Masuk</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="admin-login.css">
 </head>
 
@@ -21,21 +22,12 @@
             <div class="brand-section">
                 <img src="images/zakia-avatar.png" alt="ZAKIA Logo" class="brand-logo">
                 <h1 class="brand-title">ZAKIA</h1>
-                <p class="brand-subtitle">Lembaga Zakat Negeri Kedah</p>
+                <p class="brand-subtitle">Zakat Intelligent Assistant</p>
                 <div class="brand-divider"></div>
                 <p class="brand-description">
                     Sistem Pengurusan Pentadbiran ZAKIA<br>
-                    <strong>Chatbot Pintar Zakat</strong>
+                    <strong>Chatbot Pintar LZNK</strong>
                 </p>
-            </div>
-
-            <!-- Security Badge -->
-            <div class="security-badge">
-                <div class="security-icon">🔒</div>
-                <div class="security-text">
-                    <strong>Akses Selamat</strong>
-                    <p>Sistem dilindungi dengan penyulitan SSL</p>
-                </div>
             </div>
         </div>
 
@@ -87,9 +79,7 @@
                                 required
                                 autocomplete="current-password"
                             >
-                            <button type="button" class="toggle-password" onclick="togglePassword('loginPassword')">
-                                👁️
-                            </button>
+                            <span toggle="#loginPassword" class="fa fa-fw fa-eye field-icon toggle-password"></span>
                         </div>
                     </div>
 
@@ -202,9 +192,7 @@
                                 required
                                 autocomplete="new-password"
                             >
-                            <button type="button" class="toggle-password" onclick="togglePassword('signupPassword')">
-                                👁️
-                            </button>
+                            <span toggle="#signupPassword" class="fa fa-fw fa-eye field-icon toggle-password"></span>
                         </div>
                         <small class="form-hint">Min. 8 aksara, termasuk huruf besar, nombor & simbol</small>
                     </div>
@@ -225,9 +213,7 @@
                                 required
                                 autocomplete="new-password"
                             >
-                            <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword')">
-                                👁️
-                            </button>
+                            <span toggle="#confirmPassword" class="fa fa-fw fa-eye field-icon toggle-password"></span>
                         </div>
                     </div>
 
@@ -271,15 +257,10 @@
         <p>
             &copy; 2025 Lembaga Zakat Negeri Kedah. Hak Cipta Terpelihara.
         </p>
-        <p class="footer-links">
-            <a href="#">Dasar Privasi</a> • 
-            <a href="#">Terma Penggunaan</a> • 
-            <a href="#">Hubungi Kami</a>
-        </p>
     </footer>
 
     <!-- JavaScript -->
-    <script src="admin-login.js"></script>
+    <script src="js/admin-login.js"></script>
 
 </body>
 

@@ -1,494 +1,461 @@
 // ===============================================
-// ZAKIA ADMIN LOGIN & SIGNUP HANDLER
+// ADMIN LOGIN & SIGNUP HANDLER
+// Handles authentication for ZAKIA Admin Panel
 // ===============================================
 
-(function() {
-    'use strict';
+const API_BASE = 'http://127.0.0.1:5000/admin/auth';
 
-    // Configuration
-    const CONFIG = {
-        API_BASE: 'http://127.0.0.1:5000/admin/auth',
-        ADMIN_PAGE: 'admin.html',
-        MIN_PASSWORD_LENGTH: 8,
-        MIN_ADMIN_ID_LENGTH: 5
-    };
+// ===============================================
+// UTILITY FUNCTIONS
+// ===============================================
 
-    // ===============================================
-    // UTILITY FUNCTIONS
-    // ===============================================
+function showAlert(elementId, message, type = 'error') {
+    const alertEl = document.getElementById(elementId);
+    if (!alertEl) return;
 
-    function showAlert(alertId, message, type = 'error') {
-        const alertEl = document.getElementById(alertId);
-        if (!alertEl) return;
+    alertEl.className = `alert alert-${type}`;
+    alertEl.textContent = message;
+    alertEl.style.display = 'block';
 
-        alertEl.textContent = message;
-        alertEl.className = `alert ${type}`;
-        alertEl.style.display = 'flex';
-
-        // Auto-hide after 5 seconds for success/info
-        if (type === 'success' || type === 'info') {
-            setTimeout(() => {
-                alertEl.style.display = 'none';
-            }, 5000);
-        }
-    }
-
-    function hideAlert(alertId) {
-        const alertEl = document.getElementById(alertId);
-        if (alertEl) {
+    // Auto-hide success messages after 5 seconds
+    if (type === 'success') {
+        setTimeout(() => {
             alertEl.style.display = 'none';
+        }, 5000);
+    }
+}
+
+function hideAlert(elementId) {
+    const alertEl = document.getElementById(elementId);
+    if (alertEl) {
+        alertEl.style.display = 'none';
+    }
+}
+
+function togglePassword(inputId) {
+    const input = document.getElementById(inputId);
+    const toggleIcon = document.querySelector(`[toggle="#${inputId}"]`);
+    
+    if (!input || !toggleIcon) return;
+
+    if (input.type === 'password') {
+        input.type = 'text';
+        toggleIcon.classList.remove('fa-eye');
+        toggleIcon.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        toggleIcon.classList.remove('fa-eye-slash');
+        toggleIcon.classList.add('fa-eye');
+    }
+}
+
+function setButtonLoading(buttonId, isLoading) {
+    const button = document.getElementById(buttonId);
+    if (!button) return;
+
+    if (isLoading) {
+        button.disabled = true;
+        button.classList.add('loading');
+        const btnText = button.querySelector('.btn-text');
+        if (btnText) {
+            btnText.dataset.originalText = btnText.textContent;
+            btnText.textContent = 'Memproses...';
+        }
+    } else {
+        button.disabled = false;
+        button.classList.remove('loading');
+        const btnText = button.querySelector('.btn-text');
+        if (btnText && btnText.dataset.originalText) {
+            btnText.textContent = btnText.dataset.originalText;
         }
     }
+}
 
-    function setButtonLoading(buttonId, loading = true) {
-        const button = document.getElementById(buttonId);
-        if (!button) return;
+// ===============================================
+// FORM SWITCHING
+// ===============================================
 
-        if (loading) {
-            button.disabled = true;
-            button.classList.add('loading');
-            button.setAttribute('data-original-text', button.innerHTML);
-            button.innerHTML = '<span class="btn-text">Memproses...</span>';
-        } else {
-            button.disabled = false;
-            button.classList.remove('loading');
-            const originalText = button.getAttribute('data-original-text');
-            if (originalText) {
-                button.innerHTML = originalText;
-            }
-        }
+function showLogin(event) {
+    if (event) event.preventDefault();
+    
+    const loginForm = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
+    
+    if (loginForm && signupForm) {
+        signupForm.classList.remove('active');
+        loginForm.classList.add('active');
     }
+    
+    // Clear both forms
+    document.getElementById('loginFormElement')?.reset();
+    hideAlert('loginAlert');
+}
 
-    function validateEmail(email) {
-        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return re.test(email);
+function showSignup(event) {
+    if (event) event.preventDefault();
+    
+    const loginForm = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
+    
+    if (loginForm && signupForm) {
+        loginForm.classList.remove('active');
+        signupForm.classList.add('active');
     }
+    
+    // Clear both forms
+    document.getElementById('signupFormElement')?.reset();
+    hideAlert('signupAlert');
+}
 
-    function validatePassword(password) {
-        // Min 8 chars, at least one uppercase, one lowercase, one number, one special char
-        const minLength = password.length >= CONFIG.MIN_PASSWORD_LENGTH;
-        const hasUpper = /[A-Z]/.test(password);
-        const hasLower = /[a-z]/.test(password);
-        const hasNumber = /[0-9]/.test(password);
-        const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+function showForgotPassword(event) {
+    if (event) event.preventDefault();
+    alert('Untuk menetapkan semula kata laluan, sila hubungi pentadbir sistem.');
+}
 
+// ===============================================
+// CLIENT-SIDE VALIDATION
+// ===============================================
+
+function validateAdminId(adminId) {
+    if (!adminId || adminId.length < 5) {
         return {
-            valid: minLength && hasUpper && hasLower && hasNumber && hasSpecial,
-            minLength,
-            hasUpper,
-            hasLower,
-            hasNumber,
-            hasSpecial
+            valid: false,
+            message: 'ID pentadbir mesti sekurang-kurangnya 5 aksara'
         };
     }
-
-    function validateAdminId(adminId) {
-        // Only lowercase letters and numbers, min 5 chars
-        const re = /^[a-z0-9]+$/;
-        return re.test(adminId) && adminId.length >= CONFIG.MIN_ADMIN_ID_LENGTH;
+    
+    if (!/^[a-z0-9]+$/.test(adminId)) {
+        return {
+            valid: false,
+            message: 'ID pentadbir hanya boleh mengandungi huruf kecil dan nombor'
+        };
     }
+    
+    return { valid: true };
+}
 
-    // ===============================================
-    // FORM SWITCHING
-    // ===============================================
+function validateEmail(email) {
+    if (!email) {
+        return {
+            valid: false,
+            message: 'E-mel diperlukan'
+        };
+    }
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        return {
+            valid: false,
+            message: 'Format e-mel tidak sah'
+        };
+    }
+    
+    return { valid: true };
+}
 
-    window.showLogin = function(event) {
-        if (event) event.preventDefault();
+function validatePassword(password) {
+    if (!password || password.length < 8) {
+        return {
+            valid: false,
+            message: 'Kata laluan mesti sekurang-kurangnya 8 aksara'
+        };
+    }
+    
+    const hasUpper = /[A-Z]/.test(password);
+    const hasLower = /[a-z]/.test(password);
+    const hasDigit = /[0-9]/.test(password);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    
+    if (!hasUpper || !hasLower || !hasDigit || !hasSpecial) {
+        return {
+            valid: false,
+            message: 'Kata laluan mesti mengandungi huruf besar, huruf kecil, nombor dan simbol'
+        };
+    }
+    
+    return { valid: true };
+}
+
+// ===============================================
+// LOGIN HANDLER
+// ===============================================
+
+async function handleLogin(event) {
+    event.preventDefault();
+    
+    console.log('🔐 Login attempt started...');
+    
+    // Get form data
+    const adminId = document.getElementById('loginAdminId')?.value.trim().toLowerCase();
+    const password = document.getElementById('loginPassword')?.value;
+    const rememberMe = document.getElementById('rememberMe')?.checked || false;
+    
+    // Clear previous alerts
+    hideAlert('loginAlert');
+    
+    // Validation
+    if (!adminId || !password) {
+        showAlert('loginAlert', 'Sila masukkan ID pentadbir dan kata laluan', 'error');
+        return;
+    }
+    
+    // Set loading state
+    setButtonLoading('loginSubmitBtn', true);
+    
+    try {
+        // Call login API
+        const response = await fetch(`${API_BASE}/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                adminId: adminId,
+                password: password,
+                rememberMe: rememberMe
+            })
+        });
         
-        const loginForm = document.getElementById('loginForm');
-        const signupForm = document.getElementById('signupForm');
+        const data = await response.json();
         
-        if (loginForm && signupForm) {
-            signupForm.classList.remove('active');
+        if (response.ok && data.success) {
+            console.log('✅ Login successful');
+            
+            // Store authentication data
+            const storage = rememberMe ? localStorage : sessionStorage;
+            
+            storage.setItem('adminToken', data.token);
+            storage.setItem('adminId', data.admin_id);
+            storage.setItem('adminName', data.name);
+            storage.setItem('adminEmail', data.email);
+            
+            // Show success message
+            showAlert('loginAlert', 'Log masuk berjaya! Mengalihkan...', 'success');
+            
+            // Redirect to admin panel after short delay
             setTimeout(() => {
-                loginForm.classList.add('active');
-            }, 100);
-        }
-
-        // Hide alerts
-        hideAlert('loginAlert');
-        hideAlert('signupAlert');
-
-        // Reset forms
-        document.getElementById('loginFormElement')?.reset();
-    };
-
-    window.showSignup = function(event) {
-        if (event) event.preventDefault();
-        
-        const loginForm = document.getElementById('loginForm');
-        const signupForm = document.getElementById('signupForm');
-        
-        if (loginForm && signupForm) {
-            loginForm.classList.remove('active');
-            setTimeout(() => {
-                signupForm.classList.add('active');
-            }, 100);
-        }
-
-        // Hide alerts
-        hideAlert('loginAlert');
-        hideAlert('signupAlert');
-
-        // Reset forms
-        document.getElementById('signupFormElement')?.reset();
-    };
-
-    window.showForgotPassword = function(event) {
-        if (event) event.preventDefault();
-        
-        showAlert('loginAlert', 'Sila hubungi pentadbir sistem untuk set semula kata laluan anda.', 'info');
-    };
-
-    // ===============================================
-    // PASSWORD TOGGLE
-    // ===============================================
-
-    window.togglePassword = function(inputId) {
-        const input = document.getElementById(inputId);
-        const button = event.currentTarget;
-        
-        if (!input) return;
-
-        if (input.type === 'password') {
-            input.type = 'text';
-            button.textContent = '👁️‍🗨️';
+                window.location.href = 'admin.html';
+            }, 1000);
+            
         } else {
-            input.type = 'password';
-            button.textContent = '👁️';
+            console.log('❌ Login failed:', data.error);
+            showAlert('loginAlert', data.error || 'Log masuk gagal', 'error');
+            setButtonLoading('loginSubmitBtn', false);
         }
+        
+    } catch (error) {
+        console.error('❌ Login error:', error);
+        showAlert('loginAlert', 'Ralat sambungan. Sila pastikan pelayan berjalan.', 'error');
+        setButtonLoading('loginSubmitBtn', false);
+    }
+}
+
+// ===============================================
+// SIGNUP HANDLER
+// ===============================================
+
+async function handleSignup(event) {
+    event.preventDefault();
+    
+    console.log('\n' + '='.repeat(50));
+    console.log('📝 SIGNUP ATTEMPT STARTED');
+    console.log('='.repeat(50));
+    
+    // Get form data
+    const name = document.getElementById('signupName')?.value.trim();
+    const adminId = document.getElementById('signupAdminId')?.value.trim().toLowerCase();
+    const email = document.getElementById('signupEmail')?.value.trim().toLowerCase();
+    const password = document.getElementById('signupPassword')?.value;
+    const confirmPassword = document.getElementById('confirmPassword')?.value;
+    const acceptTerms = document.getElementById('acceptTerms')?.checked;
+    
+    console.log('📋 Form Data:');
+    console.log('  - Name:', name);
+    console.log('  - Admin ID:', adminId);
+    console.log('  - Email:', email);
+    console.log('  - Password length:', password?.length || 0);
+    console.log('  - Confirm password length:', confirmPassword?.length || 0);
+    console.log('  - Accept terms:', acceptTerms);
+    
+    // Clear previous alerts
+    hideAlert('signupAlert');
+    
+    // Validation
+    console.log('\n🔍 Starting validation...');
+    
+    if (!name) {
+        console.log('❌ Validation failed: Name is empty');
+        showAlert('signupAlert', 'Sila masukkan nama penuh', 'error');
+        return;
+    }
+    console.log(' Name validated');
+    
+    const adminIdCheck = validateAdminId(adminId);
+    if (!adminIdCheck.valid) {
+        console.log('❌ Validation failed: Admin ID -', adminIdCheck.message);
+        showAlert('signupAlert', adminIdCheck.message, 'error');
+        return;
+    }
+    console.log('✅ Admin ID validated');
+    
+    const emailCheck = validateEmail(email);
+    if (!emailCheck.valid) {
+        console.log('❌ Validation failed: Email -', emailCheck.message);
+        showAlert('signupAlert', emailCheck.message, 'error');
+        return;
+    }
+    console.log(' Email validated');
+    
+    const passwordCheck = validatePassword(password);
+    if (!passwordCheck.valid) {
+        console.log('❌ Validation failed: Password -', passwordCheck.message);
+        showAlert('signupAlert', passwordCheck.message, 'error');
+        return;
+    }
+    console.log(' Password validated');
+    
+    if (password !== confirmPassword) {
+        console.log('❌ Validation failed: Passwords do not match');
+        showAlert('signupAlert', 'Kata laluan tidak sepadan', 'error');
+        return;
+    }
+    console.log(' Password confirmation validated');
+    
+    if (!acceptTerms) {
+        console.log('❌ Validation failed: Terms not accepted');
+        showAlert('signupAlert', 'Sila terima Terma & Syarat', 'error');
+        return;
+    }
+    console.log(' Terms accepted');
+    
+    console.log('\n All validations passed!');
+    
+    // Set loading state
+    setButtonLoading('signupSubmitBtn', true);
+    
+    // Prepare request data
+    const requestData = {
+        name: name,
+        adminId: adminId,
+        email: email,
+        password: password
     };
-
-    // ===============================================
-    // LOGIN HANDLER
-    // ===============================================
-
-    window.handleLogin = async function(event) {
-        event.preventDefault();
-
-        const adminId = document.getElementById('loginAdminId').value.trim();
-        const password = document.getElementById('loginPassword').value;
-        const rememberMe = document.getElementById('rememberMe').checked;
-
-        // Validation
-        if (!adminId) {
-            showAlert('loginAlert', 'Sila masukkan ID pentadbir.', 'error');
-            document.getElementById('loginAdminId').focus();
-            return;
-        }
-
-        if (!password) {
-            showAlert('loginAlert', 'Sila masukkan kata laluan.', 'error');
-            document.getElementById('loginPassword').focus();
-            return;
-        }
-
-        // Show loading
-        setButtonLoading('loginSubmitBtn', true);
-        hideAlert('loginAlert');
-
-        try {
-            // Make API call
-            const response = await fetch(`${CONFIG.API_BASE}/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    adminId: adminId,
-                    password: password,
-                    rememberMe: rememberMe
-                })
-            });
-
-            const data = await response.json();
-
-            if (response.ok && data.success) {
-                // Store authentication token
-                if (rememberMe) {
-                    localStorage.setItem('adminToken', data.token);
-                    localStorage.setItem('adminId', adminId);
-                } else {
-                    sessionStorage.setItem('adminToken', data.token);
-                    sessionStorage.setItem('adminId', adminId);
-                }
-
-                // Show success message
-                showAlert('loginAlert', '✅ Log masuk berjaya! Mengalihkan...', 'success');
-
-                // Redirect to admin page
-                setTimeout(() => {
-                    window.location.href = CONFIG.ADMIN_PAGE;
-                }, 1500);
-
-            } else {
-                // Show error message
-                const errorMessage = data.error || 'ID pentadbir atau kata laluan tidak sah.';
-                showAlert('loginAlert', errorMessage, 'error');
-                setButtonLoading('loginSubmitBtn', false);
-            }
-
-        } catch (error) {
-            console.error('Login error:', error);
+    
+    console.log('\n📤 Sending signup request to:', `${API_BASE}/signup`);
+    console.log('📦 Request data:', {
+        name: requestData.name,
+        adminId: requestData.adminId,
+        email: requestData.email,
+        password: '***' + requestData.password.slice(-3)
+    });
+    
+    try {
+        // Call signup API
+        const response = await fetch(`${API_BASE}/signup`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData)
+        });
+        
+        console.log('\n📥 Response received:');
+        console.log('  - Status:', response.status);
+        console.log('  - Status Text:', response.statusText);
+        console.log('  - OK:', response.ok);
+        
+        const data = await response.json();
+        console.log('  - Response data:', data);
+        
+        if (response.ok && data.success) {
+            console.log('\n✅ SIGNUP SUCCESSFUL!');
+            console.log('  - Message:', data.message);
+            console.log('  - Admin ID:', data.admin_id);
+            console.log('  - Name:', data.name);
+            console.log('='.repeat(50) + '\n');
             
-            // For demo purposes - allow any credentials
-            console.log('⚠️ API not available - using demo mode');
-            
-            // Store demo session
-            if (rememberMe) {
-                localStorage.setItem('adminToken', 'demo-token-' + Date.now());
-                localStorage.setItem('adminId', adminId);
-            } else {
-                sessionStorage.setItem('adminToken', 'demo-token-' + Date.now());
-                sessionStorage.setItem('adminId', adminId);
-            }
-
-            showAlert('loginAlert', '✅ Log masuk berjaya! (Demo Mode)', 'success');
-
-            setTimeout(() => {
-                window.location.href = CONFIG.ADMIN_PAGE;
-            }, 1500);
-        }
-    };
-
-    // ===============================================
-    // SIGNUP HANDLER
-    // ===============================================
-
-    window.handleSignup = async function(event) {
-        event.preventDefault();
-
-        const name = document.getElementById('signupName').value.trim();
-        const adminId = document.getElementById('signupAdminId').value.trim().toLowerCase();
-        const email = document.getElementById('signupEmail').value.trim();
-        const password = document.getElementById('signupPassword').value;
-        const confirmPassword = document.getElementById('confirmPassword').value;
-        const acceptTerms = document.getElementById('acceptTerms').checked;
-
-        // Validation
-        if (!name) {
-            showAlert('signupAlert', 'Sila masukkan nama penuh.', 'error');
-            document.getElementById('signupName').focus();
-            return;
-        }
-
-        if (!adminId) {
-            showAlert('signupAlert', 'Sila masukkan ID pentadbir.', 'error');
-            document.getElementById('signupAdminId').focus();
-            return;
-        }
-
-        if (!validateAdminId(adminId)) {
+            // Show success message
             showAlert('signupAlert', 
-                `ID pentadbir tidak sah. Gunakan huruf kecil dan nombor sahaja (min. ${CONFIG.MIN_ADMIN_ID_LENGTH} aksara).`, 
-                'error'
-            );
-            document.getElementById('signupAdminId').focus();
-            return;
-        }
-
-        if (!email) {
-            showAlert('signupAlert', 'Sila masukkan e-mel rasmi.', 'error');
-            document.getElementById('signupEmail').focus();
-            return;
-        }
-
-        if (!validateEmail(email)) {
-            showAlert('signupAlert', 'Format e-mel tidak sah.', 'error');
-            document.getElementById('signupEmail').focus();
-            return;
-        }
-
-        if (!password) {
-            showAlert('signupAlert', 'Sila masukkan kata laluan.', 'error');
-            document.getElementById('signupPassword').focus();
-            return;
-        }
-
-        const passwordValidation = validatePassword(password);
-        if (!passwordValidation.valid) {
-            let errorMsg = 'Kata laluan tidak memenuhi keperluan: ';
-            const issues = [];
-            if (!passwordValidation.minLength) issues.push('min. 8 aksara');
-            if (!passwordValidation.hasUpper) issues.push('huruf besar');
-            if (!passwordValidation.hasLower) issues.push('huruf kecil');
-            if (!passwordValidation.hasNumber) issues.push('nombor');
-            if (!passwordValidation.hasSpecial) issues.push('simbol');
-            errorMsg += issues.join(', ');
-            
-            showAlert('signupAlert', errorMsg, 'error');
-            document.getElementById('signupPassword').focus();
-            return;
-        }
-
-        if (password !== confirmPassword) {
-            showAlert('signupAlert', 'Kata laluan tidak sepadan.', 'error');
-            document.getElementById('confirmPassword').focus();
-            return;
-        }
-
-        if (!acceptTerms) {
-            showAlert('signupAlert', 'Sila terima Terma & Syarat untuk meneruskan.', 'error');
-            document.getElementById('acceptTerms').focus();
-            return;
-        }
-
-        // Show loading
-        setButtonLoading('signupSubmitBtn', true);
-        hideAlert('signupAlert');
-
-        try {
-            // Make API call
-            const response = await fetch(`${CONFIG.API_BASE}/signup`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    name: name,
-                    adminId: adminId,
-                    email: email,
-                    password: password
-                })
-            });
-
-            const data = await response.json();
-
-            if (response.ok && data.success) {
-                // Show success message
-                showAlert('signupAlert', 
-                    '✅ Akaun berjaya didaftarkan! Sila log masuk dengan kelayakan anda.', 
-                    'success'
-                );
-
-                // Reset form
-                document.getElementById('signupFormElement').reset();
-
-                // Switch to login form after 3 seconds
-                setTimeout(() => {
-                    showLogin();
-                    showAlert('loginAlert', 
-                        'Akaun anda telah didaftarkan. Sila log masuk.', 
-                        'success'
-                    );
-                }, 3000);
-
-            } else {
-                // Show error message
-                const errorMessage = data.error || 'Gagal mendaftar akaun. Sila cuba lagi.';
-                showAlert('signupAlert', errorMessage, 'error');
-                setButtonLoading('signupSubmitBtn', false);
-            }
-
-        } catch (error) {
-            console.error('Signup error:', error);
-            
-            // For demo purposes
-            console.log('⚠️ API not available - using demo mode');
-            
-            showAlert('signupAlert', 
-                '✅ Akaun berjaya didaftarkan! (Demo Mode) Sila log masuk.', 
+                `${data.message} Sila log masuk dengan kelayakan anda.`, 
                 'success'
             );
-
-            document.getElementById('signupFormElement').reset();
-
-            setTimeout(() => {
-                showLogin();
-                showAlert('loginAlert', 
-                    'Akaun anda telah didaftarkan. Sila log masuk.', 
-                    'success'
-                );
-            }, 3000);
-        }
-    };
-
-    // ===============================================
-    // CHECK AUTHENTICATION ON PAGE LOAD
-    // ===============================================
-
-    function checkAuth() {
-        // If on admin page, check for token
-        if (window.location.pathname.includes('admin.html')) {
-            const token = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
             
-            if (!token) {
-                // No token - redirect to login
-                window.location.href = 'admin-login.html';
-            }
-        }
-    }
-
-    // ===============================================
-    // LOGOUT FUNCTION (for admin page)
-    // ===============================================
-
-    window.adminLogout = function() {
-        const confirmed = confirm('Adakah anda pasti mahu log keluar?');
-        
-        if (confirmed) {
-            // Clear storage
-            localStorage.removeItem('adminToken');
-            localStorage.removeItem('adminId');
-            sessionStorage.removeItem('adminToken');
-            sessionStorage.removeItem('adminId');
-
-            // Redirect to login
-            window.location.href = 'admin-login.html';
-        }
-    };
-
-    // ===============================================
-    // INITIALIZE
-    // ===============================================
-
-    document.addEventListener('DOMContentLoaded', () => {
-        console.log('🔐 Admin Login System Initialized');
-        
-        // Check authentication
-        checkAuth();
-
-        // Auto-focus first input
-        const loginAdminId = document.getElementById('loginAdminId');
-        if (loginAdminId) {
+            // Clear form
+            document.getElementById('signupFormElement')?.reset();
+            
+            // Switch to login form after 3 seconds
             setTimeout(() => {
-                loginAdminId.focus();
-            }, 500);
-        }
-
-        // Add real-time password strength indicator for signup
-        const signupPassword = document.getElementById('signupPassword');
-        if (signupPassword) {
-            signupPassword.addEventListener('input', function() {
-                const validation = validatePassword(this.value);
-                const hint = this.parentElement.parentElement.querySelector('.form-hint');
+                console.log('🔄 Switching to login form...');
+                showLogin(null);
                 
-                if (hint && this.value.length > 0) {
-                    const strength = [
-                        validation.minLength,
-                        validation.hasUpper,
-                        validation.hasLower,
-                        validation.hasNumber,
-                        validation.hasSpecial
-                    ].filter(Boolean).length;
-
-                    let color = '#c62828'; // Red
-                    let text = 'Lemah';
-
-                    if (strength >= 5) {
-                        color = '#2e7d32'; // Green
-                        text = 'Kuat';
-                    } else if (strength >= 3) {
-                        color = '#f57c00'; // Orange
-                        text = 'Sederhana';
-                    }
-
-                    hint.style.color = color;
-                    hint.style.fontWeight = '600';
-                    hint.textContent = `Kekuatan kata laluan: ${text}`;
+                // Pre-fill admin ID in login form
+                const loginAdminIdField = document.getElementById('loginAdminId');
+                if (loginAdminIdField) {
+                    loginAdminIdField.value = data.admin_id || adminId;
+                    console.log(' Pre-filled admin ID in login form');
                 }
-            });
+                
+                showAlert('loginAlert', 'Akaun berjaya didaftarkan. Sila log masuk.', 'success');
+            }, 3000);
+            
+        } else {
+            console.log('\n❌ SIGNUP FAILED!');
+            console.log('  - Error:', data.error);
+            console.log('='.repeat(50) + '\n');
+            
+            showAlert('signupAlert', data.error || 'Pendaftaran gagal', 'error');
+            setButtonLoading('signupSubmitBtn', false);
         }
-    });
+        
+    } catch (error) {
+        console.error('\n❌ SIGNUP ERROR!');
+        console.error('  - Error:', error);
+        console.error('  - Message:', error.message);
+        console.error('  - Stack:', error.stack);
+        console.log('='.repeat(50) + '\n');
+        
+        showAlert('signupAlert', 
+            'Ralat sambungan. Sila pastikan pelayan berjalan di http://127.0.0.1:5000', 
+            'error'
+        );
+        setButtonLoading('signupSubmitBtn', false);
+    }
+}
 
-})();
+// ===============================================
+// PAGE INITIALIZATION
+// ===============================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('🔐 Admin Login Page Initialized');
+    
+    // Check if already logged in
+    const token = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
+    if (token) {
+        console.log(' Already logged in - redirecting to admin panel');
+        window.location.href = 'admin.html';
+        return;
+    }
+    
+    // Setup form submissions
+    const loginForm = document.getElementById('loginFormElement');
+    if (loginForm) {
+        loginForm.addEventListener('submit', handleLogin);
+    }
+    
+    const signupForm = document.getElementById('signupFormElement');
+    if (signupForm) {
+        signupForm.addEventListener('submit', handleSignup);
+    }
+    
+    // Setup password visibility toggles
+    document.querySelectorAll('.toggle-password').forEach(button => {
+        button.addEventListener('click', function() {
+            const inputSelector = this.getAttribute('toggle');
+            const inputId = inputSelector.replace('#', '');
+            togglePassword(inputId);
+        });
+    });
+    
+    console.log(' Event listeners attached');
+});

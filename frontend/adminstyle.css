@@ -2721,3 +2721,125 @@ mark {
     white-space: pre-wrap;
     line-height: 1.6;
 }
+
+/* ===================================
+   TOPBAR USER DROPDOWN STYLES
+   =================================== */
+
+/* User dropdown container */
+.topbar-user {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.topbar-user:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.topbar-user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+}
+
+.topbar-user-name {
+    font-weight: 500;
+    color: #fff;
+    font-size: 14px;
+}
+
+/* Dropdown menu */
+.topbar-user-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 8px;
+    min-width: 220px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.2s ease;
+    z-index: 1000;
+}
+
+.topbar-user-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Dropdown header */
+.dropdown-header {
+    padding: 16px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.dropdown-user-info strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 4px;
+}
+
+.dropdown-user-info small {
+    display: block;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+/* Dropdown divider */
+.dropdown-divider {
+    height: 1px;
+    background-color: #e5e7eb;
+    margin: 0;
+}
+
+/* Dropdown item */
+.dropdown-item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border: none;
+    background: none;
+    color: #374151;
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.dropdown-item:hover {
+    background-color: #f3f4f6;
+}
+
+.dropdown-item:active {
+    background-color: #e5e7eb;
+}
+
+.dropdown-icon {
+    font-size: 16px;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .topbar-user-name {
+        display: none;
+    }
+    
+    .topbar-user-dropdown {
+        right: -8px;
+    }
+}

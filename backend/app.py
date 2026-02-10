@@ -8,6 +8,7 @@ from flask_cors import CORS
 from database import DatabaseManager
 from routes.contact_request_routes import contact_bp
 from routes.admin_contact_routes import admin_contact_bp
+from routes.admin_auth_routes import admin_auth_bp  # ← ADDED THIS LINE
 
 app = Flask(__name__)
 # Configure CORS to allow preflight requests from all origins
@@ -39,6 +40,16 @@ except ImportError as e:
 app.register_blueprint(contact_bp)
 app.register_blueprint(admin_contact_bp)
 
+# ← ADDED THIS SECTION ↓
+# Import and register admin authentication routes
+try:
+    app.register_blueprint(admin_auth_bp)
+    loaded_blueprints.append("✅ Admin authentication routes")
+    print("✅ Admin authentication routes loaded successfully")
+except Exception as e:
+    failed_blueprints.append(f"❌ Admin auth routes: {e}")
+    print(f"❌ Failed to load admin auth routes: {e}")
+# ← ADDED THIS SECTION ↑
 
 # Import and register admin routes
 try:
@@ -250,7 +261,7 @@ except ImportError as e:
 @app.route('/admin/live-chat/<int:request_id>', methods=['OPTIONS'])
 def _live_chat_cors_preflight(request_id=None):
     resp = make_response('', 200)
-    resp.headers['Access-Control-Allow-Origin'] = '*'  # or set to specific origin like 'http://127.0.0.1:5500'
+    resp.headers['Access-Control-Allow-Origin'] = '*'  
     resp.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
     resp.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With'
     resp.headers['Access-Control-Max-Age'] = '3600'
@@ -537,6 +548,10 @@ if __name__ == "__main__":
             print("=" * 60)
             print("🌐 Flask server starting on http://localhost:5000")
             print("\n📋 Available endpoints:")
+            print("   🔐 Admin Signup: POST /admin/auth/signup")
+            print("   🔐 Admin Login: POST /admin/auth/login")
+            print("   🔐 Verify Token: POST /admin/auth/verify")
+            print("   🔐 Logout: POST /admin/auth/logout")
             print("   💬 Chat: POST /chat")
             print("   💰 Zakat Calculator: POST /api/calculate-zakat")
             print("   📅 Zakat Years: GET /api/zakat/years")

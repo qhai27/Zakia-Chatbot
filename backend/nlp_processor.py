@@ -158,7 +158,7 @@ class NLPProcessor:
                     self.keyword_index[keyword] = []
                 self.keyword_index[keyword].append(len(self.training_pairs) - 1)
         
-        print(f"✅ Training complete! Pairs: {len(self.training_pairs)}, Unique keywords: {len(self.keyword_index)}")
+        print(f"Training complete! Pairs: {len(self.training_pairs)}, Unique keywords: {len(self.keyword_index)}")
         return True
     
     # ----------------------------

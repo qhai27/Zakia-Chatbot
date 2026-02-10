@@ -67,10 +67,25 @@
             <!-- Right Section -->
             <div class="topbar-right">
 
-                <!-- User Profile -->
-                <div class="topbar-user">
+                <!-- User Profile with Dropdown -->
+                <div class="topbar-user" id="topbarUser">
                     <img src="images/zakia-avatar.png" alt="Admin" class="topbar-user-avatar">
-                    <span class="topbar-user-name">Admin</span>
+                    <span class="topbar-user-name" id="adminName">Admin</span>
+                    
+                    <!-- Dropdown Menu -->
+                    <div class="topbar-user-dropdown" id="userDropdown">
+                        <div class="dropdown-header">
+                            <div class="dropdown-user-info">
+                                <strong id="dropdownAdminName">Admin</strong>
+                                <small id="dropdownAdminEmail">admin@lznk.gov.my</small>
+                            </div>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <button class="dropdown-item" id="logoutBtn">
+                            <span class="dropdown-icon">🚪</span>
+                            <span>Log Keluar</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Mobile Menu Toggle -->
@@ -960,5 +975,47 @@
 
 
     <!-- ======================= END MODALS ========================== -->
+
+    <!-- Logout Script -->
+    <script>
+        // Toggle user dropdown
+        document.getElementById('topbarUser').addEventListener('click', function(e) {
+            e.stopPropagation();
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('show');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.remove('show');
+        });
+
+        // Logout handler
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            if (confirm('Adakah anda pasti mahu log keluar?')) {
+                // Clear session data
+                localStorage.removeItem('adminToken');
+                localStorage.removeItem('adminId');
+                localStorage.removeItem('adminName');
+                localStorage.removeItem('adminEmail');
+                sessionStorage.clear();
+                
+                // Redirect to login page
+                window.location.href = 'admin-login.html';
+            }
+        });
+
+        // Load admin info on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            const adminName = localStorage.getItem('adminName') || sessionStorage.getItem('adminName') || 'Admin';
+            const adminEmail = localStorage.getItem('adminEmail') || sessionStorage.getItem('adminEmail') || 'admin@lznk.gov.my';
+            
+            // Update UI with admin info
+            document.getElementById('adminName').textContent = adminName;
+            document.getElementById('dropdownAdminName').textContent = adminName;
+            document.getElementById('dropdownAdminEmail').textContent = adminEmail;
+        });
+    </script>
 </body>
 </html>
