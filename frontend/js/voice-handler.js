@@ -49,6 +49,43 @@ class VoiceHandler {
     }
 
     /**
+     * Convert numbers to Malay words
+     */
+    numberToMalayWords(num) {
+        const ones = ['', 'satu', 'dua', 'tiga', 'empat', 'lima', 'enam', 'tujuh', 'lapan', 'sembilan'];
+        const teens = ['sepuluh', 'sebelas', 'dua belas', 'tiga belas', 'empat belas', 'lima belas', 
+                       'enam belas', 'tujuh belas', 'lapan belas', 'sembilan belas'];
+        
+        if (num === 0) return 'kosong';
+        if (num < 10) return ones[num];
+        if (num >= 10 && num < 20) return teens[num - 10];
+        if (num >= 20 && num < 100) {
+            const tens = Math.floor(num / 10);
+            const remainder = num % 10;
+            return ones[tens] + ' puluh' + (remainder ? ' ' + ones[remainder] : '');
+        }
+        if (num >= 100 && num < 1000) {
+            const hundreds = Math.floor(num / 100);
+            const remainder = num % 100;
+            const hundredWord = hundreds === 1 ? 'seratus' : ones[hundreds] + ' ratus';
+            return hundredWord + (remainder ? ' ' + this.numberToMalayWords(remainder) : '');
+        }
+        if (num >= 1000 && num < 1000000) {
+            const thousands = Math.floor(num / 1000);
+            const remainder = num % 1000;
+            const thousandWord = thousands === 1 ? 'seribu' : this.numberToMalayWords(thousands) + ' ribu';
+            return thousandWord + (remainder ? ' ' + this.numberToMalayWords(remainder) : '');
+        }
+        if (num >= 1000000 && num < 1000000000) {
+            const millions = Math.floor(num / 1000000);
+            const remainder = num % 1000000;
+            return this.numberToMalayWords(millions) + ' juta' + (remainder ? ' ' + this.numberToMalayWords(remainder) : '');
+        }
+        
+        return num.toString(); // Fallback for very large numbers
+    }
+
+    /**
      * Setup Web Speech API for voice input (Malay - Malaysia)
      */
     setupSpeechRecognition() {
@@ -320,6 +357,7 @@ class VoiceHandler {
             this.addSpeakingIndicator();
             
             console.log('🎙️ Menghantar ke ElevenLabs TTS...');
+            console.log('📝 Teks selepas dibersihkan:', cleanText);
             
             // Call ElevenLabs TTS API
             const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${this.elevenLabsVoiceId}`, {
@@ -403,21 +441,69 @@ class VoiceHandler {
         cleaned = cleaned.replace(/[\u{2600}-\u{26FF}]/gu, '');
         cleaned = cleaned.replace(/[\u{2700}-\u{27BF}]/gu, '');
         
+        // Handle percentages with decimals (e.g., "2.57%" -> "dua point lima tujuh peratus")
+        cleaned = cleaned.replace(/(\d+)\.(\d+)%/g, (match, whole, decimal) => {
+            const wholePart = this.numberToMalayWords(parseInt(whole));
+            const decimalParts = decimal.split('').map(d => this.numberToMalayWords(parseInt(d))).join(' ');
+            return wholePart + ' point ' + decimalParts + ' peratus';
+        });
+        
+        // Handle whole number percentages (e.g., "25%" -> "dua puluh lima peratus")
+        cleaned = cleaned.replace(/(\d+)%/g, (match, num) => {
+            return this.numberToMalayWords(parseInt(num)) + ' peratus';
+        });
+        
+        // Handle decimal numbers without percentage (e.g., "3.14" -> "tiga point satu empat")
+        cleaned = cleaned.replace(/(\d+)\.(\d+)/g, (match, whole, decimal) => {
+            const wholePart = this.numberToMalayWords(parseInt(whole));
+            const decimalParts = decimal.split('').map(d => this.numberToMalayWords(parseInt(d))).join(' ');
+            return wholePart + ' point ' + decimalParts;
+        });
+        
+        // Handle regular numbers (e.g., "123" -> "seratus dua puluh tiga")
+        cleaned = cleaned.replace(/\b(\d+)\b/g, (match, num) => {
+            return this.numberToMalayWords(parseInt(num));
+        });
+        
         // Replace symbols with Malay words
         cleaned = cleaned.replace(/&/g, ' dan ');
         cleaned = cleaned.replace(/@/g, ' di ');
-        cleaned = cleaned.replace(/%/g, ' peratus ');
         cleaned = cleaned.replace(/\+/g, ' tambah ');
-        cleaned = cleaned.replace(/-/g, ' ');
+        cleaned = cleaned.replace(/\$/g, ' dolar ');
+        cleaned = cleaned.replace(/RM/g, ' ringgit ');
+        
+        // Add natural pauses for better speech flow
+        // Convert multiple newlines to comma + space for pause
+        cleaned = cleaned.replace(/\n\n+/g, ', ');
+        cleaned = cleaned.replace(/\n/g, ', ');
+        
+        // Add pause after periods if not already there
+        cleaned = cleaned.replace(/\.([A-Z])/g, '. $1');
+        
+        // Add pause after colons
+        cleaned = cleaned.replace(/:/g, ', ');
+        
+        // Replace bullet points and list markers with natural pauses
+        cleaned = cleaned.replace(/[•\-\*]\s*/g, ', ');
+        
+        // Replace dashes with short pause
+        cleaned = cleaned.replace(/\s*[-–—]\s*/g, ', ');
         
         // Clean whitespace
         cleaned = cleaned.replace(/\s+/g, ' ').trim();
 
-        // Remove remaining special characters but keep letters, numbers, and basic punctuation
-        cleaned = cleaned.replace(/[^a-zA-Z0-9\s,.!?'-]/g, ' ');
+        // Remove remaining special characters but keep letters and basic punctuation
+        cleaned = cleaned.replace(/[^a-zA-Z\s,.!?'-]/g, ' ');
+        
+        // Clean up multiple commas
+        cleaned = cleaned.replace(/,+/g, ',');
+        cleaned = cleaned.replace(/\s*,\s*/g, ', ');
         
         // Clean up multiple spaces and trim
         cleaned = cleaned.replace(/\s+/g, ' ').trim();
+        
+        // Remove leading/trailing commas
+        cleaned = cleaned.replace(/^,\s*|,\s*$/g, '');
         
         return cleaned;
     }
@@ -714,9 +800,8 @@ class VoiceHandler {
 
     handleBotMessage(text) {
         if (this.ttsEnabled && text) {
-            setTimeout(() => {
-                this.speak(text);
-            }, 300);
+            // Immediate TTS playback - no delay for faster response
+            this.speak(text);
         }
     }
 }
