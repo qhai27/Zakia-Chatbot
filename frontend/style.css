@@ -1277,7 +1277,7 @@ button:focus-visible, .input-area textarea:focus-visible, .quick-reply:focus-vis
 
 .modal-content-contact {
     position: relative;
-    background: white;
+    background: #fbfefc;
     border-radius: 16px;
     width: 90%;
     max-width: 500px;
@@ -1309,9 +1309,10 @@ button:focus-visible, .input-area textarea:focus-visible, .quick-reply:focus-vis
     align-items: center;
     padding: 20px 25px;
     border-bottom: 2px solid #f0f0f0;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    /* green gradient only */
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     color: white;
-    border-radius: 16px 16px 0 0;
+    border-radius: 16x 16px 0 0;
 }
 
 .modal-header-contact h2 {
@@ -1382,9 +1383,9 @@ button:focus-visible, .input-area textarea:focus-visible, .quick-reply:focus-vis
 .form-group input:focus,
 .form-group textarea:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #10b981;
     background: white;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
 }
 
 .form-group textarea {
@@ -1447,12 +1448,12 @@ button:focus-visible, .input-area textarea:focus-visible, .quick-reply:focus-vis
    OFFICE HOURS INFO
    ======================================== */
 .office-hours-info {
-    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
     padding: 15px;
     border-radius: 8px;
-    border-left: 4px solid #3b82f6;
+    border-left: 4px solid #34d399;
     font-size: 13px;
-    color: #1e40af;
+    color: #065f46;
     line-height: 1.6;
     margin-bottom: 20px;
 }

@@ -39,6 +39,11 @@ class NLPProcessor:
         # Typo corrections
         self.typo_corrections = {
             'zakat': ['zakat', 'zakah', 'zakt', 'zkat', 'zaket'],
+            # common Kedah variants
+            'hang': ['hang', 'hange', 'hanggi'],
+            'ape': ['ape', 'ap'],
+            'mano': ['mano', 'manno'],
+            'dak': ['dak', 'tak', 'taq'],
             'bayar': ['bayar', 'bayr', 'byr', 'membayar', 'pembayaran', 'pay', 'payment'],
             'bagaimana': ['bagaimana', 'bgaimana', 'bgmn', 'bagaimanakah', 'mcm mana', 'macam mana', 'how'],
             'apa': ['apa', 'ap', 'apakah', 'pe', 'what', 'maksud'],
@@ -65,6 +70,12 @@ class NLPProcessor:
         
         # Synonyms
         self.synonyms = {
+            # add a few Kedah slang synonyms to help interpretation
+            'anda': ['anda','hang','hanggi'],
+            'apa': ['apa','ape'],
+            'mana': ['mana','mano'],
+            'boleh': ['boleh','bleh'],
+            'tidak': ['tidak','dak','tak'],
             'cara': ['cara', 'kaedah', 'method', 'bagaimana', 'how', 'steps','cara-cara'],
             'lokasi': ['lokasi', 'tempat', 'alamat', 'mana', 'location', 'address', 'where'],
             'waktu': ['waktu', 'masa', 'tempoh', 'bila', 'time', 'when', 'period'],
@@ -99,6 +110,11 @@ class NLPProcessor:
             'apa itu' : ['apa itu','apakah','what is','define','meaning of', 'maksud'],
             'telefon' : ['telefon','no telefon','nombor telefon','phone','phone number','contact number','telefon bimbit','no tel'],
             'whatsapp' : ['whatsapp','no whatsapp','nombor whatsapp','whatsap','whats app','whatsapps', 'ws' ,'no ws'],
+            # include some Kedah slang equivalents
+            'hang': ['hang','hanggi','hangg'],
+            'ape': ['ape','apek','ape?'],
+            'mano': ['mano','manno'],
+            'dak': ['dak','tak','takde'],
         }
         
         # Optional Gemini integration
@@ -122,6 +138,26 @@ class NLPProcessor:
     def _normalize_unicode(self, text: str) -> str:
         nfkd = unicodedata.normalize('NFKD', text)
         return ''.join([c for c in nfkd if not unicodedata.combining(c)])
+
+    def _normalize_kedah_slang(self, text: str) -> str:
+        """Replace common Kedah slang terms with their standard equivalents for processing."""
+        if not text:
+            return text
+        slang_map = {
+            r"\bhang\b": "anda",
+            r"\bhanggi\b": "anda",
+            r"\bape\b": "apa",
+            r"\bmano\b": "mana",
+            r"\bdak\b": "tak",
+            r"\bbleh\b": "boleh",
+            r"\bkamek\b": "kami",
+            r"\bkite\b": "kita",
+            r"\bsaye\b": "saya",
+        }
+        result = text
+        for pattern, std in slang_map.items():
+            result = re.sub(pattern, std, result, flags=re.IGNORECASE)
+        return result
     
     # ----------------------------
     # Training
@@ -206,6 +242,8 @@ class NLPProcessor:
             return ""
         text = self._normalize_unicode(text)
         text = text.lower().strip()
+        # convert Kedah slang words to standard Malay before further processing
+        text = self._normalize_kedah_slang(text)
         text = re.sub(r'[^\w\s\?]', ' ', text)
         text = re.sub(r'\s+', ' ', text).strip()
         return text

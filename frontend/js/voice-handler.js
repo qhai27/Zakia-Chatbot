@@ -17,11 +17,13 @@ class VoiceHandler {
         
         // ElevenLabs Configuration for TTS
         this.elevenLabsApiKey = '4a1b1788fb59eecefda5cf2e4690da16ab397d626b9805cd3174b0995a028613'; //ID key 
-        this.elevenLabsVoiceId = 'F9yCRElGuNvX7A2kGbWz'; // Maya J 
+        this.elevenLabsVoiceId = 'INmScOFtmeMGA4p0XRr1'; // Nurin voice id
         this.elevenLabsModelId = 'eleven_multilingual_v2'; // Supports Bahasa Melayu
         
-        // Audio handling
+        // Audio handling 
         this.currentAudio = null;
+        // Track pending TTS network request so we can cancel it if a new reply arrives
+        this.speechAbortController = null;
         
         this.init();
     }
@@ -344,13 +346,24 @@ class VoiceHandler {
             return;
         }
 
-        // Stop any ongoing speech
+        // Abort any previous network request for TTS
+        if (this.speechAbortController) {
+            this.speechAbortController.abort();
+            this.speechAbortController = null;
+        }
+
+        // Stop any audio currently playing
         this.stopSpeaking();
 
         // Clean text for better speech
         const cleanText = this.cleanTextForSpeech(text);
         
         if (!cleanText) return;
+
+        // prepare a fresh abort controller for this request
+        this.speechAbortController = new AbortController();
+        const signal = this.speechAbortController.signal;
+        const myController = this.speechAbortController;
 
         try {
             this.isSpeaking = true;
@@ -376,7 +389,8 @@ class VoiceHandler {
                         style: 0.0,
                         use_speaker_boost: true
                     }
-                })
+                }),
+                signal
             });
             
             if (!response.ok) {
@@ -384,6 +398,11 @@ class VoiceHandler {
             }
             
             // Get audio blob
+            if (signal.aborted) {
+                console.log('🔇 TTS request was aborted before receiving audio');
+                return;
+            }
+
             const audioBlob = await response.blob();
             const audioUrl = URL.createObjectURL(audioBlob);
             
@@ -407,15 +426,29 @@ class VoiceHandler {
             
             await this.currentAudio.play();
             console.log('🔊 TTS dimainkan');
-            
         } catch (error) {
-            console.error('❌ Ralat ElevenLabs TTS:', error);
+            if (error.name === 'AbortError') {
+                console.log('🔇 TTS fetch aborted');
+            } else {
+                console.error('❌ Ralat ElevenLabs TTS:', error);
+            }
             this.isSpeaking = false;
             this.removeSpeakingIndicator();
+        } finally {
+            // clear controller only if no new request replaced it
+            if (this.speechAbortController === myController) {
+                this.speechAbortController = null;
+            }
         }
     }
 
     stopSpeaking() {
+        // abort any in-flight TTS network request
+        if (this.speechAbortController) {
+            this.speechAbortController.abort();
+            this.speechAbortController = null;
+        }
+
         if (this.currentAudio) {
             this.currentAudio.pause();
             this.currentAudio.currentTime = 0;
@@ -441,6 +474,13 @@ class VoiceHandler {
         cleaned = cleaned.replace(/[\u{2600}-\u{26FF}]/gu, '');
         cleaned = cleaned.replace(/[\u{2700}-\u{27BF}]/gu, '');
         
+        // Handle ringgit amounts like "RM9,000" or "rm 1200" -> "rm sembilan ribu" etc.
+        cleaned = cleaned.replace(/rm\s*([\d,]+)/gi, (match, digits) => {
+            const value = parseInt(digits.replace(/,/g, ''), 10);
+            if (isNaN(value)) return match;
+            return 'rm ' + this.numberToMalayWords(value);
+        });
+
         // Handle percentages with decimals (e.g., "2.57%" -> "dua point lima tujuh peratus")
         cleaned = cleaned.replace(/(\d+)\.(\d+)%/g, (match, whole, decimal) => {
             const wholePart = this.numberToMalayWords(parseInt(whole));

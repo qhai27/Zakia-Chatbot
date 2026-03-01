@@ -41,6 +41,17 @@ def add_emoji_if_missing(text: str) -> str:
             return text + " 😊"
     return text
 
+
+def maybe_apply_kedah_slang(text: str) -> str:
+    """Convert static responses to Kedah slang if Gemini service is available."""
+    if gemini:
+        try:
+            return gemini._convert_to_kedah_slang(text)
+        except Exception:
+            return text
+        
+    return text
+
 @chat_bp.route("/chat", methods=["POST"])
 def chat():
     """
@@ -73,6 +84,7 @@ def chat():
                         context="User is greeting ZAKIA chatbot"
                     )
                     greeting = add_emoji_if_missing(greeting)
+                    greeting = maybe_apply_kedah_slang(greeting)
                     response = {
                         "reply": greeting,
                         "session_id": session_id,
@@ -81,14 +93,16 @@ def chat():
                     }
                 except Exception as e:
                     print(f"   ⚠️ Gemini error: {e}")
+                    reply_text = "Assalamualaikum! 👋 Saya ZAKIA dari LZNK. Bagaimana saya boleh membantu anda? 😊"
                     response = {
-                        "reply": "Assalamualaikum! 👋 Saya ZAKIA dari LZNK. Bagaimana saya boleh membantu anda? 😊",
+                        "reply": maybe_apply_kedah_slang(reply_text),
                         "session_id": session_id,
                         "intent": "greeting"
                     }
             else:
+                reply_text = "Assalamualaikum! 👋 Saya ZAKIA dari LZNK. Bagaimana saya boleh membantu anda? 😊"
                 response = {
-                    "reply": "Assalamualaikum! 👋 Saya ZAKIA dari LZNK. Bagaimana saya boleh membantu anda? 😊",
+                    "reply": maybe_apply_kedah_slang(reply_text),
                     "session_id": session_id,
                     "intent": "greeting"
                 }
@@ -98,7 +112,7 @@ def chat():
         
         # Handle thanks
         if intent['is_thanks']:
-            reply = "Sama-sama! 😊 Saya gembira dapat membantu. Ada lagi soalan?"
+            reply = maybe_apply_kedah_slang("Sama-sama! 😊 Saya gembira dapat membantu. Ada lagi soalan?")
             db.log_chat(user_input, reply, session_id)
             return jsonify({
                 "reply": reply,
@@ -108,7 +122,7 @@ def chat():
         
         # Handle goodbye
         if intent['is_goodbye']:
-            reply = "Terima kasih! Semoga bermanfaat. Jumpa lagi! 👋"
+            reply = maybe_apply_kedah_slang("Terima kasih! Semoga bermanfaat. Jumpa lagi! 👋")
             db.log_chat(user_input, reply, session_id)
             nlp.clear_session_context(session_id)
             return jsonify({
@@ -122,8 +136,7 @@ def chat():
             print("   ⚠️ Reconnecting to database...")
             if not db.connect():
                 return jsonify({
-                    "reply": "Maaf, sistem sedang mengalami masalah. Sila cuba lagi. 😅",
-                    "session_id": session_id
+                "reply": maybe_apply_kedah_slang("Maaf, sistem sedang mengalami masalah. Sila cuba lagi. 😅"),
                 }), 500
         
         # Get FAQs
@@ -151,7 +164,7 @@ def chat():
                     print(f"   ❌ Gemini error: {e}")
             
             return jsonify({
-                "reply": "Maaf, sistem tidak tersedia. Sila hubungi pejabat LZNK di 04-733 6633. 📞",
+                "reply": maybe_apply_kedah_slang("Maaf, sistem tidak tersedia. Sila hubungi pejabat LZNK di 04-733 6633. 📞"),
                 "session_id": session_id
             }), 500
         

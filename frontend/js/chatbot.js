@@ -292,8 +292,10 @@ if (!window.ZakiaChatbot) {
             
             const overlap12 = this.calculateOverlap(keywords1, keywords2);
             const overlap23 = this.calculateOverlap(keywords2, keywords3);
+            const overlap13 = this.calculateOverlap(keywords1, keywords3);
             
-            return overlap12 > 0.5 || overlap23 > 0.5;
+        
+            return overlap12 > 0.5 && overlap23 > 0.5 && overlap13 > 0.5;
         }
         
         detectComplexity(message) {
@@ -401,7 +403,7 @@ if (!window.ZakiaChatbot) {
                         </div>
                         
                         <div class="form-group">
-                            <label for="contactEmail">Email (Pilihan)</label>
+                            <label for="contactEmail">Email  <span class="required">*</span></label>
                             <input type="email" id="contactEmail" name="email" placeholder="email@example.com">
                         </div>
                         

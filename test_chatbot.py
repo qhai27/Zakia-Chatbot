@@ -72,6 +72,30 @@ def test_chat():
         print(f"❌ Chat test failed: {e}")
         return False
 
+
+def test_kedah_slang():
+    """Send a Kedah-dialect message and expect slang in reply"""
+    try:
+        test_message = {"message": "Hang boleh tolong aku?"}
+        response = requests.post("http://localhost:5000/chat", json=test_message,
+                                 headers={"Content-Type": "application/json"}, timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            reply = data.get('reply', '')
+            if any(s in reply.lower() for s in ['hang', 'bleh', 'dak', 'ape', 'mano']):
+                print("✅ Kedah slang reply detected")
+                print(f"   Reply: {reply}")
+                return True
+            else:
+                print("⚠️ Reply did not contain expected Kedah slang:", reply)
+                return False
+        else:
+            print(f"❌ Kedah slang check failed: {response.status_code}")
+            return False
+    except Exception as e:
+        print(f"❌ Kedah slang test failed: {e}")
+        return False
+
 def main():
     print("🧪 ZAKIA Chatbot Test Suite")
     print("=" * 50)
@@ -91,6 +115,11 @@ def main():
     # Test chat
     if not test_chat():
         print("\n💡 Check the backend logs for errors")
+        return False
+
+    # Test Kedah dialect handling
+    if not test_kedah_slang():
+        print("\n💡 Verify Kedah slang feature is enabled and backend restarted")
         return False
     
     print("\n🎉 All tests passed! Your chatbot is working correctly.")
