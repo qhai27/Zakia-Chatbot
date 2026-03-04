@@ -30,7 +30,9 @@
             contactMethodFilter: document.getElementById('contactMethodFilter'),
             contactTriggerFilter: document.getElementById('contactTriggerFilter'),
             historySearch: document.getElementById('historySearch'),
-            historyStatusFilter: document.getElementById('historyStatusFilter'),
+            historyMonthFilter: document.getElementById('historyMonthFilter'),
+            historyTypeFilter: document.getElementById('historyTypeFilter'),
+          
             
             // Tabs
             tabBtns: document.querySelectorAll('.tab-btn'),
@@ -155,9 +157,22 @@
                 // Apply filters
                 let filtered = requests.filter(req => {
                     const searchTerm = (DOM.historySearch?.value || '').toLowerCase();
-                    const statusFilter = DOM.historyStatusFilter?.value || '';
-                    
-                    if (statusFilter && req.status !== statusFilter) return false;
+                    const monthFilter = DOM.historyMonthFilter?.value || '';
+                    const typeFilter = DOM.historyTypeFilter?.value || '';
+
+                    // month filter checks contacted_at or updated_at date
+                    if (monthFilter) {
+                        const dateStr = req.contacted_at || req.updated_at || req.created_at;
+                        const date = dateStr ? new Date(dateStr) : null;
+                        if (!date || String(date.getMonth() + 1) !== monthFilter) {
+                            return false;
+                        }
+                    }
+
+                    if (typeFilter) {
+                        const used = req.contact_method_used || req.preferred_contact_method;
+                        if (used !== typeFilter) return false;
+                    }
                     
                     if (searchTerm) {
                         return req.name.toLowerCase().includes(searchTerm) ||
@@ -724,11 +739,19 @@
                 });
             }
 
-            if (DOM.historyStatusFilter) {
-                DOM.historyStatusFilter.addEventListener('change', () => {
+            if (DOM.historyMonthFilter) {
+                DOM.historyMonthFilter.addEventListener('change', () => {
                     UI.renderHistoryRequests(STATE.historyRequests);
                 });
             }
+
+            if (DOM.historyTypeFilter) {
+                DOM.historyTypeFilter.addEventListener('change', () => {
+                    UI.renderHistoryRequests(STATE.historyRequests);
+                });
+            }
+
+
 
             // Mark contacted confirmation
             const confirmBtn = document.getElementById('confirmMarkContactedBtn');

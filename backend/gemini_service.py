@@ -1,12 +1,13 @@
 """
 Gemini Service - SMART MODE for ZAKIA Chatbot
-Improved prompts, validation, and response quality
+
 """
 
 import os
 from dotenv import load_dotenv
 import google.generativeai as genai
 import re
+from typing import Tuple
 
 load_dotenv()
 
@@ -217,7 +218,7 @@ Jika soalan tentang prosedur khusus, lokasi pejabat, atau perkhidmatan LZNK yang
 "Untuk maklumat terperinci tentang [topik], saya cadangkan hubungi terus LZNK Kedah ya 😊
 
 📞 Talian Bebas Tol: 1800-88-1740
-📱 WhatsApp: 0194181740.
+📱 WhatsApp: 0194181740
 🌐 Portal: https://www.zakatkedah.com.my/
 
 Mereka boleh bantu dengan lebih detail! ✅"
@@ -240,82 +241,21 @@ Mereka boleh bantu dengan lebih detail! ✅"
         """Simple word-level replacement to give replies a Kedah flavour."""
         if not text:
             return text
-        # Map standard Malay words to Kedah-style slang equivalents
+        # map standard Malay words to Kedah-style slang
         result = text
         slang_map = {
-            # Kata ganti nama
-            'anda': 'hang',
-            'awak': 'hang',
-            'kamu': 'hang',
-            'engkau': 'hang',
-            'saya': 'kami',         
-            'aku': 'aku',
-            'kita': 'kite',
-            'kami': 'kami',
-            'mereka': 'depa',
-            'dia': 'dia',           
-
-            # Kata tanya
+            'anda': 'hampa',
+            'saya': 'kami',
             'apa': 'ape',
-            'mengapa': 'pasai apa',
-            'kenapa': 'pasai apa',
-            'bagaimana': 'lagu mano',
-            'macam mana': 'lagu mano',
-            'mana': 'mano',
-            'bila': 'bila',
-            'berapa': 'berapa',
-
-            # Kata kerja umum
-            'boleh': 'bleh',
-            'hendak': 'nak',
-            'mahu': 'nak',
-            'pergi': 'pi',
-            'datang': 'mai',
-            'balik': 'balik',
-            'tunggu': 'tunggu sat',
-            'ambil': 'ambik',
-            'beri': 'bagi',
-            'memberikan': 'bagi',
-            'minta': 'mintak',
-            'buat': 'buat',
-            'cakap': 'cakap',
-            'kata': 'kata',
-
-            # Kata hubung / sendi
+            'boleh': 'boleh',
             'kerana': 'sebab',
-            'sebab': 'pasai',
             'kepada': 'kat',
-            'pada': 'kat',
-            'dengan': 'deng',
-            'untuk': 'untuk',
-            'dari': 'dari',
-
-            # Penafian
-            'tidak': 'dak',
             'tak': 'dak',
-            'bukan': 'bukan',
-
-            # Masa
             'nanti': 'satgi',
-            'sekarang': 'la ni',
-            'tadi': 'tadi',
+            'kenapa': 'pasai apa',
+            'hendak': 'nak',
+            'sebab': 'sebab',
             'sudah': 'dah',
-            'belum': 'lum',
-            'selalu': 'slalu',
-
-            # Tambahan
-            'sahaja': 'ja',
-            'saja': 'ja',
-            'sangat': 'sangat',
-            'betul': 'betoi',
-            'kecil': 'kecik',
-            'besar': 'besaq',
-            'rumah': 'rumoh',
-            'kena': 'kene',
-            'tengok': 'tengok',
-            'lihat': 'tengok',
-            'cepat': 'cepat',
-            'lambat': 'lambat',
         }
         for std, slang in slang_map.items():
             result = re.sub(rf"\b{std}\b", slang, result, flags=re.IGNORECASE)
@@ -382,7 +322,260 @@ Mereka boleh bantu dengan lebih detail! ✅"
             print(f"   ⚠️ Enhancement error: {e}")
             return self._format_basic_faq(faq_answer)
 
+    def answer_zakat_question(self, user_question: str, matched_questions=None, context: dict = None) -> str:
+        """
+        Enhanced Smart Mode with better structure and examples
+        """
+        try:
+            # Build suggestion text
+            suggestion_text = ""
+            if matched_questions and len(matched_questions) > 0:
+                suggestion_text = "\n\n💡 SOALAN BERKAITAN dalam FAQ (untuk rujukan):\n"
+                for i, q in enumerate(matched_questions[:3], 1):
+                    suggestion_text += f"   {i}. {q}\n"
+                suggestion_text += "\nINGAT: Soalan pengguna TIDAK match FAQ ini. Jawab berdasarkan pengetahuan zakat anda."
+
+            # Add context info
+            context_text = ""
+            if context:
+                context_text = "\n\nKONTEKS TAMBAHAN:\n"
+                if context.get('question_type'):
+                    context_text += f"Jenis soalan: {context['question_type']}\n"
+                if context.get('keywords'):
+                    context_text += f"Kata kunci: {', '.join(context['keywords'])}\n"
+
+            prompt = f"""{self.smart_context}
+
+        📥 SOALAN PENGGUNA:
+        "{user_question}"
+
+        ⚠️ STATUS: TIADA FAQ yang sepadan - gunakan PENGETAHUAN ZAKAT anda
+        {context_text}{suggestion_text}
+
+        🎯 TUGAS ANDA:
+        1. Jawab berdasarkan pengetahuan zakat Islam yang sahih dan tepat
+        2. Terangkan dengan JELAS dan MUDAH faham
+        3. Sertakan contoh pengiraan jika relevan
+        4. Format dalam bentuk point (senang baca)
+        5. Gunakan emoji yang sesuai
+        6. Panjang: 3-6 ayat (ikut kompleksiti soalan)
+        7. Pastikan pengguna rasa terbantu dan faham
+
+        INGAT: 
+        - Jawab dengan YAKIN (ini pengetahuan zakat asas yang anda tahu)
+        - Bagi contoh konkrit supaya mudah faham
+        - Jangan kata "saya tidak pasti" untuk soalan zakat standard
+        - Kalau soalan terlalu spesifik tentang LZNK Kedah, cadangkan hubungi 1800-88-1740
+
+        JAWAPAN PAKAR ANDA:
+        """
+
+            response = self.model.generate_content(
+                prompt,
+                generation_config=genai.types.GenerationConfig(
+                    temperature=0.6,  # Balanced for helpful answers
+                    max_output_tokens=700,
+                    top_p=0.9,
+                    top_k=40,
+                )
+            )
+            
+            answer = response.text.strip()
+            
+            # Enhanced validation
+            if not self._validate_smart_answer(answer, user_question):
+                return self._get_enhanced_fallback(user_question, matched_questions)
+            
+            # Auto-enhance if needed
+            answer = self._post_process_answer(answer, user_question)
+            # convert final reply to Kedah slang
+            answer = self._convert_to_kedah_slang(answer)
+            return answer
+
+        except Exception as e:
+            print(f"   ⚠️ Smart answer error: {e}")
+            return self._get_enhanced_fallback(user_question, matched_questions)
+
+    def _validate_faq_answer(self, answer: str, faq_answer: str) -> bool:
+        """Enhanced validation for FAQ answers"""
+        # Check minimum length
+        if len(answer) < 15:
+            return False
+        
+        # Check forbidden phrases
+        forbidden = ['biasanya', 'mungkin', 'kadang', 'lazimnya', 'saya rasa', 
+                     'tidak pasti', 'lebih kurang', 'sekitar']
+        if any(word in answer.lower() for word in forbidden):
+            return False
+        
+        # Verify all numbers from FAQ are preserved
+        faq_numbers = set(re.findall(r'\d+(?:\.\d+)?', faq_answer))
+        answer_numbers = set(re.findall(r'\d+(?:\.\d+)?', answer))
+        
+        # Check if any numbers were added (not in FAQ)
+        if not faq_numbers.issubset(answer_numbers):
+            return False
+        
+        # Check if important numbers were removed
+        if faq_numbers and not answer_numbers:
+            return False
+        
+        # STRICT: Check for forbidden institutions
+        forbidden_institutions = ['amanah hartanah', 'agen', 'perunding', 'consultant']
+        if any(inst in answer.lower() for inst in forbidden_institutions):
+            return False
+        
+        return True
+
+    def _validate_smart_answer(self, answer: str, question: str) -> bool:
+        """Validate smart mode answers"""
+        if len(answer) < 30:
+            return False
+        
+        # Check for signs of confusion
+        confusion_markers = ['saya tidak tahu', 'saya tidak faham soalan', 
+                            'soalan tidak jelas', 'maaf saya tidak dapat']
+        if any(marker in answer.lower() for marker in confusion_markers):
+            return False
+        
+        # Ensure it has some structure (points or multiple sentences)
+        if '•' not in answer and '\n' not in answer and len(answer.split('.')) < 2:
+            return False
+        if not any(e in answer for e in ['😊','💰','✅','📌','💡']):
+            return False
+        
+        # STRICT: Check if answer addresses the question type
+        q_lower = question.lower()
+        a_lower = answer.lower()
+        
+        # If question is about calculation, answer should mention calculation/formula
+        if any(word in q_lower for word in ['berapa', 'kira', 'calculate', 'formula']):
+            if not any(word in a_lower for word in ['kira', 'formula', 'rumus', '%', 'rm', 'x', 'calculation']):
+                print("   ❌ STRICT: Calculation question but no calculation in answer")
+                return False
+        
+        # If question is about payment/how to pay, answer should mention payment methods
+        if any(word in q_lower for word in ['bayar', 'payment', 'cara bayar', 'how to pay']):
+            if not any(word in a_lower for word in ['bayar', 'payment', 'bank', 'online', 'pejabat', 'office']):
+                print("   ❌ STRICT: Payment question but no payment method in answer")
+                return False
+        
+        return True
     
+    def validate_zakat_type_consistency(self, question: str, answer: str, expected_zakat_type: str = None) -> Tuple[bool, str]:
+        """
+        STRICT: Validate that answer is about the correct zakat type.
+        Returns (is_valid, reason)
+        """
+        q_lower = question.lower()
+        a_lower = answer.lower()
+        
+        if expected_zakat_type:
+            expected_lower = expected_zakat_type.lower()
+            
+            # If question is about PENDAPATAN, answer should NOT be about other types
+            if 'pendapatan' in expected_lower or 'salary' in expected_lower or 'income' in expected_lower:
+                forbidden = ['emas', 'gold', 'perniagaan', 'bisnis', 'fitrah', 'fitr']
+                if any(f in a_lower for f in forbidden):
+                    return False, f"Answer about {forbidden} but question is about PENDAPATAN"
+            
+            # If question is about EMAS, answer should NOT be about other types
+            elif 'emas' in expected_lower or 'gold' in expected_lower:
+                forbidden = ['pendapatan', 'gaji', 'salary', 'perniagaan', 'bisnis', 'fitrah']
+                if any(f in a_lower for f in forbidden):
+                    return False, f"Answer about {forbidden} but question is about EMAS"
+            
+            # If question is about FITRAH, answer should NOT be about other types
+            elif 'fitrah' in expected_lower or 'fitr' in expected_lower:
+                forbidden = ['pendapatan', 'emas', 'gold', 'perniagaan', 'simpanan']
+                if any(f in a_lower for f in forbidden):
+                    return False, f"Answer about {forbidden} but question is about FITRAH"
+            
+            # If question is about PERNIAGAAN, answer should NOT be about other types
+            elif 'perniagaan' in expected_lower or 'bisnis' in expected_lower:
+                forbidden = ['pendapatan', 'emas', 'fitrah', 'kwsp']
+                if any(f in a_lower for f in forbidden):
+                    return False, f"Answer about {forbidden} but question is about PERNIAGAAN"
+        
+        return True, "Valid"
+    
+    def check_institution_match(self, question: str, answer: str) -> Tuple[bool, str]:
+        """
+        STRICT: If question mentions a specific institution, answer should be about it.
+        """
+        q_lower = question.lower()
+        a_lower = answer.lower()
+        
+        # Check if user asked about LZNK specifically
+        if 'lznk' in q_lower or 'lembaga zakat' in q_lower:
+            # If answer mentions other institutions, flag it
+            if 'amanah hartanah' in a_lower or 'agen' in a_lower:
+                return False, "User asked about LZNK but answer mentions other institutions"
+        
+        # Check if user asked about Amanah Hartanah
+        if 'amanah hartanah' in q_lower or 'ahb' in q_lower:
+            # OK to answer about AHB
+            return True, "Valid"
+        
+        # If user didn't specify institution, answer should default to LZNK
+        if 'lznk' not in a_lower and 'lembaga zakat' not in a_lower:
+            # Not necessarily bad, but should ideally mention LZNK or general zakat info
+            pass
+        
+        return True, "Valid"
+
+    def _post_process_answer(self, answer: str, question: str) -> str:
+        """Post-process and enhance answer"""
+        # Ensure ends with emoji if doesn't have one
+        emojis = ['😊', '💰', '✅', '📞', '🙏', '💡', '✨']
+        if not any(emoji in answer for emoji in emojis):
+            answer += " 😊"
+        
+        # Add LZNK contact for location-specific queries
+        location_keywords = ['kedah', 'lznk', 'pejabat', 'lokasi', 'alamat', 'tempat']
+        if any(keyword in question.lower() for keyword in location_keywords):
+            if '1800-88-1740' not in answer and 'talian' not in answer.lower():
+                answer += "\n\nℹ️ Untuk maklumat lanjut LZNK Kedah: 📞 1800-88-1740"
+        
+        return answer
+
+    def _format_basic_faq(self, faq_answer: str) -> str:
+        """Format basic FAQ with minimal enhancement"""
+        # Add friendly opening if not present
+        if not faq_answer.strip().startswith(('Baik', 'Okay', 'Ya')):
+            faq_answer = "Baik, saya terangkan ya 😊\n\n" + faq_answer
+        
+        # Add emoji if completely missing
+        if not any(char in faq_answer for char in ['😊', '💰', '✅', '🙏']):
+            faq_answer += " ✅"
+        
+        return faq_answer
+
+    def _get_enhanced_fallback(self, question: str, matched_questions=None) -> str:
+        """Enhanced fallback with better guidance"""
+        msg = "Terima kasih atas soalan anda 😊\n\n"
+        
+        # Categorize the question type
+        if any(word in question.lower() for word in ['kira', 'pengiraan', 'formula', 'cara']):
+            msg += "Untuk pengiraan zakat yang lebih tepat dan terperinci, "
+        elif any(word in question.lower() for word in ['bayar', 'pembayaran', 'bank']):
+            msg += "Untuk prosedur pembayaran yang lebih detail, "
+        elif any(word in question.lower() for word in ['kedah', 'pejabat', 'lokasi']):
+            msg += "Untuk maklumat lokasi dan perkhidmatan LZNK Kedah, "
+        else:
+            msg += "Untuk maklumat yang lebih tepat mengenai soalan ini, "
+        
+        msg += "saya cadangkan hubungi terus LZNK ya:\n\n"
+        msg += "📞 Talian Bebas Tol: 1800-88-1740\n"
+        msg += "⏰ Waktu Operasi: Isnin - Jumaat (8:00 AM - 5:00 PM)\n\n"
+        
+        if matched_questions and len(matched_questions) > 0:
+            msg += "💡 Atau anda boleh tanya tentang:\n"
+            for i, q in enumerate(matched_questions[:3], 1):
+                msg += f"   {i}. {q}\n"
+        
+        msg += "\nSaya sedia membantu dengan soalan lain! 😊✅"
+        return msg
 
     def generate_conversational_response(self, user_message: str, context: str = None) -> str:
         """Enhanced conversational responses"""

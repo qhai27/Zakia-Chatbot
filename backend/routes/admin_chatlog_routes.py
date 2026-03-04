@@ -1,297 +1,137 @@
 """
-Admin Analytics Routes
-Provides comprehensive analytics for the ZAKIA chatbot system
+Admin Chat Log Routes
+This blueprint serves endpoints used by the admin panel to list, delete,
+bulk‑delete and obtain statistics about chat logs.
 """
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, make_response
 from database import DatabaseManager
-from datetime import datetime, timedelta
-from collections import defaultdict
 
-admin_analytics_bp = Blueprint('admin_analytics', __name__, url_prefix='/admin/analytics')
-
-# Initialize database
+admin_chatlog_bp = Blueprint('admin_chatlog', __name__, url_prefix='/admin/chat-logs')
 db = DatabaseManager()
 
-@admin_analytics_bp.route('/dashboard', methods=['GET'])
-def get_analytics_dashboard():
-    """
-    Get comprehensive analytics dashboard data
-    Query params:
-        - period: 'day', 'week', 'month' (default: 'month')
-    """
+# OPTIONS handler to satisfy preflight checks
+@admin_chatlog_bp.route('', methods=['OPTIONS'])
+def chatlogs_options():
+    resp = make_response('', 200)
+    return resp
+
+
+# ---------- actual chat log endpoints ----------
+@admin_chatlog_bp.route('', methods=['GET'])
+def list_chat_logs():
     try:
-        period = request.args.get('period', 'month')
-        
-        # Calculate date range
-        end_date = datetime.now()
-        if period == 'day':
-            start_date = end_date - timedelta(days=1)
-        elif period == 'week':
-            start_date = end_date - timedelta(weeks=1)
-        else:  # month
-            start_date = end_date - timedelta(days=30)
-        
+        limit = int(request.args.get('limit', 100))
+        offset = int(request.args.get('offset', 0))
+        search = request.args.get('search', '').strip()
+
         if not db.connection or not db.connection.is_connected():
             db.connect()
-        
+
         cursor = db.connection.cursor(dictionary=True)
-        
-        # ===== OVERVIEW STATS =====
-        
-        # Total chats in period
-        cursor.execute("""
-            SELECT COUNT(*) as total_chats
-            FROM chat_logs
-            WHERE created_at >= %s AND created_at <= %s
-        """, (start_date, end_date))
-        total_chats = cursor.fetchone()['total_chats']
-        
-        # Unique users in period
-        cursor.execute("""
-            SELECT COUNT(DISTINCT session_id) as unique_users
-            FROM chat_logs
-            WHERE created_at >= %s AND created_at <= %s
-            AND session_id IS NOT NULL
-        """, (start_date, end_date))
-        unique_users = cursor.fetchone()['unique_users']
-        
-        # Average session length
-        cursor.execute("""
-            SELECT AVG(message_count) as avg_session
-            FROM (
-                SELECT session_id, COUNT(*) as message_count
-                FROM chat_logs
-                WHERE created_at >= %s AND created_at <= %s
-                AND session_id IS NOT NULL
-                GROUP BY session_id
-            ) as sessions
-        """, (start_date, end_date))
-        avg_session_result = cursor.fetchone()
-        avg_session_length = float(avg_session_result['avg_session']) if avg_session_result['avg_session'] else 0
-        
-        # Growth rate (compared to previous period)
-        prev_start = start_date - (end_date - start_date)
-        cursor.execute("""
-            SELECT COUNT(*) as prev_chats
-            FROM chat_logs
-            WHERE created_at >= %s AND created_at < %s
-        """, (prev_start, start_date))
-        prev_chats = cursor.fetchone()['prev_chats']
-        
-        if prev_chats > 0:
-            growth_rate = round(((total_chats - prev_chats) / prev_chats) * 100, 1)
-        else:
-            growth_rate = 0 if total_chats == 0 else 100
-        
-        # Engagement score (messages per user * 10, capped at 100)
-        engagement_score = min(100, round((total_chats / max(unique_users, 1)) * 10, 1))
-        
-        overview = {
-            "total_chats": total_chats,
-            "unique_users": unique_users,
-            "avg_session_length": round(avg_session_length, 1),
-            "growth_rate": growth_rate,
-            "engagement_score": engagement_score
-        }
-        
-        # ===== CHATS PER DAY =====
-        
-        cursor.execute("""
-            SELECT 
-                DATE(created_at) as date,
-                COUNT(*) as count
-            FROM chat_logs
-            WHERE created_at >= %s AND created_at <= %s
-            GROUP BY DATE(created_at)
-            ORDER BY date ASC
-        """, (start_date, end_date))
-        chats_per_day = cursor.fetchall()
-        
-        # Convert date objects to strings
-        for item in chats_per_day:
-            item['date'] = item['date'].strftime('%Y-%m-%d')
-        
-        # ===== HOURLY DISTRIBUTION =====
-        
-        cursor.execute("""
-            SELECT 
-                HOUR(created_at) as hour,
-                COUNT(*) as count
-            FROM chat_logs
-            WHERE created_at >= %s AND created_at <= %s
-            GROUP BY HOUR(created_at)
-            ORDER BY hour ASC
-        """, (start_date, end_date))
-        hourly_distribution = cursor.fetchall()
-        
-        # Fill in missing hours with 0
-        hourly_dict = {item['hour']: item['count'] for item in hourly_distribution}
-        hourly_distribution = [
-            {"hour": h, "count": hourly_dict.get(h, 0)}
-            for h in range(24)
-        ]
-        
-        # ===== TOP QUESTIONS =====
-        
-        cursor.execute("""
-            SELECT 
-                user_message,
-                COUNT(*) as frequency
-            FROM chat_logs
-            WHERE created_at >= %s AND created_at <= %s
-            AND user_message IS NOT NULL
-            AND user_message != ''
-            GROUP BY user_message
-            ORDER BY frequency DESC
-            LIMIT 10
-        """, (start_date, end_date))
-        top_questions = cursor.fetchall()
-        
-        # ===== ZAKAT TYPE POPULARITY =====
-        
-        cursor.execute("""
-            SELECT 
-                zakat_type,
-                COUNT(*) as count,
-                SUM(zakat_amount) as total_amount
-            FROM reminders
-            WHERE created_at >= %s AND created_at <= %s
-            AND zakat_type IS NOT NULL
-            GROUP BY zakat_type
-            ORDER BY count DESC
-        """, (start_date, end_date))
-        zakat_popularity = cursor.fetchall()
-        
-        # Convert Decimal to float for JSON serialization
-        for item in zakat_popularity:
-            if item.get('total_amount'):
-                item['total_amount'] = float(item['total_amount'])
-        
+        where_clause = ""
+        params = []
+        if search:
+            where_clause = (
+                " WHERE user_message LIKE %s "
+                " OR bot_response LIKE %s "
+                " OR session_id LIKE %s "
+                " OR CAST(id_user AS CHAR) LIKE %s "
+            )
+            sp = f"%{search}%"
+            params = [sp, sp, sp, sp]
+
+        cursor.execute(f"SELECT COUNT(*) as total FROM chat_logs{where_clause}", params)
+        total = cursor.fetchone()['total']
+
+        query = (
+            "SELECT id_log, id_user, session_id, user_message, bot_response, created_at "
+            "FROM chat_logs" + where_clause + " ORDER BY created_at DESC LIMIT %s OFFSET %s"
+        )
+        cursor.execute(query, params + [limit, offset])
+        rows = cursor.fetchall()
+        logs = []
+        for r in rows:
+            log = dict(r)
+            if log.get('created_at'):
+                log['created_at'] = log['created_at'].strftime('%Y-%m-%d %H:%M:%S')
+            logs.append(log)
         cursor.close()
-        
-        return jsonify({
-            "success": True,
-            "overview": overview,
-            "charts": {
-                "chats_per_day": chats_per_day,
-                "hourly_distribution": hourly_distribution
-            },
-            "top_questions": top_questions,
-            "zakat_popularity": zakat_popularity
-        })
-        
+        return jsonify({"success": True, "logs": logs, "count": len(logs), "total": total})
     except Exception as e:
-        print(f"❌ Analytics dashboard error: {e}")
-        import traceback
-        traceback.print_exc()
-        return jsonify({
-            "success": False,
-            "error": str(e)
-        }), 500
+        print(f"❌ Error listing chat logs: {e}")
+        return jsonify({"success": False, "logs": [], "count": 0, "total": 0, "error": str(e)}), 500
 
 
-@admin_analytics_bp.route('/export', methods=['GET'])
-def export_analytics():
-    """
-    Export analytics data
-    Query params:
-        - type: 'chats', 'questions', 'zakat'
-        - date_from: start date (YYYY-MM-DD)
-        - date_to: end date (YYYY-MM-DD)
-    """
+@admin_chatlog_bp.route('/<int:log_id>', methods=['DELETE'])
+def delete_chat_log(log_id):
     try:
-        export_type = request.args.get('type', 'chats')
-        date_from = request.args.get('date_from')
-        date_to = request.args.get('date_to')
-        
-        if not date_from or not date_to:
-            return jsonify({
-                "success": False,
-                "error": "date_from and date_to are required"
-            }), 400
-        
         if not db.connection or not db.connection.is_connected():
             db.connect()
-        
-        cursor = db.connection.cursor(dictionary=True)
-        
-        if export_type == 'chats':
-            cursor.execute("""
-                SELECT 
-                    id_log,
-                    session_id,
-                    user_message,
-                    bot_response,
-                    created_at
-                FROM chat_logs
-                WHERE created_at >= %s AND created_at <= %s
-                ORDER BY created_at DESC
-            """, (date_from, date_to))
-            
-        elif export_type == 'questions':
-            cursor.execute("""
-                SELECT 
-                    user_message,
-                    COUNT(*) as frequency
-                FROM chat_logs
-                WHERE created_at >= %s AND created_at <= %s
-                GROUP BY user_message
-                ORDER BY frequency DESC
-            """, (date_from, date_to))
-            
-        elif export_type == 'zakat':
-            cursor.execute("""
-                SELECT 
-                    name,
-                    ic_number,
-                    phone,
-                    zakat_type,
-                    zakat_amount,
-                    year,
-                    created_at
-                FROM reminders
-                WHERE created_at >= %s AND created_at <= %s
-                ORDER BY created_at DESC
-            """, (date_from, date_to))
-        else:
+        cursor = db.connection.cursor()
+        cursor.execute("SELECT id_log FROM chat_logs WHERE id_log = %s", (log_id,))
+        if not cursor.fetchone():
             cursor.close()
-            return jsonify({
-                "success": False,
-                "error": "Invalid export type"
-            }), 400
-        
-        data = cursor.fetchall()
-        
-        # Format timestamps
-        for item in data:
-            if item.get('created_at'):
-                item['created_at'] = item['created_at'].strftime('%Y-%m-%d %H:%M:%S')
-            # Convert Decimal to float
-            if item.get('zakat_amount'):
-                item['zakat_amount'] = float(item['zakat_amount'])
-        
+            return jsonify({"success": False, "error": "Chat log not found"}), 404
+        cursor.execute("DELETE FROM chat_logs WHERE id_log = %s", (log_id,))
+        db.connection.commit()
         cursor.close()
-        
-        return jsonify({
-            "success": True,
-            "data": data,
-            "count": len(data)
-        })
-        
+        return jsonify({"success": True, "deleted": True, "id": log_id})
     except Exception as e:
-        print(f"❌ Export analytics error: {e}")
-        return jsonify({
-            "success": False,
-            "error": str(e)
-        }), 500
+        print(f"❌ Error deleting chat log {log_id}: {e}")
+        if db.connection:
+            db.connection.rollback()
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
-# Health check
-@admin_analytics_bp.route('/health', methods=['GET'])
-def analytics_health():
-    """Health check for analytics endpoints"""
-    return jsonify({
-        "success": True,
-        "message": "Analytics endpoints are operational"
-    })
+@admin_chatlog_bp.route('/bulk-delete', methods=['POST'])
+def bulk_delete_chat_logs():
+    try:
+        data = request.get_json() or {}
+        ids = data.get('ids', [])
+        if not ids or not isinstance(ids, list):
+            return jsonify({"success": False, "error": "Invalid or empty 'ids' array"}), 400
+        if not db.connection or not db.connection.is_connected():
+            db.connect()
+        cursor = db.connection.cursor()
+        deleted_count = 0
+        failed = []
+        for log_id in ids:
+            try:
+                cursor.execute("DELETE FROM chat_logs WHERE id_log = %s", (log_id,))
+                if cursor.rowcount > 0:
+                    deleted_count += 1
+                else:
+                    failed.append({"id": log_id, "reason": "Not found"})
+            except Exception as e:
+                failed.append({"id": log_id, "reason": str(e)})
+        db.connection.commit()
+        cursor.close()
+        return jsonify({"success": True, "deleted_count": deleted_count, "failed": failed})
+    except Exception as e:
+        print(f"❌ Error in bulk delete: {e}")
+        if db.connection:
+            db.connection.rollback()
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@admin_chatlog_bp.route('/stats', methods=['GET'])
+def get_chat_stats():
+    try:
+        if not db.connection or not db.connection.is_connected():
+            db.connect()
+        cursor = db.connection.cursor(dictionary=True)
+        cursor.execute("SELECT COUNT(*) as total FROM chat_logs")
+        total_logs = cursor.fetchone()['total']
+        cursor.execute("SELECT COUNT(DISTINCT id_user) as total FROM chat_logs WHERE id_user IS NOT NULL")
+        total_users = cursor.fetchone()['total']
+        cursor.execute("SELECT COUNT(DISTINCT session_id) as total FROM chat_logs")
+        total_sessions = cursor.fetchone()['total']
+        cursor.close()
+        stats = {"total_logs": total_logs, "total_users": total_users, "total_sessions": total_sessions}
+        return jsonify({"success": True, "stats": stats})
+    except Exception as e:
+        print(f"❌ Error getting chat stats: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+

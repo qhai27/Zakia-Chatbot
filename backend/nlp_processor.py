@@ -43,7 +43,6 @@ class NLPProcessor:
             'hang': ['hang', 'hange', 'hanggi'],
             'ape': ['ape', 'ap'],
             'mano': ['mano', 'manno'],
-            'dak': ['dak', 'tak', 'taq'],
             'bayar': ['bayar', 'bayr', 'byr', 'membayar', 'pembayaran', 'pay', 'payment'],
             'bagaimana': ['bagaimana', 'bgaimana', 'bgmn', 'bagaimanakah', 'mcm mana', 'macam mana', 'how'],
             'apa': ['apa', 'ap', 'apakah', 'pe', 'what', 'maksud'],
@@ -66,16 +65,17 @@ class NLPProcessor:
             'anda': ['anda', 'akau', 'you', 'u'],
             'kami': ['kami', 'kmi', 'we', 'us'],
             'mereka': ['mereka', 'mrk', 'they', 'them'],
+            'fidyah': ['fidyah', 'fidyah', 'fidya'],
         }
         
         # Synonyms
         self.synonyms = {
             # add a few Kedah slang synonyms to help interpretation
-            'anda': ['anda','hang','hanggi'],
+            'anda': ['anda','hampa'],
             'apa': ['apa','ape'],
             'mana': ['mana','mano'],
             'boleh': ['boleh','bleh'],
-            'tidak': ['tidak','dak','tak'],
+            'tidak': ['tidak','tak'],
             'cara': ['cara', 'kaedah', 'method', 'bagaimana', 'how', 'steps','cara-cara'],
             'lokasi': ['lokasi', 'tempat', 'alamat', 'mana', 'location', 'address', 'where'],
             'waktu': ['waktu', 'masa', 'tempoh', 'bila', 'time', 'when', 'period'],
@@ -111,10 +111,9 @@ class NLPProcessor:
             'telefon' : ['telefon','no telefon','nombor telefon','phone','phone number','contact number','telefon bimbit','no tel'],
             'whatsapp' : ['whatsapp','no whatsapp','nombor whatsapp','whatsap','whats app','whatsapps', 'ws' ,'no ws'],
             # include some Kedah slang equivalents
-            'hang': ['hang','hanggi','hangg'],
             'ape': ['ape','apek','ape?'],
             'mano': ['mano','manno'],
-            'dak': ['dak','tak','takde'],
+    
         }
         
         # Optional Gemini integration
@@ -144,15 +143,13 @@ class NLPProcessor:
         if not text:
             return text
         slang_map = {
-            r"\bhang\b": "anda",
-            r"\bhanggi\b": "anda",
+            r"\bhang\b": "hampa",
             r"\bape\b": "apa",
             r"\bmano\b": "mana",
-            r"\bdak\b": "tak",
+            r"\btak\b": "tak",
             r"\bbleh\b": "boleh",
-            r"\bkamek\b": "kami",
             r"\bkite\b": "kita",
-            r"\bsaye\b": "saya",
+            r"\bsaye\b": "kami",
         }
         result = text
         for pattern, std in slang_map.items():

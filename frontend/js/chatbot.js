@@ -1,6 +1,5 @@
 // ============================================
 // ZAKIA CHATBOT - SMART ESCALATION VERSION
-// Removes annoying feedback buttons, adds intelligent escalation
 // ============================================
 
 if (!window.ZakiaChatbot) {
@@ -194,7 +193,11 @@ if (!window.ZakiaChatbot) {
 
             this.messagesEl.appendChild(msg);
             this.messagesEl.scrollTop = this.messagesEl.scrollHeight;
-
+            // tell voice handler about new bot message element so indicator attaches correctly
+            if (sender === 'bot' && this.voiceHandler && !options.skipTTS) {
+                const plainText = this.getPlainTextFromHTML(content);
+                this.voiceHandler.handleBotMessage(plainText, msg);
+            }
             return msg;
         }
 
@@ -237,11 +240,6 @@ if (!window.ZakiaChatbot) {
             // 4. COMPLEX QUERIES
             if (this.detectComplexity(userMessage)) {
                 triggers.push('complexity');
-            }
-            
-            // 5. LOW CONFIDENCE (if bot provides confidence score)
-            if (botResponse.confidence && botResponse.confidence < 0.7) {
-                triggers.push('low_confidence');
             }
             
             // Offer escalation if ANY trigger fires and not already offered recently
@@ -403,7 +401,7 @@ if (!window.ZakiaChatbot) {
                         </div>
                         
                         <div class="form-group">
-                            <label for="contactEmail">Email  <span class="required">*</span></label>
+                            <label for="contactEmail">Email</label>
                             <input type="email" id="contactEmail" name="email" placeholder="email@example.com">
                         </div>
                         
@@ -454,7 +452,17 @@ if (!window.ZakiaChatbot) {
             
             setTimeout(() => {
                 const form = modal.querySelector('#contactRequestForm');
+                const emailInput = modal.querySelector('#contactEmail');
                 if (form) {
+                    const radios = form.querySelectorAll('input[name="preferred_method"]');
+                    radios.forEach(r => {
+                        r.addEventListener('change', () => {
+                            if (emailInput) {
+                                emailInput.required = (r.value === 'email');
+                            }
+                        });
+                    });
+
                     form.addEventListener('submit', (e) => {
                         e.preventDefault();
                         this.submitContactRequest(form);
@@ -467,13 +475,22 @@ if (!window.ZakiaChatbot) {
         
         async submitContactRequest(form) {
             const formData = new FormData(form);
+            const preferred = formData.get('preferred_method');
+            const emailVal = formData.get('email') || '';
+
+            // quick client-side validation for mandatory email when email contact selected
+            if (preferred === 'email' && emailVal.trim() === '') {
+                alert('Sila isi alamat email jika memilih cara dihubungi melalui email.');
+                return;
+            }
+
             const data = {
                 session_id: this.sessionId,
                 name: formData.get('name'),
                 phone: formData.get('phone'),
-                email: formData.get('email') || null,
+                email: emailVal || null,
                 question: formData.get('question'),
-                preferred_method: formData.get('preferred_method'),
+                preferred_method: preferred,
                 conversation_history: this.conversationHistory.slice(-5),
                 trigger_type: this.lastTriggerType
             };

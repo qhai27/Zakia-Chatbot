@@ -16,13 +16,12 @@ class VoiceHandler {
         this.recognitionLanguage = 'ms-MY'; // Malay - Malaysia
         
         // ElevenLabs Configuration for TTS
-        this.elevenLabsApiKey = '4a1b1788fb59eecefda5cf2e4690da16ab397d626b9805cd3174b0995a028613'; //ID key 
+        this.elevenLabsApiKey = ''; //ID key 77d5a1d9841641a1a50226ea92a989d2a4756dc0475e8a7cde9e10a3753cc29d
         this.elevenLabsVoiceId = 'INmScOFtmeMGA4p0XRr1'; // Nurin voice id
         this.elevenLabsModelId = 'eleven_multilingual_v2'; // Supports Bahasa Melayu
         
         // Audio handling 
         this.currentAudio = null;
-        // Track pending TTS network request so we can cancel it if a new reply arrives
         this.speechAbortController = null;
         
         this.init();
@@ -43,7 +42,7 @@ class VoiceHandler {
     }
 
     /**
-     * Set ElevenLabs Voice ID (optional customization)
+     * Set ElevenLabs Voice ID 
      */
     setVoiceId(voiceId) {
         this.elevenLabsVoiceId = voiceId;
