@@ -247,9 +247,11 @@
                         return false;
                     }
                     
-                    // Trigger filter
-                    if (filters.trigger && req.trigger_type !== filters.trigger) {
-                        return false;
+                    // Trigger filter - only filter if both filter value and record trigger_type are present
+                    if (filters.trigger) {
+                        if (req.trigger_type && req.trigger_type !== filters.trigger) {
+                            return false;
+                        }
                     }
                     
                     return true;

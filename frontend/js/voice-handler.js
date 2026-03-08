@@ -1,7 +1,7 @@
 /**
  * Voice Handler for ZAKIA Chatbot - Hybrid Edition
  * STT: Web Speech API (Malay - Malaysia)
- * TTS: ElevenLabs API (Bahasa Melayu Female Voice)
+ * TTS: Google Cloud Text-to-Speech API (Chirp3-HD - Bahasa Melayu)
  */
 
 class VoiceHandler {
@@ -15,12 +15,15 @@ class VoiceHandler {
         // Malay language settings for STT
         this.recognitionLanguage = 'ms-MY'; // Malay - Malaysia
         
-        // ElevenLabs Configuration for TTS
-        this.elevenLabsApiKey = ''; //ID key 77d5a1d9841641a1a50226ea92a989d2a4756dc0475e8a7cde9e10a3753cc29d
-        this.elevenLabsVoiceId = 'INmScOFtmeMGA4p0XRr1'; // Nurin voice id
-        this.elevenLabsModelId = 'eleven_multilingual_v2'; // Supports Bahasa Melayu
+        // Google Cloud TTS Configuration (Chirp3-HD)
+        this.googleApiKey = 'AIzaSyAvXX27zsPboJZi-o_uKjobxn1BbOx70wU'; // Google Cloud API Key
+        this.googleTtsEndpoint = 'https://texttospeech.googleapis.com/v1/text:synthesize';
         
-        // Audio handling 
+        // Chirp3-HD voice for Bahasa Melayu
+        this.voiceName = 'ms-MY-Standard-C'; // Default: Female voice
+        this.languageCode = 'ms-MY';
+        
+        // Audio handling
         this.currentAudio = null;
         this.speechAbortController = null;
         
@@ -34,19 +37,19 @@ class VoiceHandler {
     }
 
     /**
-     * Set ElevenLabs API Key
+     * Set Google Cloud API Key
      */
     setApiKey(apiKey) {
-        this.elevenLabsApiKey = apiKey;
-        console.log('ElevenLabs API Key set');
+        this.googleApiKey = apiKey;
+        console.log('Google Cloud API Key set');
     }
 
     /**
-     * Set ElevenLabs Voice ID 
+     * Set Google Cloud TTS Voice Name
      */
-    setVoiceId(voiceId) {
-        this.elevenLabsVoiceId = voiceId;
-        console.log('ElevenLabs Voice ID updated:', voiceId);
+    setVoiceId(voiceName) {
+        this.voiceName = voiceName;
+        console.log('Google Cloud Voice updated:', voiceName);
     }
 
     /**
@@ -83,7 +86,7 @@ class VoiceHandler {
             return this.numberToMalayWords(millions) + ' juta' + (remainder ? ' ' + this.numberToMalayWords(remainder) : '');
         }
         
-        return num.toString(); // Fallback for very large numbers
+        return num.toString();
     }
 
     /**
@@ -95,11 +98,10 @@ class VoiceHandler {
         if (!SpeechRecognition) {
             console.warn('⚠️ Speech Recognition not supported in this browser');
             this.hideMicButtonIfNotSupported = true;
-            return;
-        }
+         }
 
         this.recognition = new SpeechRecognition();
-        this.recognition.lang = this.recognitionLanguage; // ms-MY
+        this.recognition.lang = this.recognitionLanguage;
         this.recognition.continuous = false;
         this.recognition.interimResults = false;
         this.recognition.maxAlternatives = 1;
@@ -335,13 +337,13 @@ class VoiceHandler {
     }
 
     /**
-     * Speak text using ElevenLabs Text-to-Speech API (Bahasa Melayu Female Voice)
+     * Speak text using Google Cloud Text-to-Speech API
      */
     async speak(text) {
         if (!this.ttsEnabled || !text) return;
         
-        if (!this.elevenLabsApiKey) {
-            console.warn('⚠️ API Key ElevenLabs belum ditetapkan');
+        if (!this.googleApiKey) {
+            console.warn('⚠️ Google Cloud API Key belum ditetapkan');
             return;
         }
 
@@ -359,50 +361,74 @@ class VoiceHandler {
         
         if (!cleanText) return;
 
-        // prepare a fresh abort controller for this request
+        // Prepare a fresh abort controller for this request
         this.speechAbortController = new AbortController();
         const signal = this.speechAbortController.signal;
         const myController = this.speechAbortController;
 
         try {
             this.isSpeaking = true;
-            this.addSpeakingIndicator();
+
+            // Delay indicator slightly to ensure bot bubble is in the DOM
+            setTimeout(() => {
+                if (this.isSpeaking) this.addSpeakingIndicator();
+            }, 100);
             
-            console.log('🎙️ Menghantar ke ElevenLabs TTS...');
+            console.log('🎙️ Menghantar ke Google Cloud TTS...');
             console.log('📝 Teks selepas dibersihkan:', cleanText);
             
-            // Call ElevenLabs TTS API
-            const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${this.elevenLabsVoiceId}`, {
-                method: 'POST',
-                headers: {
-                    'Accept': 'audio/mpeg',
-                    'Content-Type': 'application/json',
-                    'xi-api-key': this.elevenLabsApiKey
-                },
-                body: JSON.stringify({
-                    text: cleanText,
-                    model_id: this.elevenLabsModelId,
-                    voice_settings: {
-                        stability: 0.5,
-                        similarity_boost: 0.75,
-                        style: 0.0,
-                        use_speaker_boost: true
-                    }
-                }),
-                signal
-            });
+            // Call Google Cloud TTS API
+            const response = await fetch(
+                `${this.googleTtsEndpoint}?key=${this.googleApiKey}`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        input: {
+                            text: cleanText
+                        },
+                        voice: {
+                            languageCode: this.languageCode,
+                            name: this.voiceName
+                        },
+                        audioConfig: {
+                            audioEncoding: 'MP3',
+                            speakingRate: 1.0,
+                            pitch: 0.0,
+                            volumeGainDb: 0.0
+                        }
+                    }),
+                    signal
+                }
+            );
             
             if (!response.ok) {
-                throw new Error(`ElevenLabs TTS Error: ${response.status}`);
+                const errBody = await response.text();
+                throw new Error(`Google Cloud TTS Error ${response.status}: ${errBody}`);
             }
-            
-            // Get audio blob
+
             if (signal.aborted) {
                 console.log('🔇 TTS request was aborted before receiving audio');
                 return;
             }
 
-            const audioBlob = await response.blob();
+            // Google returns base64-encoded audio in JSON
+            const data = await response.json();
+            const audioContent = data.audioContent;
+            
+            if (!audioContent) {
+                throw new Error('Tiada kandungan audio diterima dari Google TTS');
+            }
+
+            // Decode base64 → Blob → Object URL
+            const byteCharacters = atob(audioContent);
+            const byteNumbers = new Uint8Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const audioBlob = new Blob([byteNumbers], { type: 'audio/mpeg' });
             const audioUrl = URL.createObjectURL(audioBlob);
             
             // Play audio
@@ -425,16 +451,16 @@ class VoiceHandler {
             
             await this.currentAudio.play();
             console.log('🔊 TTS dimainkan');
+
         } catch (error) {
             if (error.name === 'AbortError') {
                 console.log('🔇 TTS fetch aborted');
             } else {
-                console.error('❌ Ralat ElevenLabs TTS:', error);
+                console.error('❌ Ralat Google Cloud TTS:', error);
             }
             this.isSpeaking = false;
             this.removeSpeakingIndicator();
         } finally {
-            // clear controller only if no new request replaced it
             if (this.speechAbortController === myController) {
                 this.speechAbortController = null;
             }
@@ -442,7 +468,6 @@ class VoiceHandler {
     }
 
     stopSpeaking() {
-        // abort any in-flight TTS network request
         if (this.speechAbortController) {
             this.speechAbortController.abort();
             this.speechAbortController = null;
@@ -460,121 +485,109 @@ class VoiceHandler {
     cleanTextForSpeech(text) {
         let cleaned = text;
         
-        // Remove HTML tags
         cleaned = cleaned.replace(/<[^>]*>/g, '');
-        
-        // Remove URLs
         cleaned = cleaned.replace(/https?:\/\/[^\s]+/g, '');
-        
-        // Remove emojis
         cleaned = cleaned.replace(/[\u{1F600}-\u{1F64F}]/gu, '');
         cleaned = cleaned.replace(/[\u{1F300}-\u{1F5FF}]/gu, '');
         cleaned = cleaned.replace(/[\u{1F680}-\u{1F6FF}]/gu, '');
         cleaned = cleaned.replace(/[\u{2600}-\u{26FF}]/gu, '');
         cleaned = cleaned.replace(/[\u{2700}-\u{27BF}]/gu, '');
         
-        // Handle ringgit amounts like "RM9,000" or "rm 1200" -> "rm sembilan ribu" etc.
         cleaned = cleaned.replace(/rm\s*([\d,]+)/gi, (match, digits) => {
             const value = parseInt(digits.replace(/,/g, ''), 10);
             if (isNaN(value)) return match;
             return 'rm ' + this.numberToMalayWords(value);
         });
 
-        // Handle percentages with decimals (e.g., "2.57%" -> "dua point lima tujuh peratus")
         cleaned = cleaned.replace(/(\d+)\.(\d+)%/g, (match, whole, decimal) => {
             const wholePart = this.numberToMalayWords(parseInt(whole));
             const decimalParts = decimal.split('').map(d => this.numberToMalayWords(parseInt(d))).join(' ');
             return wholePart + ' point ' + decimalParts + ' peratus';
         });
         
-        // Handle whole number percentages (e.g., "25%" -> "dua puluh lima peratus")
         cleaned = cleaned.replace(/(\d+)%/g, (match, num) => {
             return this.numberToMalayWords(parseInt(num)) + ' peratus';
         });
         
-        // Handle decimal numbers without percentage (e.g., "3.14" -> "tiga point satu empat")
         cleaned = cleaned.replace(/(\d+)\.(\d+)/g, (match, whole, decimal) => {
             const wholePart = this.numberToMalayWords(parseInt(whole));
             const decimalParts = decimal.split('').map(d => this.numberToMalayWords(parseInt(d))).join(' ');
             return wholePart + ' point ' + decimalParts;
         });
         
-        // Handle regular numbers (e.g., "123" -> "seratus dua puluh tiga")
         cleaned = cleaned.replace(/\b(\d+)\b/g, (match, num) => {
             return this.numberToMalayWords(parseInt(num));
         });
         
-        // Replace symbols with Malay words
         cleaned = cleaned.replace(/&/g, ' dan ');
         cleaned = cleaned.replace(/@/g, ' di ');
         cleaned = cleaned.replace(/\+/g, ' tambah ');
         cleaned = cleaned.replace(/\$/g, ' dolar ');
         cleaned = cleaned.replace(/RM/g, ' ringgit ');
-        
-        // Add natural pauses for better speech flow
-        // Convert multiple newlines to comma + space for pause
         cleaned = cleaned.replace(/\n\n+/g, ', ');
         cleaned = cleaned.replace(/\n/g, ', ');
-        
-        // Add pause after periods if not already there
         cleaned = cleaned.replace(/\.([A-Z])/g, '. $1');
-        
-        // Add pause after colons
         cleaned = cleaned.replace(/:/g, ', ');
-        
-        // Replace bullet points and list markers with natural pauses
         cleaned = cleaned.replace(/[•\-\*]\s*/g, ', ');
-        
-        // Replace dashes with short pause
         cleaned = cleaned.replace(/\s*[-–—]\s*/g, ', ');
-        
-        // Clean whitespace
         cleaned = cleaned.replace(/\s+/g, ' ').trim();
-
-        // Remove remaining special characters but keep letters and basic punctuation
         cleaned = cleaned.replace(/[^a-zA-Z\s,.!?'-]/g, ' ');
-        
-        // Clean up multiple commas
         cleaned = cleaned.replace(/,+/g, ',');
         cleaned = cleaned.replace(/\s*,\s*/g, ', ');
-        
-        // Clean up multiple spaces and trim
         cleaned = cleaned.replace(/\s+/g, ' ').trim();
-        
-        // Remove leading/trailing commas
         cleaned = cleaned.replace(/^,\s*|,\s*$/g, '');
         
         return cleaned;
     }
 
+    /**
+     * Add speaking indicator to the last bot bubble.
+     * Retries up to 15 times (750ms) to handle cases where the
+     * bubble hasn't rendered in the DOM yet when speak() is called.
+     */
     addSpeakingIndicator() {
-        const messages = document.querySelectorAll('.msg.bot');
-        if (messages.length === 0) return;
-        
-        const lastMessage = messages[messages.length - 1];
-        const bubble = lastMessage.querySelector('.bot-bubble');
-        
-        if (bubble && !bubble.querySelector('.speaking-indicator')) {
-            const indicator = document.createElement('div');
-            indicator.className = 'speaking-indicator';
-            indicator.innerHTML = `
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <rect x="2" y="6" width="4" height="12" rx="2">
-                        <animate attributeName="height" values="12;18;12" dur="1s" repeatCount="indefinite"/>
-                        <animate attributeName="y" values="6;3;6" dur="1s" repeatCount="indefinite"/>
-                    </rect>
-                    <rect x="10" y="4" width="4" height="16" rx="2">
-                        <animate attributeName="height" values="16;20;16" dur="1s" begin="0.2s" repeatCount="indefinite"/>
-                        <animate attributeName="y" values="4;2;4" dur="1s" begin="0.2s" repeatCount="indefinite"/>
-                    </rect>
-                    <rect x="18" y="6" width="4" height="12" rx="2">
-                        <animate attributeName="height" values="12;18;12" dur="1s" begin="0.4s" repeatCount="indefinite"/>
-                        <animate attributeName="y" values="6;3;6" dur="1s" begin="0.4s" repeatCount="indefinite"/>
-                    </rect>
-                </svg>
-            `;
-            bubble.appendChild(indicator);
+        this._tryAddSpeakingIndicator(0);
+    }
+
+    _tryAddSpeakingIndicator(attempt) {
+        if (attempt > 20) {
+            console.warn('⚠️ Speaking indicator: could not find .bubble.bot-bubble after 20 attempts');
+            return;
         }
+
+        // Direct selector — the bubble is <div class="bubble bot-bubble">
+        const all = document.querySelectorAll('.bubble.bot-bubble');
+        if (!all || all.length === 0) {
+            setTimeout(() => this._tryAddSpeakingIndicator(attempt + 1), 50);
+            return;
+        }
+
+        const bubble = all[all.length - 1]; // last bot bubble
+
+        // Don't add twice
+        if (bubble.querySelector('.speaking-indicator')) return;
+
+        const indicator = document.createElement('span');
+        indicator.className = 'speaking-indicator';
+        indicator.setAttribute('aria-label', 'Sedang bercakap');
+        indicator.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;">
+                <rect x="2" y="6" width="4" height="12" rx="2">
+                    <animate attributeName="height" values="12;18;12" dur="1s" repeatCount="indefinite"/>
+                    <animate attributeName="y" values="6;3;6" dur="1s" repeatCount="indefinite"/>
+                </rect>
+                <rect x="10" y="4" width="4" height="16" rx="2">
+                    <animate attributeName="height" values="16;20;16" dur="1s" begin="0.2s" repeatCount="indefinite"/>
+                    <animate attributeName="y" values="4;2;4" dur="1s" begin="0.2s" repeatCount="indefinite"/>
+                </rect>
+                <rect x="18" y="6" width="4" height="12" rx="2">
+                    <animate attributeName="height" values="12;18;12" dur="1s" begin="0.4s" repeatCount="indefinite"/>
+                    <animate attributeName="y" values="6;3;6" dur="1s" begin="0.4s" repeatCount="indefinite"/>
+                </rect>
+            </svg>
+        `;
+        bubble.appendChild(indicator);
+        console.log('🔊 Speaking indicator added to .bubble.bot-bubble');
     }
 
     removeSpeakingIndicator() {
@@ -692,12 +705,8 @@ class VoiceHandler {
             }
 
             @keyframes pulse-mic {
-                0%, 100% {
-                    box-shadow: 0 0 0 0 rgba(255, 82, 82, 0.7);
-                }
-                50% {
-                    box-shadow: 0 0 0 10px rgba(255, 82, 82, 0);
-                }
+                0%, 100% { box-shadow: 0 0 0 0 rgba(255, 82, 82, 0.7); }
+                50% { box-shadow: 0 0 0 10px rgba(255, 82, 82, 0); }
             }
 
             .listening-indicator {
@@ -721,14 +730,8 @@ class VoiceHandler {
             }
 
             @keyframes pulse-listening {
-                0%, 100% {
-                    transform: scale(1);
-                    opacity: 1;
-                }
-                50% {
-                    transform: scale(1.2);
-                    opacity: 0.7;
-                }
+                0%, 100% { transform: scale(1); opacity: 1; }
+                50% { transform: scale(1.2); opacity: 0.7; }
             }
 
             .listening-indicator span {
@@ -737,26 +740,33 @@ class VoiceHandler {
                 font-size: 14px;
             }
 
+            /* Speaking indicator — visible on both light and dark bubbles */
             .speaking-indicator {
                 display: inline-flex;
                 align-items: center;
                 gap: 4px;
                 margin-left: 8px;
-                padding: 4px 8px;
-                background: rgba(255, 255, 255, 0.2);
-                border-radius: 8px;
-                color: rgba(255, 255, 255, 0.9);
+                padding: 3px 7px;
+                background: rgba(21, 115, 71, 0.15);
+                border-radius: 20px;
+                vertical-align: middle;
+                animation: fadeIn 0.2s ease;
+            }
+
+            .speaking-indicator svg {
+                color: #f7fffb;
+                fill: #f2f4f3;
+            }
+
+            /* If the bubble has a dark/green background, use white icons */
+            .bot-bubble .speaking-indicator svg,
+            .bubble .speaking-indicator svg {
+                fill: currentColor;
             }
 
             @keyframes fadeIn {
-                from {
-                    opacity: 0;
-                    transform: translateY(-10px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
+                from { opacity: 0; transform: translateY(-10px); }
+                to   { opacity: 1; transform: translateY(0); }
             }
 
             @media (max-width: 480px) {
@@ -839,8 +849,18 @@ class VoiceHandler {
 
     handleBotMessage(text) {
         if (this.ttsEnabled && text) {
-            // Immediate TTS playback - no delay for faster response
-            this.speak(text);
+            // Debounce: cancel any pending speak call within 200ms to prevent double-fire
+            if (this._speakDebounceTimer) {
+                clearTimeout(this._speakDebounceTimer);
+            }
+            this._lastSpeakText = text;
+            this._speakDebounceTimer = setTimeout(() => {
+                this._speakDebounceTimer = null;
+                if (this._lastSpeakText) {
+                    this.speak(this._lastSpeakText);
+                    this._lastSpeakText = null;
+                }
+            }, 150);
         }
     }
 }

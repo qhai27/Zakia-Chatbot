@@ -33,7 +33,7 @@ class NLPProcessor:
             'yang', 'dan', 'atau', 'dengan', 'untuk', 'dari', 'ke', 'di', 'pada',
             'adalah', 'ialah', 'ini', 'itu', 'saya', 'anda', 'kami', 'mereka',
             'akan', 'telah', 'sudah', 'boleh', 'dapat', 'ada', 'mana', 'bila',
-            'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for'
+            'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for','perlu','mesti','kena','perlu','need to','must','required','mandatory'
         }
         
         # Typo corrections
