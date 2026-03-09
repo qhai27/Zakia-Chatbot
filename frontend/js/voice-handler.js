@@ -16,7 +16,7 @@ class VoiceHandler {
         this.recognitionLanguage = 'ms-MY'; // Malay - Malaysia
         
         // Google Cloud TTS Configuration (Chirp3-HD)
-        this.googleApiKey = 'AIzaSyAvXX27zsPboJZi-o_uKjobxn1BbOx70wU'; // Google Cloud API Key
+        this.googleApiKey = ''; // Google Cloud API Key
         this.googleTtsEndpoint = 'https://texttospeech.googleapis.com/v1/text:synthesize';
         
         // Chirp3-HD voice for Bahasa Melayu
